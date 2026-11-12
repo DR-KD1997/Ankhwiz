@@ -1,0 +1,276 @@
+/* Ankhwiz final concept: Gilded Scroll colours, light and dark. */
+
+@font-face {
+  font-family: 'Marcellus';
+  font-weight: 400;
+  font-display: swap;
+  src: url('../node_modules/@fontsource/marcellus/files/marcellus-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Source Sans 3';
+  font-weight: 400;
+  font-display: swap;
+  src: url('../node_modules/@fontsource/source-sans-3/files/source-sans-3-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Source Sans 3';
+  font-weight: 600;
+  font-display: swap;
+  src: url('../node_modules/@fontsource/source-sans-3/files/source-sans-3-latin-600-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Fraunces';
+  font-weight: 600;
+  font-display: swap;
+  src: url('../node_modules/@fontsource/fraunces/files/fraunces-latin-600-normal.woff2') format('woff2');
+}
+
+:root {
+  color-scheme: light;
+  --ground: #f1e3c4;
+  --surface: #fbf4e2;
+  --text: #1f1a14;
+  --muted: #5c4f3a;
+  --line: #1f1a14;
+  --hair: #a87c1e;
+  --brass: #c99a2e;
+  --emerald: #14513f;
+  --ochre: #b5532e;
+  --sel-bg: #ffe8cc;
+  --sel-text: #b8860b;
+  --badge-bg: #c78f00;
+  --badge-text: #ffffff;
+  --check-bg: #f0c24b;
+  --check-line: #1f1a14;
+  --check-line-w: 4px;
+  --check-text: #1f1a14;
+  --thoth-bg: #fbf4e2;
+  --thoth-outline: transparent;
+  --ok-bg: #dde8cf;
+  --ok-line: #2f6b3a;
+  --ok-text: #1f1a14;
+  --close-bg: #f6e3a1;
+  --close-line: #8a6100;
+  --close-text: #1f1a14;
+  --off-bg: #f0d0c4;
+  --off-line: #9c2f1b;
+  --off-text: #1f1a14;
+  --wordmark: #14513f;
+  --logo-ankh: #14513f;
+  --logo-arch: #a87c1e;
+  --pip-off: #d9c79f;
+
+  --display: 'Marcellus', 'Palatino Linotype', Georgia, serif;
+  --body: 'Source Sans 3', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --button: 'Fraunces', Georgia, serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --ground: #3b2c10;
+    --surface: #1e1706;
+    --text: #f1e3c4;
+    --muted: #bfaf8e;
+    --line: #5c4c33;
+    --hair: #c99a2e;
+    --sel-bg: #351a00;
+    --sel-text: #ffc42e;
+    --badge-bg: #ffc42e;
+    --badge-text: #1f1a14;
+    --check-bg: #b8860b;
+    --check-line: #ffc42e;
+    --check-line-w: 3px;
+    --check-text: #f1e3c4;
+    --thoth-bg: #352e24;
+    --thoth-outline: #e0ae3a;
+    --ok-bg: #1e3324;
+    --ok-line: #7fc48a;
+    --ok-text: #a9ddb0;
+    --close-bg: #3a3016;
+    --close-line: #e8c35a;
+    --close-text: #f2d88a;
+    --off-bg: #3d211a;
+    --off-line: #e8836a;
+    --off-text: #f4ae9c;
+    --wordmark: #d9ae47;
+    --logo-ankh: #f1e3c4;
+    --logo-arch: #c99a2e;
+    --pip-off: #5c4c33;
+  }
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --ground: #3b2c10;
+  --surface: #1e1706;
+  --text: #f1e3c4;
+  --muted: #bfaf8e;
+  --line: #5c4c33;
+  --hair: #c99a2e;
+  --sel-bg: #351a00;
+  --sel-text: #ffc42e;
+  --badge-bg: #ffc42e;
+  --badge-text: #1f1a14;
+  --check-bg: #b8860b;
+  --check-line: #ffc42e;
+  --check-line-w: 3px;
+  --check-text: #f1e3c4;
+  --thoth-bg: #352e24;
+  --thoth-outline: #e0ae3a;
+  --ok-bg: #1e3324;
+  --ok-line: #7fc48a;
+  --ok-text: #a9ddb0;
+  --close-bg: #3a3016;
+  --close-line: #e8c35a;
+  --close-text: #f2d88a;
+  --off-bg: #3d211a;
+  --off-line: #e8836a;
+  --off-text: #f4ae9c;
+  --wordmark: #d9ae47;
+  --logo-ankh: #f1e3c4;
+  --logo-arch: #c99a2e;
+  --pip-off: #5c4c33;
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+body {
+  background: var(--ground);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.45;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+#app {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+button {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: default;
+}
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+:focus-visible {
+  outline: 3px solid var(--brass);
+  outline-offset: 2px;
+}
+
+/* ---------- shared pieces ---------- */
+
+.label {
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.display {
+  font-family: var(--display);
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+/* A framed box: ink border with a brass hairline inside. */
+.card {
+  border: 3px solid var(--line);
+  border-radius: 8px;
+  outline: 1px solid var(--hair);
+  outline-offset: -8px;
+  background: var(--surface);
+  color: var(--text);
+}
+.plain {
+  border: 2px solid var(--line);
+  background: var(--surface);
+}
+
+.primary {
+  min-height: 56px;
+  width: 100%;
+  padding: 0 20px;
+  border: var(--check-line-w) solid var(--check-line);
+  border-radius: 4px;
+  background: var(--check-bg);
+  color: var(--check-text);
+  font-family: var(--button);
+  font-size: 22px;
+  font-weight: 600;
+  transition: transform 0.08s ease, opacity 0.15s ease;
+}
+.primary:active:not(:disabled) {
+  transform: translateY(2px);
+}
+.primary:disabled {
+  opacity: 0.45;
+}
+
+.quiet {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 2px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  font-weight: 600;
+}
+
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--line);
+  background: var(--surface);
+}
+
+.seg {
+  display: flex;
+  border: 2px solid var(--line);
+  background: var(--surface);
+}
+.seg button {
+  flex: 1;
+  min-height: 44px;
+  padding: 0 8px;
+  border: none;
+  background: transparent;
+  font-weight: 600;
+}
+.seg button + button {
+  border-left: 2px solid var(--line);
+}
+.seg button[aria-pressed='true'] {
+  background: var(--emerald);
+  color: #fbf4e2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
