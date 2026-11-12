@@ -13,7 +13,7 @@ network use is the AI connection you set up yourself in Settings.
 
 ## The builds
 
-Download them from the [v0.3.0 release](https://github.com/DR-KD1997/Ankhwiz/releases/tag/v0.3.0). (Windows: unzip, keep the two files together.)
+Download them from the [Releases page](https://github.com/DR-KD1997/Ankhwiz/releases). (Windows: unzip, keep the two files together.)
 
 | File | What it is | Tested how |
 | --- | --- | --- |
