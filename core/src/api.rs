@@ -7,7 +7,7 @@ use crate::model::{CardState, Clock, Deck, DeckOptions, Outcome, Progress, RawNo
 use crate::session::{self, QueueItem};
 use crate::split::{self, BuildOptions};
 use crate::text::accepted_answers;
-use crate::{anki, cards, distract, edit, rng, sample, stages, text};
+use crate::{anki, cards, distract, edit, occlusion, rng, sample, stages, testout, text};
 use serde::de::DeserializeOwned;
 use serde_json::{json, Value};
 
@@ -81,6 +81,10 @@ fn run(v: &Value) -> Result<Value, String> {
             let (deck, progress) = anki::build_with_progress(&arg::<String>(v, "name")?, &arg::<Vec<RawNote>>(v, "rows")?, &opt::<BuildOptions>(v, "options"), opt(v, "crt"), clock);
             out(json!({ "deck": deck, "progress": progress }))
         }
+        "parseOcclusion" => out(occlusion::parse(&opt::<String>(v, "field"), &opt::<String>(v, "image"))),
+        "testOutQuestions" => out(testout::questions(&arg::<Deck>(v, "deck")?, &arg::<String>(v, "unitId")?)),
+        "canTestOut" => out(testout::can_test_out(&arg::<Deck>(v, "deck")?, &opt::<Progress>(v, "progress"), &arg::<String>(v, "unitId")?)),
+        "testOutApply" => out(testout::apply(&arg::<Deck>(v, "deck")?, &opt::<Progress>(v, "progress"), &arg::<String>(v, "unitId")?, &arg::<Vec<testout::Answer>>(v, "answers")?, clock)),
         "ankiExport" => out(anki::export(&arg::<Deck>(v, "deck")?, &opt::<Progress>(v, "progress"), opt(v, "withProgress"), clock)),
 
         // ----- sessions -----

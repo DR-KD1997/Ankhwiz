@@ -1,5 +1,5 @@
 <script lang="ts">
-  type Name = 'close' | 'back' | 'gear' | 'lock' | 'check' | 'cross' | 'play' | 'plus' | 'sun' | 'trash' | 'dot' | 'repeat' | 'chat' | 'sound' | 'more' | 'cards' | 'chart' | 'target' | 'up' | 'down' | 'edit' | 'search' | 'download';
+  type Name = 'close' | 'back' | 'gear' | 'lock' | 'check' | 'cross' | 'play' | 'plus' | 'sun' | 'trash' | 'dot' | 'repeat' | 'chat' | 'sound' | 'more' | 'cards' | 'chart' | 'target' | 'up' | 'down' | 'edit' | 'search' | 'download' | 'info' | 'bell' | 'upload' | 'picture' | 'layers' | 'keyboard' | 'flag' | 'bulb' | 'resume';
   let { name, size = 20 }: { name: Name; size?: number } = $props();
   const paths: Record<Name, string> = {
     close: 'M5 5 L19 19 M19 5 L5 19',
@@ -25,6 +25,15 @@
     download: 'M12 4 V15 M7 10 L12 15 L17 10 M5 20 H19',
     chat: 'M4 5 H20 V16 H11 L6 20 V16 H4 Z M8 9 H16 M8 12 H13',
     repeat: 'M5 11 A7 7 0 0 1 18.5 8.5 M19 4.5 V9 H14.5 M19 13 A7 7 0 0 1 5.5 15.5 M5 19.5 V15 H9.5',
+    info: 'M12 3 A9 9 0 1 0 12 21 A9 9 0 1 0 12 3 M12 11 V16.5 M12 7.6 V7.7',
+    bell: 'M6 16 V11 A6 6 0 0 1 18 11 V16 L20 18 H4 Z M10 21 H14',
+    upload: 'M12 20 V9 M7 14 L12 9 L17 14 M5 4 H19',
+    picture: 'M4 5 H20 V19 H4 Z M4 16 L9 11 L13 15 L16 12 L20 16 M15.5 8.5 H15.51',
+    layers: 'M12 4 L21 9 L12 14 L3 9 Z M3 13.5 L12 18.5 L21 13.5',
+    keyboard: 'M3 6 H21 V18 H3 Z M7 10 H7.01 M11 10 H11.01 M15 10 H15.01 M17 10 H17.01 M7 14 H17',
+    flag: 'M6 21 V4 M6 4 H17 L15 8 L17 12 H6',
+    bulb: 'M9 18 H15 M10 21 H14 M12 3 A6 6 0 0 0 8 13.5 C9 14.5 9.5 15.5 9.5 16.5 H14.5 C14.5 15.5 15 14.5 16 13.5 A6 6 0 0 0 12 3 Z',
+    resume: 'M5 12 A7 7 0 1 0 8 6.3 M8 2.5 V6.5 H4 M10.5 9 L15 12 L10.5 15 Z',
   };
 </script>
 

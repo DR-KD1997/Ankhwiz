@@ -1,8 +1,8 @@
 [package]
 name = "ankhwiz"
-version = "0.3.0"
+version = "0.4.0"
 description = "Ankhwiz desktop shell"
-authors = ["Kaan"]
+authors = ["DR-KD1997"]
 license = "AGPL-3.0-or-later"
 repository = ""
 edition = "2024"
@@ -23,6 +23,7 @@ serde = { version = "1.0", features = ["derive"] }
 log = "0.4"
 tauri = { version = "2.12.5", features = [] }
 tauri-plugin-log = "2"
+tauri-plugin-notification = "2"
 ureq = "2"
 keyring = { version = "3", features = ["sync-secret-service", "windows-native"] }
 base64 = "0.22"

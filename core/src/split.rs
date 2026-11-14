@@ -48,11 +48,21 @@ pub struct BuildOptions {
 pub fn note_from(row: &RawNote, ai: bool) -> Option<Note> {
     let front = row.front.trim();
     let back = row.back.trim();
-    let cloze = row.cloze || (back.is_empty() && !crate::cards::cloze_numbers(front).is_empty());
-    if front.is_empty() || (back.is_empty() && !cloze) || (cloze && crate::cards::cloze_numbers(front).is_empty()) {
+    let occlusion = row.occlusion.clone().filter(|o| !o.shapes.is_empty() && !o.image.is_empty());
+    let cloze = occlusion.is_none() && (row.cloze || (back.is_empty() && !crate::cards::cloze_numbers(front).is_empty()));
+    if occlusion.is_none() && (front.is_empty() || (back.is_empty() && !cloze) || (cloze && crate::cards::cloze_numbers(front).is_empty())) {
         return None;
     }
     let clean = |v: &[String]| v.iter().map(|a| a.trim().to_string()).filter(|a| !a.is_empty()).collect::<Vec<_>>();
+    // Extra question and extra fields keep their places (they line up with
+    // Anki fields on export); only trailing blanks are dropped.
+    let keep = |v: &[String]| {
+        let mut out: Vec<String> = v.iter().map(|a| a.trim().to_string()).collect();
+        while out.last().is_some_and(|x| x.is_empty()) && row.anki.is_none() {
+            out.pop();
+        }
+        out
+    };
     Some(Note {
         id: uid("n"),
         front: front.to_string(),
@@ -66,6 +76,10 @@ pub fn note_from(row: &RawNote, ai: bool) -> Option<Note> {
         amedia: row.amedia.clone(),
         cloze,
         anki: row.anki.clone(),
+        front_more: keep(&row.front_more),
+        extra_more: keep(&row.extra_more),
+        self_check: row.self_check,
+        occlusion,
     })
 }
 

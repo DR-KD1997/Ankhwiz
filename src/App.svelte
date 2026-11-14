@@ -31,6 +31,9 @@
   <div class="splash"><Logo size={72} /></div>
 {:else if ui.screen === 'settings'}
   <Settings />
+{:else if ui.session?.kind === 'all' && inDeck}
+  <!-- Study all decks moves between decks, so it takes the whole window. -->
+  <Session />
 {:else if inDeck && wide}
   <div class="split">
     <div class="left"><Path /></div>

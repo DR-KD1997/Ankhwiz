@@ -5,12 +5,13 @@ import { ankiImport, buildDeck } from './core';
 import type { RawNote } from './core/types';
 import { buildAnkh, readAnkh } from './export/ankh';
 import { buildApkg } from './export/apkg';
-import { packageRows, readPackage, type AnkiPackage, type Mapping } from './import/apkg';
+import { buildLibrary, readLibrary } from './export/library';
+import { packageRows, readPackage, type AnkiPackage, type Mapping, type SplitBy } from './import/apkg';
 import { mediaBytes } from './media';
 import { saveBytes } from './platform';
-import { addImported, data, snap } from './store.svelte';
+import { addImported, data, markBackedUp, restoreLibrary, snap } from './store.svelte';
 
-export const APP = 'Ankhwiz 0.3.0';
+export const APP = 'Ankhwiz 0.4.0';
 
 const fileName = (name: string, ext: string) =>
   `${name.replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80) || 'deck'}.${ext}`;
@@ -39,16 +40,35 @@ export async function importAnkh(bytes: Uint8Array, withProgress = true): Promis
   return addImported(deck, withProgress && progress ? progress : {}, media);
 }
 
+/** Save the whole library as one .ankhlib file. */
+export async function backupLibrary(): Promise<string> {
+  const day = new Date().toISOString().slice(0, 10);
+  const r = await buildLibrary(snap(data), mediaBytes, APP);
+  const where = await saveBytes(`ankhwiz-library-${day}.ankhlib`, r.bytes);
+  if (!where.startsWith('The file could not')) markBackedUp();
+  return `${r.decks} ${r.decks === 1 ? 'deck' : 'decks'} backed up with progress and settings. ${where}${r.missing ? ` ${r.missing} media files were not on this device and were left out.` : ''}`;
+}
+
+/** Restore from an .ankhlib file: replace everything, or add the decks not already here. */
+export async function restoreLibraryFile(bytes: Uint8Array, replace: boolean): Promise<string> {
+  const lib = readLibrary(bytes);
+  const r = await restoreLibrary(lib, replace);
+  if (replace) return `Library restored: ${r.added} ${r.added === 1 ? 'deck' : 'decks'}, with progress and settings.`;
+  return `${r.added} ${r.added === 1 ? 'deck' : 'decks'} added${r.skipped ? `; ${r.skipped} already here ${r.skipped === 1 ? 'was' : 'were'} left as they are` : ''}.`;
+}
+
+export { readLibrary };
+
 export { readPackage };
-export type { AnkiPackage, Mapping };
+export type { AnkiPackage, Mapping, SplitBy };
 
 /** An .apkg goes in once its fields are mapped. Returns the new deck's id and how many notes were left out. */
 export async function importPackage(
   pkg: AnkiPackage,
   mappings: Record<string, Mapping>,
-  options: { withProgress: boolean; bothWays: boolean; name: string },
+  options: { withProgress: boolean; bothWays: boolean; name: string; splitBy?: SplitBy },
 ): Promise<{ id: string; skipped: number; notes: number }> {
-  const { rows, skipped, notetypes, media } = packageRows(pkg, mappings, options.withProgress);
+  const { rows, skipped, notetypes, media } = packageRows(pkg, mappings, { withProgress: options.withProgress, splitBy: options.splitBy });
   const build = { lessonSize: data.settings.lessonSize };
   const { deck, progress } = ankiImport(options.name || pkg.name, rows as RawNote[], build, pkg.crt);
   deck.anki = { notetypes };

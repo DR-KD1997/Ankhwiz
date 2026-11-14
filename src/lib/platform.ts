@@ -19,6 +19,9 @@ interface AndroidBridge {
   setSecret(name: string, value: string): void;
   saveFile(name: string, text: string): string;
   saveBase64?(name: string, base64: string): string;
+  setReminder?(on: boolean, hour: number, minute: number, days: string, text: string): void;
+  markStudied?(day: number): void;
+  askNotifications?(): string;
 }
 
 type Invoke = <T>(cmd: string, args?: Record<string, unknown>) => Promise<T>;
@@ -164,4 +167,57 @@ export async function saveBytes(name: string, bytes: Uint8Array, type = 'applica
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
   return 'Sent to your downloads. If nothing arrived, this view blocks downloads; use the desktop or Android app.';
+}
+
+// ---------- notifications (the daily reminder) ----------
+
+/** Android keeps its own alarm, so the reminder comes even when the app is closed. */
+export function remindsNatively(): boolean {
+  return !!android()?.setReminder;
+}
+
+/** Hand the reminder to Android's alarm. Elsewhere the interface keeps time itself. */
+export function setNativeReminder(on: boolean, time: string, days: number[], text: string): void {
+  const [h, m] = time.split(':').map(Number);
+  android()?.setReminder?.(on, h || 0, m || 0, days.join(','), text);
+}
+
+export function markStudiedNative(day: number): void {
+  android()?.markStudied?.(day);
+}
+
+/** Ask to show notifications. Returns false when the learner or device said no. */
+export async function askNotifications(): Promise<boolean> {
+  try {
+    const invoke = tauri();
+    if (invoke) {
+      if (await invoke<boolean>('plugin:notification|is_permission_granted')) return true;
+      return (await invoke<string>('plugin:notification|request_permission')) === 'granted';
+    }
+    const bridge = android();
+    if (bridge?.askNotifications) return bridge.askNotifications() !== 'off';
+    if (!('Notification' in window)) return false;
+    if (Notification.permission === 'granted') return true;
+    return (await Notification.requestPermission()) === 'granted';
+  } catch {
+    return false;
+  }
+}
+
+/** Show a notification now (desktop and browser; Android posts its own). */
+export async function notify(title: string, body: string): Promise<boolean> {
+  try {
+    const invoke = tauri();
+    if (invoke) {
+      await invoke('plugin:notification|notify', { options: { title, body } });
+      return true;
+    }
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(title, { body });
+      return true;
+    }
+  } catch {
+    /* no notification */
+  }
+  return false;
 }

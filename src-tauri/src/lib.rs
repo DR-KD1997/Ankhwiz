@@ -142,6 +142,8 @@ fn write_unique(app: &tauri::AppHandle, name: &str, contents: &[u8]) -> Result<S
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   tauri::Builder::default()
+    // The daily reminder, shown while Ankhwiz is open (it can be minimised).
+    .plugin(tauri_plugin_notification::init())
     .invoke_handler(tauri::generate_handler![http_send, key_set, key_get, key_delete, save_file, save_bytes])
     .setup(|app| {
       if cfg!(debug_assertions) {

@@ -19,6 +19,8 @@ import type {
   Grade,
   HttpRequest,
   Marked,
+  Occlusion,
+  TestResult,
   Message,
   Outcome,
   Preset,
@@ -126,6 +128,12 @@ export const ankiImport = (name: string, rows: RawNote[], options: BuildOptions,
   call<{ deck: Deck; progress: Progress }>('ankiImport', { name, rows, options, crt });
 export const ankiExport = (deck: Deck, progress: Progress, withProgress: boolean) =>
   call<AnkiExport>('ankiExport', { deck, progress, withProgress });
+export const parseOcclusion = (field: string, image: string) => call<Occlusion>('parseOcclusion', { field, image });
+export const testOutQuestions = (deck: Deck, unitId: string) => call<Exercise[]>('testOutQuestions', { deck, unitId });
+export const canTestOut = (deck: Deck, progress: Progress, unitId: string) =>
+  call<boolean>('canTestOut', { deck, progress, unitId });
+export const testOutApply = (deck: Deck, progress: Progress, unitId: string, answers: { cardId: string; correct: boolean }[]) =>
+  call<TestResult>('testOutApply', { deck, progress, unitId, answers });
 export const clampLessonSize = (n: number) =>
   Math.max(limits.minLesson, Math.min(limits.maxLesson, Math.round(n) || limits.defaultLesson));
 

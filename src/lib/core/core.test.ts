@@ -41,7 +41,7 @@ beforeAll(async () => {
 
 describe('bridge', () => {
   it('loads the core and reads its limits', () => {
-    expect(call<string>('version')).toBe('0.3.0');
+    expect(call<string>('version')).toBe('0.4.0');
     expect(limits.stageNames).toEqual(['Meet', 'Recognise', 'Assisted recall', 'Firm recall', 'Mastered']);
     expect(limits.minLesson).toBe(3);
   });

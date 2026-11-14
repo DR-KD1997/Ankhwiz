@@ -2,15 +2,19 @@
   import { aiHost, aiReady, aiState, isLocal, listModels, saveKey } from '../ai.svelte';
   import { aiPresets, limits } from '../core';
   import type { ThothMode } from '../core/thoth';
-  import { platform, saveFile, secretHome } from '../platform';
+  import { backupLibrary, restoreLibraryFile } from '../exporting';
+  import { askNotifications, platform, remindsNatively, secretHome } from '../platform';
+  import { applyReminder, reminderText } from '../reminders';
+  import { checkForUpdate, RELEASES, VERSION, type UpdateResult } from '../updates';
   import {
     data,
     eraseAll,
-    exportBackup,
     importBackup,
+    newer,
     now,
     save,
     setLessonSize,
+    setMotion,
     setTheme,
     setThoth,
     skipDays,
@@ -38,9 +42,52 @@
     ui.screen = ui.deckId && data.decks[ui.deckId] ? 'deck' : 'library';
   }
 
+  let busy = $state(false);
   async function download() {
-    const day = new Date().toISOString().slice(0, 10);
-    note = await saveFile(`ankhwiz-backup-${day}.json`, exportBackup());
+    busy = true;
+    try {
+      note = await backupLibrary();
+    } catch (e) {
+      note = e instanceof Error ? e.message : 'The backup could not be made.';
+    } finally {
+      busy = false;
+    }
+  }
+
+  // ----- reminder -----
+  const DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  let reminderNote = $state('');
+  async function setReminderOn(on: boolean) {
+    if (on && !(await askNotifications())) {
+      reminderNote = 'Notifications are turned off for Ankhwiz. Allow them in your system settings, then try again.';
+      return;
+    }
+    reminderNote = '';
+    data.reminder.on = on;
+    reminderChanged();
+  }
+  function toggleDay(d: number) {
+    const days = data.reminder.days.includes(d) ? data.reminder.days.filter((x) => x !== d) : [...data.reminder.days, d].sort();
+    data.reminder.days = days.length ? days : [d];
+    reminderChanged();
+  }
+  function reminderChanged() {
+    save();
+    applyReminder();
+  }
+  const preview = $derived.by(() => {
+    void data.decks;
+    return reminderText();
+  });
+
+  // ----- updates -----
+  let update = $state<UpdateResult | null>(null);
+  let checking = $state(false);
+  async function check() {
+    checking = true;
+    update = await checkForUpdate();
+    checking = false;
   }
 
   // ----- AI connection -----
@@ -91,13 +138,36 @@
     save();
   }
 
+  let restoring = $state<Uint8Array | null>(null);
   async function restore(e: Event) {
     const input = e.currentTarget as HTMLInputElement;
     const file = input.files?.[0];
     input.value = '';
     if (!file) return;
-    note = importBackup(await file.text()) ? 'Backup restored.' : 'That file is not an Ankhwiz backup.';
+    // Backups from 0.3 and earlier were plain files with everything in them.
+    if (/\.json$/i.test(file.name)) {
+      note = importBackup(await file.text()) ? 'Backup restored.' : 'That file is not an Ankhwiz backup.';
+      return;
+    }
+    restoring = new Uint8Array(await file.arrayBuffer());
+    note = '';
   }
+  async function finishRestore(replace: boolean) {
+    const bytes = restoring;
+    restoring = null;
+    if (!bytes) return;
+    busy = true;
+    try {
+      note = await restoreLibraryFile(bytes, replace);
+    } catch (e) {
+      note = e instanceof Error ? e.message : 'That file could not be restored.';
+    } finally {
+      busy = false;
+    }
+  }
+  const lastBackup = $derived(
+    data.lastBackup ? new Date(data.lastBackup).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }) : '',
+  );
 
   const simulated = $derived(
     new Date(now()).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }),
@@ -105,6 +175,9 @@
 </script>
 
 <section class="settings">
+  {#if newer.found}
+    <p class="update bad" role="alert">This device holds data from a newer Ankhwiz. It has been left untouched; update Ankhwiz to open it. Nothing you do here is saved.</p>
+  {/if}
   <header>
     <button class="icon-btn" aria-label="Back" onclick={back}><Icon name="back" /></button>
     <h1 class="display">Settings</h1>
@@ -127,6 +200,13 @@
       {/each}
     </div>
     <p class="hint">{modes.find((m) => m[0] === data.settings.thoth)?.[2]}</p>
+    {#if data.settings.thoth !== 'hidden'}
+      <div class="seg" role="group" aria-label="Thoth's movement">
+        <button aria-pressed={data.settings.motion !== false} onclick={() => setMotion(true)}>Moves</button>
+        <button aria-pressed={data.settings.motion === false} onclick={() => setMotion(false)}>Still</button>
+      </div>
+      <p class="hint">{data.settings.motion === false ? 'Thoth stays still.' : 'Thoth blinks, breathes and reacts to your answers. He also stays still if your system asks for reduced motion.'}</p>
+    {/if}
   </div>
 
   <div class="group">
@@ -192,14 +272,68 @@
   </div>
 
   <div class="group">
-    <p class="label">Backup</p>
-    <input bind:this={picker} type="file" accept=".json,application/json" hidden onchange={restore} />
-    <div class="pair">
-      <button class="quiet" onclick={download}>Save a backup</button>
-      <button class="quiet" onclick={() => picker?.click()}>Restore a backup</button>
+    <p class="label">Daily reminder</p>
+    <div class="row plain">
+      <span><strong>Remind me to study</strong><small>Only on days you haven’t studied yet</small></span>
+      <button class="switch" role="switch" aria-checked={data.reminder.on} aria-label="Daily reminder" onclick={() => void setReminderOn(!data.reminder.on)}><span></span></button>
     </div>
-    <p class="hint">A backup holds every deck and your progress. It is a plain file for now; the .ankh format comes later.</p>
+    {#if data.reminder.on}
+      <div class="rem plain">
+        <label class="time">Time <input type="time" bind:value={data.reminder.time} onchange={reminderChanged} /></label>
+        <div class="days" role="group" aria-label="Days">
+          {#each DAYS as d, i (i)}
+            <button class="day" aria-pressed={data.reminder.days.includes(i)} aria-label={DAY_NAMES[i]} onclick={() => toggleDay(i)}>{d}</button>
+          {/each}
+        </div>
+        <p class="preview"><strong>Ankhwiz</strong> · {preview}</p>
+        <p class="hint">
+          {remindsNatively()
+            ? 'The reminder comes even when Ankhwiz is closed. Android may deliver it a few minutes late to save battery.'
+            : platform() === 'desktop'
+              ? 'The reminder comes while Ankhwiz is open; it can be minimised.'
+              : 'In a browser, the reminder comes only while this page is open.'}
+        </p>
+      </div>
+    {/if}
+    {#if reminderNote}<p class="hint bad" role="alert">{reminderNote}</p>{/if}
+  </div>
+
+  <div class="group">
+    <p class="label">Your library</p>
+    <input bind:this={picker} type="file" accept=".ankhlib,.json" hidden onchange={restore} />
+    <p class="hint">One file with every deck, its pictures and sounds, your progress and your settings. Your AI key is never included.</p>
+    <div class="pair">
+      <button class="quiet" disabled={busy} onclick={download}><Icon name="download" size={18} /> {busy ? 'Working…' : 'Back up all'}</button>
+      <button class="quiet" disabled={busy} onclick={() => picker?.click()}><Icon name="upload" size={18} /> Restore</button>
+    </div>
+    {#if restoring}
+      <div class="choice plain" role="group" aria-label="How to restore">
+        <p><strong>How should this backup come in?</strong></p>
+        <button class="quiet" onclick={() => void finishRestore(false)}>Add the decks I don’t have</button>
+        <button class="quiet danger" onclick={() => void finishRestore(true)}>Replace everything on this device</button>
+        <button class="link" onclick={() => (restoring = null)}>Cancel</button>
+      </div>
+    {/if}
+    {#if lastBackup}<p class="hint">Last backup: {lastBackup}</p>{/if}
     {#if note}<p class="hint" role="status"><strong>{note}</strong></p>{/if}
+  </div>
+
+  <div class="group">
+    <p class="label">Updates</p>
+    <div class="row plain">
+      <span><strong>Ankhwiz {VERSION}</strong><small>Checked only when you tap Check now</small></span>
+      <button class="quiet" disabled={checking} onclick={check}>{checking ? 'Checking…' : 'Check now'}</button>
+    </div>
+    {#if update?.state === 'newer'}
+      <p class="update ok" role="status"><strong>Ankhwiz {update.version} is available.</strong>{update.notes ? ` ${update.notes}` : ''} <a href={RELEASES} target="_blank" rel="noopener">See the release</a></p>
+    {:else if update?.state === 'current'}
+      <p class="update" role="status">You have the latest version.</p>
+    {:else if update?.state === 'none'}
+      <p class="update" role="status">No releases have been published yet. <a href={RELEASES} target="_blank" rel="noopener">Releases page</a></p>
+    {:else if update?.state === 'failed'}
+      <p class="update" role="status">GitHub could not be reached. Try again later, or visit <a href={RELEASES} target="_blank" rel="noopener">the releases page</a>.</p>
+    {/if}
+    <p class="hint">Ankhwiz asks GitHub for the latest version number and sends nothing else.</p>
   </div>
 
   <div class="group">
@@ -227,7 +361,7 @@
   </div>
 
   <p class="about">
-    Ankhwiz 0.3 ({platform()}). Decks and progress stay on this device; there are no accounts or sync.
+    Ankhwiz {VERSION} ({platform()}). Decks and progress stay on this device; there are no accounts or sync.
     The learning rules run in the shared Rust core. Scheduling uses the FSRS formulas until Anki's engine is attached.
   </p>
 </section>
@@ -328,5 +462,122 @@
   .danger {
     border-color: var(--off-line);
     color: var(--off-line);
+  }
+  .switch {
+    flex: none;
+    width: 52px;
+    height: 30px;
+    border-radius: 15px;
+    border: 2px solid var(--line);
+    background: var(--pip-off);
+    position: relative;
+    padding: 0;
+  }
+  .switch span {
+    position: absolute;
+    left: 3px;
+    top: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1.5px solid var(--line);
+    transition: left 0.15s ease;
+  }
+  .switch[aria-checked='true'] {
+    background: var(--emerald);
+    border-color: var(--emerald);
+  }
+  .switch[aria-checked='true'] span {
+    left: 25px;
+  }
+  .rem {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .time {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+  }
+  .time input {
+    min-height: 44px;
+    padding: 0 10px;
+    border: 2px solid var(--line);
+    background: var(--surface);
+    color: var(--text);
+    font: 600 16px var(--body);
+  }
+  .days {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+  }
+  .day {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--line);
+    background: var(--surface);
+    color: var(--text);
+    font: 600 14px var(--body);
+    padding: 0;
+  }
+  .day[aria-pressed='true'] {
+    background: var(--emerald);
+    border-color: var(--emerald);
+    color: #fbf4e2;
+  }
+  .preview {
+    margin: 0;
+    padding: 10px 12px;
+    border: 2px dashed var(--hair);
+    font-size: 14px;
+  }
+  .choice {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .choice p {
+    margin: 0;
+  }
+  .link {
+    align-self: flex-start;
+    background: none;
+    border: 0;
+    padding: 4px 0;
+    color: var(--muted);
+    text-decoration: underline;
+    font: 400 14px var(--body);
+  }
+  .update {
+    margin: 0;
+    padding: 10px 12px;
+    border: 2px solid var(--hair);
+    font-size: 14px;
+  }
+  .update.ok {
+    border-color: var(--ok-line);
+    background: var(--ok-bg);
+    color: var(--ok-text);
+  }
+  .update.bad,
+  .bad {
+    color: var(--off-text);
+  }
+  .update.bad {
+    border-color: var(--off-line);
+    background: var(--off-bg);
+  }
+  .pair .quiet {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
   }
 </style>

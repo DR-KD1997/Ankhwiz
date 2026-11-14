@@ -32,7 +32,8 @@ fn item(id: &str) -> QueueItem {
 #[derive(Serialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Exercise {
-    /// meet, choice, typed, or free (a long answer, marked by AI or by the learner).
+    /// meet, choice, typed, free (a long answer, marked by AI or by the
+    /// learner) or self (the learner sees the answer and says how close they were).
     pub kind: &'static str,
     pub card_id: String,
     pub note_id: String,
@@ -52,6 +53,13 @@ pub struct Exercise {
     pub extra: String,
     pub qmedia: Vec<String>,
     pub amedia: Vec<String>,
+    /// More question fields, shown under the question in smaller type.
+    pub front_more: Vec<String>,
+    /// Shown with the answer once given.
+    pub answer_more: Vec<String>,
+    pub extra_more: Vec<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub picture: Option<crate::cards::Picture>,
 }
 
 /// A card that can be asked now: not stopped, not skipped today.
@@ -187,16 +195,18 @@ pub struct DeckView {
     pub stopped: usize,
 }
 
-/// Everything the path screen needs, in one pass. A lesson opens once every
-/// lesson before it has been fully met.
+/// Everything the path screen needs, in one pass. A lesson opens once the
+/// lesson before it has been fully met (in order, or by testing out of a
+/// unit), and stays open once any of its cards has been met.
 pub fn deck_view(deck: &Deck, progress: &Progress, clock: Clock) -> DeckView {
     let order = ordered_lesson_ids(deck);
     let next_id = next_lesson_id(deck, progress);
-    let next_at = next_id.as_ref().and_then(|n| order.iter().position(|id| id == n));
     let mut lessons = BTreeMap::new();
-    for (i, id) in order.iter().enumerate() {
+    let mut prev_met = true;
+    for id in order.iter() {
         let mut status = lesson_status(deck, progress, id, clock);
-        status.unlocked = next_at.is_none_or(|n| i <= n);
+        status.unlocked = prev_met || status.introduced > 0;
+        prev_met = status.state == "learned" || status.state == "complete";
         lessons.insert(id.clone(), status);
     }
     let mut stages = [0usize; 5];
@@ -329,8 +339,16 @@ pub fn make_exercise(deck: &Deck, progress: &Progress, card_id: &str, just_met: 
         extra: f.extra,
         qmedia: f.qmedia,
         amedia: f.amedia,
+        front_more: f.front_more,
+        answer_more: f.answer_more,
+        extra_more: f.extra_more,
+        picture: f.picture,
     };
     let Some(card) = card else { return Some(ex) };
+    if f.self_check {
+        ex.kind = "self";
+        return Some(ex);
+    }
 
     if card.stage >= 3 {
         if is_typeable(&f.answer) {

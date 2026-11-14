@@ -5,14 +5,17 @@
 // with a JSON media list; current ones as `collection.anki21b`, compressed
 // with zstd, with a protobuf media list and zstd-compressed files.
 //
-// Reading happens in two steps, so the learner can choose which Anki field
-// becomes the question, the answer and the extra: `readPackage` lists the
-// note types and their fields, then `packageRows` turns the notes into rows
-// for the core under the chosen mapping. Note types, raw fields and Anki's
-// scheduling are kept, so the deck can go back to Anki with its progress.
+// Reading happens in two steps, so the learner can choose which Anki fields
+// become the question, the answer and the extra: `readPackage` lists the
+// note types and their fields with a mapping worked out from each type's
+// card templates (or its known layout), then `packageRows` turns the notes
+// into rows for the core under the chosen mapping. Note types, raw fields
+// and Anki's scheduling are kept, so the deck can go back to Anki with its
+// progress.
 
 import { unzipSync } from 'fflate';
 import { decompress as unzstd } from 'fzstd';
+import { parseOcclusion } from '../core';
 import type { AnkiNotetype, AnkiSched, AnkiTemplate, RawNote } from '../core/types';
 import { decodeEntities, fieldText } from './html';
 import { openInBrowser, rowsOf, type Database, type OpenDatabase } from './sql';
@@ -24,6 +27,15 @@ export interface PackageNotetype extends AnkiNotetype {
   count: number;
   /** Each field of the first note, as text, to help choose the mapping. */
   sample: string[];
+  /** How the mapping was worked out: a known layout, the card templates, or field names. */
+  matched: 'ankhwiz' | 'occlusion' | 'cloze' | 'template' | 'names';
+  /** The templates use scripts or drawing that Ankhwiz cannot show the same way. */
+  custom: boolean;
+  /** Anki asks this type both ways (it has a reverse card). */
+  reverse: boolean;
+  questionMore: number[];
+  extraMore: number[];
+  selfCheck: boolean;
 }
 
 interface PackageNote {
@@ -48,10 +60,19 @@ export interface AnkiPackage {
 }
 
 export interface Mapping {
+  /** The main question field: swapped with the answer when a deck is asked both ways. */
   question: number;
+  /** More fields shown with the question, in smaller type. */
+  questionMore: number[];
   answer: number;
   extra: number | null;
+  extraMore: number[];
+  /** The learner checks these cards themselves. */
+  selfCheck: boolean;
 }
+
+/** How notes are grouped into units. */
+export type SplitBy = 'subdeck' | 'tag' | 'size';
 
 const ZSTD = [0x28, 0xb5, 0x2f, 0xfd];
 const isZstd = (b: Uint8Array) => b.length > 4 && ZSTD.every((v, i) => b[i] === v);
@@ -122,14 +143,63 @@ function deckNames(db: Database): Map<string, string> {
   return names;
 }
 
-function defaultMapping(fields: string[], cloze: boolean): Mapping {
-  const find = (re: RegExp) => fields.findIndex((f) => re.test(f));
-  if (cloze) {
-    const q = Math.max(0, find(/^text$/i));
-    const x = find(/extra/i);
-    return { question: q, answer: q, extra: x >= 0 ? x : fields.length > 1 ? (q === 0 ? 1 : 0) : null };
+type Auto = Pick<PackageNotetype, 'question' | 'answer' | 'extra' | 'questionMore' | 'extraMore' | 'matched' | 'custom' | 'reverse' | 'selfCheck'>;
+
+/** Field names a template uses, in order, without repeats: {{Front}}, {{type:Back}}, {{furigana:Reading}}… */
+export function templateFields(fmt: string, fields: string[]): string[] {
+  const out: string[] = [];
+  for (const m of fmt.matchAll(/\{\{([^{}]+)\}\}/g)) {
+    const inner = m[1].trim();
+    if (/^[#^/]/.test(inner)) continue; // section markers
+    const name = inner.split(':').pop()!.trim();
+    if (fields.includes(name) && !out.includes(name)) out.push(name);
   }
-  return { question: 0, answer: Math.min(1, fields.length - 1), extra: fields.length > 2 ? 2 : null };
+  return out;
+}
+
+/** The mapping for a note type, worked out from its known layout or its card templates. */
+export function autoMapping(type: { name: string; fields: string[]; templates: AnkiTemplate[]; cloze: boolean; occlusion?: boolean }): Auto {
+  const f = type.fields;
+  const at = (name: string) => f.indexOf(name);
+  const find = (re: RegExp, not: number[] = []) => f.findIndex((x, i) => re.test(x) && !not.includes(i));
+  const scripted = type.templates.some((t) => /<script|<canvas/i.test(t.qfmt + t.afmt));
+  const reverse = !type.cloze && type.templates.length > 1;
+  const base = { custom: scripted && !type.occlusion, reverse, selfCheck: scripted && !type.occlusion };
+  const numbered = (prefix: string) =>
+    f.map((x, i) => [x, i] as const).filter(([x]) => new RegExp(`^${prefix} \\d+$`).test(x)).sort((a, b) => parseInt(a[0].slice(prefix.length)) - parseInt(b[0].slice(prefix.length))).map(([, i]) => i);
+
+  if (type.occlusion) {
+    const header = at('Header');
+    const extra = at('Back Extra');
+    const comments = at('Comments');
+    return { ...base, matched: 'occlusion', question: header >= 0 ? header : 0, answer: Math.max(0, at('Occlusion')), extra: extra >= 0 ? extra : null, questionMore: [], extraMore: comments >= 0 ? [comments] : [] };
+  }
+  if (type.name.startsWith('Ankhwiz')) {
+    const q = Math.max(0, at(type.cloze ? 'Text' : 'Question'));
+    const x = at('Extra');
+    return { ...base, matched: 'ankhwiz', question: q, answer: type.cloze ? q : Math.max(0, at('Answer')), extra: x >= 0 ? x : null, questionMore: numbered('Question'), extraMore: numbered('Extra') };
+  }
+  if (type.cloze) {
+    const q = Math.max(0, find(/^text$/i));
+    const shown = type.templates[0] ? templateFields(type.templates[0].afmt, f).map(at).filter((i) => i !== q) : [];
+    const x = shown.length ? shown[0] : find(/extra/i, [q]);
+    return { ...base, matched: 'cloze', question: q, answer: q, extra: x >= 0 ? x : null, questionMore: [], extraMore: shown.slice(1) };
+  }
+  const t = type.templates[0];
+  if (t) {
+    const q = templateFields(t.qfmt, f).map(at);
+    const a = templateFields(t.afmt, f).map(at).filter((i) => !q.includes(i));
+    if (q.length && a.length) {
+      return { ...base, matched: 'template', question: q[0], questionMore: q.slice(1), answer: a[0], extra: a.length > 1 ? a[1] : null, extraMore: a.slice(2) };
+    }
+  }
+  // No usable template: go by the fields' names, then their order.
+  let q = find(/^(front|question|expression|word|term|vocab|kanji|prompt)/i);
+  if (q < 0) q = 0;
+  let a = find(/^(back|answer|meaning|definition|translation|english)/i, [q]);
+  if (a < 0) a = f.length > 1 ? (q === 0 ? 1 : 0) : q;
+  const x = find(/(extra|notes?|comments?|example)/i, [q, a]);
+  return { ...base, matched: 'names', question: q, answer: a, extra: x >= 0 ? x : f.length > 2 ? [0, 1, 2].find((i) => i !== q && i !== a) ?? null : null, questionMore: [], extraMore: [] };
 }
 
 function notetypes(db: Database): Omit<PackageNotetype, 'count' | 'sample'>[] {
@@ -141,6 +211,8 @@ function notetypes(db: Database): Omit<PackageNotetype, 'count' | 'sample'>[] {
       const cfg = fields(bytesOf(config));
       const cloze = cfg.some(([f, v]) => f === 1 && v === 1);
       const css = str(cfg.find(([f]) => f === 3)?.[1]);
+      // original_stock_kind (9) is 6 for Anki's Image Occlusion.
+      const stock = cfg.find(([f]) => f === 9)?.[1];
       const flds = rowsOf(db, `SELECT name FROM fields WHERE ntid = ${Number(id)} ORDER BY ord`).map((r) => String(r[0]));
       const templates: AnkiTemplate[] = rowsOf(db, `SELECT name, config FROM templates WHERE ntid = ${Number(id)} ORDER BY ord`).map(
         ([tname, tcfg]) => {
@@ -148,7 +220,9 @@ function notetypes(db: Database): Omit<PackageNotetype, 'count' | 'sample'>[] {
           return { name: String(tname), qfmt: str(t.find(([f]) => f === 1)?.[1]), afmt: str(t.find(([f]) => f === 2)?.[1]) };
         },
       );
-      out.push({ id: String(id), name: String(name), cloze, fields: flds, templates, css, ...defaultMapping(flds, cloze) });
+      const occlusion = stock === 6 || (cloze && flds.includes('Occlusion') && flds.includes('Image'));
+      const t = { id: String(id), name: String(name), cloze, fields: flds, templates, css, occlusion };
+      out.push({ ...t, ...autoMapping(t) });
     }
     return out;
   }
@@ -156,19 +230,20 @@ function notetypes(db: Database): Omit<PackageNotetype, 'count' | 'sample'>[] {
   const json = rowsOf(db, 'SELECT models FROM col')[0]?.[0];
   if (typeof json !== 'string') return out;
   try {
-    type Model = { name: string; type: number; flds: { name: string }[]; tmpls: { name: string; qfmt: string; afmt: string }[]; css?: string };
+    type Model = { name: string; type: number; flds: { name: string }[]; tmpls: { name: string; qfmt: string; afmt: string }[]; css?: string; originalStockKind?: number };
     for (const [id, m] of Object.entries(JSON.parse(json) as Record<string, Model>)) {
       const flds = m.flds.map((f) => f.name);
       const cloze = m.type === 1;
-      out.push({
+      const t = {
         id,
         name: m.name,
         cloze,
         fields: flds,
         templates: m.tmpls.map((t) => ({ name: t.name, qfmt: t.qfmt, afmt: t.afmt })),
         css: m.css ?? '',
-        ...defaultMapping(flds, cloze),
-      });
+        occlusion: m.originalStockKind === 6 || (cloze && flds.includes('Occlusion') && flds.includes('Image')),
+      };
+      out.push({ ...t, ...autoMapping(t) });
     }
   } catch {
     /* unreadable note types: every note is read with the default mapping */
@@ -281,7 +356,8 @@ export function readCollection(db: Database, fallbackName: string, media: Record
     if (types.some((t) => t.id === ntid)) continue;
     const n = samples.get(ntid)?.length ?? 2;
     const flds = Array.from({ length: n }, (_, i) => `Field ${i + 1}`);
-    types.push({ id: ntid, name: 'Notes', cloze: false, fields: flds, templates: [], css: '', ...defaultMapping(flds, false) });
+    const t = { id: ntid, name: 'Notes', cloze: false, fields: flds, templates: [], css: '' };
+    types.push({ ...t, ...autoMapping(t) });
   }
   return {
     name,
@@ -376,33 +452,65 @@ export interface PackageRows {
   media: string[];
 }
 
-export function packageRows(pkg: AnkiPackage, mappings: Record<string, Mapping>, withProgress: boolean): PackageRows {
+export interface RowOptions {
+  withProgress: boolean;
+  splitBy?: SplitBy;
+}
+
+const SELF_CHECK_TAG = /^ankh::self-check$/i;
+
+export function packageRows(pkg: AnkiPackage, mappings: Record<string, Partial<Mapping>>, options: RowOptions | boolean): PackageRows {
+  const opts: RowOptions = typeof options === 'boolean' ? { withProgress: options } : options;
+  const splitBy = opts.splitBy ?? 'subdeck';
   const types = new Map(pkg.notetypes.map((t) => [t.id, t]));
   const rows: (RawNote & { order: number })[] = [];
   const kept: Record<string, AnkiNotetype> = {};
   const media = new Set<string>();
   let skipped = 0;
+  const isSound = (x: string) => /\.(mp3|ogg|wav|m4a|opus|flac|aac|webm)$/i.test(x);
   for (const note of pkg.notes) {
     const type = types.get(note.ntid);
     if (!type) continue;
-    const map = mappings[type.id] ?? type;
+    const map: Mapping = { ...type, extra: type.extra ?? null, ...(mappings[type.id] ?? {}) };
+    const qMore = (map.questionMore ?? []).filter((i) => i !== map.question && i !== map.answer);
+    const xMore = (map.extraMore ?? []).filter((i) => i !== map.question && i !== map.answer && i !== map.extra && !qMore.includes(i));
     const raw = (i: number | null | undefined) => (i === null || i === undefined ? '' : (note.fields[i] ?? ''));
+    const known = (list: string[]) => list.filter((m) => pkg.media[m]);
     const qraw = raw(map.question);
     const araw = type.cloze ? '' : raw(map.answer);
-    const qmedia = fieldMedia(qraw).filter((m) => pkg.media[m]);
-    const amedia = fieldMedia(araw).filter((m) => pkg.media[m]);
-    const missingText = (m: string[]) => (m.length === 0 ? '' : m.some((x) => /\.(mp3|ogg|wav|m4a|opus|flac|aac|webm)$/i.test(x)) ? '(listen)' : '(picture)');
-    let front = fieldText(qraw) || missingText(qmedia);
-    const back = type.cloze ? '' : fieldText(araw) || missingText(amedia);
+    // Pictures and sounds in any question field show with the question; in answer and extra fields, with the answer.
+    const qmedia = known([qraw, ...qMore.map(raw)].flatMap(fieldMedia));
+    const amedia = known([araw, ...(map.extra === null ? [] : [raw(map.extra)]), ...xMore.map(raw)].flatMap(fieldMedia)).filter((m) => !qmedia.includes(m));
+    const missingText = (m: string[]) => (m.length === 0 ? '' : m.some(isSound) ? '(listen)' : '(picture)');
+    let front = fieldText(qraw);
     const extra = map.extra === null || map.extra === map.question || map.extra === map.answer ? '' : fieldText(raw(map.extra));
-    const cloze = type.cloze && /\{\{c\d+::/.test(front);
-    if (type.cloze && !cloze) front = '';
-    if (!front || (!cloze && !back)) {
-      skipped++;
-      continue;
+    const frontMore = qMore.map((i) => fieldText(raw(i)));
+    const extraMore = xMore.map((i) => fieldText(raw(i)));
+    let back = '';
+    let cloze = false;
+    let occlusion: RawNote['occlusion'] = null;
+    if (type.occlusion) {
+      const of = type.fields.indexOf('Occlusion');
+      const imf = type.fields.indexOf('Image');
+      const o = parseOcclusion(raw(of >= 0 ? of : 0), raw(imf >= 0 ? imf : 1));
+      if (!o.shapes.length || !pkg.media[o.image]) {
+        skipped++;
+        continue;
+      }
+      occlusion = o;
+      media.add(o.image);
+    } else {
+      if (!front) front = missingText(qmedia);
+      back = type.cloze ? '' : fieldText(araw) || missingText(amedia);
+      cloze = type.cloze && /\{\{c\d+::/.test(front);
+      if (type.cloze && !cloze) front = '';
+      if (!front || (!cloze && !back)) {
+        skipped++;
+        continue;
+      }
     }
     // Lessons that went out from Ankhwiz come back as they were.
-    const tag = note.tags.find((t) => /^ankh::/i.test(t));
+    const tag = note.tags.find((t) => /^ankh::/i.test(t) && !SELF_CHECK_TAG.test(t));
     const [, unitSlug, lessonSlug] = tag ? tag.split('::') : [];
     const labels = note.tags.filter((t) => !/^ankh::/i.test(t) && !/^(leech|marked)$/i.test(t));
     kept[type.id] = {
@@ -415,6 +523,9 @@ export function packageRows(pkg: AnkiPackage, mappings: Record<string, Mapping>,
       question: map.question,
       answer: map.answer,
       extra: map.extra,
+      questionMore: qMore,
+      extraMore: xMore,
+      occlusion: !!type.occlusion,
     };
     // Decks that went out from Ankhwiz carry their other right answers and wrong options in fields of their own.
     const named = (name: string) => {
@@ -425,6 +536,9 @@ export function packageRows(pkg: AnkiPackage, mappings: Record<string, Mapping>,
     const wrong = type.name.startsWith('Ankhwiz') ? named('Wrong options') : [];
     qmedia.forEach((m) => media.add(m));
     amedia.forEach((m) => media.add(m));
+    const topTag = labels[0]?.split('::')[0]?.replace(/_/g, ' ');
+    const group =
+      splitBy === 'size' ? undefined : splitBy === 'tag' ? (topTag ? topTag[0].toUpperCase() + topTag.slice(1) : 'Other cards') : (note.group ?? (unitSlug ? pretty(unitSlug) : undefined));
     rows.push({
       front,
       back,
@@ -435,16 +549,20 @@ export function packageRows(pkg: AnkiPackage, mappings: Record<string, Mapping>,
       qmedia,
       amedia,
       cloze,
-      group: note.group ?? (unitSlug ? pretty(unitSlug) : undefined),
-      lesson: lessonSlug ? pretty(lessonSlug) : null,
-      anki: { guid: note.guid, ntid: type.id, fields: note.fields, seen: [front.trim(), back.trim(), extra.trim()] },
-      sched: withProgress ? note.sched : [],
+      frontMore,
+      extraMore,
+      selfCheck: map.selfCheck || note.tags.some((t) => SELF_CHECK_TAG.test(t)),
+      occlusion,
+      group,
+      lesson: lessonSlug && splitBy === 'subdeck' ? pretty(lessonSlug) : null,
+      anki: { guid: note.guid, ntid: type.id, fields: note.fields, seen: [front.trim(), back.trim(), extra.trim(), ...frontMore, ...extraMore] },
+      sched: opts.withProgress ? note.sched : [],
       order: note.order,
     });
   }
   if (!rows.length) throw new Error('No notes with a readable question and answer were found. Try other fields for the question and answer.');
 
-  // Keep subdecks together, in the order their first note appears, and keep
+  // Keep groups together, in the order their first note appears, and keep
   // the deck's own card order inside each.
   const firstSeen = new Map<string, number>();
   rows.forEach((r, i) => {

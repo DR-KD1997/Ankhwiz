@@ -2,7 +2,8 @@
 //! Wrong options come from related cards, nearest first: same lesson, then
 //! same unit, then the rest of the deck. Later on they are picked for
 //! similarity to the answer, so guessing gets harder as the card advances.
-//! A reverse card is offered other notes' fronts; a gap, other gaps.
+//! A reverse card is offered other notes' fronts; a gap, other gaps; a hidden
+//! part of a picture, the names of other parts.
 
 use crate::cards::{face, gaps, note_of};
 use crate::model::{CardState, Deck, Note};
@@ -45,7 +46,14 @@ pub fn option_count(card: Option<&CardState>, just_met: bool) -> usize {
 }
 
 /// What another note can offer as a wrong option for this kind of card.
-fn offers(note: &Note, reverse: bool, cloze: bool) -> Vec<String> {
+fn offers(note: &Note, reverse: bool, cloze: bool, picture: bool) -> Vec<String> {
+    // A hidden part is offered the names of other parts.
+    if picture {
+        return note.occlusion.as_ref().map(|o| o.shapes.iter().map(|s| s.label.trim().to_string()).filter(|l| !l.is_empty()).collect()).unwrap_or_default();
+    }
+    if note.occlusion.is_some() {
+        return vec![];
+    }
     if cloze {
         return if note.cloze { gaps(&note.front).into_iter().map(|g| g.answer).collect() } else { vec![] };
     }
@@ -100,7 +108,7 @@ pub fn pick_options(deck: &Deck, card_id: &str, count: usize, hard: bool) -> Vec
         } else {
             2
         };
-        for text in offers(other, f.reverse, f.cloze) {
+        for text in offers(other, f.reverse, f.cloze, f.picture.is_some()) {
             if answer_kind(&text) == kind {
                 tiers[tier].push(text);
             }

@@ -3,9 +3,12 @@
 //! A one-way note gives one card, whose id is the note's id, so progress
 //! saved before cards existed still lines up. "Both ways" adds a reverse card
 //! (`<note>:r`). A fill-the-gap note gives one card per gap number: the first
-//! uses the note's id, the rest `<note>:c2`, `<note>:c3` and so on.
+//! uses the note's id, the rest `<note>:c2`, `<note>:c3` and so on. A
+//! picture with hidden parts gives one card per part number in the same way
+//! (`<note>:o2`, `<note>:o3`, …).
 
-use crate::model::{Deck, Note};
+use crate::model::{Deck, Note, Occlusion};
+use serde::Serialize;
 use crate::text::accepted_answers;
 
 pub struct Gap {
@@ -88,8 +91,23 @@ pub fn note_of(card_id: &str) -> &str {
     card_id.split(':').next().unwrap_or(card_id)
 }
 
+/// Part numbers of a picture, sorted, without repeats.
+pub fn part_numbers(o: &Occlusion) -> Vec<u32> {
+    let mut ns: Vec<u32> = o.shapes.iter().map(|s| s.ord).collect();
+    ns.sort_unstable();
+    ns.dedup();
+    ns
+}
+
 /// The card ids a note gives rise to under the deck's options.
 pub fn cards_of(deck: &Deck, note: &Note) -> Vec<String> {
+    if let Some(o) = &note.occlusion {
+        return part_numbers(o)
+            .into_iter()
+            .enumerate()
+            .map(|(i, n)| if i == 0 { note.id.clone() } else { format!("{}:o{n}", note.id) })
+            .collect();
+    }
     if note.cloze {
         return cloze_numbers(&note.front)
             .into_iter()
@@ -122,6 +140,60 @@ pub fn is_live(deck: &Deck, card_id: &str) -> bool {
     deck.notes.get(note_of(card_id)).is_some_and(|n| cards_of(deck, n).iter().any(|c| c == card_id))
 }
 
+/// One part of a picture as a card shows it: `ask` is the part asked about,
+/// `hidden` is covered too, `open` is visible (with its name, if it has one).
+#[derive(Serialize, Clone, Debug, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct Mask {
+    pub kind: String,
+    pub left: f64,
+    pub top: f64,
+    pub width: f64,
+    pub height: f64,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub points: Vec<[f64; 2]>,
+    pub state: &'static str,
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub label: String,
+}
+
+#[derive(Serialize, Clone, Debug, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct Picture {
+    pub image: String,
+    pub masks: Vec<Mask>,
+}
+
+fn picture(o: &Occlusion, n: u32) -> Picture {
+    Picture {
+        image: o.image.clone(),
+        masks: o
+            .shapes
+            .iter()
+            .map(|s| Mask {
+                kind: s.kind.clone(),
+                left: s.left,
+                top: s.top,
+                width: s.width,
+                height: s.height,
+                points: s.points.clone(),
+                state: if s.ord == n {
+                    "ask"
+                } else if o.hide_all {
+                    "hidden"
+                } else {
+                    "open"
+                },
+                label: s.label.clone(),
+            })
+            .collect(),
+    }
+}
+
+fn filled(v: &[String]) -> Vec<String> {
+    v.iter().filter(|x| !x.trim().is_empty()).cloned().collect()
+}
+
 /// What a card shows and expects.
 pub struct Face {
     pub note_id: String,
@@ -133,11 +205,58 @@ pub struct Face {
     pub qmedia: Vec<String>,
     pub amedia: Vec<String>,
     pub extra: String,
+    /// More question fields, shown under the question.
+    pub front_more: Vec<String>,
+    /// Fields shown with the answer once given (the question's extra fields on a reverse card).
+    pub answer_more: Vec<String>,
+    /// More extra fields, after `extra`.
+    pub extra_more: Vec<String>,
+    /// The learner checks this card themselves.
+    pub self_check: bool,
+    pub picture: Option<Picture>,
 }
 
 pub fn face(deck: &Deck, card_id: &str) -> Option<Face> {
     let note = deck.notes.get(note_of(card_id))?;
     let suffix = card_id.split_once(':').map(|(_, s)| s).unwrap_or("");
+    let base = |prompt: String, answer: String, accepted: Vec<String>| Face {
+        note_id: note.id.clone(),
+        prompt,
+        answer,
+        accepted,
+        reverse: false,
+        cloze: false,
+        qmedia: note.qmedia.clone(),
+        amedia: note.amedia.clone(),
+        extra: note.extra.clone(),
+        front_more: filled(&note.front_more),
+        answer_more: vec![],
+        extra_more: filled(&note.extra_more),
+        self_check: note.self_check,
+        picture: None,
+    };
+    if let Some(o) = &note.occlusion {
+        let numbers = part_numbers(o);
+        let n = match suffix.strip_prefix('o') {
+            Some(d) => d.parse().ok()?,
+            None => *numbers.first()?,
+        };
+        let mut names: Vec<String> = o.shapes.iter().filter(|s| s.ord == n && !s.label.trim().is_empty()).map(|s| s.label.trim().to_string()).collect();
+        names.dedup();
+        let answer = names.join(", ");
+        let header = note.front.trim();
+        let prompt = if !header.is_empty() {
+            header.to_string()
+        } else if answer.is_empty() {
+            "What is under the hidden part?".to_string()
+        } else {
+            "Which part is hidden?".to_string()
+        };
+        let mut f = base(prompt, answer.clone(), accepted_answers(&answer, &note.alts));
+        f.self_check = note.self_check || answer.is_empty();
+        f.picture = Some(picture(o, n));
+        return Some(f);
+    }
     if note.cloze {
         let numbers = cloze_numbers(&note.front);
         let n = match suffix.strip_prefix('c') {
@@ -145,46 +264,27 @@ pub fn face(deck: &Deck, card_id: &str) -> Option<Face> {
             None => *numbers.first()?,
         };
         let (prompt, answer) = cloze_face(&note.front, n);
-        return Some(Face {
-            note_id: note.id.clone(),
-            prompt,
-            accepted: accepted_answers(&answer, &note.alts),
-            answer,
-            reverse: false,
-            cloze: true,
-            qmedia: note.qmedia.clone(),
-            amedia: note.amedia.clone(),
-            extra: note.extra.clone(),
-        });
+        let accepted = accepted_answers(&answer, &note.alts);
+        let mut f = base(prompt, answer, accepted);
+        f.cloze = true;
+        return Some(f);
     }
     if suffix == "r" {
-        return Some(Face {
-            note_id: note.id.clone(),
-            prompt: note.back.clone(),
-            answer: note.front.clone(),
-            accepted: accepted_answers(&note.front, &[]),
-            reverse: true,
-            cloze: false,
-            qmedia: note.amedia.clone(),
-            amedia: note.qmedia.clone(),
-            extra: note.extra.clone(),
-        });
+        // Asked the other way: the answer is shown and the main question field
+        // is expected. The question's other fields would give it away, so they
+        // wait until the answer is shown.
+        let mut f = base(note.back.clone(), note.front.clone(), accepted_answers(&note.front, &[]));
+        f.reverse = true;
+        f.qmedia = note.amedia.clone();
+        f.amedia = note.qmedia.clone();
+        f.answer_more = std::mem::take(&mut f.front_more);
+        return Some(f);
     }
     let prompt = match &deck.prompt {
         Some(p) if !p.is_empty() => p.replace("{front}", &note.front),
         _ => note.front.clone(),
     };
-    Some(Face {
-        note_id: note.id.clone(),
-        prompt,
-        answer: note.back.clone(),
-        accepted: accepted_answers(&note.back, &note.alts),
-        reverse: false,
-        cloze: false,
-        qmedia: note.qmedia.clone(),
-        amedia: note.amedia.clone(),
-        extra: note.extra.clone(),
-    })
+    Some(base(prompt, note.back.clone(), accepted_answers(&note.back, &note.alts)))
 }
 
 #[cfg(test)]
@@ -227,5 +327,41 @@ mod tests {
         assert_eq!(cards_of(&deck, &n), vec![id.clone(), format!("{id}:c2")]);
         let f = face(&deck, &format!("{id}:c2")).unwrap();
         assert_eq!((f.prompt.as_str(), f.answer.as_str()), ("Hola, ¿qué […]?", "tal"));
+    }
+
+    #[test]
+    fn more_question_fields_wait_for_the_answer_on_a_reverse_card() {
+        let mut deck = sample_deck(0.0);
+        deck.options.both_ways = true;
+        let id = deck.notes.keys().next().unwrap().clone();
+        let note = deck.notes.get_mut(&id).unwrap();
+        note.front_more = vec!["noun".into(), "".into(), "feminine".into()];
+        note.extra_more = vec!["la manzana roja".into()];
+        let f = face(&deck, &id).unwrap();
+        assert_eq!(f.front_more, vec!["noun", "feminine"]);
+        assert!(f.answer_more.is_empty());
+        let r = face(&deck, &format!("{id}:r")).unwrap();
+        assert!(r.front_more.is_empty());
+        assert_eq!(r.answer_more, vec!["noun", "feminine"]);
+        assert_eq!(r.extra_more, vec!["la manzana roja"]);
+    }
+
+    #[test]
+    fn a_picture_gives_one_card_per_part() {
+        use crate::model::{Occlusion, Shape};
+        let mut deck = sample_deck(0.0);
+        let id = deck.notes.keys().next().unwrap().clone();
+        let shape = |ord: u32, label: &str| Shape { ord, kind: "rect".into(), left: 0.1, top: 0.1, width: 0.2, height: 0.1, label: label.into(), ..Default::default() };
+        let note = deck.notes.get_mut(&id).unwrap();
+        note.front = String::new();
+        note.occlusion = Some(Occlusion { image: "arm.png".into(), shapes: vec![shape(1, "Radius"), shape(2, "Ulna"), shape(3, "")], hide_all: false });
+        let n = deck.notes[&id].clone();
+        assert_eq!(cards_of(&deck, &n), vec![id.clone(), format!("{id}:o2"), format!("{id}:o3")]);
+        let f = face(&deck, &format!("{id}:o2")).unwrap();
+        assert_eq!((f.prompt.as_str(), f.answer.as_str(), f.self_check), ("Which part is hidden?", "Ulna", false));
+        let states: Vec<&str> = f.picture.as_ref().unwrap().masks.iter().map(|m| m.state).collect();
+        assert_eq!(states, vec!["open", "ask", "open"]);
+        let unnamed = face(&deck, &format!("{id}:o3")).unwrap();
+        assert!(unnamed.self_check, "a part without a name is checked by the learner");
     }
 }

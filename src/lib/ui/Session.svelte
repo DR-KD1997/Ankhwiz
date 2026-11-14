@@ -1,16 +1,20 @@
 <script lang="ts">
-  // One lesson or review: shows each exercise, grades it, and ends with a summary.
-  // The learner never grades themselves, except on cards the app cannot check.
+  // One lesson, review, practice round, test out or all-decks review: shows
+  // each exercise, grades it, and ends with a summary. The learner never grades
+  // themselves, except on cards the app cannot check (self-check cards).
   import { tick, untrack } from 'svelte';
   import { aiReady, ask } from '../ai.svelte';
   import { checkAnswer, limits, liveFeedback, noteLessons } from '../core';
   import { choiceLine, lessonEndLine, line, streakLine } from '../core/thoth';
+  import { t } from '../i18n';
   import type { Exercise, Marked } from '../core/types';
-  import { closeSession, currentStreak, data, grade, met, next, setAsideCurrent, snap, ui } from '../store.svelte';
+  import { closeSession, currentStreak, data, grade, met, next, setAsideCurrent, snap, takeMilestone, ui } from '../store.svelte';
   import { canSpeak, speak } from '../speech';
+  import Fields from './Fields.svelte';
   import Media from './Media.svelte';
+  import Picture from './Picture.svelte';
   import Icon from './Icon.svelte';
-  import Thoth from './Thoth.svelte';
+  import Thoth, { type Cue, type Reaction } from './Thoth.svelte';
 
   const s = $derived(ui.session!);
   const ex = $derived(s.exercise);
@@ -40,6 +44,33 @@
   const scale = $derived(look.size === 's' ? 0.88 : look.size === 'l' ? 1.18 : 1);
   const voice = $derived(look.lang && look.speak !== 'off' && canSpeak());
   let menu = $state(false);
+  let cue = $state<Cue | null>(null);
+  let cueCount = 0;
+  const react = (kind: Reaction) => (cue = { kind, id: ++cueCount });
+  const testing = $derived(!!s.testOut);
+  let milestone = $state<number | null>(null);
+  $effect(() => {
+    if (s.finished && s.graded > 0 && !testing) untrack(() => (milestone = takeMilestone()));
+  });
+  const finishCue = $derived<Cue>({
+    kind: milestone
+      ? 'delight'
+      : testing
+        ? s.testOut?.result?.passed
+          ? 'cheer'
+          : 'encourage'
+        : !s.graded
+          ? 'nod'
+          : s.correct / s.graded >= 0.8
+            ? 'cheer'
+            : s.correct / s.graded >= 0.5
+              ? 'happy'
+              : 'encourage',
+    id: 0,
+  });
+  /** Said to screen readers when an answer is marked. */
+  let announce = $state('');
+  let help = $state(false);
 
   function reset(e: Exercise | null) {
     selected = null;
@@ -55,12 +86,17 @@
     markError = '';
     explaining = false;
     explanation = '';
+    rated = null;
     startedAt = performance.now();
     if (!e) return;
+    react('nod');
     if (e.kind === 'meet') says = line('meet');
     else if (e.kind === 'choice') says = choiceLine(e.options!.length, s.lastMet === e.cardId);
     else if (e.kind === 'typed') says = line(e.live ? 'typedLive' : 'typedPlain');
+    else if (e.kind === 'self') says = line('selfCheck');
     else says = ai ? line('freeAi') : line('self');
+    if (testing) says = line('testOut');
+    announce = '';
     if (e.kind === 'typed') void tick().then(() => field?.focus());
   }
 
@@ -83,7 +119,17 @@
     result = { correct, promoted: r.promoted };
     done = true;
     says = correct ? line(r.promoted ? 'promoted' : 'correct') : line('wrong');
+    react(correct ? (r.promoted ? 'cheer' : 'happy') : 'sad');
+    announce = correct ? `Correct.${r.promoted ? ' Moved up a stage.' : ''}` : `Not quite. The answer is ${ex?.answer ?? ''}.`;
   }
+
+  /** Self-check: how close the learner says they were. Partly counts as right, but hard. */
+  let rated = $state<'missed' | 'partly' | 'got' | null>(null);
+  function rate(how: 'missed' | 'partly' | 'got') {
+    rated = how;
+    settle(how !== 'missed', how === 'partly');
+  }
+  const RATED = { missed: ['Missed it', 'It comes back soon'], partly: ['Partly', 'Counted as a hard recall'], got: ['Got it', ''] } as const;
 
   function check() {
     if (!ex || done) return;
@@ -94,9 +140,10 @@
       if (!typed.trim()) return;
       const verdict = checkAnswer(typed, ex.accepted, deck.strictAccents);
       // One spelling retry before a near miss counts as wrong.
-      if (verdict === 'typo' && !typoUsed) {
+      if (verdict === 'typo' && !typoUsed && !testing) {
         typoUsed = true;
         says = line('typo');
+        react('nod');
         field?.focus();
         return;
       }
@@ -137,7 +184,7 @@
   const canAct = $derived(
     !ex ? true : done || ex.kind === 'meet' ? true : ex.kind === 'choice' ? selected !== null : ex.kind === 'typed' ? typed.trim().length > 0 : false,
   );
-  const actionLabel = $derived(!ex || done || ex.kind === 'meet' ? 'Continue' : 'Check');
+  const actionLabel = $derived(!ex || done || ex.kind === 'meet' ? t('continue') : t('check'));
 
   function act() {
     if (!ex) return closeSession();
@@ -146,22 +193,56 @@
     check();
   }
 
+  /** Keyboard: Enter checks and continues, 1–8 pick an option (or a self-check rating),
+   *  E explains, R reads aloud, S skips for today, Esc leaves, ? shows the keys. */
   function onKey(e: KeyboardEvent) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const typing = e.target instanceof HTMLTextAreaElement || (e.target instanceof HTMLInputElement && e.target.type !== 'checkbox');
+    if (e.key === 'Escape') {
+      if (help) help = false;
+      else if (menu) menu = false;
+      else closeSession();
+      e.preventDefault();
+      return;
+    }
     if (e.key === 'Enter') {
-      if (ex?.kind === 'free' && !done) return;
+      if (e.target instanceof HTMLTextAreaElement) return;
+      if ((ex?.kind === 'free' || ex?.kind === 'self') && !done) {
+        if (!revealed && !marked && ex.kind === 'self') {
+          e.preventDefault();
+          revealed = true;
+        }
+        return;
+      }
       if (canAct) {
         e.preventDefault();
         act();
       }
       return;
     }
+    if (typing) return;
+    if (e.key === '?') {
+      help = !help;
+      return;
+    }
     if (ex?.kind === 'choice' && !done && /^[1-8]$/.test(e.key)) {
       const option = ex.options![Number(e.key) - 1];
       if (option !== undefined) selected = option;
+      return;
     }
+    if ((ex?.kind === 'self' || ex?.kind === 'free') && !done && (revealed || ex.kind === 'self') && /^[1-3]$/.test(e.key) && revealed && !marked) {
+      rate((['missed', 'partly', 'got'] as const)[Number(e.key) - 1]);
+      return;
+    }
+    const k = e.key.toLowerCase();
+    if (k === 'e' && done && ai && !testing && !explanation) void explain();
+    else if (k === 'r' && voice && ex) speak(done ? ex.answer : ex.prompt, look.lang);
+    else if (k === 's' && ex && !done && !testing && s.kind !== 'practice') setAsideCurrent('skip');
   }
 
   const where = $derived.by(() => {
+    if (testing) return `Test out · ${deck.units.find((u) => u.id === s.testOut!.unitId)?.name ?? ''}`;
+    if (s.kind === 'all') return s.finished ? 'All decks' : `All decks · ${deck.name}`;
     if (s.practice) return 'Practice';
     if (!s.lessonId) return 'Review';
     const unit = deck.units.find((u) => u.lessonIds.includes(s.lessonId!));
@@ -174,7 +255,7 @@
     return id ? deck.lessons[id].name : '';
   });
   const stageWord = $derived(
-    !ex ? '' : (ex.kind === 'meet' ? 'New' : `Stage ${ex.stage} · ${limits.stageNames[ex.stage - 1]}`) + (ex.reverse ? ' · Other way round' : ex.cloze ? ' · Fill the gap' : ''),
+    !ex ? '' : testing ? (ex.reverse ? 'Other way round' : 'No hints') : (ex.kind === 'meet' ? 'New' : `Stage ${ex.stage} · ${limits.stageNames[ex.stage - 1]}`) + (ex.reverse ? ' · Other way round' : ex.cloze ? ' · Fill the gap' : ''),
   );
   const meetFront = $derived(!ex ? '' : ex.reverse || ex.cloze ? ex.prompt : deck.notes[ex.noteId]?.front ?? ex.prompt);
   let spokenFor = '';
@@ -191,6 +272,19 @@
   const position = $derived(Math.min(s.index + 1, s.queue.length));
   const letters = 'ABCDEFGH';
   const summaryLine = $derived(s.finished ? lessonEndLine(s.correct, s.graded, !s.lessonId) : '');
+  const extras = $derived(ex ? [ex.extra, ...ex.extraMore] : []);
+  const isSound = (m: string) => /\.(mp3|ogg|wav|m4a|opus|flac|aac|webm)$/i.test(m);
+  /** Test out: how each lesson of the unit went. */
+  const testLessons = $derived.by(() => {
+    const t = s.testOut;
+    if (!t?.result) return [];
+    const unit = deck.units.find((u) => u.id === t.unitId);
+    const lessonOf = noteLessons(snap(deck));
+    return (unit?.lessonIds ?? []).map((id) => {
+      const mine = t.answers.filter((a) => lessonOf[a.cardId.split(':')[0]] === id);
+      return { id, name: deck.lessons[id]?.name ?? '', right: mine.filter((a) => a.correct).length, total: mine.length, relearn: mine.filter((a) => !a.correct).length };
+    });
+  });
 </script>
 
 <svelte:window onkeydown={onKey} />
@@ -204,19 +298,47 @@
   {#if s.finished}
     <div class="summary">
       {#if mode !== 'hidden'}
-        <div class="thoth-big plain"><Thoth size={176} /></div>
+        <div class="thoth-big plain"><Thoth size={176} cue={finishCue} /></div>
       {/if}
-      <p class="label">{where}</p>
-      <h1 class="display">{s.practice ? 'Practice complete' : s.lessonId ? 'Lesson complete' : 'Review complete'}</h1>
-      {#if s.practice}<p class="fine">Practice does not change when your cards come back.</p>{/if}
-      {#if mode !== 'hidden'}<p class="said">{summaryLine}</p>{/if}
-      <dl class="stats">
-        <div class="plain"><dt>Correct</dt><dd>{s.correct} of {s.graded}</dd></div>
-        <div class="plain"><dt>New</dt><dd>{s.introduced}</dd></div>
-        <div class="plain"><dt>Moved up</dt><dd>{s.promoted}</dd></div>
-      </dl>
-      {#if s.graded > 0}
-        <p class="streak"><Icon name="sun" size={22} /> {streakLine(currentStreak())}</p>
+      {#if testing && s.testOut?.result}
+        {@const r = s.testOut.result}
+        <p class="label">{where}</p>
+        <h1 class="display">{r.passed ? t('unitPassed') : t('notThisTime')}</h1>
+        <p class="score"><strong>{r.correct}/{r.total}</strong> <span>pass mark {r.passMark}</span></p>
+        {#if mode !== 'hidden'}<p class="said">{line(r.passed ? 'testPassed' : 'testFailed')}</p>{/if}
+        <p class="fine">
+          {r.passed
+            ? `Its lessons are open, and their cards start at stage 3 instead of 1.${r.relearn.length ? ` ${r.relearn.length} missed ${r.relearn.length === 1 ? 'card goes' : 'cards go'} back to stage 1 to relearn.` : ''}`
+            : 'Nothing has changed. You can do the lessons as usual, or try again tomorrow.'}
+        </p>
+        {#if r.passed}
+          <ul class="lessons">
+            {#each testLessons as l (l.id)}
+              <li class="plain">
+                <span class="tick"><Icon name="check" size={16} /></span>
+                <span><strong>{l.name}</strong><small>{l.right} of {l.total} right{l.relearn ? ` · ${l.relearn} to relearn` : ' · stage 3'}</small></span>
+              </li>
+            {/each}
+          </ul>
+        {/if}
+      {:else}
+        <p class="label">{where}</p>
+        {#if milestone}
+          <h1 class="display">{t('daysInARow', { n: milestone })}</h1>
+          {#if mode !== 'hidden'}<p class="said">{line(milestone >= 30 ? 'milestoneBig' : 'milestone')}</p>{/if}
+        {:else}
+          <h1 class="display">{s.practice ? t('practiceComplete') : s.kind === 'all' ? t('allDecksDone') : s.lessonId ? t('lessonComplete') : t('reviewComplete')}</h1>
+          {#if mode !== 'hidden'}<p class="said">{summaryLine}</p>{/if}
+        {/if}
+        {#if s.practice}<p class="fine">Practice does not change when your cards come back.</p>{/if}
+        <dl class="stats">
+          <div class="plain"><dt>Correct</dt><dd>{s.correct} of {s.graded}</dd></div>
+          <div class="plain"><dt>{s.kind === 'all' ? 'Decks' : 'New'}</dt><dd>{s.kind === 'all' ? (s.decks?.length ?? 1) : s.introduced}</dd></div>
+          <div class="plain"><dt>Moved up</dt><dd>{s.promoted}</dd></div>
+        </dl>
+        {#if s.graded > 0}
+          <p class="streak"><Icon name="sun" size={22} /> {streakLine(currentStreak())}</p>
+        {/if}
       {/if}
     </div>
     <div class="grow"></div>
@@ -228,7 +350,7 @@
         <div style="width: {(s.index / s.queue.length) * 100}%"></div>
       </div>
       <span class="count">{position} of {s.queue.length}</span>
-      <div class="menu-wrap">
+      {#if !testing}<div class="menu-wrap">
         <button class="icon-btn" aria-label="More for this card" aria-expanded={menu} onclick={() => (menu = !menu)}><Icon name="more" /></button>
         {#if menu}
           <div class="menu plain" role="menu">
@@ -240,18 +362,20 @@
             </button>
           </div>
         {/if}
-      </div>
+      </div>{/if}
     </div>
 
     <div class="head">
       <p class="label">
-        {where}{fromLesson ? ` · ${fromLesson}` : ''} · {stageWord}
+        {where}{fromLesson && !testing ? ` · ${fromLesson}` : ''} · {stageWord}
         {#if ex.ai}<span class="tag" title="This card was written or changed by AI">AI</span>{/if}
       </p>
       {#if ex.kind !== 'meet'}
         <h1 class="display" dir="auto" style="font-size: calc({promptSize}px * var(--scale))">{ex.prompt}</h1>
+        <Fields items={ex.frontMore} first={2} base={promptSize * 0.8} label="question fields" />
+        {#if ex.picture}<Picture deckId={s.deckId} picture={ex.picture} revealed={done} />{/if}
         <Media deckId={s.deckId} names={ex.qmedia} />
-        {#if look.hintExtra && ex.extra && !done}<p class="hint-extra" dir="auto">Hint: {ex.extra}</p>{/if}
+        {#if look.hintExtra && ex.extra && !done && !testing}<p class="hint-extra" dir="auto">Hint: {ex.extra}</p>{/if}
       {/if}
       {#if voice && ex.kind !== 'meet'}
         <button class="quiet say" onclick={() => speak(ex.prompt, look.lang)}><Icon name="sound" size={16} /> Read aloud</button>
@@ -260,12 +384,15 @@
 
     {#if ex.kind === 'meet'}
       <div class="meet card">
-        <p class="display front" dir="auto">{meetFront}</p>
+        {#if meetFront}<p class="display front" dir="auto">{meetFront}</p>{/if}
+        <Fields items={ex.frontMore} first={2} base={20} label="question fields" />
+        {#if ex.picture}<Picture deckId={s.deckId} picture={ex.picture} revealed />{/if}
         <Media deckId={s.deckId} names={ex.qmedia} />
         <hr />
-        <p class="back" dir="auto">{ex.answer}</p>
-        <Media deckId={s.deckId} names={ex.amedia} autoplay={!ex.qmedia.some((m) => /\.(mp3|ogg|wav|m4a|opus|flac|aac|webm)$/i.test(m))} />
-        {#if ex.extra}<p class="extra" dir="auto">{ex.extra}</p>{/if}
+        {#if ex.answer}<p class="back" dir="auto">{ex.answer}</p>{/if}
+        <Fields items={ex.answerMore} first={2} base={18} label="fields" />
+        <Media deckId={s.deckId} names={ex.amedia} autoplay={!ex.qmedia.some(isSound)} />
+        <div class="extra"><Fields items={extras} base={16} label="extra fields" /></div>
       </div>
     {:else if ex.kind === 'choice'}
       <div class="options" role="radiogroup" aria-label="Answers">
@@ -317,6 +444,31 @@
           <p class="live close"><Icon name="dot" size={16} /> Check your spelling</p>
         {/if}
       </div>
+    {:else if ex.kind === 'self'}
+      <div class="self">
+        {#if !revealed}
+          <label class="label" for="free">Your answer <small>(optional: say it to yourself, or write it)</small></label>
+          <textarea id="free" class="card area" rows="3" bind:value={free}></textarea>
+          <button class="quiet" onclick={() => (revealed = true)}>{t('showAnswer')}</button>
+        {:else}
+          {#if free.trim()}<div class="meet card yours"><p class="label">You wrote</p><p class="back">{free}</p></div>{/if}
+          <div class="meet card">
+            <p class="label">The answer</p>
+            {#if ex.answer}<p class="back" dir="auto">{ex.answer}</p>{/if}
+            <Fields items={ex.answerMore} first={2} base={18} label="fields" />
+            <Media deckId={s.deckId} names={ex.amedia} autoplay />
+            <div class="extra"><Fields items={extras} base={16} label="extra fields" /></div>
+          </div>
+          {#if !done}
+            <p class="label">{t('howClose')}</p>
+            <div class="rates">
+              <button class="rate missed" onclick={() => rate('missed')}>{t('missedIt')}<small>Again · 1</small></button>
+              <button class="rate partly" onclick={() => rate('partly')}>{t('partly')}<small>Hard · 2</small></button>
+              <button class="rate got" onclick={() => rate('got')}>{t('gotIt')}<small>Good · 3</small></button>
+            </div>
+          {/if}
+        {/if}
+      </div>
     {:else}
       <div class="self">
         {#if !done && !revealed && !marked}
@@ -328,7 +480,7 @@
             </button>
             <p class="fine">Your answer and this card are sent to your AI service for marking.</p>
           {:else}
-            <button class="quiet" onclick={() => (revealed = true)}>Show the answer</button>
+            <button class="quiet" onclick={() => (revealed = true)}>{t('showAnswer')}</button>
             <p class="fine">Long answers are marked by AI once a connection is set up in Settings. Until then, compare for yourself.</p>
           {/if}
         {:else}
@@ -344,10 +496,11 @@
             </div>
           {:else if !done}
             {#if markError}<p class="fine">{markError}</p>{/if}
-            <p class="label">Did you have it?</p>
-            <div class="pair">
-              <button class="quiet" onclick={() => settle(false, true)}>No</button>
-              <button class="quiet" onclick={() => settle(true, true)}>Yes</button>
+            <p class="label">{t('howClose')}</p>
+            <div class="rates">
+              <button class="rate missed" onclick={() => rate('missed')}>{t('missedIt')}<small>Again · 1</small></button>
+              <button class="rate partly" onclick={() => rate('partly')}>{t('partly')}<small>Hard · 2</small></button>
+              <button class="rate got" onclick={() => rate('got')}>{t('gotIt')}<small>Good · 3</small></button>
             </div>
           {/if}
         {/if}
@@ -360,35 +513,53 @@
       <div class="banner {result.correct ? 'ok' : 'off'}" role="status">
         <Icon name={result.correct ? 'check' : 'cross'} size={22} />
         <div>
-          <strong>{result.correct ? 'Correct' : 'Not quite'}</strong>
-          {#if !result.correct || ex.kind === 'typed'}<span>Answer: {ex.answer}</span>{/if}
-          {#if result.promoted}<span>Moved up a stage</span>{/if}
-          {#if s.practice}<span>Practice: the schedule is unchanged</span>{/if}
+          <strong>{rated ? RATED[rated][0] : result.correct ? t('correct') : t('notQuite')}</strong>
+          {#if rated && RATED[rated][1]}<span>{RATED[rated][1]}</span>{/if}
+          {#if (!result.correct || ex.kind === 'typed') && ex.answer && ex.kind !== 'self'}<span>{t('answerIs', { answer: ex.answer })}</span>{/if}
+          {#if result.promoted}<span>{t('movedUp')}</span>{/if}
+          {#if s.practice}<span>{t('practiceUnchanged')}</span>{/if}
         </div>
       </div>
-      {#if ex.amedia.length || ex.extra}
+      {#if ex.kind !== 'self' && (ex.amedia.length || extras.some((x) => x.trim()) || ex.answerMore.length)}
         <div class="after plain">
+          <Fields items={ex.answerMore} first={2} base={17} label="fields" />
           <Media deckId={s.deckId} names={ex.amedia} autoplay />
-          {#if ex.extra}<p dir="auto">{ex.extra}</p>{/if}
+          <Fields items={extras} base={16} label="extra fields" />
         </div>
       {/if}
       {#if explanation}
         <div class="explain plain"><p class="label">Thoth explains <span class="tag">AI</span></p><p>{explanation}</p></div>
-      {:else if ai}
+      {:else if ai && !testing}
         <button class="quiet" disabled={explaining} onclick={explain}>{explaining ? 'Thoth is thinking…' : 'Explain this'}</button>
       {/if}
     {/if}
 
     {#if mode === 'full'}
       <div class="thoth-row">
-        <div class="portrait"><Thoth size={84} portrait /></div>
+        <div class="portrait"><Thoth size={84} portrait {cue} mood={marking || explaining ? 'think' : 'idle'} /></div>
         <p class="bubble plain">{says}</p>
       </div>
     {/if}
 
-    {#if ex.kind !== 'free' || done}
+    {#if (ex.kind !== 'free' && ex.kind !== 'self') || done}
       <button class="primary" disabled={!canAct} onclick={act}>{actionLabel}</button>
     {/if}
+  {/if}
+  <p class="sr" role="status">{announce}</p>
+  {#if help}
+    <div class="keys plain" role="dialog" aria-label="Keyboard shortcuts">
+      <p class="label">Keyboard shortcuts</p>
+      <dl>
+        <dt><kbd>1</kbd>–<kbd>8</kbd></dt><dd>Pick an option (self-check: 1 missed, 2 partly, 3 got it)</dd>
+        <dt><kbd>Enter</kbd></dt><dd>Check, then continue</dd>
+        <dt><kbd>E</kbd></dt><dd>Explain this (with an AI connection)</dd>
+        <dt><kbd>R</kbd></dt><dd>Read aloud (when the deck reads aloud)</dd>
+        <dt><kbd>S</kbd></dt><dd>Skip for today</dd>
+        <dt><kbd>Esc</kbd></dt><dd>Leave; your place is kept</dd>
+        <dt><kbd>?</kbd></dt><dd>Show or hide this list</dd>
+      </dl>
+      <button class="quiet" onclick={() => (help = false)}>Close</button>
+    </div>
   {/if}
 </section>
 
@@ -792,5 +963,132 @@
     gap: 8px;
     font-weight: 600;
     color: var(--muted);
+  }
+  .meet .extra {
+    font-size: 16px;
+  }
+  .rates {
+    display: flex;
+    gap: 8px;
+  }
+  .rate {
+    flex: 1;
+    min-height: 64px;
+    border: 3px solid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    font: 600 16px var(--body);
+    color: var(--text);
+  }
+  .rate small {
+    font-weight: 400;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .rate.missed {
+    background: var(--off-bg);
+    border-color: var(--off-line);
+    color: var(--off-text);
+  }
+  .rate.partly {
+    background: var(--close-bg);
+    border-color: var(--close-line);
+    color: var(--close-text);
+  }
+  .rate.got {
+    background: var(--ok-bg);
+    border-color: var(--ok-line);
+    color: var(--ok-text);
+  }
+  .score {
+    margin: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    justify-content: center;
+  }
+  .score strong {
+    font: 600 44px var(--button);
+  }
+  .score span {
+    color: var(--muted);
+  }
+  .lessons {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+  }
+  .lessons li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+  }
+  .lessons li > span:last-child {
+    display: flex;
+    flex-direction: column;
+  }
+  .lessons small {
+    color: var(--muted);
+  }
+  .tick {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    flex: none;
+    display: grid;
+    place-items: center;
+    background: var(--ok-bg);
+    color: var(--ok-text);
+    border: 2px solid var(--ok-line);
+  }
+  .sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .keys {
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right, 0px));
+    bottom: 16px;
+    z-index: 20;
+    max-width: 340px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  }
+  .keys dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 6px 12px;
+    font-size: 14px;
+  }
+  .keys dd {
+    margin: 0;
+  }
+  kbd {
+    display: inline-grid;
+    place-items: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 6px;
+    border: 1.5px solid var(--line);
+    border-bottom-width: 3px;
+    border-radius: 4px;
+    font: 600 12px var(--body);
   }
 </style>

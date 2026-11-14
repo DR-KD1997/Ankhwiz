@@ -240,7 +240,7 @@
 
   {#if !ready}
     <div class="intro plain">
-      {#if data.settings.thoth !== 'hidden'}<div class="portrait"><Thoth size={84} portrait /></div>{/if}
+      {#if data.settings.thoth !== 'hidden'}<div class="portrait"><Thoth size={84} portrait mood={busy ? 'think' : 'idle'} nodOn={busy} /></div>{/if}
       <div>
         <p><strong>No AI connection yet.</strong></p>
         <p>

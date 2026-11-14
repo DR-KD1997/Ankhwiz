@@ -34,6 +34,15 @@ pub enum Edit {
         /// Make it a fill-the-gap card (needs gaps in the front) or an ordinary one (needs an answer).
         #[serde(default, skip_serializing_if = "Option::is_none")]
         cloze: Option<bool>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        front_more: Option<Vec<String>>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        extra_more: Option<Vec<String>>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        self_check: Option<bool>,
+        /// The picture and its hidden parts (a picture card only).
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        occlusion: Option<crate::model::Occlusion>,
     },
     /// Add a note to a lesson, or (without a lesson) as a new lesson in a unit named `unit`.
     #[serde(rename_all = "camelCase")]
@@ -68,6 +77,16 @@ pub struct Applied {
     pub removed: Vec<String>,
     /// Edits that pointed at something that no longer exists.
     pub skipped: usize,
+}
+
+/// More fields keep their places; a note from Anki keeps its blanks too,
+/// since each place stands for one of its Anki fields.
+fn keep_places(v: &[String], anki: bool) -> Vec<String> {
+    let mut out: Vec<String> = v.iter().map(|s| s.trim().to_string()).collect();
+    if !anki {
+        out.retain(|s| !s.is_empty());
+    }
+    out
 }
 
 fn clean(v: &[String]) -> Vec<String> {
@@ -105,12 +124,15 @@ pub fn apply(deck: &mut Deck, edits: &[Edit], ai: bool) -> Applied {
     let had_notes: Vec<String> = deck.lessons.iter().filter(|(_, l)| !l.note_ids.is_empty()).map(|(id, _)| id.clone()).collect();
     for edit in edits {
         match edit {
-            Edit::Update { note_id, front, back, extra, alts, wrong, labels, qmedia, amedia, cloze } => {
+            Edit::Update { note_id, front, back, extra, alts, wrong, labels, qmedia, amedia, cloze, front_more, extra_more, self_check, occlusion } => {
                 let Some(note) = deck.notes.get_mut(note_id) else {
                     done.skipped += 1;
                     continue;
                 };
-                if let Some(v) = front.as_ref().map(|s| s.trim()).filter(|s| !s.is_empty()) {
+                // A picture's question (its header) may be left empty.
+                if let (Some(v), true) = (front.as_ref(), note.occlusion.is_some()) {
+                    note.front = v.trim().to_string();
+                } else if let Some(v) = front.as_ref().map(|s| s.trim()).filter(|s| !s.is_empty()) {
                     note.front = v.to_string();
                     if note.cloze && crate::cards::cloze_numbers(v).is_empty() {
                         // The gaps were removed: it becomes an ordinary card if it has an answer.
@@ -137,6 +159,20 @@ pub fn apply(deck: &mut Deck, edits: &[Edit], ai: bool) -> Applied {
                 }
                 if let Some(v) = amedia {
                     note.amedia = v.clone();
+                }
+                if let Some(v) = front_more {
+                    note.front_more = keep_places(v, note.anki.is_some());
+                }
+                if let Some(v) = extra_more {
+                    note.extra_more = keep_places(v, note.anki.is_some());
+                }
+                if let Some(v) = self_check {
+                    note.self_check = *v;
+                }
+                if let (Some(o), true) = (occlusion, note.occlusion.is_some()) {
+                    if !o.shapes.is_empty() && !o.image.is_empty() {
+                        note.occlusion = Some(o.clone());
+                    }
                 }
                 match cloze {
                     Some(true) if !crate::cards::cloze_numbers(&note.front).is_empty() => note.cloze = true,
@@ -246,7 +282,7 @@ mod tests {
         let r = apply(
             &mut deck,
             &[
-                Edit::Update { note_id: n0.clone(), front: None, back: Some("the red apple".into()), extra: Some("Una manzana al día.".into()), alts: None, wrong: None, labels: Some(vec!["food".into(), " ".into()]), qmedia: None, amedia: None, cloze: None },
+                Edit::Update { note_id: n0.clone(), front: None, back: Some("the red apple".into()), extra: Some("Una manzana al día.".into()), alts: None, wrong: None, labels: Some(vec!["food".into(), " ".into()]), qmedia: None, amedia: None, cloze: None, front_more: None, extra_more: None, self_check: None, occlusion: None },
                 Edit::Add { lesson_id: Some(l0.clone()), unit: None, note: RawNote { front: "la fresa".into(), back: "the strawberry".into(), ..Default::default() } },
                 Edit::Move { note_id: n1.clone(), lesson_id: l1.clone() },
                 Edit::Delete { note_id: "missing".into() },

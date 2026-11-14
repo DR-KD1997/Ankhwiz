@@ -59,6 +59,8 @@
   --logo-ankh: #14513f;
   --logo-arch: #a87c1e;
   --pip-off: #d9c79f;
+  /* Keyboard focus: dark green on parchment, gold on the dark theme (3:1 or more against both grounds). */
+  --focus: #14513f;
 
   --display: 'Marcellus', 'Palatino Linotype', Georgia, serif;
   --body: 'Source Sans 3', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -97,6 +99,7 @@
     --logo-ankh: #f1e3c4;
     --logo-arch: #c99a2e;
     --pip-off: #5c4c33;
+    --focus: #ffc42e;
   }
 }
 :root[data-theme='dark'] {
@@ -130,6 +133,7 @@
   --logo-ankh: #f1e3c4;
   --logo-arch: #c99a2e;
   --pip-off: #5c4c33;
+  --focus: #ffc42e;
 }
 
 * {
@@ -174,7 +178,7 @@ p {
   margin: 0;
 }
 :focus-visible {
-  outline: 3px solid var(--brass);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 

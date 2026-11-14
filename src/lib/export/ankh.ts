@@ -30,7 +30,7 @@ export async function buildAnkh(
   app: string,
 ): Promise<{ bytes: Uint8Array; missing: string[] }> {
   const names = new Set<string>();
-  for (const n of Object.values(deck.notes)) [...(n.qmedia ?? []), ...(n.amedia ?? [])].forEach((m) => names.add(m));
+  for (const n of Object.values(deck.notes)) [...(n.qmedia ?? []), ...(n.amedia ?? []), ...(n.occlusion ? [n.occlusion.image] : [])].forEach((m) => names.add(m));
   const files: Record<string, Uint8Array> = {};
   const missing: string[] = [];
   for (const name of names) {

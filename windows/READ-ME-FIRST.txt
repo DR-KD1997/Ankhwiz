@@ -1,0 +1,15 @@
+Ankhwiz for Windows (64-bit), portable version
+
+Keep Ankhwiz.exe and WebView2Loader.dll together in one folder, then open
+Ankhwiz.exe. (The setup program installs the same thing with a Start menu
+entry and an uninstaller, if you prefer.)
+
+It needs the Microsoft Edge WebView2 Runtime (part of Windows 11 and
+up-to-date Windows 10).
+
+Windows may warn that the program is from an unknown publisher, because it
+is not signed: choose "More info", then "Run anyway". Decks, progress and
+media are kept under %LOCALAPPDATA%\app.ankhwiz.desktop, the AI key in
+Windows Credential Manager, and exported decks go to your Downloads folder.
+The daily reminder (Settings) comes while Ankhwiz is open; it can be
+minimised.

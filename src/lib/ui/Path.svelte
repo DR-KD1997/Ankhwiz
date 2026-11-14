@@ -1,5 +1,6 @@
 <script lang="ts">
   // The lesson path for one deck: units, lessons, and what to do next.
+  import { canTestOut } from '../core';
   import type { LessonStatus } from '../core/types';
   import {
     currentStreak,
@@ -7,9 +8,15 @@
     goLibrary,
     now,
     openPanel,
+    pausedSummary,
+    resumePaused,
     startLesson,
     snap,
     startReview,
+    startTestOut,
+    testOutTried,
+    tipDue,
+    tipSeen,
     ui,
   } from '../store.svelte';
   import { summarise } from './deckView';
@@ -25,10 +32,13 @@
   const busy = $derived(ui.session !== null);
 
 
+  const paused = $derived(data.paused?.deckId === deck.id && data.paused.kind !== 'all' ? pausedSummary() : null);
   const rows = $derived(
     deck.units.map((unit, u) => ({
       unit,
       number: u + 1,
+      testable: canTestOut(snap(deck), snap(progress), unit.id),
+      tried: testOutTried(deck.id, unit.id),
       lessons: unit.lessonIds.map((id) => ({
         id,
         lesson: deck.lessons[id],
@@ -57,7 +67,7 @@
 
   {#if mode === 'full'}
     <div class="thoth-row">
-      <div class="portrait"><Thoth size={84} portrait /></div>
+      <div class="portrait"><Thoth size={84} portrait nodOn={busy ? 'busy' : sum.suggestions[0]} /></div>
       <p class="bubble plain">{busy ? 'Lesson in progress.' : sum.suggestions[0]}</p>
     </div>
   {:else}
@@ -67,6 +77,17 @@
         {#if busy}<li>Lesson in progress.</li>{:else}{#each sum.suggestions as text (text)}<li>{text}</li>{/each}{/if}
       </ul>
     </div>
+  {/if}
+
+  {#if paused && !busy}
+    <button class="review card picked" onclick={resumePaused}>
+      <span class="medal"><Icon name="resume" size={18} /></span>
+      <span class="grow">
+        <strong>Pick up where you left off</strong>
+        <small>{paused.what.replace(`${deck.name} · `, '')} · {paused.done} of {paused.total} done</small>
+      </span>
+      <Icon name="play" size={18} />
+    </button>
   {/if}
 
   {#if sum.due > 0 && !busy}
@@ -109,9 +130,29 @@
     {/if}
   {/if}
 
+  {#if !busy && rows.some((r) => r.testable && !r.tried) && tipDue('test-out') && Object.keys(progress).length > 0}
+    <div class="tip plain" role="note">
+      <p class="label tip-label"><Icon name="bulb" size={16} /> New for you: Test out</p>
+      <p>Know a unit already? Each unit now has <strong>Test out</strong>. Pass a short quiz and skip ahead.</p>
+      <button class="quiet" onclick={() => tipSeen('test-out')}>Got it</button>
+    </div>
+  {/if}
+
   {#each rows as row (row.unit.id)}
     <div class="unit">
-      <p class="label">Unit {row.number}{row.unit.name !== deck.name ? ` · ${row.unit.name}` : ''}</p>
+      <div class="unit-head">
+        <p class="label">Unit {row.number}{row.unit.name !== deck.name ? ` · ${row.unit.name}` : ''}</p>
+        {#if row.testable && !busy}
+          <button
+            class="testout"
+            disabled={row.tried}
+            title={row.tried ? 'One try a day: come back tomorrow' : 'A short quiz without hints. Pass it to skip ahead.'}
+            onclick={() => (tipSeen('test-out'), startTestOut(deck.id, row.unit.id))}
+          >
+            <Icon name="flag" size={14} /> {row.tried ? 'Test out tomorrow' : 'Test out'}
+          </button>
+        {/if}
+      </div>
       <ol>
         {#each row.lessons as l (l.id)}
           <li>
@@ -310,5 +351,48 @@
   }
   .pips i.on {
     background: var(--brass);
+  }
+  .unit-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .unit-head .label {
+    margin: 0;
+  }
+  .testout {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 36px;
+    padding: 0 10px;
+    border: 1.5px solid var(--line);
+    background: var(--surface);
+    color: var(--text);
+    font: 600 13px var(--body);
+    white-space: nowrap;
+  }
+  .testout:disabled {
+    opacity: 0.6;
+  }
+  .tip {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-color: var(--emerald);
+  }
+  .tip p {
+    margin: 0;
+  }
+  .tip-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--emerald);
+  }
+  .tip .quiet {
+    align-self: flex-start;
   }
 </style>

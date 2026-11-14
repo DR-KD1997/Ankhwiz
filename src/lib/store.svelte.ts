@@ -21,9 +21,11 @@ import {
   sampleDeck,
   setClock,
   streakAfter,
+  testOutApply,
+  testOutQuestions,
 } from './core';
 import type { ThothMode } from './core/thoth';
-import type { CardState, Deck, DeckOptions, Edit, Exercise, Outcome, Progress, QueueItem, RawNote, Streak } from './core/types';
+import type { CardState, Deck, DeckOptions, Edit, Exercise, Outcome, Progress, QueueItem, RawNote, Streak, TestResult } from './core/types';
 import { putMedia, removeDeckMedia } from './media';
 
 const DAY = 86_400_000;
@@ -42,17 +44,41 @@ export interface AiSettings {
   noticeSeen: boolean;
 }
 
+/** The version of the stored data. Raise it with a step in MIGRATIONS whenever the shape changes. */
+export const DATA_VERSION = 3;
+
+export interface Reminder {
+  on: boolean;
+  /** Local time, HH:MM. */
+  time: string;
+  /** Days of the week it may come, 0 = Sunday. */
+  days: number[];
+}
+
 export interface AppData {
-  v: 2;
+  v: number;
   decks: Record<string, Deck>;
   progress: Record<string, Progress>;
-  settings: { theme: Theme; thoth: ThothMode; lessonSize: number };
+  settings: { theme: Theme; thoth: ThothMode; lessonSize: number; /** Thoth's animation; missing means on. */ motion?: boolean };
   ai: AiSettings;
   streak: Streak;
   /** Copies of decks from before larger changes, newest first, by deck. */
   backups: Record<string, Backup[]>;
   /** Testing aid: days added to the clock, to try tomorrow's reviews today. */
   dayOffset: number;
+  /** First-time tips already shown. */
+  tips: string[];
+  /** Day of the last test-out attempt, by deck and unit (one try a day). */
+  testOuts: Record<string, Record<string, number>>;
+  /** A lesson or review left part way, to pick up again. */
+  paused: Session | null;
+  reminder: Reminder;
+  /** When the whole library was last backed up, in milliseconds. */
+  lastBackup: number | null;
+  /** Streak lengths already celebrated. */
+  celebrated: number[];
+  /** The newest release seen by the last update check. */
+  updates: { checked: number | null; latest: string | null };
 }
 
 export interface Backup {
@@ -68,10 +94,17 @@ const MAX_BACKUPS = 5;
 
 export type Panel = 'path' | 'ai' | 'options' | 'contents' | 'progress' | 'practice';
 
+export type SessionKind = 'lesson' | 'review' | 'practice' | 'all' | 'testout';
+
+/** A queue entry; in a session across decks each entry names its deck. */
+export type SessionItem = QueueItem & { deckId?: string };
+
 export interface Session {
+  kind: SessionKind;
+  /** The deck of the card on screen. */
   deckId: string;
   lessonId: string | null;
-  queue: QueueItem[];
+  queue: SessionItem[];
   index: number;
   exercise: Exercise | null;
   /** Note met in the item just before this one. */
@@ -83,11 +116,15 @@ export interface Session {
   finished: boolean;
   /** Practice: answers are marked but the schedule is not changed. */
   practice: boolean;
+  /** Test out: the unit, its fixed questions, the answers so far, and the result at the end. */
+  testOut?: { unitId: string; questions: Exercise[]; answers: { cardId: string; correct: boolean }[]; result?: TestResult } | null;
+  /** Study all decks: the decks taking part. */
+  decks?: string[];
 }
 
 function fresh(): AppData {
   return {
-    v: 2,
+    v: DATA_VERSION,
     decks: {},
     progress: {},
     settings: { theme: 'system', thoth: 'full', lessonSize: limits.defaultLesson },
@@ -95,6 +132,13 @@ function fresh(): AppData {
     streak: { count: 0, last: null, best: 0, days: [] },
     backups: {},
     dayOffset: 0,
+    tips: [],
+    testOuts: {},
+    paused: null,
+    reminder: { on: false, time: '19:30', days: [0, 1, 2, 3, 4, 5, 6] },
+    lastBackup: null,
+    celebrated: [],
+    updates: { checked: null, latest: null },
   };
 }
 
@@ -147,42 +191,68 @@ async function write(snapshot: AppData): Promise<void> {
 }
 
 export function save(): void {
+  if (newer.found) return;
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => void write($state.snapshot(data) as AppData), 250);
 }
 
-/** Bring data saved by the first prototype (v1) up to the current shape. */
-function migrate(saved: Record<string, unknown>): void {
-  if (saved.v !== 1) return;
-  const dayOf = (key: string): number => {
-    const [y, m, d] = key.split('-').map(Number);
-    return Math.floor(Date.UTC(y, m - 1, d) / DAY);
-  };
-  const progress = (saved.progress ?? {}) as Record<string, Record<string, Record<string, unknown>>>;
-  for (const cards of Object.values(progress)) {
-    for (const card of Object.values(cards)) {
-      card.okDays = ((card.okDays as string[]) ?? []).map(dayOf);
-      const old = card.fsrs as { stability?: number; difficulty?: number; last_review?: string } | undefined;
-      card.mem =
-        old?.stability && old.difficulty
-          ? {
-              stability: old.stability,
-              difficulty: old.difficulty,
-              lastDay: Math.floor((old.last_review ? Date.parse(old.last_review) : Date.now()) / DAY),
-            }
-          : null;
-      delete card.fsrs;
+type Saved = Record<string, unknown>;
+
+/**
+ * Steps that bring stored data up to the current shape, one version at a
+ * time. A step only reshapes what it must; fields it does not know about are
+ * filled with defaults when the data is adopted.
+ */
+const MIGRATIONS: Record<number, (saved: Saved) => void> = {
+  // 1 → 2: the first prototype kept days as date strings and its own scheduler fields.
+  1: (saved) => {
+    const dayOf = (key: string): number => {
+      const [y, m, d] = key.split('-').map(Number);
+      return Math.floor(Date.UTC(y, m - 1, d) / DAY);
+    };
+    const progress = (saved.progress ?? {}) as Record<string, Record<string, Record<string, unknown>>>;
+    for (const cards of Object.values(progress)) {
+      for (const card of Object.values(cards)) {
+        card.okDays = ((card.okDays as string[]) ?? []).map(dayOf);
+        const old = card.fsrs as { stability?: number; difficulty?: number; last_review?: string } | undefined;
+        card.mem =
+          old?.stability && old.difficulty
+            ? {
+                stability: old.stability,
+                difficulty: old.difficulty,
+                lastDay: Math.floor((old.last_review ? Date.parse(old.last_review) : Date.now()) / DAY),
+              }
+            : null;
+        delete card.fsrs;
+      }
     }
+    const streak = saved.streak as { last?: unknown } | undefined;
+    if (streak && typeof streak.last === 'string') streak.last = dayOf(streak.last);
+  },
+  // 2 → 3 (0.4): tips, test-out attempts, a paused session, reminders, library backups and update checks.
+  // All are new fields with defaults; a session saved by 0.3 (none were) would lack a kind.
+  2: (saved) => {
+    saved.paused = null;
+  },
+};
+
+/** Bring stored data up to DATA_VERSION. False when it is from a newer Ankhwiz. */
+export function migrate(saved: Saved): boolean {
+  let v = typeof saved.v === 'number' ? saved.v : 0;
+  if (v > DATA_VERSION) return false;
+  while (v < DATA_VERSION) {
+    const step = MIGRATIONS[v];
+    if (!step) return false;
+    step(saved);
+    v++;
+    saved.v = v;
   }
-  const streak = saved.streak as { last?: unknown } | undefined;
-  if (streak && typeof streak.last === 'string') streak.last = dayOf(streak.last);
-  saved.v = 2;
+  return true;
 }
 
 function adopt(saved: unknown): boolean {
   if (!saved || typeof saved !== 'object') return false;
-  migrate(saved as Record<string, unknown>);
-  if ((saved as AppData).v !== 2) return false;
+  if (!migrate(saved as Saved)) return false;
   const base = fresh();
   const s = saved as Partial<AppData>;
   Object.assign(data, base, s, {
@@ -190,14 +260,20 @@ function adopt(saved: unknown): boolean {
     ai: { ...base.ai, ...s.ai },
     streak: { ...base.streak, ...s.streak },
     backups: s.backups ?? {},
+    reminder: { ...base.reminder, ...s.reminder },
+    updates: { ...base.updates, ...s.updates },
   });
   // Decks saved before deck options existed get the defaults.
   const defaults = defaultOptions();
   for (const deck of Object.values(data.decks)) {
     deck.options = { ...defaults, ...deck.options, look: { ...defaults.look, ...deck.options?.look } };
   }
+  if (data.paused && (!data.decks[data.paused.deckId] || !data.paused.kind)) data.paused = null;
   return true;
 }
+
+/** Stored data from a newer version of Ankhwiz, kept aside rather than overwritten. */
+export const newer = $state({ found: false });
 
 export async function load(): Promise<void> {
   try {
@@ -222,7 +298,10 @@ export async function load(): Promise<void> {
       /* start empty */
     }
   }
-  adopt(saved);
+  if (saved && !adopt(saved)) {
+    // Data from a newer Ankhwiz: start empty without saving over it.
+    newer.found = true;
+  }
   applyTheme();
   ui.ready = true;
 }
@@ -245,6 +324,47 @@ export function importBackup(text: string): boolean {
   applyTheme();
   save();
   return true;
+}
+
+/**
+ * Put a library from an .ankhlib file on this device. `replace` swaps the
+ * whole library (decks, progress and settings) for the one in the file;
+ * otherwise only decks not already here are added. Returns how many decks came in.
+ */
+export async function restoreLibrary(
+  lib: { settings: Partial<AppData>; decks: { deck: Deck; progress: Progress | null; media: Record<string, Uint8Array> }[] },
+  replace: boolean,
+): Promise<{ added: number; skipped: number }> {
+  if (replace) {
+    for (const id of Object.keys(data.decks)) void removeDeckMedia(id);
+    const keepAi = data.ai;
+    Object.assign(data, fresh(), lib.settings, { decks: {}, progress: {}, backups: {} });
+    // The AI connection in the file points at a service; its key never travels, so the setup is kept only if one exists here.
+    if (!lib.settings.ai) data.ai = keepAi;
+    data.reminder = { ...fresh().reminder, ...lib.settings.reminder };
+    // Stay on Settings, where the restore was started, so its message can be read.
+    ui.session = null;
+    ui.deckId = null;
+    applyTheme();
+  }
+  let added = 0;
+  let skipped = 0;
+  for (const d of lib.decks) {
+    if (!replace && data.decks[d.deck.id]) {
+      skipped++;
+      continue;
+    }
+    for (const [name, bytes] of Object.entries(d.media)) await putMedia(d.deck.id, name, bytes);
+    addDeck(d.deck, d.progress ?? {});
+    added++;
+  }
+  save();
+  return { added, skipped };
+}
+
+export function markBackedUp(): void {
+  data.lastBackup = Date.now();
+  save();
 }
 
 export async function eraseAll(): Promise<void> {
@@ -281,6 +401,11 @@ export function setTheme(theme: Theme): void {
 
 export function setThoth(mode: ThothMode): void {
   data.settings.thoth = mode;
+  save();
+}
+
+export function setMotion(on: boolean): void {
+  data.settings.motion = on;
   save();
 }
 
@@ -442,10 +567,11 @@ export function goLibrary(): void {
 
 // ---------- sessions ----------
 
-function begin(deckId: string, lessonId: string | null, queue: QueueItem[], practice = false): void {
+function begin(kind: SessionKind, deckId: string, lessonId: string | null, queue: SessionItem[], extra: Partial<Session> = {}): void {
   if (!queue.length) return;
   ui.panel = 'path';
   ui.session = {
+    kind,
     deckId,
     lessonId,
     queue,
@@ -457,24 +583,66 @@ function begin(deckId: string, lessonId: string | null, queue: QueueItem[], prac
     promoted: 0,
     introduced: 0,
     finished: false,
-    practice,
+    practice: kind === 'practice',
+    testOut: null,
+    ...extra,
   };
   present();
 }
 
 export function startLesson(deckId: string, lessonId: string): void {
-  begin(deckId, lessonId, lessonQueue(snap(data.decks[deckId]), snap(data.progress[deckId] ?? {}), lessonId));
+  begin('lesson', deckId, lessonId, lessonQueue(snap(data.decks[deckId]), snap(data.progress[deckId] ?? {}), lessonId));
 }
 
 export function startReview(deckId: string): void {
-  begin(deckId, null, reviewQueue(snap(data.decks[deckId]), snap(data.progress[deckId] ?? {})));
+  begin('review', deckId, null, reviewQueue(snap(data.decks[deckId]), snap(data.progress[deckId] ?? {})));
 }
 
 /** Returns false when there was nothing to practise. */
 export function startPractice(deckId: string, mode: 'tricky' | 'unit' | 'cram', unitId = ''): boolean {
   const queue = practiceQueue(snap(data.decks[deckId]), snap(data.progress[deckId] ?? {}), mode, unitId);
-  begin(deckId, null, queue, true);
+  begin('practice', deckId, null, queue);
   return queue.length > 0;
+}
+
+/** Reviews due in every deck, as one session that takes a deck at a time in turn. */
+export function allDue(): { deckId: string; queue: QueueItem[] }[] {
+  return Object.values(data.decks)
+    .map((d) => ({ deckId: d.id, queue: reviewQueue(snap(d), snap(data.progress[d.id] ?? {})) }))
+    .filter((d) => d.queue.length);
+}
+
+/** Study all decks: due reviews from every deck, mixed. Returns false when nothing is due. */
+export function startAll(): boolean {
+  const lists = allDue();
+  if (!lists.length) return false;
+  const queue: SessionItem[] = [];
+  for (let i = 0; lists.some((l) => i < l.queue.length); i++) {
+    for (const l of lists) if (i < l.queue.length) queue.push({ ...l.queue[i], deckId: l.deckId });
+  }
+  ui.deckId = lists[0].deckId;
+  ui.screen = 'deck';
+  begin('all', lists[0].deckId, null, queue, { decks: lists.map((l) => l.deckId) });
+  return true;
+}
+
+/** Whether a unit may be tested out of today: it has unmet cards and was not tried today. */
+export function testOutTried(deckId: string, unitId: string): boolean {
+  return data.testOuts[deckId]?.[unitId] === today();
+}
+
+/** Test out of a unit: a short quiz without help. Returns false when there is nothing to ask. */
+export function startTestOut(deckId: string, unitId: string): boolean {
+  const questions = testOutQuestions(snap(data.decks[deckId]), unitId);
+  if (!questions.length) return false;
+  begin(
+    'testout',
+    deckId,
+    null,
+    questions.map((q) => ({ cardId: q.cardId })),
+    { testOut: { unitId, questions, answers: [] } },
+  );
+  return true;
 }
 
 function present(): void {
@@ -485,7 +653,19 @@ function present(): void {
     return;
   }
   const item = s.queue[s.index];
-  const ex = exercise(snap(data.decks[s.deckId]), snap(data.progress[s.deckId] ?? {}), item.cardId, s.lastMet === item.cardId);
+  if (s.testOut) {
+    s.exercise = s.testOut.questions[s.index] ?? null;
+    return;
+  }
+  const deckId = item.deckId ?? s.deckId;
+  if (!data.decks[deckId]) {
+    s.index++;
+    present();
+    return;
+  }
+  s.deckId = deckId;
+  if (s.kind === 'all') ui.deckId = deckId;
+  const ex = exercise(snap(data.decks[deckId]), snap(data.progress[deckId] ?? {}), item.cardId, s.lastMet === item.cardId);
   if (!ex) {
     // The card was deleted or switched off since the session started.
     s.index++;
@@ -493,6 +673,45 @@ function present(): void {
     return;
   }
   s.exercise = ex;
+  keepPaused();
+}
+
+/** Lessons and reviews left part way can be picked up again later. */
+function keepPaused(): void {
+  const s = ui.session;
+  if (!s || s.kind === 'practice' || s.kind === 'testout') return;
+  data.paused = s.finished ? null : ({ ...snap(s), exercise: null } as Session);
+  save();
+}
+
+/** Pick up a lesson or review left part way. */
+export function resumePaused(): boolean {
+  const p = data.paused;
+  if (!p || !data.decks[p.deckId]) {
+    data.paused = null;
+    return false;
+  }
+  ui.deckId = p.deckId;
+  ui.screen = 'deck';
+  ui.panel = 'path';
+  ui.session = structuredClone(snap(p));
+  present();
+  return true;
+}
+
+export function dropPaused(): void {
+  data.paused = null;
+  save();
+}
+
+/** The paused session in words: deck, lesson and how far it got. */
+export function pausedSummary(): { deck: string; what: string; done: number; total: number } | null {
+  const p = data.paused;
+  if (!p || !data.decks[p.deckId]) return null;
+  const deck = data.decks[p.deckId];
+  const what =
+    p.kind === 'all' ? 'All decks' : p.lessonId && deck.lessons[p.lessonId] ? `${deck.name} · ${deck.lessons[p.lessonId].name}` : `${deck.name} · Review`;
+  return { deck: deck.name, what, done: p.index, total: p.queue.length };
 }
 
 /** The learner has read a new note: it joins their progress at stage 1. */
@@ -508,11 +727,26 @@ export function met(): void {
   present();
 }
 
+/** A missed card comes back a few items later, at most twice (kept here so entries keep their deck). */
+function requeueItem(queue: SessionItem[], index: number, item: SessionItem): SessionItem[] {
+  const retries = queue.filter((q) => q.cardId === item.cardId && q.deckId === item.deckId && q.retry).length;
+  const out = [...queue];
+  if (retries < 2) out.splice(Math.min(index + 4, out.length), 0, { ...item, retry: true });
+  return out;
+}
+
 /** Record a graded answer. Returns whether the card moved up a stage. */
 export function grade(outcome: Outcome): { promoted: boolean } {
   const s = ui.session;
   if (!s?.exercise) return { promoted: false };
   const ex = s.exercise;
+  if (s.testOut) {
+    // Testing out changes nothing until the end, and nothing comes back.
+    s.testOut.answers.push({ cardId: ex.cardId, correct: outcome.correct });
+    s.graded++;
+    if (outcome.correct) s.correct++;
+    return { promoted: false };
+  }
   data.progress[s.deckId] ??= {};
   const progress = data.progress[s.deckId];
   const card = progress[ex.cardId] ? (snap(progress[ex.cardId]) as CardState) : null;
@@ -521,8 +755,10 @@ export function grade(outcome: Outcome): { promoted: boolean } {
   if (!s.practice) progress[ex.cardId] = applied.card;
   s.graded++;
   if (outcome.correct) s.correct++;
+  else if (s.kind === 'all') s.queue = requeueItem(snap(s.queue), s.index, s.queue[s.index]);
   else s.queue = requeue(snap(s.queue), s.index, ex.cardId);
   if (applied.promoted && !s.practice) s.promoted++;
+  if (!s.practice) markStudied();
   save();
   return { promoted: applied.promoted && !s.practice };
 }
@@ -540,12 +776,58 @@ function finish(): void {
   if (!s) return;
   s.finished = true;
   s.exercise = null;
+  if (s.testOut) {
+    const t = s.testOut;
+    const result = testOutApply(snap(data.decks[s.deckId]), snap(data.progress[s.deckId] ?? {}), t.unitId, snap(t.answers));
+    t.result = result;
+    if (result.passed) {
+      data.progress[s.deckId] = result.progress;
+      // A lesson of this unit left part way is now done with.
+      const unit = data.decks[s.deckId].units.find((u) => u.id === t.unitId);
+      if (data.paused?.deckId === s.deckId && data.paused.lessonId && unit?.lessonIds.includes(data.paused.lessonId)) data.paused = null;
+    }
+    data.testOuts[s.deckId] ??= {};
+    data.testOuts[s.deckId][t.unitId] = today();
+  }
   if (s.graded > 0) data.streak = streakAfter(snap(data.streak));
+  keepPaused();
   save();
 }
 
 export function closeSession(): void {
   ui.session = null;
+}
+
+/** Streak lengths worth a word from Thoth. */
+const MILESTONES = [7, 14, 30, 50, 100, 150, 200, 365, 500, 730, 1000];
+
+/** A streak milestone reached and not yet celebrated; marks it celebrated. */
+export function takeMilestone(): number | null {
+  const n = currentStreak();
+  const m = MILESTONES.filter((x) => x <= n && !data.celebrated.includes(x)).pop() ?? null;
+  if (m === null) return null;
+  // Every smaller milestone counts as celebrated too, so they are not shown one by one later.
+  for (const x of MILESTONES) if (x <= m && !data.celebrated.includes(x)) data.celebrated.push(x);
+  save();
+  return m;
+}
+
+/** Whether a first-time tip should show, and marking it seen. */
+export function tipDue(id: string): boolean {
+  return !data.tips.includes(id);
+}
+export function tipSeen(id: string): void {
+  if (!data.tips.includes(id)) data.tips.push(id);
+  save();
+}
+
+/** Tell the reminder that today has been studied (Android checks this when the alarm comes). */
+let studiedHook: (day: number) => void = () => {};
+export function onStudied(fn: (day: number) => void): void {
+  studiedHook = fn;
+}
+function markStudied(): void {
+  studiedHook(today());
 }
 
 /** Skip or stop the card on screen, and drop its other showings from this session. */

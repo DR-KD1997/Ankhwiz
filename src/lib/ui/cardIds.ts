@@ -15,6 +15,10 @@ export function filledIn(text: string): string {
 }
 
 export function cardIds(deck: Deck, note: Note): string[] {
+  if (note.occlusion) {
+    const parts = [...new Set(note.occlusion.shapes.map((s) => s.ord))].sort((a, b) => a - b);
+    return parts.map((n, i) => (i === 0 ? note.id : `${note.id}:o${n}`));
+  }
   if (note.cloze) return gapNumbers(note.front).map((n, i) => (i === 0 ? note.id : `${note.id}:c${n}`));
   return deck.options.bothWays ? [note.id, `${note.id}:r`] : [note.id];
 }

@@ -26,6 +26,53 @@ export interface Note {
   cloze?: boolean;
   /** What an imported note looked like in Anki, kept for export. */
   anki?: AnkiNote | null;
+  /** More question fields, shown under the question in smaller type. `front`
+   *  is the main one, swapped with the answer when a deck is asked both ways. */
+  frontMore?: string[];
+  /** More extra fields, shown after `extra`. */
+  extraMore?: string[];
+  /** The learner checks this card themselves. */
+  selfCheck?: boolean;
+  /** A picture with hidden parts. */
+  occlusion?: Occlusion | null;
+}
+
+export interface Shape {
+  /** Part number: shapes with the same number are asked together. */
+  ord: number;
+  kind: 'rect' | 'ellipse' | 'polygon';
+  /** Fractions of the picture's width and height. */
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  points?: [number, number][];
+  /** The part's name; without one the learner checks the card themselves. */
+  label?: string;
+}
+
+export interface Occlusion {
+  image: string;
+  shapes: Shape[];
+  /** Hide every part while asking about one. */
+  hideAll: boolean;
+}
+
+/** One part as a card shows it: `ask` is asked about, `hidden` covered, `open` visible. */
+export interface Mask {
+  kind: Shape['kind'];
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  points?: [number, number][];
+  state: 'ask' | 'hidden' | 'open';
+  label?: string;
+}
+
+export interface Picture {
+  image: string;
+  masks: Mask[];
 }
 
 export interface AnkiNote {
@@ -51,6 +98,9 @@ export interface AnkiNotetype {
   question: number;
   answer: number;
   extra?: number | null;
+  questionMore?: number[];
+  extraMore?: number[];
+  occlusion?: boolean;
 }
 
 export interface Look {
@@ -152,7 +202,7 @@ export interface Streak {
 export type Grade = 'again' | 'hard' | 'good' | 'easy';
 
 /** free: a long answer, written freely and marked by AI or by the learner. */
-export type ExerciseKind = 'meet' | 'choice' | 'typed' | 'free';
+export type ExerciseKind = 'meet' | 'choice' | 'typed' | 'free' | 'self';
 
 export interface Exercise {
   kind: ExerciseKind;
@@ -170,6 +220,20 @@ export interface Exercise {
   extra: string;
   qmedia: string[];
   amedia: string[];
+  frontMore: string[];
+  /** Shown with the answer once given. */
+  answerMore: string[];
+  extraMore: string[];
+  picture?: Picture;
+}
+
+export interface TestResult {
+  passed: boolean;
+  correct: number;
+  total: number;
+  passMark: number;
+  progress: Progress;
+  relearn: string[];
 }
 
 export interface Outcome {
@@ -204,6 +268,10 @@ export interface RawNote {
   anki?: AnkiNote | null;
   lesson?: string | null;
   sched?: AnkiSched[];
+  frontMore?: string[];
+  extraMore?: string[];
+  selfCheck?: boolean;
+  occlusion?: Occlusion | null;
 }
 
 export interface AnkiSched {
@@ -268,6 +336,10 @@ export type Edit =
       qmedia?: string[];
       amedia?: string[];
       cloze?: boolean;
+      frontMore?: string[];
+      extraMore?: string[];
+      selfCheck?: boolean;
+      occlusion?: Occlusion;
     }
   | { op: 'add'; lessonId?: string | null; unit?: string | null; note: RawNote }
   | { op: 'delete'; noteId: string }

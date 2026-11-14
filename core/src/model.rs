@@ -44,6 +44,57 @@ pub struct Note {
     /// What an imported note looked like in Anki, kept so export can give it back unchanged.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub anki: Option<AnkiNote>,
+    /// More question fields, shown under the question in smaller type.
+    /// The first question field (`front`) is the one swapped with the answer
+    /// when a deck is asked both ways.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub front_more: Vec<String>,
+    /// More extra fields, shown after `extra`.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub extra_more: Vec<String>,
+    /// The learner checks this card themselves: the answer is shown and they
+    /// say how close they were. For cards the app cannot mark.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub self_check: bool,
+    /// A picture with hidden parts: one card per hidden part number.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub occlusion: Option<Occlusion>,
+}
+
+/// A picture with hidden parts (Anki: Image Occlusion).
+#[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct Occlusion {
+    /// Media file name of the picture.
+    pub image: String,
+    pub shapes: Vec<Shape>,
+    /// Hide every part while asking about one (Anki: "Hide all, guess one").
+    /// Otherwise only the part asked about is hidden.
+    #[serde(default)]
+    pub hide_all: bool,
+}
+
+/// One hidden part. Positions are fractions of the picture's width and height.
+#[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct Shape {
+    /// Part number: shapes with the same number are asked together.
+    pub ord: u32,
+    /// rect, ellipse or polygon.
+    pub kind: String,
+    pub left: f64,
+    pub top: f64,
+    #[serde(default)]
+    pub width: f64,
+    #[serde(default)]
+    pub height: f64,
+    /// Polygon corners as fractions, x then y.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub points: Vec<[f64; 2]>,
+    /// The name of the part. With names the app can ask and mark the part;
+    /// without, the learner checks it themselves.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub label: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
@@ -85,6 +136,14 @@ pub struct AnkiNotetype {
     pub answer: usize,
     #[serde(default)]
     pub extra: Option<usize>,
+    /// More fields shown with the question, and after the extra.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub question_more: Vec<usize>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub extra_more: Vec<usize>,
+    /// Anki's Image Occlusion kind.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub occlusion: bool,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
@@ -358,6 +417,14 @@ pub struct RawNote {
     /// Scheduling of the note's cards in Anki, turned into progress on import.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub sched: Vec<AnkiSched>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub front_more: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub extra_more: Vec<String>,
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub self_check: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub occlusion: Option<Occlusion>,
 }
 
 /// One Anki card's scheduling, as stored in its collection.

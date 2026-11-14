@@ -10,7 +10,7 @@
 //! unchanged note returns to Anki exactly as it came. Units become subdecks
 //! and lessons travel as `ankh::` tags.
 
-use crate::cards::{cards_of, cloze_numbers, note_of};
+use crate::cards::{cards_of, cloze_numbers, note_of, part_numbers};
 use crate::model::{AnkiSched, CardState, Clock, Deck, Memory, Note, Progress, RawNote, DAY_MS};
 use crate::split::{build_deck, lesson_tag, BuildOptions};
 use serde::Serialize;
@@ -90,21 +90,34 @@ pub fn build_with_progress(name: &str, rows: &[RawNote], options: &BuildOptions,
     let deck = build_deck(name, rows, options, clock.now);
     let crt_day = Clock::new(crt_secs * 1000.0, clock.tz).day();
     // build_deck keeps rows in order within their lessons; match notes back to rows by content.
+    // Rows from Anki are matched by their note's guid; others by content.
+    let key = |front: &str, back: &str, guid: Option<&str>| match guid {
+        Some(g) if !g.is_empty() => (g.to_string(), String::new()),
+        _ => (front.trim().to_string(), back.trim().to_string()),
+    };
     let mut by_row: BTreeMap<(String, String), Vec<&RawNote>> = BTreeMap::new();
     for row in rows.iter().filter(|r| !r.sched.is_empty()) {
-        by_row.entry((row.front.trim().to_string(), row.back.trim().to_string())).or_default().push(row);
+        by_row.entry(key(&row.front, &row.back, row.anki.as_ref().map(|a| a.guid.as_str()))).or_default().push(row);
     }
     let mut progress = Progress::new();
     let notes: Vec<&Note> = deck.units.iter().flat_map(|u| &u.lesson_ids).filter_map(|l| deck.lessons.get(l)).flat_map(|l| &l.note_ids).filter_map(|n| deck.notes.get(n)).collect();
     for note in notes {
-        let Some(list) = by_row.get_mut(&(note.front.clone(), note.back.clone())) else { continue };
+        let Some(list) = by_row.get_mut(&key(&note.front, &note.back, note.anki.as_ref().map(|a| a.guid.as_str()))) else { continue };
         if list.is_empty() {
             continue;
         }
         let row = list.remove(0);
         let gaps = cloze_numbers(&note.front);
+        let parts = note.occlusion.as_ref().map(part_numbers).unwrap_or_default();
         for s in &row.sched {
-            let card_id = if note.cloze {
+            let card_id = if note.occlusion.is_some() {
+                let n = s.ord + 1;
+                match parts.first() {
+                    Some(first) if *first == n => note.id.clone(),
+                    _ if parts.contains(&n) => format!("{}:o{n}", note.id),
+                    _ => continue,
+                }
+            } else if note.cloze {
                 let n = s.ord + 1;
                 match gaps.first() {
                     Some(first) if *first == n => note.id.clone(),
@@ -127,6 +140,9 @@ pub fn build_with_progress(name: &str, rows: &[RawNote], options: &BuildOptions,
 }
 
 // ---------- export ----------
+
+/// The tag that marks a card the learner checks themselves.
+pub const SELF_CHECK_TAG: &str = "ankh::self-check";
 
 #[derive(Serialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -187,7 +203,7 @@ pub struct AnkiExport {
     pub media: Vec<String>,
 }
 
-const CSS: &str = ".card { font-family: system-ui, sans-serif; font-size: 22px; text-align: center; color: black; background-color: white; }\n.extra { margin-top: 1em; font-size: 0.8em; color: #6b5a3a; }\n";
+const CSS: &str = ".card { font-family: system-ui, sans-serif; font-size: 22px; text-align: center; color: black; background-color: white; }\n.extra { margin-top: 1em; font-size: 0.8em; color: #6b5a3a; }\n.more { font-size: 0.8em; color: #4a4030; margin-top: .3em; }\n.more2 { font-size: 0.7em; }\n.more3 { font-size: 0.62em; }\n";
 
 fn esc(text: &str) -> String {
     text.replace('&', "&amp;").replace('<', "&lt;").replace('>', "&gt;").replace('\n', "<br>")
@@ -244,6 +260,9 @@ fn model(id: i64, name: &str, cloze: bool, fields: &[String], templates: Vec<Val
 
 /// Every card the note had in Anki or gets now, as (Ankhwiz card id, Anki template ord).
 fn card_ords(deck: &Deck, note: &Note, templates: usize) -> Vec<(String, u32)> {
+    if let Some(o) = &note.occlusion {
+        return cards_of(deck, note).into_iter().zip(part_numbers(o)).map(|(id, n)| (id, n.saturating_sub(1))).collect();
+    }
     if note.cloze {
         return cards_of(deck, note)
             .into_iter()
@@ -298,12 +317,39 @@ pub fn export(deck: &Deck, progress: &Progress, include_progress: bool, clock: C
 
     // Note types: Ankhwiz's own, plus every note type kept from an import.
     let mut models = serde_json::Map::new();
-    let basic_fields: Vec<String> = ["Question", "Answer", "Extra", "Also accepted", "Wrong options"].map(String::from).to_vec();
-    let answer = "{{FrontSide}}\n\n<hr id=answer>\n\n{{Answer}}\n{{#Extra}}<div class=extra>{{Extra}}</div>{{/Extra}}";
-    let mut basic_templates = vec![template("Card 1", 0, "{{Question}}", answer)];
+    // More question and extra fields add "Question 2", "Extra 2" and so on,
+    // after the five fields every earlier export had.
+    let native = || deck.notes.values().filter(|n| n.anki.is_none() && !n.cloze && n.occlusion.is_none());
+    let q_more = native().map(|n| n.front_more.len()).max().unwrap_or(0);
+    let x_more = native().map(|n| n.extra_more.len()).max().unwrap_or(0);
+    let mut basic_fields: Vec<String> = ["Question", "Answer", "Extra", "Also accepted", "Wrong options"].map(String::from).to_vec();
+    basic_fields.extend((0..q_more).map(|i| format!("Question {}", i + 2)));
+    basic_fields.extend((0..x_more).map(|i| format!("Extra {}", i + 2)));
+    let q_block: String = (0..q_more)
+        .map(|i| {
+            let f = format!("Question {}", i + 2);
+            let size = if i == 0 { "" } else if i == 1 { " more2" } else { " more3" };
+            format!("\n{{{{#{f}}}}}<div class=\"more{size}\">{{{{{f}}}}}</div>{{{{/{f}}}}}")
+        })
+        .collect();
+    let x_block: String = (0..x_more)
+        .map(|i| {
+            let f = format!("Extra {}", i + 2);
+            format!("\n{{{{#{f}}}}}<div class=extra>{{{{{f}}}}}</div>{{{{/{f}}}}}")
+        })
+        .collect();
+    let answer = format!("{{{{FrontSide}}}}\n\n<hr id=answer>\n\n{{{{Answer}}}}\n{{{{#Extra}}}}<div class=extra>{{{{Extra}}}}</div>{{{{/Extra}}}}{x_block}");
+    let mut basic_templates = vec![template("Card 1", 0, &format!("{{{{Question}}}}{q_block}"), &answer)];
     if deck.options.both_ways {
-        basic_templates.push(template("Other way round", 1, "{{Answer}}", "{{FrontSide}}\n\n<hr id=answer>\n\n{{Question}}\n{{#Extra}}<div class=extra>{{Extra}}</div>{{/Extra}}"));
+        basic_templates.push(template(
+            "Other way round",
+            1,
+            "{{Answer}}",
+            &format!("{{{{FrontSide}}}}\n\n<hr id=answer>\n\n{{{{Question}}}}{q_block}\n{{{{#Extra}}}}<div class=extra>{{{{Extra}}}}</div>{{{{/Extra}}}}{x_block}"),
+        ));
     }
+    let io_id = id();
+    let mut used_io = false;
     let basic_id = id();
     let basic_name = if deck.options.both_ways { "Ankhwiz Basic (both ways)" } else { "Ankhwiz Basic" };
     let cloze_id = id();
@@ -330,6 +376,9 @@ pub fn export(deck: &Deck, progress: &Progress, include_progress: bool, clock: C
         if let Some(t) = lesson_tag(deck, &note.id) {
             tags.push(t);
         }
+        if note.self_check {
+            tags.push(SELF_CHECK_TAG.to_string());
+        }
         // Fields: the original note type's when the note came from Anki, otherwise Ankhwiz's.
         let original = note.anki.as_ref().and_then(|a| kept.get(&a.ntid).map(|nt| (a, nt)));
         let (mid, flds, templates, guid) = match original {
@@ -350,7 +399,51 @@ pub fn export(deck: &Deck, progress: &Progress, include_progress: bool, clock: C
                         fields[x] = esc(&note.extra);
                     }
                 }
+                // More question fields come after the first three in `seen`, then more extra fields.
+                for (i, &f) in nt.question_more.iter().enumerate() {
+                    let now = note.front_more.get(i).cloned().unwrap_or_default();
+                    if now != seen(3 + i) && f < fields.len() {
+                        fields[f] = esc(&now);
+                    }
+                }
+                for (i, &f) in nt.extra_more.iter().enumerate() {
+                    let now = note.extra_more.get(i).cloned().unwrap_or_default();
+                    if now != seen(3 + nt.question_more.len() + i) && f < fields.len() {
+                        fields[f] = esc(&now);
+                    }
+                }
+                if let (true, Some(o)) = (nt.occlusion, &note.occlusion) {
+                    let find = |name: &str, or: usize| nt.fields.iter().position(|f| f == name).unwrap_or(or);
+                    let (of, imf) = (find("Occlusion", 0), find("Image", 1));
+                    let before = crate::occlusion::parse(fields.get(of).map(String::as_str).unwrap_or(""), fields.get(imf).map(String::as_str).unwrap_or(""));
+                    if &before != o {
+                        if before.shapes != o.shapes || before.hide_all != o.hide_all {
+                            fields[of.min(last)] = crate::occlusion::write(o);
+                        }
+                        if before.image != o.image {
+                            fields[imf.min(last)] = format!("<img src=\"{}\">", o.image.replace('"', "&quot;"));
+                        }
+                    }
+                    if !media.contains(&o.image) {
+                        media.push(o.image.clone());
+                    }
+                }
                 (nt.id.parse::<i64>().unwrap_or(basic_id), fields, if nt.cloze { 1 } else { nt.templates.len() }, a.guid.clone())
+            }
+            None if note.occlusion.is_some() => {
+                used_io = true;
+                let o = note.occlusion.as_ref().unwrap();
+                if !media.contains(&o.image) {
+                    media.push(o.image.clone());
+                }
+                let fields = vec![
+                    crate::occlusion::write(o),
+                    format!("<img src=\"{}\">", o.image.replace('"', "&quot;")),
+                    with_media(&esc(&note.front), &note.qmedia),
+                    esc(&note.extra),
+                    esc(&note.extra_more.join("\n")),
+                ];
+                (io_id, fields, 1, note.id.clone())
             }
             None if note.cloze => {
                 used_cloze = true;
@@ -359,13 +452,15 @@ pub fn export(deck: &Deck, progress: &Progress, include_progress: bool, clock: C
             }
             None => {
                 used_basic = true;
-                let fields = vec![
+                let mut fields = vec![
                     with_media(&esc(&note.front), &note.qmedia),
                     with_media(&esc(&note.back), &note.amedia),
                     esc(&note.extra),
                     esc(&note.alts.join(", ")),
                     esc(&note.wrong.join(", ")),
                 ];
+                fields.extend((0..q_more).map(|i| esc(note.front_more.get(i).map(String::as_str).unwrap_or(""))));
+                fields.extend((0..x_more).map(|i| esc(note.extra_more.get(i).map(String::as_str).unwrap_or(""))));
                 (basic_id, fields, basic_templates.len(), note.id.clone())
             }
         };
@@ -433,6 +528,16 @@ pub fn export(deck: &Deck, progress: &Progress, include_progress: bool, clock: C
 
     if used_basic {
         models.insert(basic_id.to_string(), model(basic_id, basic_name, false, &basic_fields, basic_templates.clone(), CSS, top, now_s));
+    }
+    if used_io {
+        let mut m: Value = serde_json::from_str(include_str!("anki_io.json")).unwrap_or(json!({}));
+        m["id"] = json!(io_id);
+        m["mod"] = json!(now_s);
+        m["usn"] = json!(-1);
+        m["did"] = json!(top);
+        m["tags"] = json!([]);
+        m["vers"] = json!([]);
+        models.insert(io_id.to_string(), m);
     }
     if used_cloze {
         let t = vec![template("Cloze", 0, "{{cloze:Text}}", "{{cloze:Text}}\n{{#Extra}}<div class=extra>{{Extra}}</div>{{/Extra}}")];

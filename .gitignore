@@ -9,3 +9,6 @@ core/target-wasm/
 src-tauri/target-win/
 android/build/
 builds/
+android/debug.keystore
+*.keystore
+*.jks

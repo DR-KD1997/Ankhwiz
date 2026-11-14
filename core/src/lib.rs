@@ -12,12 +12,14 @@ pub mod cards;
 pub mod edit;
 pub mod distract;
 pub mod model;
+pub mod occlusion;
 pub mod rng;
 pub mod sample;
 pub mod schedule;
 pub mod session;
 pub mod split;
 pub mod stages;
+pub mod testout;
 pub mod text;
 
 // ---------- C interface, used by the WebAssembly build ----------

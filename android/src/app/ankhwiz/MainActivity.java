@@ -13,7 +13,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.content.pm.PackageManager;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
@@ -255,6 +257,31 @@ public class MainActivity extends Activity {
             } catch (Exception e) {
                 return "";
             }
+        }
+
+        /** The daily reminder: on or off, the time, the days of the week (0 = Sunday) and what it says. */
+        @JavascriptInterface
+        public void setReminder(boolean on, int hour, int minute, String days, String text) {
+            getSharedPreferences(ReminderReceiver.PREFS, MODE_PRIVATE).edit()
+                    .putBoolean("on", on).putInt("hour", hour).putInt("minute", minute)
+                    .putString("days", days).putString("text", text).apply();
+            ReminderReceiver.schedule(MainActivity.this);
+        }
+
+        /** Something was studied today (a local day number): no reminder today. */
+        @JavascriptInterface
+        public void markStudied(long day) {
+            getSharedPreferences(ReminderReceiver.PREFS, MODE_PRIVATE).edit().putLong("studied", day).apply();
+        }
+
+        /** Ask to show notifications (Android 13 and later ask the learner). Returns granted, asked or off. */
+        @JavascriptInterface
+        public String askNotifications() {
+            if (Build.VERSION.SDK_INT < 33) return "granted";
+            String permission = "android.permission.POST_NOTIFICATIONS";
+            if (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED) return "granted";
+            requestPermissions(new String[] { permission }, 3);
+            return "asked";
         }
 
         /** Opens the system's "save as" screen; the file is written where the learner chooses. */

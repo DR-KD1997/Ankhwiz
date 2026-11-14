@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import initSqlJs from 'sql.js';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { ankiImport, buildDeck, initCore, introduce, sampleDeck } from '../core';
+import { ankiImport, applyEdits, buildDeck, initCore, introduce, sampleDeck } from '../core';
 import type { Progress } from '../core/types';
 import { buildAnkh, readAnkh } from '../export/ankh';
 import { buildApkg } from '../export/apkg';
@@ -137,5 +137,76 @@ describe('export and back', () => {
     expect(read.media['apple.png']).toEqual(png);
     const plain = readAnkh((await buildAnkh(deck, null, async () => null, 'test')).bytes);
     expect(plain.progress).toBeNull();
+  });
+
+  it('carries more question and extra fields, self-check cards and pictures to Anki and back', async () => {
+    const base = sampleDeck();
+    const first = base.units[0].lessonIds[0];
+    const [a, b] = base.lessons[first].noteIds;
+    base.notes[a].frontMore = ['noun', 'feminine', 'fruit', 'common'];
+    base.notes[a].extraMore = ['Rhymes with ventana', 'Plural: manzanas'];
+    base.notes[a].extra = 'Una manzana al día.';
+    base.notes[b].selfCheck = true;
+    const shapes = [
+      { ord: 1, kind: 'rect' as const, left: 0.1, top: 0.2, width: 0.2, height: 0.1, label: 'Radius' },
+      { ord: 2, kind: 'ellipse' as const, left: 0.5, top: 0.2, width: 0.2, height: 0.1, label: 'Ulna' },
+      { ord: 3, kind: 'rect' as const, left: 0.4, top: 0.6, width: 0.1, height: 0.3 },
+    ];
+    const { deck } = applyEdits(base, [
+      { op: 'add', lessonId: first, note: { front: 'Bones of the arm', back: '', extra: 'Radius is on the thumb side.', occlusion: { image: 'arm.png', shapes, hideAll: false } } },
+    ]);
+    const out = await buildApkg(deck, {}, false, async (n) => (n === 'arm.png' ? png : null), open);
+    expect(out.notes).toBe(37);
+    expect(out.cards).toBe(36 + 3);
+    if (process.env.ANKH_EXPORT_DIR) writeFileSync(`${process.env.ANKH_EXPORT_DIR}/v4.apkg`, out.bytes);
+
+    const pkg = await readPackage(out.bytes, 'v4.apkg', open);
+    expect(pkg.media['arm.png']).toEqual(png);
+    const io = pkg.notetypes.find((t) => t.occlusion)!;
+    expect(io.matched).toBe('occlusion');
+    const basic = pkg.notetypes.find((t) => t.name === 'Ankhwiz Basic')!;
+    expect(basic.questionMore.map((i) => basic.fields[i])).toEqual(['Question 2', 'Question 3', 'Question 4', 'Question 5']);
+    expect(basic.extraMore.map((i) => basic.fields[i])).toEqual(['Extra 2', 'Extra 3']);
+    const { rows } = packageRows(pkg, {}, false);
+    const back = ankiImport(pkg.name, rows, { lessonSize: 6 }, pkg.crt).deck;
+    const apple = Object.values(back.notes).find((n) => n.front === deck.notes[a].front)!;
+    expect(apple.frontMore).toEqual(['noun', 'feminine', 'fruit', 'common']);
+    expect(apple.extraMore).toEqual(['Rhymes with ventana', 'Plural: manzanas']);
+    expect(Object.values(back.notes).find((n) => n.front === deck.notes[b].front)!.selfCheck).toBe(true);
+    const pic = Object.values(back.notes).find((n) => n.occlusion)!;
+    expect(pic.front).toBe('Bones of the arm');
+    expect(pic.extra).toBe('Radius is on the thumb side.');
+    expect(pic.occlusion!.shapes.map((s) => [s.ord, s.kind, s.label ?? ''])).toEqual([
+      [1, 'rect', 'Radius'],
+      [2, 'ellipse', 'Ulna'],
+      [3, 'rect', ''],
+    ]);
+  });
+});
+
+describe('matching note types', () => {
+  it('works out question, answer and extra fields from the card templates', async () => {
+    const pkg = await readPackage(fixture('multi-field.apkg'), 'multi-field.apkg', open);
+    const by = (name: string) => pkg.notetypes.find((t) => t.name === name)!;
+    const names = (t: (typeof pkg.notetypes)[number], list: number[]) => list.map((i) => t.fields[i]);
+    const vocab = by('Japanese vocab');
+    expect([vocab.fields[vocab.question], ...names(vocab, vocab.questionMore)]).toEqual(['Expression', 'Reading', 'Part of speech']);
+    expect(vocab.fields[vocab.answer]).toBe('Meaning');
+    expect([vocab.fields[vocab.extra!], ...names(vocab, vocab.extraMore)]).toEqual(['Example', 'Notes']);
+    expect(by('Basic (and reversed card)').reverse).toBe(true);
+    expect(by('Image Occlusion').matched).toBe('occlusion');
+    const drawn = by('Kanji drawing');
+    expect(drawn.custom && drawn.selfCheck).toBe(true);
+    expect(drawn.fields[drawn.question]).toBe('Meaning');
+
+    const { rows } = packageRows(pkg, {}, { withProgress: false, splitBy: 'tag' });
+    expect(new Set(rows.map((r) => r.group))).toEqual(new Set(['Other cards']));
+    const subdecks = packageRows(pkg, {}, { withProgress: false, splitBy: 'subdeck' }).rows;
+    expect(new Set(subdecks.map((r) => r.group))).toEqual(new Set(['Animals', 'Colours', 'Body']));
+    const dog = subdecks.find((r) => r.front === '犬')!;
+    expect(dog.frontMore).toEqual(['いぬ', 'noun']);
+    const pic = subdecks.find((r) => r.occlusion)!;
+    expect(pic.occlusion!.shapes).toHaveLength(3);
+    expect(pic.occlusion!.image).toBe('arm.png');
   });
 });

@@ -4,7 +4,23 @@
   import { importAnkh, readPackage, type AnkiPackage } from '../exporting';
   import ImportMap from './ImportMap.svelte';
   import { parseList } from '../import/paste';
-  import { addFromRows, addSample, data, now, openDeck, snap, ui } from '../store.svelte';
+  import {
+    addFromRows,
+    addSample,
+    allDue,
+    data,
+    dropPaused,
+    now,
+    openDeck,
+    openPanel,
+    pausedSummary,
+    resumePaused,
+    snap,
+    startAll,
+    tipDue,
+    tipSeen,
+    ui,
+  } from '../store.svelte';
   import { summarise } from './deckView';
   import Icon from './Icon.svelte';
   import Logo from './Logo.svelte';
@@ -25,6 +41,19 @@
   let picker = $state<HTMLInputElement>();
   let pending = $state<AnkiPackage | null>(null);
   const welcome = line('welcome');
+  const paused = $derived(pausedSummary());
+  // Recomputed with the deck list: reviews due in every deck, for "Study all decks".
+  const due = $derived.by(() => {
+    void decks;
+    return allDue().map((d) => ({ deck: data.decks[d.deckId], n: d.queue.length }));
+  });
+  const dueTotal = $derived(due.reduce((t, d) => t + d.n, 0));
+  const reminderText = $derived.by(() => {
+    const r = data.reminder;
+    if (!r.on) return '';
+    const days = r.days.length === 7 ? '' : r.days.length === 5 && !r.days.includes(0) && !r.days.includes(6) ? ' on weekdays' : ' on chosen days';
+    return `Daily reminder at ${r.time}${days}, on days you haven’t studied`;
+  });
 
   function report(name: string, count: number, skipped: number, id: string) {
     const units = data.decks[id].units.length;
@@ -86,9 +115,43 @@
 
   {#if decks.length === 0 && data.settings.thoth === 'full'}
     <div class="thoth-row">
-      <div class="portrait"><Thoth size={84} portrait /></div>
+      <div class="portrait"><Thoth size={84} portrait cue={{ kind: 'happy', id: 0 }} /></div>
       <p class="bubble plain">{welcome}</p>
     </div>
+  {/if}
+
+  {#if paused}
+    <div class="resume card">
+      <p class="label">Pick up where you left off</p>
+      <div class="resume-row">
+        <span class="grow">
+          <strong>{paused.what}</strong>
+          <small>{paused.done} of {paused.total} done</small>
+        </span>
+        <button class="small-primary" onclick={resumePaused}><Icon name="resume" size={18} /> Resume</button>
+      </div>
+      <span class="meter strong" aria-hidden="true"><i style="width: {(paused.done / Math.max(1, paused.total)) * 100}%"></i></span>
+      <button class="link" onclick={dropPaused}>Not now: start fresh next time</button>
+    </div>
+  {/if}
+
+  {#if due.length > 1}
+    <button class="all card" onclick={() => startAll()}>
+      <span class="grow">
+        <strong>Study all decks</strong>
+        <small>{dueTotal} {dueTotal === 1 ? 'review' : 'reviews'} due · about {Math.max(1, Math.round(dueTotal / 3))} {Math.round(dueTotal / 3) <= 1 ? 'minute' : 'minutes'}</small>
+        <span class="chips">{#each due as d (d.deck.id)}<span class="chip">{d.deck.name} {d.n}</span>{/each}</span>
+        <small>One mixed session. Each card still counts toward its own deck.</small>
+      </span>
+      <Icon name="play" size={18} />
+    </button>
+    {#if tipDue('all-decks')}
+      <div class="tip plain" role="note">
+        <p class="label tip-label"><Icon name="bulb" size={16} /> New: Study all decks</p>
+        <p>When several decks have reviews due, do them all in one go from here.</p>
+        <button class="quiet" onclick={() => tipSeen('all-decks')}>Got it</button>
+      </div>
+    {/if}
   {/if}
 
   {#if decks.length}
@@ -112,6 +175,7 @@
   {/if}
 
   <div class="group">
+    {#if reminderText}<p class="reminder"><Icon name="bell" size={16} /> {reminderText}</p>{/if}
     <p class="label">Add a deck</p>
     <input bind:this={picker} type="file" accept=".apkg,.ankh" hidden onchange={onFile} />
     <div class="adds">
@@ -132,6 +196,12 @@
           const name = data.decks[r.id].name;
           pending = null;
           report(name, r.notes, r.skipped, r.id);
+          if (r.suggest) {
+            // Straight to Thoth's suggestions for the new deck.
+            openDeck(r.id);
+            ui.aiTab = 'improve';
+            openPanel('ai');
+          }
         }}
       />
     {/if}
@@ -294,5 +364,100 @@
     padding: 12px 14px;
     display: flex;
     align-items: center;
+  }
+  .resume {
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--sel-bg);
+    border-color: var(--brass);
+  }
+  .resume .label {
+    margin: 0;
+    color: var(--sel-text);
+  }
+  .resume-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+  }
+  .resume-row .grow,
+  .all .grow {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .small-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 16px;
+    background: var(--check-bg);
+    color: var(--check-text);
+    border: 3px solid var(--check-line);
+    font: 600 16px var(--body);
+  }
+  .meter.strong {
+    height: 8px;
+  }
+  .link {
+    align-self: flex-start;
+    background: none;
+    border: 0;
+    padding: 4px 0;
+    min-height: 32px;
+    color: var(--muted);
+    font: 400 13px var(--body);
+    text-decoration: underline;
+  }
+  .all {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px;
+    text-align: left;
+    color: var(--text);
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 2px 0;
+  }
+  .chip {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border: 1.5px solid var(--hair);
+  }
+  .tip {
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-color: var(--emerald);
+  }
+  .tip p {
+    margin: 0;
+  }
+  .tip-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--emerald);
+  }
+  .tip .quiet {
+    align-self: flex-start;
+  }
+  .reminder {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 4px;
+    font-size: 13px;
+    color: var(--muted);
   }
 </style>
