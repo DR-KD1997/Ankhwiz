@@ -278,3 +278,44 @@ p {
     animation: none !important;
   }
 }
+
+/* Lists reordered by holding and dragging a grip (see ui/sortable.ts). */
+.grip {
+  flex: none;
+  width: 32px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: grab;
+  touch-action: none;
+}
+.grip:hover {
+  color: var(--text);
+}
+.sorting {
+  user-select: none;
+  -webkit-user-select: none;
+}
+.sorting .grip {
+  cursor: grabbing;
+}
+[data-sort] {
+  transition: transform 0.15s ease;
+}
+[data-sort].lifted {
+  transition: none;
+  position: relative;
+  z-index: 2;
+  background: var(--surface);
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-sort] {
+    transition: none;
+  }
+}

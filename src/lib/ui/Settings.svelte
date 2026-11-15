@@ -5,6 +5,8 @@
   import { backupLibrary, restoreLibraryFile } from '../exporting';
   import { askNotifications, platform, remindsNatively, secretHome } from '../platform';
   import { applyReminder, reminderText } from '../reminders';
+  import { DEFAULT_SOUNDS, playFrom, SOUND_SETS, type SoundSet } from '../sounds';
+  import { canSpeak } from '../speech';
   import { checkForUpdate, RELEASES, VERSION, type UpdateResult } from '../updates';
   import {
     data,
@@ -13,15 +15,20 @@
     newer,
     now,
     save,
+    setAutoRead,
     setLessonSize,
     setMotion,
+    setSounds,
+    setUpdateAtLaunch,
     setTheme,
     setThoth,
     skipDays,
     ui,
+    type AutoRead,
     type Theme,
   } from '../store.svelte';
   import Icon from './Icon.svelte';
+  import WhatsNew from './WhatsNew.svelte';
 
   const themes: [Theme, string][] = [
     ['system', 'System'],
@@ -33,6 +40,22 @@
     ['quiet', 'Quiet', 'Thoth appears only when a lesson ends.'],
     ['hidden', 'Hidden', 'No mascot. His advice stays as a plain Suggestions list.'],
   ];
+
+  // ----- sounds and reading aloud -----
+  const sounds = $derived(data.settings.sounds ?? DEFAULT_SOUNDS);
+  const soundAbout = $derived(sounds === 'off' ? 'No sounds when you answer.' : `${SOUND_SETS.find((s) => s.id === sounds)?.about}. Plays for right, nearly right and wrong answers, and at the end of a lesson.`);
+  const reads: [AutoRead, string][] = [
+    ['off', 'Off'],
+    ['question', 'Question'],
+    ['answer', 'Answer'],
+    ['both', 'Both'],
+  ];
+  const readAbout: Record<AutoRead, string> = {
+    off: 'Cards are read only when you tap a speaker button.',
+    question: 'Each question is read as its card opens.',
+    answer: 'The answer is read once you check it.',
+    both: 'The question as its card opens, and the answer once you check it.',
+  };
 
   let confirmErase = $state(false);
   let note = $state('');
@@ -210,6 +233,34 @@
   </div>
 
   <div class="group">
+    <p class="label">Sounds</p>
+    <div class="row plain">
+      <label class="field grow">
+        <span>Answer sounds</span>
+        <select value={sounds} onchange={(e) => setSounds(e.currentTarget.value as SoundSet | 'off')}>
+          {#each SOUND_SETS as s (s.id)}<option value={s.id}>{s.name}</option>{/each}
+          <option value="off">Off</option>
+        </select>
+      </label>
+      <button class="icon-btn play" aria-label="Hear the end of a lesson" disabled={sounds === 'off'} onclick={() => sounds !== 'off' && playFrom(sounds, 'end')}><Icon name="play" /></button>
+    </div>
+    <p class="hint">{soundAbout}</p>
+  </div>
+
+  <div class="group">
+    <p class="label">Reading aloud</p>
+    <div class="seg" role="group" aria-label="Read by itself">
+      {#each reads as [value, name] (value)}
+        <button aria-pressed={(data.settings.autoRead ?? 'off') === value} onclick={() => setAutoRead(value)}>{name}</button>
+      {/each}
+    </div>
+    <p class="hint">
+      {readAbout[data.settings.autoRead ?? 'off']}
+      {canSpeak() ? 'This applies to decks with Read aloud turned on in their options.' : 'This device offers no voices here.'}
+    </p>
+  </div>
+
+  <div class="group">
     <p class="label">New decks</p>
     <div class="row plain">
       <span><strong>Lesson size</strong><small>New notes per lesson, {limits.minLesson} to {limits.maxLesson}. Each deck can also set its own.</small></span>
@@ -321,11 +372,18 @@
   <div class="group">
     <p class="label">Updates</p>
     <div class="row plain">
-      <span><strong>Ankhwiz {VERSION}</strong><small>Checked only when you tap Check now</small></span>
+      <span><strong>Ankhwiz {VERSION}</strong><small>{data.updates.atLaunch ? 'Also checked when Ankhwiz opens, once a day' : 'Checked only when you tap Check now'}</small></span>
       <button class="quiet" disabled={checking} onclick={check}>{checking ? 'Checking…' : 'Check now'}</button>
     </div>
+    <div class="row plain">
+      <span><strong>Check when Ankhwiz opens</strong><small>At most once a day; a new version shows what's new in it</small></span>
+      <button class="switch" role="switch" aria-checked={!!data.updates.atLaunch} aria-label="Check for updates when Ankhwiz opens" onclick={() => setUpdateAtLaunch(!data.updates.atLaunch)}><span></span></button>
+    </div>
     {#if update?.state === 'newer'}
-      <p class="update ok" role="status"><strong>Ankhwiz {update.version} is available.</strong>{update.notes ? ` ${update.notes}` : ''} <a href={RELEASES} target="_blank" rel="noopener">See the release</a></p>
+      <div class="update ok" role="status">
+        <p><strong>Ankhwiz {update.version} is available.</strong> <a href={update.url} target="_blank" rel="noopener">Get it</a></p>
+        {#if update.details}<WhatsNew notes={update.details} />{/if}
+      </div>
     {:else if update?.state === 'current'}
       <p class="update" role="status">You have the latest version.</p>
     {:else if update?.state === 'none'}
@@ -408,6 +466,14 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
+  }
+  .grow {
+    flex: 1;
+    min-width: 0;
+  }
+  .row .play {
+    align-self: flex-end;
+    flex: none;
   }
   .stepper,
   .pair {
@@ -565,6 +631,14 @@
     border-color: var(--ok-line);
     background: var(--ok-bg);
     color: var(--ok-text);
+  }
+  div.update {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  div.update p {
+    margin: 0;
   }
   .update.bad,
   .bad {

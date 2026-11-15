@@ -209,4 +209,18 @@ describe('matching note types', () => {
     expect(pic.occlusion!.shapes).toHaveLength(3);
     expect(pic.occlusion!.image).toBe('arm.png');
   });
+
+  it('keeps Ask both ways for each note type', async () => {
+    const pkg = await readPackage(fixture('multi-field.apkg'), 'multi-field.apkg', open);
+    const by = (name: string) => pkg.notetypes.find((t) => t.name === name)!;
+    const reversed = by('Basic (and reversed card)');
+    const vocab = by('Japanese vocab');
+    const { notetypes } = packageRows(pkg, { [vocab.id]: { bothWays: true } }, false);
+    expect(notetypes[reversed.id].bothWays).toBe(true);
+    expect(notetypes[vocab.id].bothWays).toBe(true);
+    expect(notetypes[by('Image Occlusion').id].bothWays).toBe(false);
+    const off = packageRows(pkg, { [reversed.id]: { bothWays: false } }, false).notetypes;
+    expect(off[reversed.id].bothWays).toBe(false);
+    expect(off[vocab.id].bothWays).toBe(false);
+  });
 });

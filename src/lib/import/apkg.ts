@@ -69,6 +69,8 @@ export interface Mapping {
   extraMore: number[];
   /** The learner checks these cards themselves. */
   selfCheck: boolean;
+  /** Ask this type's cards both ways. */
+  bothWays?: boolean | null;
 }
 
 /** How notes are grouped into units. */
@@ -526,6 +528,7 @@ export function packageRows(pkg: AnkiPackage, mappings: Record<string, Partial<M
       questionMore: qMore,
       extraMore: xMore,
       occlusion: !!type.occlusion,
+      bothWays: !type.cloze && !type.occlusion ? (map.bothWays ?? type.reverse) : false,
     };
     // Decks that went out from Ankhwiz carry their other right answers and wrong options in fields of their own.
     const named = (name: string) => {

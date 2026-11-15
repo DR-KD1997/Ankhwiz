@@ -25,6 +25,7 @@ import {
   testOutQuestions,
 } from './core';
 import type { ThothMode } from './core/thoth';
+import type { SoundSet } from './sounds';
 import type { CardState, Deck, DeckOptions, Edit, Exercise, Outcome, Progress, QueueItem, RawNote, Streak, TestResult } from './core/types';
 import { putMedia, removeDeckMedia } from './media';
 
@@ -33,6 +34,8 @@ const DAY = 86_400_000;
 const KEY = 'ankhwiz-prototype-v1';
 
 export type Theme = 'system' | 'light' | 'dark';
+/** What is read aloud by itself in decks with reading aloud on. */
+export type AutoRead = 'off' | 'question' | 'answer' | 'both';
 
 /** The AI connection. The key is not here: it lives in the device's key storage. */
 export interface AiSettings {
@@ -45,7 +48,7 @@ export interface AiSettings {
 }
 
 /** The version of the stored data. Raise it with a step in MIGRATIONS whenever the shape changes. */
-export const DATA_VERSION = 3;
+export const DATA_VERSION = 4;
 
 export interface Reminder {
   on: boolean;
@@ -59,7 +62,17 @@ export interface AppData {
   v: number;
   decks: Record<string, Deck>;
   progress: Record<string, Progress>;
-  settings: { theme: Theme; thoth: ThothMode; lessonSize: number; /** Thoth's animation; missing means on. */ motion?: boolean };
+  settings: {
+    theme: Theme;
+    thoth: ThothMode;
+    lessonSize: number;
+    /** Thoth's animation; missing means on. */
+    motion?: boolean;
+    /** Answer sounds: a set's id, or 'off'. Missing means Reed marimba. */
+    sounds?: SoundSet | 'off';
+    /** Read aloud by itself, in decks with reading aloud on: the question as a card opens, the answer once checked. */
+    autoRead?: AutoRead;
+  };
   ai: AiSettings;
   streak: Streak;
   /** Copies of decks from before larger changes, newest first, by deck. */
@@ -77,8 +90,15 @@ export interface AppData {
   lastBackup: number | null;
   /** Streak lengths already celebrated. */
   celebrated: number[];
-  /** The newest release seen by the last update check. */
-  updates: { checked: number | null; latest: string | null };
+  /** The newest release seen by the last update check; whether to check when Ankhwiz opens. */
+  updates: {
+    checked: number | null;
+    latest: string | null;
+    /** Check at launch (at most once a day). Missing: not yet asked. */
+    atLaunch?: boolean;
+    /** A version the learner chose to skip. */
+    skipped?: string | null;
+  };
 }
 
 export interface Backup {
@@ -233,6 +253,23 @@ const MIGRATIONS: Record<number, (saved: Saved) => void> = {
   // All are new fields with defaults; a session saved by 0.3 (none were) would lack a kind.
   2: (saved) => {
     saved.paused = null;
+  },
+  // 3 → 4 (0.4.1): reading aloud became a deck switch (speaker buttons) plus an
+  // app-wide choice of what is read by itself. A deck that read the question or
+  // the answer by itself keeps doing so.
+  3: (saved) => {
+    const decks = Object.values((saved.decks ?? {}) as Record<string, { options?: { look?: { speak?: string } } }>);
+    const ways = new Set<string>();
+    for (const d of decks) {
+      const look = d.options?.look;
+      if (!look?.speak) continue;
+      if (look.speak === 'question' || look.speak === 'answer') ways.add(look.speak);
+      look.speak = look.speak === 'off' ? 'off' : 'on';
+    }
+    if (ways.size) {
+      const settings = ((saved.settings ??= {}) as Record<string, unknown>);
+      settings.autoRead = ways.size > 1 ? 'both' : [...ways][0];
+    }
   },
 };
 
@@ -409,6 +446,27 @@ export function setMotion(on: boolean): void {
   save();
 }
 
+export function setSounds(set: SoundSet | 'off'): void {
+  data.settings.sounds = set;
+  save();
+}
+
+export function setAutoRead(how: AutoRead): void {
+  data.settings.autoRead = how;
+  save();
+}
+
+/** Check for a newer Ankhwiz whenever it opens (at most once a day), or not. */
+export function setUpdateAtLaunch(on: boolean): void {
+  data.updates.atLaunch = on;
+  save();
+}
+
+export function skipVersion(version: string): void {
+  data.updates.skipped = version;
+  save();
+}
+
 export function setLessonSize(size: number): void {
   data.settings.lessonSize = clampLessonSize(size);
   save();
@@ -471,6 +529,15 @@ export function setDeckAccents(id: string, strict: boolean): void {
 export function setDeckOptions(id: string, patch: Partial<DeckOptions>): void {
   const deck = data.decks[id];
   deck.options = { ...deck.options, ...patch, look: { ...deck.options.look, ...patch.look } };
+  save();
+}
+
+/** Ask the cards of one Anki note type both ways, or not ('' means cards made in Ankhwiz). */
+export function setTypeBothWays(id: string, ntid: string, on: boolean): void {
+  const deck = data.decks[id];
+  const type = ntid ? deck.anki?.notetypes[ntid] : null;
+  if (type) type.bothWays = on;
+  else deck.options = { ...deck.options, bothWays: on };
   save();
 }
 

@@ -20,5 +20,12 @@ export function cardIds(deck: Deck, note: Note): string[] {
     return parts.map((n, i) => (i === 0 ? note.id : `${note.id}:o${n}`));
   }
   if (note.cloze) return gapNumbers(note.front).map((n, i) => (i === 0 ? note.id : `${note.id}:c${n}`));
-  return deck.options.bothWays ? [note.id, `${note.id}:r`] : [note.id];
+  return asksBothWays(deck, note) ? [note.id, `${note.id}:r`] : [note.id];
+}
+
+/** A note's Anki note type's own Ask both ways, otherwise the deck's. */
+export function asksBothWays(deck: Deck, note: Note): boolean {
+  if (note.cloze || note.occlusion) return false;
+  const own = note.anki ? deck.anki?.notetypes[note.anki.ntid]?.bothWays : null;
+  return own ?? deck.options.bothWays;
 }

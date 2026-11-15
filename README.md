@@ -79,24 +79,30 @@ with a retention slider per deck.
 - **Skip for today** and **Stop asking this one** (Anki's bury and suspend).
 - **Daily goal** you can pass, a **streak** with milestones, and a
   **progress** page: cards by stage, the week ahead, share remembered.
+- **Answer sounds** in four sets made on the spot, with no audio files: Reed
+  marimba (the default), Lyre, Temple bell and Soft pop, or none.
+- **Read aloud** with the device's own voices: a speaker button by the
+  question and the answer, a language for each, and, if you like, reading by
+  itself as each card opens or once it is checked.
 - **Keyboard shortcuts** on desktop: number keys, Enter, E to explain, R to
   read aloud, S to skip, Esc to leave, ? for the list.
 
 ### Cards
-- **Kinds:** one way, both ways, fill the gap (`{{c1::…}}`), pictures with
-  hidden parts, and self-check.
+- **Kinds:** one way, both ways (set for each kind of card), fill the gap
+  (`{{c1::…}}`), pictures with hidden parts, and self-check.
 - **Several fields:** Question and Extra can each hold several fields, added
-  with **+**. Each is a little smaller than the last, and past the third the
-  rest fold away behind an arrow on the card. The first Question field is the
-  one swapped with the answer when a deck is asked both ways.
+  with **+** and put in order by holding and dragging. Each is a little
+  smaller than the last, and past the third the rest fold away behind an
+  arrow on the card. The first Question field is the one swapped with the
+  answer when a card is asked both ways.
 - **Pictures with hidden parts** (Anki's Image Occlusion): imported from
   Anki or drawn in the editor. Named parts are asked as questions; unnamed
   parts you check yourself.
 - **Self-check** for cards the app cannot mark: see the answer, then say
   Missed it, Partly or Got it.
 - **Also accepted** answers, hand-picked **wrong options**, **labels**,
-  pictures and sounds on either side, **read aloud** in the deck's language,
-  text size, font and right-to-left per deck.
+  pictures and sounds on either side, text size, font and right-to-left per
+  deck.
 - **Card browser and editor** with search, filters and each card's history;
   rename and reorder lessons and units; up to five backups per deck.
 
@@ -128,7 +134,8 @@ keyring, the Android Keystore) and never goes into decks or backups.
 ### Working with Anki
 - **Import** `.apkg` files in both Anki package formats. Each note type is
   matched for you from its card layout (or recognised as an Ankhwiz, cloze or
-  Image Occlusion type); change any field, or add more with +. Group cards
+  Image Occlusion type); change any field, add more with +, drag them into
+  order, and choose Ask both ways for each note type. Group cards
   into units by subdeck, by tag, or as one unit, and bring your Anki
   progress if you like.
 - **Export** to `.apkg`: units become subdecks, lessons travel as `ankh::`
@@ -145,8 +152,9 @@ keyring, the Android Keystore) and never goes into decks or backups.
   progress and settings, never your AI key) and restore it on another device.
 - **Daily reminder** at a time and on days you choose, only when you haven't
   studied yet. On Android it comes even when the app is closed.
-- **Update check** when you ask: one request to GitHub for the latest
-  version number.
+- **Update check** when you ask, or, if you choose, when Ankhwiz opens (once
+  a day at most), showing what's new: one request to GitHub for the latest
+  release.
 - Stored data is versioned and upgraded step by step.
 
 ### Accessible
@@ -163,12 +171,19 @@ From the [Releases page](https://github.com/DR-KD1997/Ankhwiz/releases):
 | --- | --- |
 | Windows 10 and 11 | `…-windows-setup.exe` (installs for you only, no administrator rights), or `…-windows-x64.zip` to run without installing |
 | Linux | `…_amd64.deb` for Debian, Ubuntu and Mint, or `…_amd64.AppImage` for any distribution |
-| Android 7.0 and newer | `…-debug.apk` (allow installing from unknown sources) |
+| Android 7.0 and newer | `…-release.apk` (allow installing from unknown sources) |
 | Any browser | `….html`, the whole app in one file |
 
 Windows needs Microsoft Edge WebView2, part of Windows 11 and up-to-date
-Windows 10. The programs are not signed yet, so Windows may warn about an
-unknown publisher ("More info", then "Run anyway").
+Windows 10. Until the Windows programs are signed (see Code signing below),
+Windows may warn about an unknown publisher ("More info", then "Run anyway").
+Linux reads aloud through speech-dispatcher, which most desktops include.
+
+**Android, from 0.4.1:** the app is now signed with Ankhwiz's permanent
+release key. Because earlier versions used a test key, 0.4.1 cannot install
+over them: back up your library (Settings › Your library › Back up all),
+uninstall the old app, install 0.4.1 and restore. Later versions install over
+0.4.1 as usual.
 
 ## Getting started
 
@@ -196,7 +211,7 @@ On a deck's screen, under the lesson path's top:
 ```
 core/          Rust. Every learning rule: stages, grading, sessions, lesson
                splitting, scheduling, test outs, Anki import and export,
-               AI prompts and reply checking. One JSON entry point, 62 tests.
+               AI prompts and reply checking. One JSON entry point, 63 tests.
 src/           The shared interface (Svelte 5, TypeScript). Calls the core,
                compiled to WebAssembly, through src/lib/core/index.ts.
 src/lib/platform.ts
@@ -241,11 +256,21 @@ the interface builds without a Rust toolchain.
 - **Windows:** `npx tauri build --no-bundle`, then `makensis
   windows/installer.nsi` (see the top of that file).
 - **Android:** `scripts/build-android.sh`, using only `aapt`, `javac`,
-  `dx` or `d8`, `zipalign` and `apksigner`. Android updates an app only with
-  the same signing key, so the script reuses `android/debug.keystore` (a
-  test key, kept out of the repository) or your own release key through
-  `ANKHWIZ_KEYSTORE`, `ANKHWIZ_KEYSTORE_PASS`, `ANKHWIZ_KEY_ALIAS` and
-  `ANKHWIZ_KEY_PASS`.
+  `dx` or `d8`, `zipalign` and `apksigner`. Releases are signed with
+  Ankhwiz's release key through `ANKHWIZ_KEYSTORE`, `ANKHWIZ_KEYSTORE_PASS`
+  and `ANKHWIZ_KEY_ALIAS`; without them the script uses a local test key.
+  See [`windows/SIGNING.md`](windows/SIGNING.md).
+
+### Code signing
+
+Android releases are signed with Ankhwiz's release key, held by the
+maintainer and never stored in this repository. Windows releases will be
+signed through [SignPath Foundation](https://signpath.org), with a
+certificate issued to the foundation, once the project is accepted: only
+files built by this repository's GitHub workflow from its public source are
+submitted for signing, and each request is approved by the maintainer
+(DR-KD1997). Ankhwiz sends nothing about you anywhere unless you set up an AI
+connection or ask it to check for updates; see Settings for what each sends.
 
 ## Roadmap
 
@@ -255,7 +280,7 @@ the interface builds without a Rust toolchain.
 - Card templates you can edit, and translations beyond English.
 - A dictionary-tool connection (AnkiConnect-compatible) for adding cards
   while reading.
-- The Tauri Android shell, and signed release builds.
+- The Tauri Android shell, and signed Windows builds.
 
 ## Licence and credits
 

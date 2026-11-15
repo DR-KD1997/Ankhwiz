@@ -9,9 +9,11 @@
 
 <script lang="ts">
   // Thoth, final concept, traced from the approved artwork: profile against a
-  // gold sun disc, emerald headdress, crescent and sphere crown.
-  // The full figure has six short rays and shoulders; the square portrait
-  // used beside his speech in lessons has neither.
+  // gold sun disc, emerald headdress, crescent and sphere crown. Revised in
+  // 0.4.1 after the tomb-painting study: a slender ibis bill, ink outlines on
+  // the disc and crown, and six pointed rays set out from the disc.
+  // The full figure has the rays and shoulders; the square portrait used
+  // beside his speech in lessons has neither.
   //
   // Movement: an idle loop (breathing, blinking, glancing, the sun's rays and
   // the crown's sphere glinting) in CSS, and one-off reactions (nod, happy,
@@ -37,14 +39,21 @@
     nodOn?: unknown;
   } = $props();
 
-  // Sun disc: centre, radius, inner ring radius. Measured separately for each use.
-  const disc = $derived(portrait ? { x: 159.1, y: 171.9, r: 115.2, ring: 103 } : { x: 159.8, y: 170.9, r: 120.2, ring: 107 });
-  // The beak is a little shorter in the portrait, so its tip stays inside the frame.
-  const beak = $derived(
-    portrait
-      ? 'M206 96.4 C264 100.4 296 148.4 300 216.4 C272 168.4 242 150.4 204 148.4'
-      : 'M206 96.4 C262 99 303 150 305.4 221 C272 168.4 242 150.4 204 148.4',
-  );
+  // Sun disc: centre and radius, smaller in the portrait so it fits the square.
+  // Inside its ink outline sit a rust ring and a fine ink line.
+  const disc = $derived.by(() => {
+    const d = portrait ? { x: 159.1, y: 171.9, r: 115.2 } : { x: 159.8, y: 170.9, r: 120.2 };
+    const k = d.r / 120.2;
+    return { ...d, ring: 108 * k, line: 104.5 * k };
+  });
+  // The slender ibis bill, with a rounded tip; it fits the portrait's frame too.
+  const beak = 'M206 100.4 C256 104.4 290 154.4 298 230.4 C294 234.4 290 234.4 288 230.4 C276 172.4 246 144.4 204 136.4';
+  // Pointed rays: a base 10 wide, 146.2 out from the disc's centre, 24 or 14 long.
+  const ray = (long: boolean) => {
+    const { x, y } = disc;
+    const base = y - 146.2;
+    return `M${x - 5} ${base} L${x + 5} ${base} L${x} ${base - (long ? 24 : 14)} Z`;
+  };
   const rays = [
     { a: 30, long: true },
     { a: -30, long: true },
@@ -197,23 +206,20 @@
   <g bind:this={whole} class="move">
     {#if !portrait}
       <g bind:this={flare} class="move">
-        <g fill="#A8431F">
+        <g fill="#A8431F" stroke="#1F1A14" stroke-width="3" stroke-linejoin="round">
           {#each rays as r, i (r.a)}
             <g class="ray" style="animation-delay: calc(var(--delay) - {i * 0.6}s)">
-              {#if r.long}
-                <rect x={disc.x - 4} y={disc.y - 151.4} width="8" height="20" transform="rotate({r.a} {disc.x} {disc.y})" />
-              {:else}
-                <rect x={disc.x - 2.75} y={disc.y - 143.3} width="5.5" height="12" transform="rotate({r.a} {disc.x} {disc.y})" />
-              {/if}
+              <path d={ray(r.long)} transform="rotate({r.a} {disc.x} {disc.y})" />
             </g>
           {/each}
         </g>
       </g>
     {/if}
-    <circle cx={disc.x} cy={disc.y} r={disc.r} fill="#E0AE3A" />
-    <circle class="warm" cx={disc.x} cy={disc.y} r={disc.r} fill="#F4C24A" />
-    <circle bind:this={glow} cx={disc.x} cy={disc.y} r={disc.r} fill="#F7CB52" opacity="0" />
-    <circle cx={disc.x} cy={disc.y} r={disc.ring} fill="none" stroke="#B5532E" stroke-width="3.2" />
+    <circle cx={disc.x} cy={disc.y} r={disc.r} fill="#E0AE3A" stroke="#1F1A14" stroke-width="3" />
+    <circle class="warm" cx={disc.x} cy={disc.y} r={disc.r - 1.5} fill="#F4C24A" />
+    <circle bind:this={glow} cx={disc.x} cy={disc.y} r={disc.r - 1.5} fill="#F7CB52" opacity="0" />
+    <circle cx={disc.x} cy={disc.y} r={disc.ring} fill="none" stroke="#B5532E" stroke-width="5" />
+    <circle cx={disc.x} cy={disc.y} r={disc.line} fill="none" stroke="#1F1A14" stroke-width="1.5" />
     {#if !portrait}
       <path
         class="breathe"
@@ -247,8 +253,8 @@
       <g bind:this={ponder} class="ponder">
         <g bind:this={head} class="move">
           <circle cx="170" cy="126.4" r="46" fill="#1F1A14" />
-          <path d="{beak} Z" fill="#1F1A14" />
-          <path d={beak} fill="none" stroke="var(--thoth-outline)" stroke-width="1.5" />
+          <path d="{beak} Z" fill="#1F1A14" stroke="#1F1A14" stroke-width="3" stroke-linejoin="round" />
+          <path d={beak} fill="none" stroke="var(--thoth-outline)" stroke-width="1.5" stroke-linejoin="round" />
           <g bind:this={lid} class="move">
             <g class="blink">
               <clipPath id={eyeClip}><path d={EYE} /></clipPath>
@@ -262,20 +268,22 @@
               d="M122.8 36.3 A39 39 0 0 0 200.8 36.3 A42.8 27.9 0 0 1 122.8 36.3 Z"
               fill="#FBF4E2"
               stroke="#1F1A14"
-              stroke-width="3.7"
+              stroke-width="3"
               stroke-linejoin="round"
             />
-            <circle cx="161.8" cy="33.9" r="17" fill="#C99A2E" stroke="#1F1A14" stroke-width="3.7" />
+            <circle cx="161.8" cy="33.9" r="17" fill="#C99A2E" stroke="#1F1A14" stroke-width="3" />
+            <circle cx="161.8" cy="33.9" r="11.6" fill="none" stroke="#1F1A14" stroke-width="1" />
             <circle class="glint" cx="155.8" cy="27.9" r="5" fill="#FFF3CC" />
           {:else}
             <path
               d="M120.2 34.5 A42 42 0 0 0 204.2 34.5 A46 30 0 0 1 120.2 34.5 Z"
               fill="#FBF4E2"
               stroke="#1F1A14"
-              stroke-width="4"
+              stroke-width="3"
               stroke-linejoin="round"
             />
-            <circle cx="162.3" cy="32" r="19" fill="#C99A2E" stroke="#1F1A14" stroke-width="4" />
+            <circle cx="162.3" cy="32" r="19" fill="#C99A2E" stroke="#1F1A14" stroke-width="3" />
+            <circle cx="162.3" cy="32" r="13" fill="none" stroke="#1F1A14" stroke-width="1" />
             <circle class="glint" cx="155.8" cy="25.5" r="5.5" fill="#FFF3CC" />
           {/if}
         </g>
@@ -376,7 +384,7 @@
       opacity: 1;
     }
     50% {
-      opacity: 0.5;
+      opacity: 0.6;
     }
   }
   .warm {

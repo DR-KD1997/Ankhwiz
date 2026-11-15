@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.content.pm.PackageManager;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
+import android.speech.tts.TextToSpeech;
 import android.util.Base64;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
@@ -38,6 +39,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.KeyStore;
 import java.util.Iterator;
+import java.util.Locale;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -53,6 +55,9 @@ public class MainActivity extends Activity {
     private static final int SAVE_FILE = 2;
 
     private WebView web;
+    /** The phone's own text-to-speech, for reading cards aloud. */
+    private TextToSpeech tts;
+    private volatile boolean ttsReady = false;
     private ValueCallback<Uri[]> pendingPick;
     private byte[] pendingSave;
 
@@ -111,9 +116,26 @@ public class MainActivity extends Activity {
             }
         });
 
+        tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                ttsReady = status == TextToSpeech.SUCCESS;
+            }
+        });
+
         web.addJavascriptInterface(new Bridge(), "AnkhwizAndroid");
         if (state == null) web.loadUrl(START);
         else web.restoreState(state);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (tts != null) tts.shutdown();
+        super.onDestroy();
+    }
+
+    private Locale localeOf(String lang) {
+        return lang == null || lang.isEmpty() ? Locale.getDefault() : Locale.forLanguageTag(lang.replace('_', '-'));
     }
 
     @Override
@@ -294,6 +316,29 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public String saveBase64(final String name, final String base64) {
             return save(name, Base64.decode(base64, Base64.DEFAULT), "application/octet-stream");
+        }
+
+        /** Reads text aloud: "ok", "no-voice" when the language has no voice installed, or "not-ready". */
+        @JavascriptInterface
+        public String speak(String text, String lang) {
+            if (!ttsReady) return "not-ready";
+            Locale locale = localeOf(lang);
+            if (tts.isLanguageAvailable(locale) < TextToSpeech.LANG_AVAILABLE) return "no-voice";
+            tts.setLanguage(locale);
+            tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "ankhwiz");
+            return "ok";
+        }
+
+        @JavascriptInterface
+        public void stopSpeaking() {
+            if (ttsReady) tts.stop();
+        }
+
+        /** "yes" or "no" for a language's voice, or "not-ready". */
+        @JavascriptInterface
+        public String voiceFor(String lang) {
+            if (!ttsReady) return "not-ready";
+            return tts.isLanguageAvailable(localeOf(lang)) >= TextToSpeech.LANG_AVAILABLE ? "yes" : "no";
         }
 
         private String save(final String name, final byte[] bytes, final String type) {

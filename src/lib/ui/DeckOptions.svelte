@@ -4,7 +4,7 @@
   import { limits } from '../core';
   import type { Look } from '../core/types';
   import { exportAnkh, exportApkg } from '../exporting';
-  import { canSpeak, speak } from '../speech';
+  import { canSpeak, hasVoice, speak, voiceHelp } from '../speech';
   import {
     copyOptionsToAll,
     data,
@@ -16,6 +16,7 @@
     setDeckAccents,
     setDeckLessonSize,
     setDeckOptions,
+    setTypeBothWays,
     ui,
   } from '../store.svelte';
   import Icon from './Icon.svelte';
@@ -34,6 +35,32 @@
   const look = (patch: Partial<Look>) => setDeckOptions(deck.id, { look: { ...o.look, ...patch } });
   const pct = $derived(Math.round(o.retention * 100));
   const firstType = $derived(deck.anki ? Object.values(deck.anki.notetypes)[0] : null);
+
+  // Ask both ways is set for each kind of question-and-answer card: each Anki
+  // note type in the deck, and the cards made in Ankhwiz.
+  const plain = $derived(Object.values(deck.notes).filter((n) => !n.cloze && !n.occlusion));
+  const kinds = $derived.by(() => {
+    const types = deck.anki ? Object.values(deck.anki.notetypes).filter((t) => !t.cloze && !t.occlusion) : [];
+    const count = (id: string) => plain.filter((n) => n.anki?.ntid === id).length;
+    const list = types.map((t) => ({ id: t.id, name: t.name, count: count(t.id), on: t.bothWays ?? o.bothWays })).filter((k) => k.count);
+    const own = plain.filter((n) => !n.anki || !deck.anki?.notetypes[n.anki.ntid]).length;
+    return { list, own };
+  });
+  const cards = (n: number) => `${n} ${n === 1 ? 'note' : 'notes'}`;
+
+  // Reading aloud: is there a voice for each language on this device?
+  let missing = $state<string[]>([]);
+  $effect(() => {
+    const langs = o.look.speak === 'off' ? [] : [...new Set([o.look.lang, o.look.langBack ?? ''].filter(Boolean))];
+    let live = true;
+    void Promise.all(langs.map(async (l) => ((await hasVoice(l)) === false ? l : null))).then((r) => {
+      if (live) missing = r.filter((x): x is string => !!x);
+    });
+    return () => {
+      live = false;
+    };
+  });
+  const sample = $derived(Object.values(deck.notes).find((n) => !n.cloze && !n.occlusion && n.front && n.back));
   const languages = ['en-GB', 'en-US', 'es-ES', 'es-MX', 'fr-FR', 'de-DE', 'it-IT', 'pt-BR', 'pt-PT', 'nl-NL', 'ja-JP', 'zh-CN', 'ko-KR', 'ar-SA', 'he-IL', 'ru-RU', 'tr-TR', 'af-ZA', 'zu-ZA'];
 
   async function run(kind: 'apkg' | 'ankh') {
@@ -96,10 +123,26 @@
 
   <div class="group">
     <p class="label">Card kinds</p>
-    <label class="row">
-      <span><strong>Ask both ways</strong><small>Also show the answer and ask for the question (Anki: reversed card)</small></span>
-      <input type="checkbox" checked={o.bothWays} onchange={(e) => setDeckOptions(deck.id, { bothWays: e.currentTarget.checked })} />
-    </label>
+    {#if kinds.list.length}
+      <div class="row kinds">
+        <span><strong>Ask both ways</strong><small>Also show the answer and ask for the question, for each kind of card (Anki: reversed card)</small></span>
+      </div>
+      {#each kinds.list as k (k.id)}
+        <label class="row sub">
+          <span><strong>{k.name}</strong><small>{cards(k.count)}</small></span>
+          <input type="checkbox" checked={k.on} onchange={(e) => setTypeBothWays(deck.id, k.id, e.currentTarget.checked)} />
+        </label>
+      {/each}
+      <label class="row sub">
+        <span><strong>Cards made in Ankhwiz</strong><small>{kinds.own ? `${cards(kinds.own)}, and any you add` : 'Cards you add here'}</small></span>
+        <input type="checkbox" checked={o.bothWays} onchange={(e) => setTypeBothWays(deck.id, '', e.currentTarget.checked)} />
+      </label>
+    {:else}
+      <label class="row">
+        <span><strong>Ask both ways</strong><small>Also show the answer and ask for the question (Anki: reversed card)</small></span>
+        <input type="checkbox" checked={o.bothWays} onchange={(e) => setTypeBothWays(deck.id, '', e.currentTarget.checked)} />
+      </label>
+    {/if}
     <label class="row">
       <span><strong>Require accents</strong><small>When off, “melocoton” counts for “melocotón”</small></span>
       <input type="checkbox" checked={deck.strictAccents} onchange={(e) => setDeckAccents(deck.id, e.currentTarget.checked)} />
@@ -146,25 +189,32 @@
       <span><strong>Show Extra as a hint</strong><small>Before answering, instead of after</small></span>
       <input type="checkbox" checked={o.look.hintExtra} onchange={(e) => look({ hintExtra: e.currentTarget.checked })} />
     </label>
-    <div class="row wrap">
-      <span><strong>Read aloud</strong><small>{canSpeak() ? 'With this device’s voices' : 'This device offers no voices here'}</small></span>
-      <div class="seg" role="group" aria-label="Read aloud">
-        {#each [['off', 'Off'], ['question', 'Question'], ['answer', 'Answer']] as [v, name] (v)}
-          <button aria-pressed={o.look.speak === v} onclick={() => look({ speak: v as Look['speak'] })}>{name}</button>
-        {/each}
-      </div>
-    </div>
+    <label class="row">
+      <span><strong>Read aloud</strong><small>{canSpeak() ? 'A speaker button by the question and the answer, with this device’s own voices' : 'This device offers no voices here'}</small></span>
+      <input type="checkbox" checked={o.look.speak !== 'off'} disabled={!canSpeak()} onchange={(e) => look({ speak: e.currentTarget.checked ? 'on' : 'off' })} />
+    </label>
     {#if o.look.speak !== 'off'}
-      <label class="row">
-        <span><strong>Language</strong><small>For example es-ES or fr-FR</small></span>
+      <label class="row sub">
+        <span><strong>Question language</strong><small>For example es-ES or fr-FR; empty for the device's own</small></span>
         <span class="lang">
           <input list="langs" value={o.look.lang} onchange={(e) => look({ lang: e.currentTarget.value.trim() })} placeholder="es-ES" />
-          <button class="icon-btn" aria-label="Try the voice" disabled={!o.look.lang || !canSpeak()} onclick={() => speak(Object.values(deck.notes)[0]?.front ?? deck.name, o.look.lang)}>
+          <button class="icon-btn" aria-label="Try the question voice" disabled={!canSpeak()} onclick={() => speak(sample?.front ?? deck.name, o.look.lang)}>
+            <Icon name="sound" />
+          </button>
+        </span>
+      </label>
+      <label class="row sub">
+        <span><strong>Answer language</strong><small>Empty when it is the same as the question's</small></span>
+        <span class="lang">
+          <input list="langs" value={o.look.langBack ?? ''} onchange={(e) => look({ langBack: e.currentTarget.value.trim() })} placeholder="Same" />
+          <button class="icon-btn" aria-label="Try the answer voice" disabled={!canSpeak()} onclick={() => speak(sample?.back ?? deck.name, o.look.langBack || o.look.lang)}>
             <Icon name="sound" />
           </button>
         </span>
       </label>
       <datalist id="langs">{#each languages as l (l)}<option value={l}></option>{/each}</datalist>
+      {#if missing.length}<p class="hint warn" role="status">No voice for {missing.join(' or ')} on this device yet. {voiceHelp()}</p>{/if}
+      <p class="hint">To have cards read by themselves as you go, choose what is read in Settings.</p>
     {/if}
   </div>
 
@@ -301,8 +351,13 @@
     padding: 10px 0;
     border-top: 1px solid var(--hair);
   }
-  .row.wrap {
-    flex-wrap: wrap;
+  .row.kinds {
+    padding-bottom: 2px;
+  }
+  .row.sub {
+    margin-left: 16px;
+    padding: 8px 0;
+    border-top-style: dashed;
   }
   .row > span:first-child {
     display: flex;
@@ -405,6 +460,9 @@
   .danger {
     border-color: var(--off-line);
     color: var(--off-text);
+  }
+  .warn {
+    color: var(--close-text);
   }
   .advanced summary {
     cursor: pointer;

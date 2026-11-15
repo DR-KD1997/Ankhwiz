@@ -12,3 +12,7 @@ builds/
 android/debug.keystore
 *.keystore
 *.jks
+
+# Signing key passwords and encoded copies.
+*PASSWORD*.txt
+*.base64.txt

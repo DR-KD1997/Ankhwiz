@@ -11,7 +11,7 @@ import { mediaBytes } from './media';
 import { saveBytes } from './platform';
 import { addImported, data, markBackedUp, restoreLibrary, snap } from './store.svelte';
 
-export const APP = 'Ankhwiz 0.4.0';
+export const APP = 'Ankhwiz 0.4.1';
 
 const fileName = (name: string, ext: string) =>
   `${name.replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80) || 'deck'}.${ext}`;
@@ -66,13 +66,16 @@ export type { AnkiPackage, Mapping, SplitBy };
 export async function importPackage(
   pkg: AnkiPackage,
   mappings: Record<string, Mapping>,
-  options: { withProgress: boolean; bothWays: boolean; name: string; splitBy?: SplitBy },
+  options: { withProgress: boolean; name: string; splitBy?: SplitBy; read?: { lang: string; langBack: string } | null },
 ): Promise<{ id: string; skipped: number; notes: number }> {
   const { rows, skipped, notetypes, media } = packageRows(pkg, mappings, { withProgress: options.withProgress, splitBy: options.splitBy });
   const build = { lessonSize: data.settings.lessonSize };
   const { deck, progress } = ankiImport(options.name || pkg.name, rows as RawNote[], build, pkg.crt);
   deck.anki = { notetypes };
-  deck.options = { ...deck.options, bothWays: options.bothWays };
+  // Each note type keeps its own Ask both ways; cards made here later follow
+  // the deck's, which starts on when any imported type asks both ways.
+  deck.options = { ...deck.options, bothWays: Object.values(notetypes).some((t) => t.bothWays) };
+  if (options.read) deck.options.look = { ...deck.options.look, speak: 'on', lang: options.read.lang, langBack: options.read.langBack };
   const files: Record<string, Uint8Array> = {};
   for (const m of media) if (pkg.media[m]) files[m] = pkg.media[m];
   const id = await addImported(deck, progress, files);

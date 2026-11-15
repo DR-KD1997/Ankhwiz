@@ -10,6 +10,7 @@
   import Icon from './Icon.svelte';
   import Media from './Media.svelte';
   import OcclusionEditor from './OcclusionEditor.svelte';
+  import { moved, sortable } from './sortable';
 
   const deck = $derived(data.decks[ui.deckId!]);
   const progress = $derived(data.progress[ui.deckId!] ?? {});
@@ -92,6 +93,18 @@
   let form = $state(blank());
   /** Type size for the n-th extra field of a list: smaller each time, down to the fourth. */
   const step = (n: number) => ['s1', 's2', 's3'][Math.min(n, 2)];
+  /** Drag a question or extra field to another place; the one moved to the top becomes the main field. */
+  function reorderFields(list: 'front' | 'extra', from: number, to: number) {
+    if (list === 'front') {
+      const l = moved([form.front, ...form.frontMore], from, to);
+      form.front = l[0];
+      form.frontMore = l.slice(1);
+    } else {
+      const l = moved([form.extra, ...form.extraMore], from, to);
+      form.extra = l[0];
+      form.extraMore = l.slice(1);
+    }
+  }
   let confirmDelete = $state(false);
   const list = (s: string) => s.split(/[,;]/).map((x) => x.trim()).filter(Boolean);
   const gaps = $derived(gapNumbers(form.front));
@@ -258,14 +271,17 @@
       {/if}
       <div class="field">
         <label for="q-main">{form.picture ? 'Heading' : 'Question'} <small>{form.picture ? 'Optional: shown above the picture' : 'Write gaps as {{c1::answer}} for a fill-the-gap card'}</small></label>
-        <div class="more-row">
+        <div class="more-list" use:sortable={{ onMove: (a, b) => reorderFields('front', a, b) }}>
+        <div class="more-row" data-sort>
+          {#if form.frontMore.length}<button class="grip" data-grip aria-label="Move question field 1: hold and drag, or use the arrow keys"><Icon name="grip" /></button>{/if}
           <textarea id="q-main" class="input" rows={form.picture ? 1 : 3} bind:value={form.front} dir="auto"></textarea>
           {#if !form.picture && !isCloze && !form.frontMore.length}
             <button class="plus" aria-label="Add another question field" onclick={() => (form.frontMore = [...form.frontMore, ''])}><Icon name="plus" size={18} /></button>
           {/if}
         </div>
         {#each form.frontMore as _, i (i)}
-          <div class="more-row">
+          <div class="more-row" data-sort>
+            <button class="grip" data-grip aria-label="Move question field {i + 2}: hold and drag, or use the arrow keys"><Icon name="grip" /></button>
             <input class="input {step(i)}" aria-label="Question field {i + 2}" bind:value={form.frontMore[i]} dir="auto" />
             <button class="minus" aria-label="Remove question field {i + 2}" onclick={() => (form.frontMore = form.frontMore.filter((_, j) => j !== i))}><Icon name="close" size={16} /></button>
             {#if i === form.frontMore.length - 1}
@@ -273,7 +289,8 @@
             {/if}
           </div>
         {/each}
-        {#if form.frontMore.length}<small>The first field is the main question (asked the other way round when the deck asks both ways); the others show under it, smaller{form.frontMore.length > 2 ? ', and after the third, behind an arrow' : ''}.</small>{/if}
+        </div>
+        {#if form.frontMore.length}<small>The first field is the main question (asked the other way round when this kind of card is asked both ways); the others show under it, smaller{form.frontMore.length > 2 ? ', and after the third, behind an arrow' : ''}.</small>{/if}
       </div>
       {#if form.picture}
         <!-- a picture card has no written answer: its parts are the answers -->
@@ -305,14 +322,17 @@
       {/if}
       <div class="field">
         <label for="x-main">Extra <small>An example or note, shown after answering</small></label>
-        <div class="more-row">
+        <div class="more-list" use:sortable={{ onMove: (a, b) => reorderFields('extra', a, b) }}>
+        <div class="more-row" data-sort>
+          {#if form.extraMore.length}<button class="grip" data-grip aria-label="Move extra field 1: hold and drag, or use the arrow keys"><Icon name="grip" /></button>{/if}
           <textarea id="x-main" class="input" rows="2" bind:value={form.extra} dir="auto"></textarea>
           {#if form.extra.trim() && !form.extraMore.length}
             <button class="plus" aria-label="Add another extra field" onclick={() => (form.extraMore = [...form.extraMore, ''])}><Icon name="plus" size={18} /></button>
           {/if}
         </div>
         {#each form.extraMore as _, i (i)}
-          <div class="more-row">
+          <div class="more-row" data-sort>
+            <button class="grip" data-grip aria-label="Move extra field {i + 2}: hold and drag, or use the arrow keys"><Icon name="grip" /></button>
             <input class="input {step(i)}" aria-label="Extra field {i + 2}" bind:value={form.extraMore[i]} dir="auto" />
             <button class="minus" aria-label="Remove extra field {i + 2}" onclick={() => (form.extraMore = form.extraMore.filter((_, j) => j !== i))}><Icon name="close" size={16} /></button>
             {#if i === form.extraMore.length - 1}
@@ -320,6 +340,7 @@
             {/if}
           </div>
         {/each}
+        </div>
       </div>
       <label class="check">
         <input type="checkbox" bind:checked={form.selfCheck} />
@@ -785,10 +806,19 @@
     border-color: var(--off-line);
     color: var(--off-text);
   }
+  .more-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
   .more-row {
     display: flex;
     gap: 6px;
     align-items: flex-start;
+  }
+  .more-row .grip {
+    width: 26px;
+    margin-right: -4px;
   }
   .more-row .input {
     flex: 1;

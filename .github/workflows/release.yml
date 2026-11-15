@@ -5,11 +5,21 @@
 # and portable zip, the Linux .deb and AppImage, the Android APK and the
 # one-file version, gathered into a draft release to check and publish.
 #
-# Android signing: add these repository secrets to sign with your own
-# release key (otherwise the APK is signed with a new test key, which cannot
-# update an app installed from another build):
-#   ANDROID_KEYSTORE_BASE64   the .jks/.keystore file, base64-encoded
-#   ANDROID_KEYSTORE_PASS, ANDROID_KEY_ALIAS, ANDROID_KEY_PASS
+# Android signing (required for a tagged release since 0.4.1): repository
+# secrets holding Ankhwiz's release key. A release is never signed with a
+# throwaway key, because that APK could not update the app already installed.
+#   ANDROID_KEYSTORE_BASE64   the .jks file, base64-encoded
+#   ANDROID_KEYSTORE_PASS     its password (also the key's, unless
+#   ANDROID_KEY_PASS          says otherwise)
+#   ANDROID_KEY_ALIAS         "ankhwiz"
+#
+# Windows signing through SignPath (optional; used once these exist). With
+# them, Ankhwiz.exe is signed first, the installer is built around the signed
+# program, and then the installer itself is signed. Without them, the Windows
+# files are published unsigned, as before. See windows/SIGNING.md.
+#   secret   SIGNPATH_API_TOKEN
+#   variables SIGNPATH_ORGANIZATION_ID, SIGNPATH_PROJECT_SLUG,
+#             SIGNPATH_POLICY_SLUG (for example release-signing)
 
 name: Build and release
 
@@ -54,7 +64,8 @@ jobs:
           node-version: 22
           cache: npm
       - uses: dtolnay/rust-toolchain@stable
-      - run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+      # libspeechd-dev: reading aloud through speech-dispatcher.
+      - run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf libspeechd-dev
       - run: npm ci
       - run: npx tauri build --bundles deb,appimage
       - uses: actions/upload-artifact@v4
@@ -68,6 +79,8 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: test
     runs-on: windows-latest
+    env:
+      SIGNPATH: ${{ secrets.SIGNPATH_API_TOKEN != '' && vars.SIGNPATH_ORGANIZATION_ID != '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -77,16 +90,57 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: npm ci
       - run: npx tauri build --no-bundle
+      - name: Gather the program
+        shell: bash
+        run: |
+          mkdir -p program
+          cp src-tauri/target/release/ankhwiz.exe program/Ankhwiz.exe
+      # Sign Ankhwiz.exe before the installer is built around it.
+      - id: unsigned-program
+        if: env.SIGNPATH == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-program
+          path: program/Ankhwiz.exe
+      - if: env.SIGNPATH == 'true'
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG }}
+          artifact-configuration-slug: program
+          github-artifact-id: ${{ steps.unsigned-program.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: program
       - name: Installer and portable zip
         shell: bash
         run: |
           VERSION=$(node -p "require('./package.json').version")
           mkdir -p out/Ankhwiz
-          cp src-tauri/target/release/ankhwiz.exe out/Ankhwiz/Ankhwiz.exe
+          cp program/Ankhwiz.exe out/Ankhwiz/Ankhwiz.exe
           cp src-tauri/target/release/WebView2Loader.dll out/Ankhwiz/ 2>/dev/null || true
           cp windows/READ-ME-FIRST.txt out/Ankhwiz/
           "/c/Program Files (x86)/NSIS/makensis.exe" -DVERSION=$VERSION -DSRC="$PWD/out/Ankhwiz" -DOUT="$PWD/out/Ankhwiz-$VERSION-windows-setup.exe" -DICON="$PWD/src-tauri/icons/icon.ico" windows/installer.nsi
           (cd out && 7z a "Ankhwiz-$VERSION-windows-x64.zip" Ankhwiz)
+      # Then sign the installer itself.
+      - id: unsigned-installer
+        if: env.SIGNPATH == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-installer
+          path: out/*.exe
+      - if: env.SIGNPATH == 'true'
+        uses: signpath/github-action-submit-signing-request@v1
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG }}
+          artifact-configuration-slug: installer
+          github-artifact-id: ${{ steps.unsigned-installer.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: out
       - uses: actions/upload-artifact@v4
         with:
           name: windows
@@ -120,11 +174,15 @@ jobs:
           export PATH="$TOOLS:$PATH"
           export ANDROID_JAR=$(ls -d "$ANDROID_SDK_ROOT"/platforms/android-* | sort -V | tail -1)/android.jar
           export DX="$TOOLS/d8"
-          if [ -n "$KEYSTORE_B64" ]; then
-            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.keystore"
-            export ANKHWIZ_KEYSTORE="$RUNNER_TEMP/release.keystore"
+          if [ -z "$KEYSTORE_B64" ]; then
+            echo "::error::The ANDROID_KEYSTORE_BASE64 secret is missing. A release APK must be signed with Ankhwiz's release key so it can update the installed app."
+            exit 1
           fi
+          echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.keystore"
+          export ANKHWIZ_KEYSTORE="$RUNNER_TEMP/release.keystore"
+          export ANKHWIZ_KEY_ALIAS="${ANKHWIZ_KEY_ALIAS:-ankhwiz}"
           scripts/build-android.sh
+          rm -f "$RUNNER_TEMP/release.keystore"
       - name: One-file version
         run: |
           VERSION=$(node -p "require('./package.json').version")

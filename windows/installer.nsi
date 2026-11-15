@@ -4,7 +4,7 @@
 ; entry, an optional desktop shortcut and an uninstaller. Decks and progress
 ; live in Ankhwiz's own data folder and are kept when Ankhwiz is uninstalled.
 ;
-;   makensis -DVERSION=0.4.0 -DSRC=<folder with Ankhwiz.exe and WebView2Loader.dll> -DOUT=<installer.exe> installer.nsi
+;   makensis -DVERSION=0.4.1 -DSRC=<folder with Ankhwiz.exe and WebView2Loader.dll> -DOUT=<installer.exe> installer.nsi
 
 Unicode true
 !include "MUI2.nsh"

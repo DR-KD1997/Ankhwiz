@@ -9,7 +9,8 @@
   import { t } from '../i18n';
   import type { Exercise, Marked } from '../core/types';
   import { closeSession, currentStreak, data, grade, met, next, setAsideCurrent, snap, takeMilestone, ui } from '../store.svelte';
-  import { canSpeak, speak } from '../speech';
+  import { canSpeak, speak, stopSpeaking, voiceHelp } from '../speech';
+  import { chosenSounds, playSound } from '../sounds';
   import Fields from './Fields.svelte';
   import Media from './Media.svelte';
   import Picture from './Picture.svelte';
@@ -42,7 +43,18 @@
   const ai = $derived(aiReady() && data.ai.noticeSeen);
   const look = $derived(deck.options.look);
   const scale = $derived(look.size === 's' ? 0.88 : look.size === 'l' ? 1.18 : 1);
-  const voice = $derived(look.lang && look.speak !== 'off' && canSpeak());
+  // Reading aloud: speaker buttons by the question and the answer when the deck
+  // turns it on; Settings can also have them read by themselves. The question
+  // and answer fields may be in different languages, swapped on reverse cards.
+  const voice = $derived(look.speak !== 'off' && canSpeak());
+  const autoRead = $derived(data.settings.autoRead ?? 'off');
+  const qLang = $derived(!ex ? look.lang : ex.reverse ? look.langBack || look.lang : look.lang);
+  const aLang = $derived(!ex ? look.lang : ex.reverse || ex.cloze || ex.picture ? look.lang : look.langBack || look.lang);
+  let voiceNote = $state('');
+  async function say(text: string, lang: string) {
+    const r = await speak(text, lang);
+    voiceNote = r === 'no-voice' ? `This device has no voice for ${lang}. ${voiceHelp()}` : r === 'unavailable' ? 'Reading aloud is not available on this device.' : '';
+  }
   let menu = $state(false);
   let cue = $state<Cue | null>(null);
   let cueCount = 0;
@@ -51,6 +63,13 @@
   let milestone = $state<number | null>(null);
   $effect(() => {
     if (s.finished && s.graded > 0 && !testing) untrack(() => (milestone = takeMilestone()));
+  });
+  // The end-of-lesson sound, once, when the summary appears (not after a test out that was not passed).
+  let endPlayed = false;
+  $effect(() => {
+    if (!s.finished || endPlayed) return;
+    endPlayed = true;
+    if (s.graded > 0 && (!testing || s.testOut?.result?.passed)) untrack(() => playSound('end'));
   });
   const finishCue = $derived<Cue>({
     kind: milestone
@@ -88,6 +107,8 @@
     explanation = '';
     rated = null;
     startedAt = performance.now();
+    voiceNote = '';
+    stopSpeaking();
     if (!e) return;
     react('nod');
     if (e.kind === 'meet') says = line('meet');
@@ -114,8 +135,17 @@
     if (ex?.kind === 'typed' && ex.live && liveFeedback(typed, ex.accepted, deck.strictAccents) === 'off') sawRed = true;
   }
 
+  /** Right, but only just: after a spelling retry, rated Partly, or typed without its accents or capitals. */
+  function nearly(): boolean {
+    if (typoUsed || rated === 'partly') return true;
+    if (ex?.kind !== 'typed') return false;
+    const given = typed.trim();
+    return !ex.accepted.some((a) => a.trim() === given);
+  }
+
   function settle(correct: boolean, assisted: boolean, aiGraded = false) {
     const r = grade({ correct, assisted, sawRed, ms: performance.now() - startedAt, aiGraded });
+    playSound(correct ? (nearly() ? 'nearly' : 'right') : 'wrong');
     result = { correct, promoted: r.promoted };
     done = true;
     says = correct ? line(r.promoted ? 'promoted' : 'correct') : line('wrong');
@@ -236,7 +266,7 @@
     }
     const k = e.key.toLowerCase();
     if (k === 'e' && done && ai && !testing && !explanation) void explain();
-    else if (k === 'r' && voice && ex) speak(done ? ex.answer : ex.prompt, look.lang);
+    else if (k === 'r' && voice && ex) void say(done ? ex.answer : ex.kind === 'meet' ? meetFront : ex.prompt, done ? aLang : qLang);
     else if (k === 's' && ex && !done && !testing && s.kind !== 'practice') setAsideCurrent('skip');
   }
 
@@ -260,13 +290,19 @@
   const meetFront = $derived(!ex ? '' : ex.reverse || ex.cloze ? ex.prompt : deck.notes[ex.noteId]?.front ?? ex.prompt);
   let spokenFor = '';
   $effect(() => {
-    // Read the question aloud as each card appears, when the deck asks for it.
-    if (!ex || !voice || look.speak !== 'question' || spokenFor === ex.cardId + s.index) return;
+    // Read the question by itself as each card appears, when Settings asks for it.
+    if (!ex || !voice || (autoRead !== 'question' && autoRead !== 'both') || spokenFor === ex.cardId + s.index) return;
     spokenFor = ex.cardId + s.index;
-    speak(ex.kind === 'meet' ? meetFront : ex.prompt, look.lang);
+    const text = ex.kind === 'meet' ? meetFront : ex.prompt;
+    untrack(() => void say(text, qLang));
   });
   $effect(() => {
-    if (done && ex && voice && look.speak === 'answer') speak(ex.answer, look.lang);
+    // And the answer once it is checked, just after the answer sound.
+    if (!done || !ex || !voice || (autoRead !== 'answer' && autoRead !== 'both') || !ex.answer) return;
+    const text = ex.answer;
+    const lang = untrack(() => aLang);
+    const t = setTimeout(() => void say(text, lang), chosenSounds() ? 450 : 0);
+    return () => clearTimeout(t);
   });
   const promptSize = $derived(!ex ? 30 : ex.prompt.length > 160 ? 19 : ex.prompt.length > 70 ? 23 : 30);
   const position = $derived(Math.min(s.index + 1, s.queue.length));
@@ -371,25 +407,36 @@
         {#if ex.ai}<span class="tag" title="This card was written or changed by AI">AI</span>{/if}
       </p>
       {#if ex.kind !== 'meet'}
-        <h1 class="display" dir="auto" style="font-size: calc({promptSize}px * var(--scale))">{ex.prompt}</h1>
+        <div class="said-row">
+          <h1 class="display" dir="auto" style="font-size: calc({promptSize}px * var(--scale))">{ex.prompt}</h1>
+          {#if voice && !ex.cloze}<button class="icon-btn speak" aria-label="Hear the question" onclick={() => say(ex.prompt, qLang)}><Icon name="sound" /></button>{/if}
+        </div>
         <Fields items={ex.frontMore} first={2} base={promptSize * 0.8} label="question fields" />
         {#if ex.picture}<Picture deckId={s.deckId} picture={ex.picture} revealed={done} />{/if}
         <Media deckId={s.deckId} names={ex.qmedia} />
         {#if look.hintExtra && ex.extra && !done && !testing}<p class="hint-extra" dir="auto">Hint: {ex.extra}</p>{/if}
       {/if}
-      {#if voice && ex.kind !== 'meet'}
-        <button class="quiet say" onclick={() => speak(ex.prompt, look.lang)}><Icon name="sound" size={16} /> Read aloud</button>
-      {/if}
+      {#if voiceNote}<p class="fine voice-note" role="status">{voiceNote}</p>{/if}
     </div>
 
     {#if ex.kind === 'meet'}
       <div class="meet card">
-        {#if meetFront}<p class="display front" dir="auto">{meetFront}</p>{/if}
+        {#if meetFront}
+          <div class="said-row">
+            <p class="display front" dir="auto">{meetFront}</p>
+            {#if voice}<button class="icon-btn speak" aria-label="Hear the question" onclick={() => say(meetFront, qLang)}><Icon name="sound" /></button>{/if}
+          </div>
+        {/if}
         <Fields items={ex.frontMore} first={2} base={20} label="question fields" />
         {#if ex.picture}<Picture deckId={s.deckId} picture={ex.picture} revealed />{/if}
         <Media deckId={s.deckId} names={ex.qmedia} />
         <hr />
-        {#if ex.answer}<p class="back" dir="auto">{ex.answer}</p>{/if}
+        {#if ex.answer}
+          <div class="said-row">
+            <p class="back" dir="auto">{ex.answer}</p>
+            {#if voice}<button class="icon-btn speak" aria-label="Hear the answer" onclick={() => say(ex.answer, aLang)}><Icon name="sound" /></button>{/if}
+          </div>
+        {/if}
         <Fields items={ex.answerMore} first={2} base={18} label="fields" />
         <Media deckId={s.deckId} names={ex.amedia} autoplay={!ex.qmedia.some(isSound)} />
         <div class="extra"><Fields items={extras} base={16} label="extra fields" /></div>
@@ -454,7 +501,12 @@
           {#if free.trim()}<div class="meet card yours"><p class="label">You wrote</p><p class="back">{free}</p></div>{/if}
           <div class="meet card">
             <p class="label">The answer</p>
-            {#if ex.answer}<p class="back" dir="auto">{ex.answer}</p>{/if}
+            {#if ex.answer}
+              <div class="said-row">
+                <p class="back" dir="auto">{ex.answer}</p>
+                {#if voice}<button class="icon-btn speak" aria-label="Hear the answer" onclick={() => say(ex.answer, aLang)}><Icon name="sound" /></button>{/if}
+              </div>
+            {/if}
             <Fields items={ex.answerMore} first={2} base={18} label="fields" />
             <Media deckId={s.deckId} names={ex.amedia} autoplay />
             <div class="extra"><Fields items={extras} base={16} label="extra fields" /></div>
@@ -519,6 +571,7 @@
           {#if result.promoted}<span>{t('movedUp')}</span>{/if}
           {#if s.practice}<span>{t('practiceUnchanged')}</span>{/if}
         </div>
+        {#if voice && ex.answer && ex.kind !== 'self'}<button class="icon-btn speak in-banner" aria-label="Hear the answer" onclick={() => say(ex.answer, aLang)}><Icon name="sound" /></button>{/if}
       </div>
       {#if ex.kind !== 'self' && (ex.amedia.length || extras.some((x) => x.trim()) || ex.answerMore.length)}
         <div class="after plain">
@@ -773,14 +826,35 @@
   .menu small {
     color: var(--muted);
   }
-  .say {
-    align-self: flex-start;
-    display: inline-flex;
-    gap: 6px;
-    align-items: center;
-    min-height: 36px;
-    padding: 0 12px;
-    font-size: 14px;
+  /* A line with a speaker button beside it. */
+  .said-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .said-row > :first-child {
+    flex: 1;
+    min-width: 0;
+  }
+  /* In the centred card, balance the speaker button so the words stay centred. */
+  .meet .said-row:has(.speak)::before {
+    content: '';
+    flex: none;
+    width: 44px;
+  }
+  .speak {
+    flex: none;
+    color: var(--muted);
+  }
+  .speak:hover {
+    color: var(--text);
+  }
+  .in-banner {
+    margin-left: auto;
+    color: inherit;
+  }
+  .voice-note {
+    margin: 0;
   }
   .hint-extra,
   .extra {

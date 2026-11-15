@@ -7,8 +7,10 @@
   // as they will appear on the card.
   import { aiReady } from '../ai.svelte';
   import { importPackage, type AnkiPackage, type Mapping, type SplitBy } from '../exporting';
+  import { canSpeak } from '../speech';
   import { data } from '../store.svelte';
   import Icon from './Icon.svelte';
+  import { moved, sortable } from './sortable';
 
   let {
     pkg,
@@ -23,13 +25,22 @@
     Object.fromEntries(
       pkg.notetypes.map((t) => [
         t.id,
-        { question: t.question, questionMore: [...t.questionMore], answer: t.answer, extra: t.extra ?? null, extraMore: [...t.extraMore], selfCheck: t.selfCheck },
+        {
+          question: t.question,
+          questionMore: [...t.questionMore],
+          answer: t.answer,
+          extra: t.extra ?? null,
+          extraMore: [...t.extraMore],
+          selfCheck: t.selfCheck,
+          bothWays: !t.cloze && !t.occlusion && t.reverse,
+        },
       ]),
     ),
   );
   let withProgress = $state(true);
-  // svelte-ignore state_referenced_locally
-  let bothWays = $state(pkg.notetypes.some((t) => t.reverse));
+  let read = $state(false);
+  let lang = $state('');
+  let langBack = $state('');
   // svelte-ignore state_referenced_locally
   let splitBy = $state<SplitBy>(pkg.notes.some((n) => n.group) ? 'subdeck' : 'size');
   let suggest = $state(aiReady());
@@ -69,6 +80,20 @@
   function removeMore(tid: string, list: 'questionMore' | 'extraMore', i: number) {
     maps[tid][list] = maps[tid][list].filter((_, j) => j !== i);
   }
+  /** Drag a field to another place in its list; the field dragged first becomes the main one. */
+  function reorder(tid: string, list: 'question' | 'extra', from: number, to: number) {
+    const m = maps[tid];
+    if (list === 'question') {
+      const l = moved([m.question, ...m.questionMore], from, to);
+      m.question = l[0];
+      m.questionMore = l.slice(1);
+    } else if (m.extra !== null) {
+      const l = moved([m.extra, ...m.extraMore], from, to);
+      m.extra = l[0];
+      m.extraMore = l.slice(1);
+    }
+  }
+  const gripLabel = (what: string, n: number) => `Move ${what} field ${n}: hold and drag, or use the arrow keys`;
   /** Type size for the n-th field of a list: smaller with each one, down to the fourth. */
   const step = (n: number) => ['s0', 's1', 's2', 's3'][Math.min(n, 3)];
 
@@ -76,7 +101,7 @@
     busy = true;
     error = '';
     try {
-      const r = await importPackage(pkg, $state.snapshot(maps), { withProgress: withProgress && pkg.studied, bothWays, name: name.trim(), splitBy });
+      const r = await importPackage(pkg, $state.snapshot(maps), { withProgress: withProgress && pkg.studied, name: name.trim(), splitBy, read: read ? { lang: lang.trim(), langBack: langBack.trim() } : null });
       onDone({ ...r, suggest });
     } catch (e) {
       error = e instanceof Error ? e.message : 'The deck could not be imported.';
@@ -113,15 +138,17 @@
 
       <div class="group">
         <span class="name">{t.occlusion ? 'Heading' : t.cloze ? 'Text with gaps' : 'Question'}</span>
-        <div class="list">
-          <div class="row">
+        <div class="list" use:sortable={{ onMove: (a, b) => reorder(t.id, 'question', a, b) }}>
+          <div class="row" data-sort>
+            {#if m.questionMore.length}<button class="grip" data-grip aria-label={gripLabel('question', 1)}><Icon name="grip" /></button>{/if}
             {@render pick(t.id, t.fields, t.sample, m.question, (v) => (m.question = v), 'Main question field', 's0')}
             {#if !t.cloze && !t.occlusion && !m.questionMore.length}
               <button class="plus" disabled={!canAdd} aria-label="Add another question field" onclick={() => addMore(t.id, 'questionMore', t.fields)}><Icon name="plus" size={18} /></button>
             {/if}
           </div>
           {#each m.questionMore as f, i (i)}
-            <div class="row">
+            <div class="row" data-sort>
+              <button class="grip" data-grip aria-label={gripLabel('question', i + 2)}><Icon name="grip" /></button>
               {@render pick(t.id, t.fields, t.sample, f, (v) => (m.questionMore[i] = v), `Question field ${i + 2}`, step(i + 1))}
               <button class="minus" aria-label="Remove question field {i + 2}" onclick={() => removeMore(t.id, 'questionMore', i)}><Icon name="close" size={16} /></button>
               {#if i === m.questionMore.length - 1}
@@ -131,7 +158,7 @@
           {/each}
         </div>
         {#if !t.cloze && !t.occlusion}
-          <p class="note">{bothWays ? 'The first field swaps with the answer when asked both ways; the others show with it, smaller.' : 'The first field is the main question; the others show under it, smaller.'}</p>
+          <p class="note">{m.bothWays ? 'The first field swaps with the answer when asked both ways; the others show with it, smaller.' : 'The first field is the main question; the others show under it, smaller.'}</p>
         {/if}
       </div>
 
@@ -144,15 +171,17 @@
 
       <div class="group">
         <span class="name">Extra <small>shown after answering</small></span>
-        <div class="list">
-          <div class="row">
+        <div class="list" use:sortable={{ onMove: (a, b) => reorder(t.id, 'extra', a, b) }}>
+          <div class="row" data-sort>
+            {#if m.extraMore.length}<button class="grip" data-grip aria-label={gripLabel('extra', 1)}><Icon name="grip" /></button>{/if}
             {@render pick(t.id, t.fields, t.sample, m.extra, (v) => (m.extra = v < 0 ? null : v), 'Extra field', 's0', true)}
             {#if m.extra !== null && !m.extraMore.length}
               <button class="plus" disabled={!canAdd} aria-label="Add another extra field" onclick={() => addMore(t.id, 'extraMore', t.fields)}><Icon name="plus" size={18} /></button>
             {/if}
           </div>
           {#each m.extraMore as f, i (i)}
-            <div class="row">
+            <div class="row" data-sort>
+              <button class="grip" data-grip aria-label={gripLabel('extra', i + 2)}><Icon name="grip" /></button>
               {@render pick(t.id, t.fields, t.sample, f, (v) => (m.extraMore[i] = v), `Extra field ${i + 2}`, step(i + 1))}
               <button class="minus" aria-label="Remove extra field {i + 2}" onclick={() => removeMore(t.id, 'extraMore', i)}><Icon name="close" size={16} /></button>
               {#if i === m.extraMore.length - 1}
@@ -163,6 +192,12 @@
         </div>
       </div>
 
+      {#if !t.cloze && !t.occlusion}
+        <label class="check">
+          <input type="checkbox" bind:checked={m.bothWays} />
+          <span>Ask both ways <small>{t.reverse ? 'Anki asks this type both ways too. ' : ''}Question to answer, and answer to the main question field.</small></span>
+        </label>
+      {/if}
       <label class="check">
         <input type="checkbox" bind:checked={m.selfCheck} />
         <span>You check these cards yourself <small>{t.custom ? 'Their Anki layout uses scripts or drawing Ankhwiz cannot copy, so you see the answer and say how close you were.' : 'See the answer and say how close you were, instead of being marked.'}</small></span>
@@ -187,7 +222,16 @@
   {#if pkg.studied}
     <label class="check"><input type="checkbox" bind:checked={withProgress} /> <span>Bring my Anki progress <small>Cards you know well start at a higher stage.</small></span></label>
   {/if}
-  <label class="check"><input type="checkbox" bind:checked={bothWays} /> <span>Ask both ways <small>Question to answer, and answer to the main question field.</small></span></label>
+  {#if canSpeak()}
+    <label class="check"><input type="checkbox" bind:checked={read} /> <span>Read aloud <small>A speaker button by the question and the answer, with this device's own voices.</small></span></label>
+    {#if read}
+      <div class="langs">
+        <label class="field"><span>Question language</span><input class="input" bind:value={lang} placeholder="es-ES" list="import-langs" /></label>
+        <label class="field"><span>Answer language</span><input class="input" bind:value={langBack} placeholder="Same" list="import-langs" /></label>
+        <datalist id="import-langs">{#each ['en-GB', 'en-US', 'es-ES', 'fr-FR', 'de-DE', 'it-IT', 'pt-BR', 'ja-JP', 'zh-CN', 'ko-KR', 'ar-SA', 'ru-RU', 'tr-TR'] as l (l)}<option value={l}></option>{/each}</datalist>
+      </div>
+    {/if}
+  {/if}
   {#if aiReady()}
     <label class="check"><input type="checkbox" bind:checked={suggest} /> <span>Suggest lesson names and wrong options <small>Opens Thoth's suggestions after importing. Uses your AI connection; you approve each one.</small></span></label>
   {/if}
@@ -290,6 +334,10 @@
   .row .input {
     flex: 1;
   }
+  .row .grip {
+    margin-right: -4px;
+    width: 26px;
+  }
   .plus,
   .minus {
     flex: none;
@@ -355,6 +403,12 @@
   .pair {
     display: flex;
     gap: 10px;
+  }
+  .langs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-left: 32px;
   }
   .pair .quiet {
     flex: 1;

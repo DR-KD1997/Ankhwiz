@@ -144,6 +144,10 @@ pub struct AnkiNotetype {
     /// Anki's Image Occlusion kind.
     #[serde(default, skip_serializing_if = "is_false")]
     pub occlusion: bool,
+    /// Ask this type's cards both ways. Unset: follow the deck's Ask both ways
+    /// (decks from before 0.4.1 had one setting for every card).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub both_ways: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
@@ -164,15 +168,20 @@ pub struct Look {
     pub rtl: bool,
     /// Show Extra before answering, as a hint.
     pub hint_extra: bool,
-    /// Language for reading aloud, such as es-ES. Empty: no reading aloud.
+    /// Language for reading the question field aloud, such as es-ES. Empty: the device's own.
     pub lang: String,
-    /// What is read aloud: off, question or answer.
+    /// Language for the answer field, when it differs from the question's. Empty: the same.
+    #[serde(default)]
+    pub lang_back: String,
+    /// Reading aloud: "on" shows a speaker button by the question and the
+    /// answer (and lets Settings read them by itself); "off" hides them.
+    /// Decks from before 0.4.1 may say "question" or "answer", meaning on.
     pub speak: String,
 }
 
 impl Default for Look {
     fn default() -> Self {
-        Self { size: "m".into(), font: "default".into(), rtl: false, hint_extra: false, lang: String::new(), speak: "off".into() }
+        Self { size: "m".into(), font: "default".into(), rtl: false, hint_extra: false, lang: String::new(), lang_back: String::new(), speak: "off".into() }
     }
 }
 
@@ -185,7 +194,8 @@ pub struct DeckOptions {
     pub review_cap: u32,
     /// Share of cards to remember at review time: higher means more reviews.
     pub retention: f64,
-    /// Ask each card both ways: question to answer, and answer to question.
+    /// Ask cards both ways: question to answer, and answer to question. Applies
+    /// to cards made in Ankhwiz, and to Anki note types without a setting of their own.
     pub both_ways: bool,
     /// Longest gap between reviews, in days.
     pub max_interval: u32,

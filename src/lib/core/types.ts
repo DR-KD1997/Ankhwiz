@@ -101,6 +101,8 @@ export interface AnkiNotetype {
   questionMore?: number[];
   extraMore?: number[];
   occlusion?: boolean;
+  /** Ask this type's cards both ways. Unset: follow the deck's Ask both ways. */
+  bothWays?: boolean | null;
 }
 
 export interface Look {
@@ -109,7 +111,10 @@ export interface Look {
   rtl: boolean;
   hintExtra: boolean;
   lang: string;
-  speak: 'off' | 'question' | 'answer';
+  /** Language of the answer field, when it differs from the question's. */
+  langBack?: string;
+  /** 'on' shows speaker buttons by the question and the answer. */
+  speak: 'off' | 'on';
 }
 
 export interface DeckOptions {

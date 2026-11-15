@@ -1,6 +1,6 @@
 [package]
 name = "ankhwiz"
-version = "0.4.0"
+version = "0.4.1"
 description = "Ankhwiz desktop shell"
 authors = ["DR-KD1997"]
 license = "AGPL-3.0-or-later"
@@ -12,7 +12,10 @@ rust-version = "1.90"
 
 [lib]
 name = "ankhwiz_lib"
-crate-type = ["staticlib", "cdylib", "rlib"]
+# Only the desktop program links this library (the Android app is its own
+# shell), so no shared library is built: on Windows with MinGW its exports
+# passed the 65,535 limit once the speech plugin was added.
+crate-type = ["rlib"]
 
 [build-dependencies]
 tauri-build = { version = "2.7.4", features = [] }
@@ -24,6 +27,9 @@ log = "0.4"
 tauri = { version = "2.12.5", features = [] }
 tauri-plugin-log = "2"
 tauri-plugin-notification = "2"
+# Reading aloud with each system's own voices (Windows SAPI, Android TextToSpeech,
+# speech-dispatcher on Linux).
+tauri-plugin-tts = "=0.2.1"
 ureq = "2"
 keyring = { version = "3", features = ["sync-secret-service", "windows-native"] }
 base64 = "0.22"

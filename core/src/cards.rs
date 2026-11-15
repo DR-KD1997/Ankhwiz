@@ -99,6 +99,19 @@ pub fn part_numbers(o: &Occlusion) -> Vec<u32> {
     ns
 }
 
+/// Whether a question-and-answer note is also asked the other way round: its
+/// Anki note type's own setting when it has one, otherwise the deck's.
+pub fn asks_both_ways(deck: &Deck, note: &Note) -> bool {
+    if note.cloze || note.occlusion.is_some() {
+        return false;
+    }
+    note.anki
+        .as_ref()
+        .and_then(|a| deck.anki.as_ref()?.notetypes.get(&a.ntid))
+        .and_then(|t| t.both_ways)
+        .unwrap_or(deck.options.both_ways)
+}
+
 /// The card ids a note gives rise to under the deck's options.
 pub fn cards_of(deck: &Deck, note: &Note) -> Vec<String> {
     if let Some(o) = &note.occlusion {
@@ -116,7 +129,7 @@ pub fn cards_of(deck: &Deck, note: &Note) -> Vec<String> {
             .collect();
     }
     let mut out = vec![note.id.clone()];
-    if deck.options.both_ways {
+    if asks_both_ways(deck, note) {
         out.push(format!("{}:r", note.id));
     }
     out
@@ -314,6 +327,28 @@ mod tests {
         assert!(is_live(&deck, &format!("{id}:r")));
         deck.options.both_ways = false;
         assert!(!is_live(&deck, &format!("{id}:r")));
+    }
+
+    #[test]
+    fn each_anki_note_type_can_be_asked_both_ways_on_its_own() {
+        use crate::model::{AnkiDeck, AnkiNote, AnkiNotetype};
+        let mut deck = sample_deck(0.0);
+        let ids: Vec<String> = deck.notes.keys().take(3).cloned().collect();
+        let mut types = std::collections::BTreeMap::new();
+        for (t, both) in [("vocab", Some(true)), ("phrases", Some(false)), ("old", None)] {
+            types.insert(t.to_string(), AnkiNotetype { id: t.into(), name: t.into(), both_ways: both, ..Default::default() });
+        }
+        deck.anki = Some(AnkiDeck { notetypes: types });
+        for (id, t) in ids.iter().zip(["vocab", "phrases", "old"]) {
+            deck.notes.get_mut(id).unwrap().anki = Some(AnkiNote { ntid: t.into(), ..Default::default() });
+        }
+        let count = |d: &Deck, id: &str| cards_of(d, &d.notes[id]).len();
+        assert_eq!((count(&deck, &ids[0]), count(&deck, &ids[1]), count(&deck, &ids[2])), (2, 1, 1));
+        // A type without its own setting, and cards made in Ankhwiz, follow the deck.
+        deck.options.both_ways = true;
+        assert_eq!((count(&deck, &ids[0]), count(&deck, &ids[1]), count(&deck, &ids[2])), (2, 1, 2));
+        let native = deck.notes.keys().nth(5).unwrap().clone();
+        assert_eq!(count(&deck, &native), 2);
     }
 
     #[test]

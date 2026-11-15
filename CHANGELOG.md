@@ -3,6 +3,53 @@
 What changed in each version of Ankhwiz. Downloads are on the
 [Releases page](https://github.com/DR-KD1997/Ankhwiz/releases).
 
+## 0.4.1 · 2026-11-15
+
+Sounds, voices and a new look for Thoth.
+
+> **Android:** this version is signed with Ankhwiz's permanent release key,
+> so it cannot install over 0.4.0. Back up your library first (Settings ›
+> Your library › Back up all), uninstall the old app, install 0.4.1, then
+> restore. Every later version installs over this one.
+
+### Added
+- **Answer sounds**: a sound for a right, a nearly right and a wrong answer,
+  and for the end of a lesson. Four sets, all made on the spot with no audio
+  files: Reed marimba (the default), Lyre, Temple bell and Soft pop. Choose
+  one, or Off, in Settings; the play button beside the list plays its
+  end-of-lesson sound.
+- **Reading aloud with the device's own voices**: the Windows voices,
+  speech-dispatcher on Linux (through tauri-plugin-tts) and Android's
+  text-to-speech, so it now works in the Android app too. Turn on Read aloud
+  in a deck's options, or when importing, and a speaker button appears by the
+  question and by the answer. The question and answer can each have their own
+  language, swapped on reverse cards. When a language has no voice, Ankhwiz
+  says where to add one instead of reading in the wrong voice.
+- **Reading by itself**, in Settings: the question as each card opens, the
+  answer once it is checked, both, or off. It applies to decks with Read
+  aloud on.
+- **Ask both ways for each kind of card**: each Anki note type, and the
+  cards made in Ankhwiz, has its own setting, in the import screen and in
+  Deck options.
+- **Drag fields into order**: hold a field's grip and drag it up or down, in
+  the import screen and in the card editor (or use the arrow keys on the
+  grip). The field dragged to the top becomes the main one.
+- **Updates when Ankhwiz opens**, if you choose: once a day at most, and a
+  new version shows what's new in it, with Get it, Later or Skip this
+  version. Ankhwiz asks once whether you want this; Settings can change it.
+  Check now in Settings also shows what's new.
+
+### Changed
+- **Thoth's new look**: a slender ibis bill, ink outlines round the sun disc
+  and the crown, and six pointed rays set out from the disc. In the square
+  portraits beside his words in lessons, he still has no rays.
+- Android builds are signed with the release key (see above), and a tagged
+  release stops rather than publishing an APK signed with a throwaway key.
+- The release workflow can sign the Windows program and installer through
+  SignPath once the project is accepted (`windows/SIGNING.md`).
+- Deck options from 0.4.0 that read the question or the answer by itself
+  keep doing so, through the new Settings choice.
+
 ## 0.4.0 · 2026-11-15
 
 Ready for everyday use: Anki decks of every shape come in properly, and the
