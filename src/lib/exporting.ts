@@ -11,7 +11,7 @@ import { mediaBytes } from './media';
 import { saveBytes } from './platform';
 import { addImported, data, markBackedUp, restoreLibrary, snap } from './store.svelte';
 
-export const APP = 'Ankhwiz 0.4.1';
+export const APP = 'Ankhwiz 0.4.1.1';
 
 const fileName = (name: string, ext: string) =>
   `${name.replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80) || 'deck'}.${ext}`;

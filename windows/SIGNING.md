@@ -7,17 +7,17 @@ Neither key is ever put in this repository.
 
 ## Android
 
-Every Android build from 0.4.1 on is signed with Ankhwiz's release key
+Every Android build from 0.4.1.1 on is signed with Ankhwiz's release key
 (`ankhwiz-release.jks`, alias `ankhwiz`). Android installs an update only when
 it is signed with the same key as the app already on the phone, so:
 
 - Keep `ankhwiz-release.jks` and its password private, and back both up in
   more than one place. If the key is lost, nobody can update the app; everyone
   would have to uninstall and reinstall.
-- 0.4.1 is the one exception: it is the first build with the release key, so
+- 0.4.1.1 is the one exception: it is the first build with the release key, so
   it cannot install over 0.4.0 or earlier, which were signed with a test key.
   Back up your library (Settings › Your library › Back up all), uninstall the
-  old app, install 0.4.1, and restore the backup.
+  old app, install 0.4.1.1, and restore the backup.
 
 For the GitHub workflow, add these repository secrets (Settings › Secrets and
 variables › Actions › New repository secret):

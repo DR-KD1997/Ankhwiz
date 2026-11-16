@@ -135,7 +135,8 @@ keyring, the Android Keystore) and never goes into decks or backups.
 - **Import** `.apkg` files in both Anki package formats. Each note type is
   matched for you from its card layout (or recognised as an Ankhwiz, cloze or
   Image Occlusion type); change any field, add more with +, drag them into
-  order, and choose Ask both ways for each note type. Group cards
+  order, and choose Ask both ways for each note type; you can change the
+  fields later in Deck options. Group cards
   into units by subdeck, by tag, or as one unit, and bring your Anki
   progress if you like.
 - **Export** to `.apkg`: units become subdecks, lessons travel as `ankh::`
@@ -179,11 +180,11 @@ Windows 10. Until the Windows programs are signed (see Code signing below),
 Windows may warn about an unknown publisher ("More info", then "Run anyway").
 Linux reads aloud through speech-dispatcher, which most desktops include.
 
-**Android, from 0.4.1:** the app is now signed with Ankhwiz's permanent
-release key. Because earlier versions used a test key, 0.4.1 cannot install
+**Android, from 0.4.1.1:** the app is now signed with Ankhwiz's permanent
+release key. Because earlier versions used a test key, 0.4.1.1 cannot install
 over them: back up your library (Settings › Your library › Back up all),
-uninstall the old app, install 0.4.1 and restore. Later versions install over
-0.4.1 as usual.
+uninstall the old app, install 0.4.1.1 and restore. Later versions install
+over it as usual.
 
 ## Getting started
 
@@ -249,7 +250,7 @@ the interface builds without a Rust toolchain.
 
 ### Build
 
-- **Releases:** push a tag such as `v0.4.1`. The workflow tests everything,
+- **Releases:** push a tag such as `v0.4.1.1`. The workflow tests everything,
   builds all platforms on GitHub's machines and opens a draft release.
 - **Linux:** `npm run tauri build -- --bundles deb,appimage` (needs the
   WebKitGTK 4.1 development packages).

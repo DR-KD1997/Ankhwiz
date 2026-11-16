@@ -27,7 +27,9 @@ import {
 import type { ThothMode } from './core/thoth';
 import type { SoundSet } from './sounds';
 import type { CardState, Deck, DeckOptions, Edit, Exercise, Outcome, Progress, QueueItem, RawNote, Streak, TestResult } from './core/types';
-import { putMedia, removeDeckMedia } from './media';
+import { hasMedia, putMedia, removeDeckMedia } from './media';
+import { applyRemap, mediaNamed } from './remap';
+import type { FieldMap } from './import/apkg';
 
 const DAY = 86_400_000;
 
@@ -569,6 +571,30 @@ export function makeBackup(deckId: string, label: string): void {
   });
   list.splice(MAX_BACKUPS);
   save();
+}
+
+/**
+ * Choose other Anki fields for a note type's question, answer and extra.
+ * A backup is made first. When the main question or the answer changes, the
+ * type's cards start again from the beginning. Returns an error to show, or null.
+ */
+export async function remapFields(deckId: string, ntid: string, next: FieldMap): Promise<string | null> {
+  const names = mediaNamed(snap(data.decks[deckId]), ntid);
+  const have = new Set<string>();
+  await Promise.all(names.map(async (m) => (await hasMedia(deckId, m)) && have.add(m)));
+  const deck = structuredClone(snap(data.decks[deckId])) as Deck;
+  const progress = structuredClone(snap(data.progress[deckId] ?? {})) as Progress;
+  const type = deck.anki?.notetypes[ntid];
+  const r = applyRemap(deck, progress, ntid, next, (m) => have.has(m));
+  if ('error' in r) return r.error;
+  makeBackup(deckId, `Before changing the fields of ${type?.name ?? 'a note type'}`);
+  for (const id of r.reset) delete progress[id];
+  data.decks[deckId] = deck;
+  data.progress[deckId] = progress;
+  // A lesson left part way holds the cards as they were.
+  if (data.paused?.deckId === deckId) data.paused = null;
+  save();
+  return null;
 }
 
 export function restoreBackup(deckId: string, backupId: string): boolean {

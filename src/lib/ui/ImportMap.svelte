@@ -9,8 +9,8 @@
   import { importPackage, type AnkiPackage, type Mapping, type SplitBy } from '../exporting';
   import { canSpeak } from '../speech';
   import { data } from '../store.svelte';
+  import FieldMapper from './FieldMapper.svelte';
   import Icon from './Icon.svelte';
-  import { moved, sortable } from './sortable';
 
   let {
     pkg,
@@ -66,37 +66,6 @@
   });
   const selfCount = $derived(pkg.notetypes.filter((t) => maps[t.id].selfCheck).reduce((n, t) => n + t.count, 0));
 
-  /** Fields not yet used by this note type's mapping, for a new "+" choice. */
-  function unused(tid: string, fields: string[]): number | null {
-    const m = maps[tid];
-    const taken = new Set([m.question, m.answer, m.extra, ...m.questionMore, ...m.extraMore]);
-    const i = fields.findIndex((_, i) => !taken.has(i));
-    return i < 0 ? null : i;
-  }
-  function addMore(tid: string, list: 'questionMore' | 'extraMore', fields: string[]) {
-    const next = unused(tid, fields);
-    if (next !== null) maps[tid][list] = [...maps[tid][list], next];
-  }
-  function removeMore(tid: string, list: 'questionMore' | 'extraMore', i: number) {
-    maps[tid][list] = maps[tid][list].filter((_, j) => j !== i);
-  }
-  /** Drag a field to another place in its list; the field dragged first becomes the main one. */
-  function reorder(tid: string, list: 'question' | 'extra', from: number, to: number) {
-    const m = maps[tid];
-    if (list === 'question') {
-      const l = moved([m.question, ...m.questionMore], from, to);
-      m.question = l[0];
-      m.questionMore = l.slice(1);
-    } else if (m.extra !== null) {
-      const l = moved([m.extra, ...m.extraMore], from, to);
-      m.extra = l[0];
-      m.extraMore = l.slice(1);
-    }
-  }
-  const gripLabel = (what: string, n: number) => `Move ${what} field ${n}: hold and drag, or use the arrow keys`;
-  /** Type size for the n-th field of a list: smaller with each one, down to the fourth. */
-  const step = (n: number) => ['s0', 's1', 's2', 's3'][Math.min(n, 3)];
-
   async function go() {
     busy = true;
     error = '';
@@ -111,20 +80,12 @@
   }
 </script>
 
-{#snippet pick(tid: string, fields: string[], sample: string[], value: number | null, set: (v: number) => void, label: string, size: string, none = false)}
-  <select class="input {size}" aria-label={label} value={value === null ? '' : String(value)} onchange={(e) => set(e.currentTarget.value === '' ? -1 : Number(e.currentTarget.value))}>
-    {#if none}<option value="">None</option>{/if}
-    {#each fields as f, i (i)}<option value={String(i)}>{f}{sample[i] ? ` · ${sample[i]}` : ''}</option>{/each}
-  </select>
-{/snippet}
-
 <div class="map plain">
   <p class="label">Import from Anki</p>
   <label class="field"><span>Deck name</span><input class="input" bind:value={name} /></label>
 
   {#each pkg.notetypes as t (t.id)}
     {@const m = maps[t.id]}
-    {@const canAdd = unused(t.id, t.fields) !== null}
     <section class="type" aria-label={t.name}>
       <div class="head">
         <strong>{t.name}</strong>
@@ -136,61 +97,7 @@
         <p class="hint">Each note is a picture with parts hidden; each part becomes a card. Parts with names are asked as questions; the rest you check yourself.</p>
       {/if}
 
-      <div class="group">
-        <span class="name">{t.occlusion ? 'Heading' : t.cloze ? 'Text with gaps' : 'Question'}</span>
-        <div class="list" use:sortable={{ onMove: (a, b) => reorder(t.id, 'question', a, b) }}>
-          <div class="row" data-sort>
-            {#if m.questionMore.length}<button class="grip" data-grip aria-label={gripLabel('question', 1)}><Icon name="grip" /></button>{/if}
-            {@render pick(t.id, t.fields, t.sample, m.question, (v) => (m.question = v), 'Main question field', 's0')}
-            {#if !t.cloze && !t.occlusion && !m.questionMore.length}
-              <button class="plus" disabled={!canAdd} aria-label="Add another question field" onclick={() => addMore(t.id, 'questionMore', t.fields)}><Icon name="plus" size={18} /></button>
-            {/if}
-          </div>
-          {#each m.questionMore as f, i (i)}
-            <div class="row" data-sort>
-              <button class="grip" data-grip aria-label={gripLabel('question', i + 2)}><Icon name="grip" /></button>
-              {@render pick(t.id, t.fields, t.sample, f, (v) => (m.questionMore[i] = v), `Question field ${i + 2}`, step(i + 1))}
-              <button class="minus" aria-label="Remove question field {i + 2}" onclick={() => removeMore(t.id, 'questionMore', i)}><Icon name="close" size={16} /></button>
-              {#if i === m.questionMore.length - 1}
-                <button class="plus" disabled={!canAdd} aria-label="Add another question field" onclick={() => addMore(t.id, 'questionMore', t.fields)}><Icon name="plus" size={18} /></button>
-              {/if}
-            </div>
-          {/each}
-        </div>
-        {#if !t.cloze && !t.occlusion}
-          <p class="note">{m.bothWays ? 'The first field swaps with the answer when asked both ways; the others show with it, smaller.' : 'The first field is the main question; the others show under it, smaller.'}</p>
-        {/if}
-      </div>
-
-      {#if !t.cloze && !t.occlusion}
-        <div class="group">
-          <span class="name">Answer</span>
-          <div class="row">{@render pick(t.id, t.fields, t.sample, m.answer, (v) => (m.answer = v), 'Answer field', 's0')}</div>
-        </div>
-      {/if}
-
-      <div class="group">
-        <span class="name">Extra <small>shown after answering</small></span>
-        <div class="list" use:sortable={{ onMove: (a, b) => reorder(t.id, 'extra', a, b) }}>
-          <div class="row" data-sort>
-            {#if m.extraMore.length}<button class="grip" data-grip aria-label={gripLabel('extra', 1)}><Icon name="grip" /></button>{/if}
-            {@render pick(t.id, t.fields, t.sample, m.extra, (v) => (m.extra = v < 0 ? null : v), 'Extra field', 's0', true)}
-            {#if m.extra !== null && !m.extraMore.length}
-              <button class="plus" disabled={!canAdd} aria-label="Add another extra field" onclick={() => addMore(t.id, 'extraMore', t.fields)}><Icon name="plus" size={18} /></button>
-            {/if}
-          </div>
-          {#each m.extraMore as f, i (i)}
-            <div class="row" data-sort>
-              <button class="grip" data-grip aria-label={gripLabel('extra', i + 2)}><Icon name="grip" /></button>
-              {@render pick(t.id, t.fields, t.sample, f, (v) => (m.extraMore[i] = v), `Extra field ${i + 2}`, step(i + 1))}
-              <button class="minus" aria-label="Remove extra field {i + 2}" onclick={() => removeMore(t.id, 'extraMore', i)}><Icon name="close" size={16} /></button>
-              {#if i === m.extraMore.length - 1}
-                <button class="plus" disabled={!canAdd} aria-label="Add another extra field" onclick={() => addMore(t.id, 'extraMore', t.fields)}><Icon name="plus" size={18} /></button>
-              {/if}
-            </div>
-          {/each}
-        </div>
-      </div>
+      <FieldMapper fields={t.fields} sample={t.sample} map={m} cloze={t.cloze} occlusion={t.occlusion} bothWays={!!m.bothWays} />
 
       {#if !t.cloze && !t.occlusion}
         <label class="check">
@@ -274,22 +181,6 @@
     font: inherit;
     font-weight: 400;
   }
-  /* Each added field is a little smaller, down to the fourth. */
-  .s0 {
-    font-size: 16px;
-  }
-  .s1 {
-    font-size: 15px;
-    min-height: 42px;
-  }
-  .s2 {
-    font-size: 14px;
-    min-height: 40px;
-  }
-  .s3 {
-    font-size: 13px;
-    min-height: 38px;
-  }
   .type {
     display: flex;
     flex-direction: column;
@@ -320,42 +211,6 @@
   }
   .group .name {
     font-weight: 600;
-  }
-  .list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .row {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-  }
-  .row .input {
-    flex: 1;
-  }
-  .row .grip {
-    margin-right: -4px;
-    width: 26px;
-  }
-  .plus,
-  .minus {
-    flex: none;
-    width: 44px;
-    height: 44px;
-    display: grid;
-    place-items: center;
-    padding: 0;
-    border: 2px solid var(--line);
-    background: var(--surface);
-    color: var(--text);
-  }
-  .plus {
-    background: var(--check-bg);
-    color: var(--check-text);
-  }
-  .plus:disabled {
-    opacity: 0.4;
   }
   small,
   .hint,

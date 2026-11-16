@@ -3,13 +3,28 @@
 What changed in each version of Ankhwiz. Downloads are on the
 [Releases page](https://github.com/DR-KD1997/Ankhwiz/releases).
 
-## 0.4.1 · 2026-11-15
+## 0.4.1.1 · 2026-11-16
+
+The first published version of 0.4.1, with one addition. Everything listed
+under 0.4.1 below is part of it, including the note for Android.
+
+### Added
+- **Change a deck's fields after importing it**: Deck options › Fields lets
+  you choose again which Anki fields become each note type's question,
+  answer and extra, add or remove fields, and drag them into order. Your
+  progress is kept as long as the main question and answer fields stay in
+  place. Changing either of them makes them different cards: Ankhwiz warns
+  you first, asks once more, makes a backup of the deck, and then those cards
+  start again from the beginning. Text you edited in Ankhwiz is kept, and
+  still goes back to Anki on export.
+
+## 0.4.1 · 2026-11-15 (not published on its own)
 
 Sounds, voices and a new look for Thoth.
 
 > **Android:** this version is signed with Ankhwiz's permanent release key,
 > so it cannot install over 0.4.0. Back up your library first (Settings ›
-> Your library › Back up all), uninstall the old app, install 0.4.1, then
+> Your library › Back up all), uninstall the old app, install 0.4.1.1, then
 > restore. Every later version installs over this one.
 
 ### Added

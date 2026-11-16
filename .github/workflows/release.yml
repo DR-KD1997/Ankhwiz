@@ -116,12 +116,13 @@ jobs:
       - name: Installer and portable zip
         shell: bash
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          VERSION=$(node -p "require('./package.json').version.replace('+', '.')")
+          FILEVERSION=$(node -p "const v='$VERSION'.split('.'); [...v, '0', '0', '0'].slice(0, 4).join('.')")
           mkdir -p out/Ankhwiz
           cp program/Ankhwiz.exe out/Ankhwiz/Ankhwiz.exe
           cp src-tauri/target/release/WebView2Loader.dll out/Ankhwiz/ 2>/dev/null || true
           cp windows/READ-ME-FIRST.txt out/Ankhwiz/
-          "/c/Program Files (x86)/NSIS/makensis.exe" -DVERSION=$VERSION -DSRC="$PWD/out/Ankhwiz" -DOUT="$PWD/out/Ankhwiz-$VERSION-windows-setup.exe" -DICON="$PWD/src-tauri/icons/icon.ico" windows/installer.nsi
+          "/c/Program Files (x86)/NSIS/makensis.exe" -DVERSION=$VERSION -DFILEVERSION=$FILEVERSION -DSRC="$PWD/out/Ankhwiz" -DOUT="$PWD/out/Ankhwiz-$VERSION-windows-setup.exe" -DICON="$PWD/src-tauri/icons/icon.ico" windows/installer.nsi
           (cd out && 7z a "Ankhwiz-$VERSION-windows-x64.zip" Ankhwiz)
       # Then sign the installer itself.
       - id: unsigned-installer
@@ -185,7 +186,7 @@ jobs:
           rm -f "$RUNNER_TEMP/release.keystore"
       - name: One-file version
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          VERSION=$(node -p "require('./package.json').version.replace('+', '.')")
           cp dist-single/index.html "android/build/Ankhwiz-$VERSION.html"
       - uses: actions/upload-artifact@v4
         with:

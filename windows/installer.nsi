@@ -4,7 +4,7 @@
 ; entry, an optional desktop shortcut and an uninstaller. Decks and progress
 ; live in Ankhwiz's own data folder and are kept when Ankhwiz is uninstalled.
 ;
-;   makensis -DVERSION=0.4.1 -DSRC=<folder with Ankhwiz.exe and WebView2Loader.dll> -DOUT=<installer.exe> installer.nsi
+;   makensis -DVERSION=0.4.1.1 -DSRC=<folder with Ankhwiz.exe and WebView2Loader.dll> -DOUT=<installer.exe> installer.nsi
 
 Unicode true
 !include "MUI2.nsh"
@@ -36,10 +36,14 @@ SetCompressor /SOLID lzma
 !insertmacro MUI_UNPAGE_INSTFILES
 !insertmacro MUI_LANGUAGE "English"
 
-VIProductVersion "${VERSION}.0"
+; Windows wants four numbers here: 0.4.1 becomes 0.4.1.0; 0.4.1.1 stays.
+!ifndef FILEVERSION
+  !define FILEVERSION "${VERSION}.0"
+!endif
+VIProductVersion "${FILEVERSION}"
 VIAddVersionKey "ProductName" "${APP}"
 VIAddVersionKey "FileDescription" "${APP} installer"
-VIAddVersionKey "FileVersion" "${VERSION}"
+VIAddVersionKey "FileVersion" "${FILEVERSION}"
 VIAddVersionKey "ProductVersion" "${VERSION}"
 VIAddVersionKey "LegalCopyright" "AGPL-3.0-or-later"
 

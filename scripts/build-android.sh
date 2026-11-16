@@ -21,7 +21,8 @@ cd "$(dirname "$0")/.."
 ANDROID_JAR="${ANDROID_JAR:-/usr/lib/android-sdk/platforms/android-23/android.jar}"
 DX="${DX:-dalvik-exchange}"
 OUT=android/build
-VERSION="$(node -p "require('./package.json').version")"
+# package.json keeps semver ("0.4.1+1"); files are named as people see it ("0.4.1.1").
+VERSION="$(node -p "require('./package.json').version.replace('+', '.')")"
 rm -rf "$OUT" && mkdir -p "$OUT/classes" "$OUT/assets" "$OUT/res"
 
 npm run build:single

@@ -20,6 +20,7 @@
     ui,
   } from '../store.svelte';
   import Icon from './Icon.svelte';
+  import TypeFields from './TypeFields.svelte';
 
   const deck = $derived(data.decks[ui.deckId!]);
   const o = $derived(deck.options);
@@ -47,6 +48,8 @@
     return { list, own };
   });
   const cards = (n: number) => `${n} ${n === 1 ? 'note' : 'notes'}`;
+  // Anki note types whose fields can be chosen again (pictures with hidden parts keep theirs).
+  const mappable = $derived(deck.anki ? Object.values(deck.anki.notetypes).filter((t) => !t.occlusion && Object.values(deck.notes).some((n) => n.anki?.ntid === t.id)) : []);
 
   // Reading aloud: is there a voice for each language on this device?
   let missing = $state<string[]>([]);
@@ -149,6 +152,14 @@
     </label>
     <p class="hint">Fill-the-gap cards: in Cards, write a question with gaps like <code>{'{{c1::Madrid}}'}</code> (Anki: cloze).</p>
   </div>
+
+  {#if mappable.length}
+    <div class="group">
+      <p class="label">Fields</p>
+      <p class="hint">Which Anki fields become the question, the answer and the extra. Changing the extra fields, or the question fields shown under the main one, keeps your progress; changing the main question or the answer starts those cards again.</p>
+      {#each mappable as t (t.id)}<TypeFields {deck} type={t} />{/each}
+    </div>
+  {/if}
 
   <div class="group">
     <p class="label">Lessons</p>

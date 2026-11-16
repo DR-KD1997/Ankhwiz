@@ -460,6 +460,50 @@ export interface RowOptions {
 }
 
 const SELF_CHECK_TAG = /^ankh::self-check$/i;
+const isSound = (x: string) => /\.(mp3|ogg|wav|m4a|opus|flac|aac|webm)$/i.test(x);
+
+/** Which Anki fields become the question, answer and extra. */
+export type FieldMap = Pick<Mapping, 'question' | 'answer' | 'extra' | 'questionMore' | 'extraMore'>;
+
+/** A note's text and media read from its Anki fields under a field map. */
+export interface ReadNote {
+  front: string;
+  back: string;
+  extra: string;
+  frontMore: string[];
+  extraMore: string[];
+  qmedia: string[];
+  amedia: string[];
+  cloze: boolean;
+}
+
+/**
+ * Read a question-and-answer or fill-the-gap note from its Anki fields.
+ * Null when it would have no question, or no answer. `known` says whether a
+ * picture or sound is in the deck. Used when importing and when the fields
+ * of a note type are changed later in Deck options.
+ */
+export function readFields(type: { cloze: boolean }, fields: string[], map: FieldMap, known: (m: string) => boolean): ReadNote | null {
+  const qMore = (map.questionMore ?? []).filter((i) => i !== map.question && i !== map.answer);
+  const xMore = (map.extraMore ?? []).filter((i) => i !== map.question && i !== map.answer && i !== map.extra && !qMore.includes(i));
+  const raw = (i: number | null | undefined) => (i === null || i === undefined ? '' : (fields[i] ?? ''));
+  const qraw = raw(map.question);
+  const araw = type.cloze ? '' : raw(map.answer);
+  // Pictures and sounds in any question field show with the question; in answer and extra fields, with the answer.
+  const qmedia = [qraw, ...qMore.map(raw)].flatMap(fieldMedia).filter(known);
+  const amedia = [araw, ...(map.extra === null ? [] : [raw(map.extra)]), ...xMore.map(raw)]
+    .flatMap(fieldMedia)
+    .filter(known)
+    .filter((m) => !qmedia.includes(m));
+  const missingText = (m: string[]) => (m.length === 0 ? '' : m.some(isSound) ? '(listen)' : '(picture)');
+  let front = fieldText(qraw) || missingText(qmedia);
+  const extra = map.extra === null || map.extra === map.question || map.extra === map.answer ? '' : fieldText(raw(map.extra));
+  const back = type.cloze ? '' : fieldText(araw) || missingText(amedia);
+  const cloze = type.cloze && /\{\{c\d+::/.test(front);
+  if (type.cloze && !cloze) front = '';
+  if (!front || (!cloze && !back)) return null;
+  return { front, back, extra, frontMore: qMore.map((i) => fieldText(raw(i))), extraMore: xMore.map((i) => fieldText(raw(i))), qmedia, amedia, cloze };
+}
 
 export function packageRows(pkg: AnkiPackage, mappings: Record<string, Partial<Mapping>>, options: RowOptions | boolean): PackageRows {
   const opts: RowOptions = typeof options === 'boolean' ? { withProgress: options } : options;
@@ -469,26 +513,20 @@ export function packageRows(pkg: AnkiPackage, mappings: Record<string, Partial<M
   const kept: Record<string, AnkiNotetype> = {};
   const media = new Set<string>();
   let skipped = 0;
-  const isSound = (x: string) => /\.(mp3|ogg|wav|m4a|opus|flac|aac|webm)$/i.test(x);
   for (const note of pkg.notes) {
     const type = types.get(note.ntid);
     if (!type) continue;
     const map: Mapping = { ...type, extra: type.extra ?? null, ...(mappings[type.id] ?? {}) };
     const qMore = (map.questionMore ?? []).filter((i) => i !== map.question && i !== map.answer);
     const xMore = (map.extraMore ?? []).filter((i) => i !== map.question && i !== map.answer && i !== map.extra && !qMore.includes(i));
-    const raw = (i: number | null | undefined) => (i === null || i === undefined ? '' : (note.fields[i] ?? ''));
-    const known = (list: string[]) => list.filter((m) => pkg.media[m]);
-    const qraw = raw(map.question);
-    const araw = type.cloze ? '' : raw(map.answer);
-    // Pictures and sounds in any question field show with the question; in answer and extra fields, with the answer.
-    const qmedia = known([qraw, ...qMore.map(raw)].flatMap(fieldMedia));
-    const amedia = known([araw, ...(map.extra === null ? [] : [raw(map.extra)]), ...xMore.map(raw)].flatMap(fieldMedia)).filter((m) => !qmedia.includes(m));
-    const missingText = (m: string[]) => (m.length === 0 ? '' : m.some(isSound) ? '(listen)' : '(picture)');
-    let front = fieldText(qraw);
-    const extra = map.extra === null || map.extra === map.question || map.extra === map.answer ? '' : fieldText(raw(map.extra));
-    const frontMore = qMore.map((i) => fieldText(raw(i)));
-    const extraMore = xMore.map((i) => fieldText(raw(i)));
+    const raw = (i: number) => note.fields[i] ?? '';
+    let front = '';
     let back = '';
+    let extra = '';
+    let frontMore: string[] = [];
+    let extraMore: string[] = [];
+    let qmedia: string[] = [];
+    let amedia: string[] = [];
     let cloze = false;
     let occlusion: RawNote['occlusion'] = null;
     if (type.occlusion) {
@@ -501,15 +539,17 @@ export function packageRows(pkg: AnkiPackage, mappings: Record<string, Partial<M
       }
       occlusion = o;
       media.add(o.image);
+      front = fieldText(raw(map.question));
+      extra = map.extra === null ? '' : fieldText(raw(map.extra));
+      frontMore = qMore.map((i) => fieldText(raw(i)));
+      extraMore = xMore.map((i) => fieldText(raw(i)));
     } else {
-      if (!front) front = missingText(qmedia);
-      back = type.cloze ? '' : fieldText(araw) || missingText(amedia);
-      cloze = type.cloze && /\{\{c\d+::/.test(front);
-      if (type.cloze && !cloze) front = '';
-      if (!front || (!cloze && !back)) {
+      const r = readFields(type, note.fields, map, (m) => !!pkg.media[m]);
+      if (!r) {
         skipped++;
         continue;
       }
+      ({ front, back, extra, frontMore, extraMore, qmedia, amedia, cloze } = r);
     }
     // Lessons that went out from Ankhwiz come back as they were.
     const tag = note.tags.find((t) => /^ankh::/i.test(t) && !SELF_CHECK_TAG.test(t));
