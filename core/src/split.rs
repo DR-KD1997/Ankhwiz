@@ -79,6 +79,8 @@ pub fn note_from(row: &RawNote, ai: bool) -> Option<Note> {
         front_more: keep(&row.front_more),
         extra_more: keep(&row.extra_more),
         self_check: row.self_check,
+        no_build: row.no_build,
+        voices: row.voices.clone(),
         occlusion,
     })
 }

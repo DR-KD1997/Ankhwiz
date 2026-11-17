@@ -209,6 +209,31 @@ fn esc(text: &str) -> String {
     text.replace('&', "&amp;").replace('<', "&lt;").replace('>', "&gt;").replace('\n', "<br>")
 }
 
+/// Escaped text with marked words wrapped as web text Anki keeps:
+/// `<span lang="es-ES">la manzana</span>`.
+fn voiced(text: &str, marks: &[crate::model::VoiceMark]) -> String {
+    let mut out = esc(text);
+    if marks.is_empty() {
+        return out;
+    }
+    let mut order: Vec<&crate::model::VoiceMark> = marks.iter().filter(|m| !m.text.trim().is_empty()).collect();
+    order.sort_by_key(|m| std::cmp::Reverse(m.text.len()));
+    // Placeholders first, so a shorter mark never lands inside a longer one's span.
+    let mut spans = Vec::new();
+    for m in order {
+        let from = esc(&m.text);
+        if out.contains(&from) {
+            let token = format!("\u{E000}{}\u{E001}", spans.len());
+            out = out.replace(&from, &token);
+            spans.push(format!("<span lang=\"{}\">{from}</span>", m.lang.replace(['"', '<', '>', '&'], "")));
+        }
+    }
+    for (i, span) in spans.iter().enumerate() {
+        out = out.replace(&format!("\u{E000}{i}\u{E001}"), span);
+    }
+    out
+}
+
 /// The first field without markup, as Anki's sort field and checksum use it.
 fn strip(html: &str) -> String {
     let mut out = String::new();
@@ -389,10 +414,10 @@ pub fn export(deck: &Deck, progress: &Progress, include_progress: bool, clock: C
                 let seen = |i: usize| a.seen.get(i).cloned().unwrap_or_default();
                 let last = fields.len() - 1;
                 if note.front != seen(0) {
-                    fields[nt.question.min(last)] = with_media(&esc(&note.front), &note.qmedia);
+                    fields[nt.question.min(last)] = with_media(&voiced(&note.front, &note.voices), &note.qmedia);
                 }
                 if !nt.cloze && note.back != seen(1) {
-                    fields[nt.answer.min(last)] = with_media(&esc(&note.back), &note.amedia);
+                    fields[nt.answer.min(last)] = with_media(&voiced(&note.back, &note.voices), &note.amedia);
                 }
                 if let Some(x) = nt.extra {
                     if note.extra != seen(2) && x < fields.len() {
@@ -447,15 +472,15 @@ pub fn export(deck: &Deck, progress: &Progress, include_progress: bool, clock: C
             }
             None if note.cloze => {
                 used_cloze = true;
-                let fields = vec![with_media(&esc(&note.front), &note.qmedia), esc(&note.extra), esc(&note.alts.join(", "))];
+                let fields = vec![with_media(&voiced(&note.front, &note.voices), &note.qmedia), esc(&note.extra), esc(&note.alts.join(", "))];
                 (cloze_id, fields, 1, note.id.clone())
             }
             None => {
                 used_basic = true;
                 let mut fields = vec![
-                    with_media(&esc(&note.front), &note.qmedia),
-                    with_media(&esc(&note.back), &note.amedia),
-                    esc(&note.extra),
+                    with_media(&voiced(&note.front, &note.voices), &note.qmedia),
+                    with_media(&voiced(&note.back, &note.voices), &note.amedia),
+                    voiced(&note.extra, &note.voices),
                     esc(&note.alts.join(", ")),
                     esc(&note.wrong.join(", ")),
                 ];
@@ -578,6 +603,15 @@ mod tests {
     use super::*;
     use crate::sample::sample_deck;
     use crate::stages::introduce;
+
+    #[test]
+    fn marked_words_go_to_anki_as_web_text() {
+        let marks = vec![
+            crate::model::VoiceMark { text: "la manzana".into(), lang: "es-ES".into() },
+            crate::model::VoiceMark { text: "la".into(), lang: "fr-FR".into() },
+        ];
+        assert_eq!(voiced("What does la manzana mean? <3", &marks), "What does <span lang=\"es-ES\">la manzana</span> mean? &lt;3");
+    }
 
     fn clock() -> Clock {
         Clock::new(1_794_300_000_000.0, 120.0)

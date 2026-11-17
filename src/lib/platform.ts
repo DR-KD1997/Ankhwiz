@@ -15,6 +15,7 @@ export interface HttpReply {
 
 interface AndroidBridge {
   http(id: string, request: string): void;
+  openLink?(url: string): void;
   getSecret(name: string): string;
   setSecret(name: string, value: string): void;
   saveFile(name: string, text: string): string;
@@ -40,6 +41,32 @@ const android = (): AndroidBridge | null => window.AnkhwizAndroid ?? null;
 export type PlatformName = 'desktop' | 'android' | 'browser';
 export function platform(): PlatformName {
   return tauri() ? 'desktop' : android() ? 'android' : 'browser';
+}
+
+// ---------- Links ----------
+
+/**
+ * Open a web page in the learner's own browser. The app windows never
+ * navigate away from Ankhwiz, so links to the outside go through here.
+ * Returns false when it could not be opened.
+ */
+export async function openLink(url: string): Promise<boolean> {
+  if (!/^https:\/\//.test(url)) return false;
+  const t = tauri();
+  if (t) {
+    try {
+      await t('open_link', { url });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  const a = android();
+  if (a?.openLink) {
+    a.openLink(url);
+    return true;
+  }
+  return !!window.open(url, '_blank', 'noopener');
 }
 
 // ---------- HTTP (used only for the AI connection the learner sets up) ----------

@@ -139,13 +139,30 @@ fn write_unique(app: &tauri::AppHandle, name: &str, contents: &[u8]) -> Result<S
   Ok(path.to_string_lossy().into_owned())
 }
 
+/// Open a web page in the learner's own browser (a new release, for example).
+/// Only plain https addresses are passed on, and never through a shell.
+#[tauri::command(async)]
+fn open_link(url: String) -> Result<(), String> {
+  let ok = url.starts_with("https://") && url.len() < 2048 && !url.chars().any(|c| c.is_whitespace() || c.is_control() || c == '"' || c == '\'' || c == '`');
+  if !ok {
+    return Err("Only https links can be opened.".into());
+  }
+  #[cfg(target_os = "windows")]
+  let result = std::process::Command::new("explorer.exe").arg(&url).spawn();
+  #[cfg(target_os = "macos")]
+  let result = std::process::Command::new("open").arg(&url).spawn();
+  #[cfg(all(unix, not(target_os = "macos")))]
+  let result = std::process::Command::new("xdg-open").arg(&url).spawn();
+  result.map(|_| ()).map_err(|e| format!("The browser could not be opened: {e}"))
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   tauri::Builder::default()
     // The daily reminder, shown while Ankhwiz is open (it can be minimised).
     .plugin(tauri_plugin_notification::init())
     .plugin(tauri_plugin_tts::init())
-    .invoke_handler(tauri::generate_handler![http_send, key_set, key_get, key_delete, save_file, save_bytes])
+    .invoke_handler(tauri::generate_handler![http_send, key_set, key_get, key_delete, save_file, save_bytes, open_link])
     .setup(|app| {
       if cfg!(debug_assertions) {
         app.handle().plugin(tauri_plugin_log::Builder::default().level(log::LevelFilter::Info).build())?;

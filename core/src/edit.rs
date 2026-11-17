@@ -40,6 +40,10 @@ pub enum Edit {
         extra_more: Option<Vec<String>>,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         self_check: Option<bool>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        no_build: Option<bool>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        voices: Option<Vec<crate::model::VoiceMark>>,
         /// The picture and its hidden parts (a picture card only).
         #[serde(default, skip_serializing_if = "Option::is_none")]
         occlusion: Option<crate::model::Occlusion>,
@@ -124,7 +128,7 @@ pub fn apply(deck: &mut Deck, edits: &[Edit], ai: bool) -> Applied {
     let had_notes: Vec<String> = deck.lessons.iter().filter(|(_, l)| !l.note_ids.is_empty()).map(|(id, _)| id.clone()).collect();
     for edit in edits {
         match edit {
-            Edit::Update { note_id, front, back, extra, alts, wrong, labels, qmedia, amedia, cloze, front_more, extra_more, self_check, occlusion } => {
+            Edit::Update { note_id, front, back, extra, alts, wrong, labels, qmedia, amedia, cloze, front_more, extra_more, self_check, no_build, voices, occlusion } => {
                 let Some(note) = deck.notes.get_mut(note_id) else {
                     done.skipped += 1;
                     continue;
@@ -168,6 +172,12 @@ pub fn apply(deck: &mut Deck, edits: &[Edit], ai: bool) -> Applied {
                 }
                 if let Some(v) = self_check {
                     note.self_check = *v;
+                }
+                if let Some(v) = no_build {
+                    note.no_build = *v;
+                }
+                if let Some(v) = voices {
+                    note.voices = v.iter().filter(|m| !m.text.trim().is_empty() && !m.lang.trim().is_empty()).cloned().collect();
                 }
                 if let (Some(o), true) = (occlusion, note.occlusion.is_some()) {
                     if !o.shapes.is_empty() && !o.image.is_empty() {
@@ -282,7 +292,7 @@ mod tests {
         let r = apply(
             &mut deck,
             &[
-                Edit::Update { note_id: n0.clone(), front: None, back: Some("the red apple".into()), extra: Some("Una manzana al día.".into()), alts: None, wrong: None, labels: Some(vec!["food".into(), " ".into()]), qmedia: None, amedia: None, cloze: None, front_more: None, extra_more: None, self_check: None, occlusion: None },
+                Edit::Update { note_id: n0.clone(), front: None, back: Some("the red apple".into()), extra: Some("Una manzana al día.".into()), alts: None, wrong: None, labels: Some(vec!["food".into(), " ".into()]), qmedia: None, amedia: None, cloze: None, front_more: None, extra_more: None, self_check: None, no_build: None, voices: None, occlusion: None },
                 Edit::Add { lesson_id: Some(l0.clone()), unit: None, note: RawNote { front: "la fresa".into(), back: "the strawberry".into(), ..Default::default() } },
                 Edit::Move { note_id: n1.clone(), lesson_id: l1.clone() },
                 Edit::Delete { note_id: "missing".into() },

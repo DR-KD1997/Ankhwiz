@@ -1,6 +1,6 @@
 [package]
 name = "ankhwiz-core"
-version = "0.4.1+1"
+version = "0.5.0"
 edition = "2021"
 description = "Ankhwiz learning core: stages, grading, sessions, lesson splitting and AI request building"
 license = "AGPL-3.0-or-later"
@@ -10,7 +10,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
-serde_json = "1"
+serde_json = { version = "1", features = ["raw_value"] }
 unicode-normalization = "0.1"
 sha1_smol = "1"
 

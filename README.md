@@ -81,14 +81,22 @@ with a retention slider per deck.
   **progress** page: cards by stage, the week ahead, share remembered.
 - **Answer sounds** in four sets made on the spot, with no audio files: Reed
   marimba (the default), Lyre, Temple bell and Soft pop, or none.
-- **Read aloud** with the device's own voices: a speaker button by the
-  question and the answer, a language for each, and, if you like, reading by
-  itself as each card opens or once it is checked.
+- **Read aloud** with the device's own voices, or natural-sounding Piper
+  voices downloaded on demand: a speaker button by the question and the
+  answer, a language for each, words in quotes or marked in the editor read
+  in their own language, and, if you like, reading by itself as each card
+  opens or once it is checked.
+- **Build the sentence** from word tiles, for answers of three words or more,
+  in the first two stages.
 - **Keyboard shortcuts** on desktop: number keys, Enter, E to explain, R to
   read aloud, S to skip, Esc to leave, ? for the list.
+- **A welcome tour** with Thoth on the real app at first launch, and short
+  tutorials the first time Deck options, importing, the card editor, Test
+  out and Study with Thoth open, with a **?** to hear each again.
 
 ### Cards
-- **Kinds:** one way, both ways (set for each kind of card), fill the gap
+- **Kinds:** one way, both ways (set for each kind of card, with the other
+  way round spread out in the lesson or kept for the next day), fill the gap
   (`{{c1::…}}`), pictures with hidden parts, and self-check.
 - **Several fields:** Question and Extra can each hold several fields, added
   with **+** and put in order by holding and dragging. Each is a little
@@ -110,8 +118,9 @@ with a retention slider per deck.
 Thoth's built-in lines and animations work offline: he breathes, blinks and
 glances about, nods at each new card, brightens at a right answer, droops in
 sympathy at a wrong one, hops at a stage-up and lights up at a streak
-milestone. Settings has **Moves** or **Still**, and he keeps still whenever
-your system asks for reduced motion.
+milestone. Settings has two portrait styles, **Classic** and **Bright
+Scribe**, **Moves** or **Still**, and he keeps still whenever your system
+asks for reduced motion.
 
 Connect an AI service of your own (OpenAI, Google Gemini, Grok, OpenRouter,
 Ollama, LM Studio, or any service using the OpenAI chat format) and
@@ -155,7 +164,7 @@ keyring, the Android Keystore) and never goes into decks or backups.
   studied yet. On Android it comes even when the app is closed.
 - **Update check** when you ask, or, if you choose, when Ankhwiz opens (once
   a day at most), showing what's new: one request to GitHub for the latest
-  release.
+  release. Get it opens the release page in your browser.
 - Stored data is versioned and upgraded step by step.
 
 ### Accessible
@@ -292,3 +301,10 @@ Anki or its developers. The scheduling formulas follow
 [FSRS](https://github.com/open-spaced-repetition) (MIT); third-party code in
 the core is listed in [`core/THIRD-PARTY.md`](core/THIRD-PARTY.md). Fonts:
 Marcellus, Source Sans 3 and Fraunces, under the SIL Open Font License.
+Downloadable voices are fetched only when you ask for one and are not part
+of Ankhwiz's own download: [Piper](https://github.com/rhasspy/piper) voices
+(each under the licence in its model card), run with
+[ONNX Runtime Web](https://onnxruntime.ai) (MIT) and
+[piper-phonemize](https://github.com/diffusion-studio/piper-wasm) (MIT) with
+[eSpeak NG](https://github.com/espeak-ng/espeak-ng)'s pronunciation data
+(GPL 3.0).

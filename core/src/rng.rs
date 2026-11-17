@@ -1,23 +1,31 @@
 //! A small random source. The interface seeds it at start-up, because the
 //! WebAssembly build has no clock or system randomness of its own.
 
+use std::cell::Cell;
 use std::sync::atomic::{AtomicU64, Ordering};
 
-static STATE: AtomicU64 = AtomicU64::new(0x9E37_79B9_7F4A_7C15);
+// One state per thread. The app runs the core on a single thread, so this is
+// the same as one global state there; tests running side by side no longer
+// disturb each other's sequences.
+thread_local! {
+    static STATE: Cell<u64> = const { Cell::new(0x9E37_79B9_7F4A_7C15) };
+}
 static COUNTER: AtomicU64 = AtomicU64::new(0);
 
 pub fn seed(value: u64) {
-    STATE.store(value | 1, Ordering::Relaxed);
+    STATE.with(|s| s.set(value | 1));
 }
 
 pub fn next_u64() -> u64 {
     // xorshift64*
-    let mut x = STATE.load(Ordering::Relaxed);
-    x ^= x >> 12;
-    x ^= x << 25;
-    x ^= x >> 27;
-    STATE.store(x, Ordering::Relaxed);
-    x.wrapping_mul(0x2545_F491_4F6C_DD1D)
+    STATE.with(|s| {
+        let mut x = s.get();
+        x ^= x >> 12;
+        x ^= x << 25;
+        x ^= x >> 27;
+        s.set(x);
+        x.wrapping_mul(0x2545_F491_4F6C_DD1D)
+    })
 }
 
 /// A whole number from 0 up to, not including, `n`.

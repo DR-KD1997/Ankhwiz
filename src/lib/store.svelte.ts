@@ -1,6 +1,6 @@
 // App state, saved on the device. Nothing here talks to a server.
 
-import { del, get, set } from 'idb-keyval';
+import { del, delMany, get, getMany, keys, setMany } from 'idb-keyval';
 import {
   applyEdits,
   buildDeck,
@@ -70,6 +70,12 @@ export interface AppData {
     lessonSize: number;
     /** Thoth's animation; missing means on. */
     motion?: boolean;
+    /** Downloaded Piper voices chosen to read a language, by language (lower case, such as es-es). */
+    piperVoices?: Record<string, string>;
+    /** Thoth's feature tutorials appear by themselves the first time each part is opened. Missing means on. */
+    tips?: boolean;
+    /** Thoth's portrait style. Missing means classic. */
+    thothStyle?: 'classic' | 'bright';
     /** Answer sounds: a set's id, or 'off'. Missing means Reed marimba. */
     sounds?: SoundSet | 'off';
     /** Read aloud by itself, in decks with reading aloud on: the question as a card opens, the answer once checked. */
@@ -81,7 +87,7 @@ export interface AppData {
   backups: Record<string, Backup[]>;
   /** Testing aid: days added to the clock, to try tomorrow's reviews today. */
   dayOffset: number;
-  /** First-time tips already shown. */
+  /** Tour parts already shown (tour:basics, tour:options…), and older first-time tips. */
   tips: string[];
   /** Day of the last test-out attempt, by deck and unit (one try a day). */
   testOuts: Record<string, Record<string, number>>;
@@ -195,16 +201,55 @@ export function now(): number {
 }
 
 // ---------- saving ----------
+//
+// Since 0.5.0 the library is stored in parts: the settings and everything
+// small in one entry, and each deck's cards, progress and backups in entries
+// of their own. An answer then rewrites one deck's progress instead of the
+// whole library. Every save that does not say what changed writes all parts,
+// as before, in one transaction, so a part is never written without the rest.
 
 let saveTimer: ReturnType<typeof setTimeout> | undefined;
+const META = `${KEY}:meta`;
+const part = (kind: 'deck' | 'progress' | 'backups', id: string) => `${KEY}:${kind}:${id}`;
+const BIG = new Set(['decks', 'progress', 'backups']);
+type Scope = { deck?: string; progress?: string };
+let pending = { all: true, decks: new Set<string>(), progress: new Set<string>() };
 
-async function write(snapshot: AppData): Promise<void> {
+/** The small parts of the library, with the list of decks. */
+function metaSnapshot(): Record<string, unknown> {
+  const out: Record<string, unknown> = { layout: 2, deckIds: Object.keys(data.decks) };
+  for (const [k, v] of Object.entries(data)) if (!BIG.has(k)) out[k] = $state.snapshot(v);
+  return out;
+}
+
+async function flush(): Promise<void> {
+  const p = pending;
+  pending = { all: false, decks: new Set(), progress: new Set() };
+  const ids = Object.keys(data.decks);
+  const deckIds = p.all ? ids : [...p.decks].filter((id) => data.decks[id]);
+  const progressIds = p.all ? ids : [...p.progress].filter((id) => data.decks[id]);
+  const entries: [string, unknown][] = [[META, metaSnapshot()]];
+  for (const id of deckIds) {
+    entries.push([part('deck', id), $state.snapshot(data.decks[id])]);
+    entries.push([part('backups', id), $state.snapshot(data.backups[id] ?? [])]);
+  }
+  for (const id of progressIds) entries.push([part('progress', id), $state.snapshot(data.progress[id] ?? {})]);
   try {
-    await set(KEY, snapshot);
+    await setMany(entries);
+    if (p.all) {
+      // Parts of decks no longer in the library, and the pre-0.5 single entry.
+      const written = new Set(entries.map(([k]) => k));
+      const stale = (await keys()).filter((k) => typeof k === 'string' && (k === KEY || (k.startsWith(`${KEY}:`) && !written.has(k))));
+      if (stale.length) await delMany(stale);
+    }
     ui.persistent = true;
   } catch {
+    // Keep what was not written for the next save, and try the browser's simpler storage.
+    pending.all ||= p.all;
+    p.decks.forEach((d) => pending.decks.add(d));
+    p.progress.forEach((d) => pending.progress.add(d));
     try {
-      localStorage.setItem(KEY, JSON.stringify(snapshot));
+      localStorage.setItem(KEY, JSON.stringify($state.snapshot(data)));
       ui.persistent = true;
     } catch {
       ui.persistent = false;
@@ -212,10 +257,43 @@ async function write(snapshot: AppData): Promise<void> {
   }
 }
 
-export function save(): void {
+/**
+ * Save the library shortly. Without a scope everything is written; with one,
+ * only the small parts and the named deck's cards or progress.
+ */
+export function save(scope?: Scope): void {
   if (newer.found) return;
+  if (!scope) pending.all = true;
+  else {
+    if (scope.deck) pending.decks.add(scope.deck);
+    if (scope.progress) pending.progress.add(scope.progress);
+  }
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => void write($state.snapshot(data) as AppData), 250);
+  saveTimer = setTimeout(() => void flush(), 250);
+}
+
+/** Read the library: the parts written since 0.5.0, or the single entry from before. */
+async function readStored(): Promise<unknown> {
+  const meta = (await get(META)) as (Record<string, unknown> & { deckIds?: string[] }) | undefined;
+  if (!meta) {
+    pending.all = true;
+    return get(KEY);
+  }
+  const ids = meta.deckIds ?? [];
+  const values = await getMany(ids.flatMap((id) => [part('deck', id), part('progress', id), part('backups', id)]));
+  const decks: Record<string, unknown> = {};
+  const progress: Record<string, unknown> = {};
+  const backups: Record<string, unknown> = {};
+  ids.forEach((id, i) => {
+    const [deck, prog, back] = values.slice(i * 3, i * 3 + 3);
+    if (!deck) return;
+    decks[id] = deck;
+    if (prog) progress[id] = prog;
+    if (back && (back as unknown[]).length) backups[id] = back;
+  });
+  const { layout: _layout, deckIds: _ids, ...rest } = meta;
+  pending.all = false;
+  return { ...rest, decks, progress, backups };
 }
 
 type Saved = Record<string, unknown>;
@@ -325,7 +403,7 @@ export async function load(): Promise<void> {
   Object.assign(data, fresh());
   let saved: unknown;
   try {
-    saved = await get(KEY);
+    saved = await readStored();
   } catch {
     /* fall through to localStorage */
   }
@@ -340,6 +418,9 @@ export async function load(): Promise<void> {
   if (saved && !adopt(saved)) {
     // Data from a newer Ankhwiz: start empty without saving over it.
     newer.found = true;
+  } else if (saved && pending.all) {
+    // A library from before 0.5.0: store it in parts now.
+    save();
   }
   applyTheme();
   ui.ready = true;
@@ -443,6 +524,21 @@ export function setThoth(mode: ThothMode): void {
   save();
 }
 
+/** Read a language with a downloaded Piper voice, or with the device's own (null). */
+export function setPiperVoice(lang: string, voiceId: string | null): void {
+  const all = { ...(data.settings.piperVoices ?? {}) };
+  const key = lang.replace('_', '-').toLowerCase();
+  if (voiceId) all[key] = voiceId;
+  else delete all[key];
+  data.settings.piperVoices = all;
+  save();
+}
+
+export function setThothStyle(style: 'classic' | 'bright'): void {
+  data.settings.thothStyle = style;
+  save();
+}
+
 export function setMotion(on: boolean): void {
   data.settings.motion = on;
   save();
@@ -491,9 +587,13 @@ export function addDeck(deck: Deck, progress: Progress = {}): string {
 }
 
 /** Add an imported deck with its progress and media files. */
-export async function addImported(deck: Deck, progress: Progress, media: Record<string, Uint8Array>): Promise<string> {
+export async function addImported(deck: Deck, progress: Progress, media: Record<string, Uint8Array>, onMedia?: (done: number) => void | Promise<void>): Promise<string> {
   while (data.decks[deck.id]) deck.id = `d${Math.random().toString(36).slice(2, 10)}`;
-  for (const [name, bytes] of Object.entries(media)) await putMedia(deck.id, name, bytes);
+  let done = 0;
+  for (const [name, bytes] of Object.entries(media)) {
+    await putMedia(deck.id, name, bytes);
+    await onMedia?.(++done);
+  }
   return addDeck(deck, progress);
 }
 
@@ -774,7 +874,7 @@ function keepPaused(): void {
   const s = ui.session;
   if (!s || s.kind === 'practice' || s.kind === 'testout') return;
   data.paused = s.finished ? null : ({ ...snap(s), exercise: null } as Session);
-  save();
+  save({});
 }
 
 /** Pick up a lesson or review left part way. */
@@ -815,7 +915,7 @@ export function met(): void {
   data.progress[s.deckId][s.exercise.cardId] = introduce();
   s.lastMet = s.exercise.cardId;
   s.introduced++;
-  save();
+  save({ progress: s.deckId });
   s.index++;
   present();
 }
@@ -852,7 +952,7 @@ export function grade(outcome: Outcome): { promoted: boolean } {
   else s.queue = requeue(snap(s.queue), s.index, ex.cardId);
   if (applied.promoted && !s.practice) s.promoted++;
   if (!s.practice) markStudied();
-  save();
+  save({ progress: s.deckId });
   return { promoted: applied.promoted && !s.practice };
 }
 

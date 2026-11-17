@@ -3,9 +3,9 @@
 //! cards (see `cards.rs`), so a note asked both ways counts as two.
 
 use crate::cards::{all_cards, face, is_live, lesson_cards, note_of};
-use crate::distract::{index_deck, option_count, pick_options};
+use crate::distract::{option_count, pick_options};
 use crate::model::{CardState, Clock, Deck, Progress, Streak};
-use crate::text::is_typeable;
+use crate::text::{is_buildable, is_typeable};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -32,14 +32,17 @@ fn item(id: &str) -> QueueItem {
 #[derive(Serialize, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Exercise {
-    /// meet, choice, typed, free (a long answer, marked by AI or by the
-    /// learner) or self (the learner sees the answer and says how close they were).
+    /// meet, choice, build (the answer put together from word tiles), typed,
+    /// free (a long answer, marked by AI or by the learner) or self (the
+    /// learner sees the answer and says how close they were).
     pub kind: &'static str,
     pub card_id: String,
     pub note_id: String,
     pub prompt: String,
     pub answer: String,
     pub accepted: Vec<String>,
+    /// Choice: the options, the answer among them. Build: other answers of the
+    /// deck, whose words are mixed in with the answer's as extra tiles.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub options: Option<Vec<String>>,
     /// Typed only: true in stage 3, where the text changes colour while typing.
@@ -67,7 +70,50 @@ fn askable(c: &CardState, clock: Clock) -> bool {
     !c.suspended && c.buried != Some(clock.day())
 }
 
-/// Cards due by the end of today, most overdue first.
+/// How a deck spaces a card and its other-way-round twin.
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum Spacing {
+    Spread,
+    NextDay,
+    Together,
+}
+
+pub fn spacing(deck: &Deck) -> Spacing {
+    match deck.options.reverse_spacing.as_str() {
+        "nextDay" => Spacing::NextDay,
+        "together" => Spacing::Together,
+        _ => Spacing::Spread,
+    }
+}
+
+/// The other-way-round card of a question-and-answer note.
+fn is_reverse(id: &str) -> bool {
+    id.ends_with(":r")
+}
+
+/// A reverse card not yet met that, under `nextDay`, is not met in its lesson
+/// but among reviews once its forward card has had a day to settle.
+fn waits_for_reviews(deck: &Deck, progress: &Progress, id: &str) -> bool {
+    spacing(deck) == Spacing::NextDay && is_reverse(id) && !progress.contains_key(id)
+}
+
+/// Under `nextDay`: reverse cards ready to be met today, because their
+/// forward card was met on an earlier day. In path order.
+pub fn reverses_to_meet(deck: &Deck, progress: &Progress, clock: Clock) -> Vec<String> {
+    if spacing(deck) != Spacing::NextDay {
+        return vec![];
+    }
+    let today = clock.day();
+    all_cards(deck)
+        .into_iter()
+        .filter(|id| is_reverse(id) && !progress.contains_key(id))
+        .filter(|id| progress.get(note_of(id)).is_some_and(|f| f.added.is_some_and(|d| d < today) && !f.suspended))
+        .collect()
+}
+
+/// Cards due by the end of today, most overdue first. Unless the deck asks
+/// twins together, only one card of a note is asked a day: a card waits while
+/// its twin is due before it or was already answered today.
 pub fn due_cards(deck: &Deck, progress: &Progress, clock: Clock) -> Vec<String> {
     let limit = clock.end_of_today();
     let mut ids: Vec<&String> = progress
@@ -76,7 +122,26 @@ pub fn due_cards(deck: &Deck, progress: &Progress, clock: Clock) -> Vec<String> 
         .map(|(id, _)| id)
         .collect();
     ids.sort_by(|a, b| progress[*a].due.partial_cmp(&progress[*b].due).unwrap_or(std::cmp::Ordering::Equal));
-    ids.into_iter().cloned().collect()
+    if spacing(deck) == Spacing::Together {
+        return ids.into_iter().cloned().collect();
+    }
+    let today = clock.day();
+    let mut seen = std::collections::HashSet::new();
+    let mut out = Vec::with_capacity(ids.len());
+    for id in ids {
+        let note = note_of(id);
+        if !is_reverse(id) && !progress.contains_key(&format!("{note}:r")) {
+            // No twin: nothing to space.
+            out.push(id.clone());
+            continue;
+        }
+        let twin = if is_reverse(id) { note.to_string() } else { format!("{note}:r") };
+        let twin_today = progress.get(&twin).is_some_and(|c| c.hist.last().is_some_and(|h| h.day == today));
+        if !twin_today && seen.insert(note) {
+            out.push(id.clone());
+        }
+    }
+    out
 }
 
 /// Reviews already answered today (cards met before today and answered today).
@@ -96,11 +161,17 @@ pub fn reviews_left(deck: &Deck, progress: &Progress, clock: Clock) -> usize {
 /// Lessons with a card first met today.
 pub fn lessons_started_today(deck: &Deck, progress: &Progress, clock: Clock) -> usize {
     let today = clock.day();
-    let index = index_deck(deck);
-    let mut lessons: Vec<&String> = progress
+    // Most days only a few cards were first met today; skip the deck's index when none were.
+    if !progress.values().any(|c| c.added == Some(today)) {
+        return 0;
+    }
+    let (lesson_of, _) = crate::distract::note_places(deck);
+    let mut lessons: Vec<&str> = progress
         .iter()
         .filter(|(_, c)| c.added == Some(today))
-        .filter_map(|(id, _)| index.lesson_of.get(note_of(id)))
+        // A reverse card met among reviews does not start its lesson again.
+        .filter(|(id, _)| !is_reverse(id) || progress.get(note_of(id)).is_none_or(|f| f.added == Some(today)))
+        .filter_map(|(id, _)| lesson_of.get(note_of(id)).copied())
         .collect();
     lessons.sort();
     lessons.dedup();
@@ -128,9 +199,14 @@ pub struct LessonStatus {
 pub fn lesson_status(deck: &Deck, progress: &Progress, lesson_id: &str, clock: Clock) -> LessonStatus {
     let ids = lesson_cards(deck, lesson_id);
     let limit = clock.end_of_today();
-    let (mut introduced, mut stages, mut passed, mut due) = (0usize, 0usize, 0usize, 0usize);
+    let (mut introduced, mut stages, mut passed, mut due, mut waiting) = (0usize, 0usize, 0usize, 0usize, 0usize);
     for id in &ids {
-        let Some(c) = progress.get(id) else { continue };
+        let Some(c) = progress.get(id) else {
+            if waits_for_reviews(deck, progress, id) {
+                waiting += 1;
+            }
+            continue;
+        };
         introduced += 1;
         stages += c.stage as usize;
         if c.stage == 5 || (c.stage == 4 && !c.ok_days.is_empty()) {
@@ -143,7 +219,7 @@ pub fn lesson_status(deck: &Deck, progress: &Progress, lesson_id: &str, clock: C
     let total = ids.len();
     let state = if introduced == 0 {
         "new"
-    } else if introduced < total {
+    } else if introduced + waiting < total {
         "started"
     } else if passed == total {
         "complete"
@@ -162,7 +238,9 @@ pub fn lesson_status(deck: &Deck, progress: &Progress, lesson_id: &str, clock: C
 
 /// The first lesson with cards still to meet, or None when all are met.
 pub fn next_lesson_id(deck: &Deck, progress: &Progress) -> Option<String> {
-    ordered_lesson_ids(deck).into_iter().find(|id| lesson_cards(deck, id).iter().any(|c| !progress.contains_key(c)))
+    ordered_lesson_ids(deck)
+        .into_iter()
+        .find(|id| lesson_cards(deck, id).iter().any(|c| !progress.contains_key(c) && !waits_for_reviews(deck, progress, c)))
 }
 
 /// Cards that keep being missed, worst first.
@@ -221,7 +299,7 @@ pub fn deck_view(deck: &Deck, progress: &Progress, clock: Clock) -> DeckView {
         }
     }
     let left = reviews_left(deck, progress, clock);
-    let due = due_cards(deck, progress, clock).len().min(left);
+    let due = (due_cards(deck, progress, clock).len() + reverses_to_meet(deck, progress, clock).len()).min(left);
     let started_today = lessons_started_today(deck, progress, clock);
     let goal = deck.options.new_lessons_per_day;
     DeckView {
@@ -249,9 +327,19 @@ pub fn build_lesson_queue(deck: &Deck, progress: &Progress, lesson_id: &str, clo
     if ids.is_empty() {
         return vec![];
     }
-    let fresh: Vec<&String> = ids.iter().filter(|id| !progress.contains_key(*id)).collect();
+    let mode = spacing(deck);
+    let mut fresh: Vec<&String> = ids.iter().filter(|id| !progress.contains_key(*id) && !waits_for_reviews(deck, progress, id)).collect();
     if fresh.is_empty() {
-        return ids.iter().filter(|id| progress.get(*id).is_none_or(|c| askable(c, clock))).map(|id| item(id)).collect();
+        let mut again: Vec<QueueItem> = ids.iter().filter(|id| progress.get(*id).is_some_and(|c| askable(c, clock))).map(|id| item(id)).collect();
+        if mode != Spacing::Together {
+            // Forward cards first, then the other way round.
+            again.sort_by_key(|q| is_reverse(&q.card_id));
+        }
+        return again;
+    }
+    if mode == Spacing::Spread {
+        // Forward cards first, then the reverse cards in the same order.
+        fresh.sort_by_key(|id| is_reverse(id));
     }
 
     let mut reviews: std::collections::VecDeque<String> = due_cards(deck, progress, clock)
@@ -281,12 +369,70 @@ pub fn build_lesson_queue(deck: &Deck, progress: &Progress, lesson_id: &str, clo
     }
     queue.extend(follow_ups.iter().map(|f| item(f)));
     queue.extend(reviews.iter().map(|r| item(r)));
+    if mode != Spacing::Together {
+        space_twins(&mut queue, TWIN_GAP);
+    }
     queue
+}
+
+/// Fewest items between a card and its twin in one session, where possible.
+pub const TWIN_GAP: usize = 4;
+
+/// Moves items so that a card and its other-way-round twin are at least `gap`
+/// places apart where the queue allows it. Repeats of the same card are left
+/// as they are, and every item stays in the queue.
+pub fn space_twins(queue: &mut Vec<QueueItem>, gap: usize) {
+    let clash = |q: &[QueueItem], at: usize, card: &str| {
+        let note = note_of(card);
+        let lo = at.saturating_sub(gap - 1);
+        let hi = (at + gap).min(q.len());
+        (lo..hi).any(|j| j != at && q[j].card_id != card && note_of(&q[j].card_id) == note)
+    };
+    for i in 0..queue.len() {
+        let card = queue[i].card_id.clone();
+        if !clash(queue, i, &card) {
+            continue;
+        }
+        // Bring forward the nearest later item that fits here, unless moving it
+        // would put this card or that one next to a twin.
+        if let Some(j) = (i + 1..queue.len()).find(|&j| {
+            let other = queue[j].card_id.clone();
+            if note_of(&other) == note_of(&card) {
+                return false;
+            }
+            let mut trial = queue.clone();
+            let moved = trial.remove(j);
+            trial.insert(i, moved);
+            !clash(&trial, i, &other) && !clash(&trial, i + 1, &card)
+        }) {
+            let moved = queue.remove(j);
+            queue.insert(i, moved);
+        }
+    }
 }
 
 pub fn build_review_queue(deck: &Deck, progress: &Progress, clock: Clock) -> Vec<QueueItem> {
     let n = MAX_REVIEW_SESSION.min(reviews_left(deck, progress, clock));
-    due_cards(deck, progress, clock).iter().take(n).map(|id| item(id)).collect()
+    let mut queue: Vec<QueueItem> = due_cards(deck, progress, clock).iter().take(n).map(|id| item(id)).collect();
+    // Under `nextDay`, reverse cards whose forward card was met before today
+    // are met here, as in a lesson: shown, asked, and asked again a little later.
+    let room = n.saturating_sub(queue.len());
+    let mut follow_ups: std::collections::VecDeque<String> = Default::default();
+    for id in reverses_to_meet(deck, progress, clock).into_iter().take(room) {
+        queue.push(item(&id));
+        queue.push(item(&id));
+        follow_ups.push_back(id);
+        if follow_ups.len() > 2 {
+            if let Some(f) = follow_ups.pop_front() {
+                queue.push(item(&f));
+            }
+        }
+    }
+    queue.extend(follow_ups.iter().map(|f| item(f)));
+    if spacing(deck) != Spacing::Together {
+        space_twins(&mut queue, TWIN_GAP);
+    }
+    queue
 }
 
 /// Practice: extra rounds that never change the schedule.
@@ -364,6 +510,14 @@ pub fn make_exercise(deck: &Deck, progress: &Progress, card_id: &str, just_met: 
 
     let count = option_count(Some(card), just_met);
     let hard = card.stage == 2 && (!card.ok_days.is_empty() || card.demoted);
+    if deck.options.build_sentences && !note.no_build && ex.picture.is_none() && is_buildable(&f.answer) {
+        // A sentence is put together from its words, with a few from other answers mixed in.
+        let mut others = pick_options(deck, card_id, 4, hard);
+        others.retain(|o| o != &f.answer);
+        ex.kind = "build";
+        ex.options = Some(others);
+        return Some(ex);
+    }
     let options = pick_options(deck, card_id, count, hard);
     if options.len() < 2 {
         // Nothing in the deck to offer as a wrong option.
@@ -658,6 +812,128 @@ mod tests {
         progress.insert(reverse.card_id.clone(), CardState { stage: 2, ..introduce(clock()) });
         let options = make_exercise(&deck, &progress, &reverse.card_id, false).unwrap().options.unwrap();
         assert!(options.iter().all(|o| o.starts_with("la ") || o.starts_with("el ")), "{options:?}");
+    }
+
+    /// Places between each card and its twin, smallest first.
+    fn twin_gaps(queue: &[QueueItem]) -> Vec<usize> {
+        let mut gaps = vec![];
+        for (i, a) in queue.iter().enumerate() {
+            for (j, b) in queue.iter().enumerate().skip(i + 1) {
+                if a.card_id != b.card_id && note_of(&a.card_id) == note_of(&b.card_id) {
+                    gaps.push(j - i);
+                }
+            }
+        }
+        gaps.sort_unstable();
+        gaps
+    }
+
+    #[test]
+    fn spread_twins_keep_apart_in_a_lesson() {
+        let mut deck = sample_deck(0.0);
+        deck.options.both_ways = true;
+        assert_eq!(deck.options.reverse_spacing, "spread");
+        let first = deck.units[0].lesson_ids[0].clone();
+        let queue = build_lesson_queue(&deck, &Progress::new(), &first, clock());
+        assert_eq!(queue.len(), 36);
+        // Every forward card is met before any reverse card.
+        let first_reverse = queue.iter().position(|q| q.card_id.ends_with(":r")).unwrap();
+        let notes = &deck.lessons[&first].note_ids;
+        assert!(notes.iter().all(|n| queue.iter().position(|q| &q.card_id == n).unwrap() < first_reverse));
+        assert!(twin_gaps(&queue)[0] >= TWIN_GAP, "{:?}", twin_gaps(&queue));
+        // Each card is still met, asked and asked again.
+        for n in notes {
+            assert_eq!(queue.iter().filter(|q| &q.card_id == n).count(), 3);
+            assert_eq!(queue.iter().filter(|q| q.card_id == format!("{n}:r")).count(), 3);
+        }
+    }
+
+    #[test]
+    fn together_twins_follow_each_other_as_before() {
+        let mut deck = sample_deck(0.0);
+        deck.options.both_ways = true;
+        deck.options.reverse_spacing = "together".into();
+        let first = deck.units[0].lesson_ids[0].clone();
+        let queue = build_lesson_queue(&deck, &Progress::new(), &first, clock());
+        assert_eq!(queue.len(), 36);
+        assert!(twin_gaps(&queue)[0] < TWIN_GAP);
+    }
+
+    #[test]
+    fn next_day_twins_are_met_among_the_next_days_reviews() {
+        let mut deck = sample_deck(0.0);
+        deck.options.both_ways = true;
+        deck.options.reverse_spacing = "nextDay".into();
+        let c = clock();
+        let first = deck.units[0].lesson_ids[0].clone();
+        let queue = build_lesson_queue(&deck, &Progress::new(), &first, c);
+        assert_eq!(queue.len(), 18);
+        assert!(queue.iter().all(|q| !q.card_id.ends_with(":r")));
+        // Meeting the forward cards finishes the lesson for today, and opens the next.
+        let mut progress = Progress::new();
+        for n in &deck.lessons[&first].note_ids {
+            progress.insert(n.clone(), introduce(c));
+        }
+        let view = deck_view(&deck, &progress, c);
+        assert_eq!(view.lessons[&first].state, "learned");
+        assert_ne!(view.next_id.as_deref(), Some(first.as_str()));
+        assert!(reverses_to_meet(&deck, &progress, c).is_empty());
+        // The next day the reverse cards are met in the review, without starting the lesson again.
+        let tomorrow = Clock::new(c.now + DAY_MS, c.tz);
+        for card in progress.values_mut() {
+            card.due = tomorrow.now + 10.0 * DAY_MS;
+        }
+        assert_eq!(reverses_to_meet(&deck, &progress, tomorrow).len(), 6);
+        assert_eq!(deck_view(&deck, &progress, tomorrow).due, 6);
+        let review = build_review_queue(&deck, &progress, tomorrow);
+        assert_eq!(review.len(), 18);
+        assert!(review.iter().all(|q| q.card_id.ends_with(":r")));
+        let r = review[0].card_id.clone();
+        assert_eq!(make_exercise(&deck, &progress, &r, false).unwrap().kind, "meet");
+        progress.insert(r.clone(), introduce(tomorrow));
+        assert_eq!(lessons_started_today(&deck, &progress, tomorrow), 0);
+    }
+
+    #[test]
+    fn twins_due_the_same_day_are_asked_one_a_day() {
+        let mut deck = sample_deck(0.0);
+        deck.options.both_ways = true;
+        let c = clock();
+        let first = deck.units[0].lesson_ids[0].clone();
+        let note = deck.lessons[&first].note_ids[0].clone();
+        let mut progress = Progress::new();
+        progress.insert(note.clone(), CardState { due: c.now - 2.0 * DAY_MS, ..introduce(c) });
+        progress.insert(format!("{note}:r"), CardState { due: c.now - DAY_MS, ..introduce(c) });
+        assert_eq!(due_cards(&deck, &progress, c), vec![note.clone()]);
+        assert_eq!(deck_view(&deck, &progress, c).due, 1);
+        // Answering one keeps the other for another day.
+        let done = apply_outcome(&progress[&note], &Outcome { correct: true, assisted: true, saw_red: false, ms: 4000.0, ai_graded: false }, c, 5);
+        progress.insert(note.clone(), done.card);
+        assert!(due_cards(&deck, &progress, c).is_empty());
+        deck.options.reverse_spacing = "together".into();
+        assert_eq!(due_cards(&deck, &progress, c), vec![format!("{note}:r")]);
+    }
+
+    #[test]
+    fn sentences_are_built_from_tiles_in_the_first_stages() {
+        let mut deck = sample_deck(0.0);
+        let first = deck.units[0].lesson_ids[0].clone();
+        let id = deck.lessons[&first].note_ids[0].clone();
+        deck.notes.get_mut(&id).unwrap().back = "I would like an apple".into();
+        let mut progress = Progress::new();
+        progress.insert(id.clone(), introduce(clock()));
+        let ex = make_exercise(&deck, &progress, &id, false).unwrap();
+        assert_eq!(ex.kind, "build");
+        assert!(!ex.options.as_ref().unwrap().contains(&ex.answer));
+        // Not for this card, not for this deck, and not once it is typed.
+        deck.notes.get_mut(&id).unwrap().no_build = true;
+        assert_eq!(make_exercise(&deck, &progress, &id, false).unwrap().kind, "choice");
+        deck.notes.get_mut(&id).unwrap().no_build = false;
+        deck.options.build_sentences = false;
+        assert_eq!(make_exercise(&deck, &progress, &id, false).unwrap().kind, "choice");
+        deck.options.build_sentences = true;
+        progress.get_mut(&id).unwrap().stage = 3;
+        assert_eq!(make_exercise(&deck, &progress, &id, false).unwrap().kind, "typed");
     }
 
     #[test]

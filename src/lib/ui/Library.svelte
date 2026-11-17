@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { firstLaunch, signal } from '../tour.svelte';
+  import { onMount } from 'svelte';
+  onMount(() => firstLaunch());
   // The library: every deck on this device, and three ways to add one.
   import { line } from '../core/thoth';
   import { importAnkh, readPackage, type AnkiPackage } from '../exporting';
@@ -22,6 +25,7 @@
     ui,
   } from '../store.svelte';
   import { summarise } from './deckView';
+  import ProgressBar from './ProgressBar.svelte';
   import Icon from './Icon.svelte';
   import Logo from './Logo.svelte';
   import Thoth from './Thoth.svelte';
@@ -37,6 +41,7 @@
   let listName = $state('');
   let listText = $state('');
   let busy = $state(false);
+  let readingName = $state('');
   let message = $state<{ ok: boolean; text: string } | null>(null);
   let picker = $state<HTMLInputElement>();
   let pending = $state<AnkiPackage | null>(null);
@@ -73,6 +78,9 @@
     busy = true;
     message = null;
     try {
+      readingName = file.name;
+      // Let the bar show before the file is read in one long step.
+      await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 0)));
       const bytes = new Uint8Array(await file.arrayBuffer());
       if (/\.ankh$/i.test(file.name)) {
         const id = await importAnkh(bytes);
@@ -84,6 +92,7 @@
       message = { ok: false, text: err instanceof Error ? err.message : 'That file could not be read.' };
     } finally {
       busy = false;
+      readingName = '';
     }
   }
 
@@ -182,9 +191,10 @@
       <button class="quiet" disabled={busy} onclick={() => picker?.click()}>
         <Icon name="plus" size={18} /> {busy ? 'Reading…' : 'Import a deck (.apkg or .ankh)'}
       </button>
+      {#if busy && readingName}<ProgressBar label={`Reading ${readingName}…`} />{/if}
       <button class="quiet" aria-expanded={pasting} onclick={() => (pasting = !pasting)}><Icon name="plus" size={18} /> Paste a list</button>
       {#if !hasSample}
-        <button class="quiet" onclick={() => openDeck(addSample())}><Icon name="plus" size={18} /> Add the sample deck</button>
+        <button class="quiet" data-tour="sample" onclick={() => (openDeck(addSample()), signal('sample'))}><Icon name="plus" size={18} /> Add the sample deck</button>
       {/if}
     </div>
 

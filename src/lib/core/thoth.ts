@@ -12,6 +12,7 @@ const KEYS = [
   'meet',
   'justMet',
   'choiceFew',
+  'build',
   'typedLive',
   'typedPlain',
   'self',

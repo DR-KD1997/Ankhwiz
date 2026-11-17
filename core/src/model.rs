@@ -56,6 +56,12 @@ pub struct Note {
     /// say how close they were. For cards the app cannot mark.
     #[serde(default, skip_serializing_if = "is_false")]
     pub self_check: bool,
+    /// Never asked by building the answer from word tiles, even when the deck builds sentences.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub no_build: bool,
+    /// Words read aloud in their own language, wherever they appear in the note.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub voices: Vec<VoiceMark>,
     /// A picture with hidden parts: one card per hidden part number.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub occlusion: Option<Occlusion>,
@@ -177,12 +183,25 @@ pub struct Look {
     /// answer (and lets Settings read them by itself); "off" hides them.
     /// Decks from before 0.4.1 may say "question" or "answer", meaning on.
     pub speak: String,
+    /// Words in quotes are read in this language (usually the one being
+    /// learned); the rest of the field in its own. Empty: off.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub quote_lang: String,
 }
 
 impl Default for Look {
     fn default() -> Self {
-        Self { size: "m".into(), font: "default".into(), rtl: false, hint_extra: false, lang: String::new(), lang_back: String::new(), speak: "off".into() }
+        Self { size: "m".into(), font: "default".into(), rtl: false, hint_extra: false, lang: String::new(), lang_back: String::new(), speak: "off".into(), quote_lang: String::new() }
     }
+}
+
+/// Words in a note read aloud in another language, such as the Spanish in
+/// "What does 'la manzana' mean?". From the card editor, or from Anki's
+/// `<span lang>` and `[anki:tts]` markup.
+#[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
+pub struct VoiceMark {
+    pub text: String,
+    pub lang: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
@@ -197,6 +216,14 @@ pub struct DeckOptions {
     /// Ask cards both ways: question to answer, and answer to question. Applies
     /// to cards made in Ankhwiz, and to Anki note types without a setting of their own.
     pub both_ways: bool,
+    /// When a card's other-way-round twin is asked: `spread` (default: later in
+    /// the same lesson, never close by), `nextDay` (met the day after, among
+    /// reviews) or `together` (straight after, as before 0.5.0). Except for
+    /// `together`, twins due on the same day are asked one per day.
+    pub reverse_spacing: String,
+    /// Answers of three words or more are built from word tiles in stages 1
+    /// and 2, instead of picked from whole options.
+    pub build_sentences: bool,
     /// Longest gap between reviews, in days.
     pub max_interval: u32,
     /// Separate days with a counted correct answer needed to leave stages 2, 3 and 4.
@@ -211,6 +238,8 @@ impl Default for DeckOptions {
             review_cap: 100,
             retention: 0.9,
             both_ways: false,
+            reverse_spacing: "spread".into(),
+            build_sentences: true,
             max_interval: 36500,
             stage_days: [2, 2, 2],
             look: Look::default(),
@@ -433,6 +462,10 @@ pub struct RawNote {
     pub extra_more: Vec<String>,
     #[serde(default, skip_serializing_if = "is_false")]
     pub self_check: bool,
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub no_build: bool,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub voices: Vec<VoiceMark>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub occlusion: Option<Occlusion>,
 }

@@ -13,6 +13,7 @@
   import Session from './lib/ui/Session.svelte';
   import Settings from './lib/ui/Settings.svelte';
   import UpdatePrompt from './lib/ui/UpdatePrompt.svelte';
+  import Tour from './lib/ui/Tour.svelte';
   import { data, ui } from './lib/store.svelte';
 
   let width = $state(window.innerWidth);
@@ -47,7 +48,7 @@
 {:else}
   <Library />
 {/if}
-{#if ui.ready && !ui.failed}<UpdatePrompt />{/if}
+{#if ui.ready && !ui.failed}<UpdatePrompt /><Tour />{/if}
 
 <style>
   .splash {

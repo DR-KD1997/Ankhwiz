@@ -6,11 +6,18 @@
   // several fields: "+" adds one after the last, each in slightly smaller type,
   // as they will appear on the card.
   import { aiReady } from '../ai.svelte';
-  import { importPackage, type AnkiPackage, type Mapping, type SplitBy } from '../exporting';
+  import { readingLanguages } from '../import/apkg';
+  import { importPackage, type AnkiPackage, type ImportStep, type Mapping, type SplitBy } from '../exporting';
   import { canSpeak } from '../speech';
   import { data } from '../store.svelte';
   import FieldMapper from './FieldMapper.svelte';
   import Icon from './Icon.svelte';
+  import ProgressBar from './ProgressBar.svelte';
+  import Help from './Help.svelte';
+  import { offerPart } from '../tour.svelte';
+  import { onMount } from 'svelte';
+
+  onMount(() => offerPart('import'));
 
   let {
     pkg,
@@ -38,13 +45,29 @@
     ),
   );
   let withProgress = $state(true);
-  let read = $state(false);
-  let lang = $state('');
-  let langBack = $state('');
+  // Templates that read fields aloud with {{tts es_ES:Field}} turn reading on, in their languages.
+  // svelte-ignore state_referenced_locally
+  const reading = readingLanguages(pkg);
+  let read = $state(!!reading);
+  let lang = $state(reading?.lang ?? '');
+  let langBack = $state(reading?.langBack ?? '');
   // svelte-ignore state_referenced_locally
   let splitBy = $state<SplitBy>(pkg.notes.some((n) => n.group) ? 'subdeck' : 'size');
   let suggest = $state(aiReady());
   let busy = $state(false);
+  let stepNow = $state<ImportStep | null>(null);
+  const STAGE: Record<ImportStep['stage'], string> = { notes: 'Reading the notes', lessons: 'Building lessons', media: 'Saving pictures and sounds', saving: 'Saving the deck' };
+  /** Rough share of the whole import each stage has reached. */
+  const share = $derived.by(() => {
+    const s = stepNow;
+    if (!s) return 0;
+    const part = s.total ? s.done / s.total : 1;
+    const hasMedia = mediaCount > 0;
+    if (s.stage === 'notes') return 0.05;
+    if (s.stage === 'lessons') return hasMedia ? 0.15 : 0.3;
+    if (s.stage === 'media') return 0.35 + 0.6 * part;
+    return 0.97;
+  });
   let error = $state('');
   const mediaCount = $derived(Object.keys(pkg.media).length);
 
@@ -70,23 +93,24 @@
     busy = true;
     error = '';
     try {
-      const r = await importPackage(pkg, $state.snapshot(maps), { withProgress: withProgress && pkg.studied, name: name.trim(), splitBy, read: read ? { lang: lang.trim(), langBack: langBack.trim() } : null });
+      const r = await importPackage(pkg, $state.snapshot(maps), { withProgress: withProgress && pkg.studied, name: name.trim(), splitBy, read: read ? { lang: lang.trim(), langBack: langBack.trim() } : null }, (s) => (stepNow = s));
       onDone({ ...r, suggest });
     } catch (e) {
       error = e instanceof Error ? e.message : 'The deck could not be imported.';
     } finally {
       busy = false;
+      stepNow = null;
     }
   }
 </script>
 
 <div class="map plain">
-  <p class="label">Import from Anki</p>
+  <div class="title"><p class="label">Import from Anki</p><Help part="import" /></div>
   <label class="field"><span>Deck name</span><input class="input" bind:value={name} /></label>
 
-  {#each pkg.notetypes as t (t.id)}
+  {#each pkg.notetypes as t, ti (t.id)}
     {@const m = maps[t.id]}
-    <section class="type" aria-label={t.name}>
+    <section class="type" aria-label={t.name} data-tour={ti === 0 ? 'i-fields' : undefined}>
       <div class="head">
         <strong>{t.name}</strong>
         <span class="matched">{MATCHED[t.matched]}</span>
@@ -127,7 +151,7 @@
   {/if}
 
   {#if pkg.studied}
-    <label class="check"><input type="checkbox" bind:checked={withProgress} /> <span>Bring my Anki progress <small>Cards you know well start at a higher stage.</small></span></label>
+    <label class="check" data-tour="i-progress"><input type="checkbox" bind:checked={withProgress} /> <span>Bring my Anki progress <small>Cards you know well start at a higher stage.</small></span></label>
   {/if}
   {#if canSpeak()}
     <label class="check"><input type="checkbox" bind:checked={read} /> <span>Read aloud <small>A speaker button by the question and the answer, with this device's own voices.</small></span></label>
@@ -145,21 +169,33 @@
   <p class="hint">
     {mediaCount ? `${mediaCount} ${mediaCount === 1 ? 'picture or sound comes' : 'pictures and sounds come'} with it. ` : ''}Fields you do not use are kept, and go back to Anki unchanged if you export the deck.
   </p>
+  {#if busy && stepNow}
+    <ProgressBar label={stepNow.stage === 'media' ? `${STAGE.media}: ${stepNow.done} of ${stepNow.total}` : `${STAGE[stepNow.stage]}…`} value={share} />
+  {/if}
   {#if error}<p class="hint bad" role="alert">{error}</p>{/if}
   <div class="pair">
     <button class="quiet" onclick={onCancel}>Cancel</button>
-    <button class="primary" disabled={busy} onclick={go}>{busy ? 'Importing…' : `Import ${pkg.notes.length} notes`}</button>
+    <button class="primary" data-tour="i-go" disabled={busy} onclick={go}>{busy ? 'Importing…' : `Import ${pkg.notes.length} notes`}</button>
   </div>
 </div>
 
 <style>
+  .title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .title .label {
+    margin: 0;
+  }
   .map {
     padding: 14px;
     display: flex;
     flex-direction: column;
     gap: 12px;
   }
-  .map > .label {
+  .title > .label {
     margin: 0;
   }
   .field {

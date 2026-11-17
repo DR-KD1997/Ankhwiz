@@ -18,6 +18,7 @@ import { decompress as unzstd } from 'fzstd';
 import { parseOcclusion } from '../core';
 import type { AnkiNotetype, AnkiSched, AnkiTemplate, RawNote } from '../core/types';
 import { decodeEntities, fieldText } from './html';
+import { marksInField, ttsFields, type Mark } from '../voices';
 import { openInBrowser, rowsOf, type Database, type OpenDatabase } from './sql';
 
 export type { OpenDatabase };
@@ -424,6 +425,32 @@ export async function readPackage(apkg: Uint8Array, fileName: string, open: Open
 
 // ---------- turning notes into rows ----------
 
+/** Words marked with a language in the fields a note uses, for reading aloud. */
+function voicesOf(fields: string[], used: (number | null)[]): Mark[] | undefined {
+  const out: Mark[] = [];
+  for (const i of used) {
+    if (i === null || i < 0) continue;
+    for (const m of marksInField(fields[i] ?? '')) if (!out.some((o) => o.text === m.text && o.lang === m.lang)) out.push(m);
+  }
+  return out.length ? out : undefined;
+}
+
+/**
+ * Languages a package's card templates read fields in, with Anki's
+ * `{{tts es_ES:Field}}`: the question's and the answer's, to suggest when importing.
+ */
+export function readingLanguages(pkg: AnkiPackage): { lang: string; langBack: string } | null {
+  for (const t of pkg.notetypes) {
+    if (!t.count) continue;
+    const langs: Record<string, string> = {};
+    for (const tpl of t.templates) Object.assign(langs, ttsFields(tpl.qfmt + tpl.afmt));
+    const q = langs[t.fields[t.question]];
+    const a = t.answer !== undefined ? langs[t.fields[t.answer]] : undefined;
+    if (q || a) return { lang: q ?? '', langBack: a ?? '' };
+  }
+  return null;
+}
+
 /** Media files a field refers to: pictures and [sound:…] markers. */
 export function fieldMedia(html: string): string[] {
   const out: string[] = [];
@@ -595,6 +622,7 @@ export function packageRows(pkg: AnkiPackage, mappings: Record<string, Partial<M
       frontMore,
       extraMore,
       selfCheck: map.selfCheck || note.tags.some((t) => SELF_CHECK_TAG.test(t)),
+      voices: voicesOf(note.fields, [map.question, map.answer, map.extra, ...qMore, ...xMore]),
       occlusion,
       group,
       lesson: lessonSlug && splitBy === 'subdeck' ? pretty(lessonSlug) : null,

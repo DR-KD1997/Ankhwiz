@@ -95,7 +95,7 @@
       {#if error}<p class="hint bad" role="alert">{error}</p>{/if}
       <div class="pair">
         <button class="quiet" onclick={cancel}>{confirming ? 'Keep the fields as they were' : 'Cancel'}</button>
-        <button class={confirming ? 'danger' : 'primary'} disabled={!changed || busy} onclick={save}>
+        <button class={confirming ? 'danger' : 'primary'} disabled={!changed || busy} onclick={() => save()}>
           {busy ? 'Saving…' : confirming ? 'Change and start again' : 'Save fields'}
         </button>
       </div>

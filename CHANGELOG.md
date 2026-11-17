@@ -3,7 +3,66 @@
 What changed in each version of Ankhwiz. Downloads are on the
 [Releases page](https://github.com/DR-KD1997/Ankhwiz/releases).
 
+## 0.5.0 · 2026-11-17
+
+[Every change to the code since 0.4.1.1](https://github.com/DR-KD1997/Ankhwiz/compare/v0.4.1.1...v0.5.0)
+
+Sentence building, mixed voices, downloadable voices, a welcome tour, a second portrait of Thoth, and faster big decks.
+
+### Added
+- **Build the sentence**: answers of three words or more are put together
+  from word tiles in the first two stages, with a few words from other
+  answers mixed in. Tap the words in order (or press their numbers, and
+  Backspace to take one back). Chinese, Japanese and Thai are split into
+  words by the device. Deck options › Card kinds turns it on or off for a
+  deck, and the card editor can leave out a single card.
+- **The other way round, spread out**: when a deck asks both ways, the
+  reverse cards now come later in the lesson instead of straight after
+  ("Spread out", the default), or the next day among the reviews ("Next
+  day"), or as before ("Straight after"). Unless it is set to Straight after,
+  only one way of a note comes up for review on any day (Anki: bury
+  siblings).
+- **Several voices in one card**: words in quotes can be read in another
+  language (Deck options › Read quotes in another language), and words can
+  be marked with their own language in the card editor (select them, choose
+  the language, Mark). The speaker button reads the pieces one after
+  another, each in its own voice, and the words read in another voice are
+  underlined on the card. Anki's `<span lang>` and `[anki:tts]` markup is
+  read on import and written back on export, and decks whose templates use
+  `{{tts …}}` arrive with reading aloud on in those languages.
+- **Downloadable voices**: Settings › Voices offers natural-sounding Piper
+  voices for over 30 languages, run on the device and working offline once
+  downloaded. The first one brings the voice engine (about 30 MB); each
+  voice is about 20 to 65 MB. On Android, Settings › Voices can also choose
+  which of the phone's speech engines reads, and open the phone's voice
+  settings.
+- **Thoth's welcome tour**: at first launch Thoth adds the sample deck with
+  you and walks through the first lesson on the real app. Deck options,
+  importing, the card editor, Test out and Study with Thoth each explain
+  themselves the first time they open, and a **?** beside each explains it
+  again. Settings › Tour and tips can replay the tour, turn the tips off, or
+  show them all again. Skip at any point.
+- **Bright Scribe**, a second portrait style for Thoth: rounder and
+  friendlier, with the same movements, and a smile at cheering moments.
+  Choose it in Settings › Thoth; Classic stays the default.
+- **Import progress**: importing a large deck shows a bar while the file is
+  read, the lessons are built and the pictures and sounds are saved.
+
+### Changed
+- **Big decks are much faster**. Measured on a 30,000-card deck: opening the
+  deck 384 → 135 ms, starting a lesson 274 → 54 ms, each new card 289 → 67
+  ms. The library is now saved in parts, so answering a card saves only that
+  deck's progress instead of everything, and the card list shows 400 cards
+  at a time.
+- **Get it opens the release page in your browser.** The update prompt and
+  Settings › Updates never did anything before, because the app's window
+  does not leave Ankhwiz. Links to web pages now open in your own browser
+  (or, if that fails, show the address to copy). Ankhwiz does not install
+  updates by itself yet: download the new version from the release page.
+
 ## 0.4.1.1 · 2026-11-16
+
+[Every change to the code since 0.4.1](https://github.com/DR-KD1997/Ankhwiz/compare/v0.4.1...v0.4.1.1)
 
 The first published version of 0.4.1, with one addition. Everything listed
 under 0.4.1 below is part of it, including the note for Android.
@@ -18,14 +77,16 @@ under 0.4.1 below is part of it, including the note for Android.
   start again from the beginning. Text you edited in Ankhwiz is kept, and
   still goes back to Anki on export.
 
-## 0.4.1 · 2026-11-15 (not published on its own)
+## 0.4.1 · 2026-11-15
+
+[Every change to the code since 0.4.0](https://github.com/DR-KD1997/Ankhwiz/compare/v0.4.0...v0.4.1)
 
 Sounds, voices and a new look for Thoth.
 
 > **Android:** this version is signed with Ankhwiz's permanent release key,
 > so it cannot install over 0.4.0. Back up your library first (Settings ›
-> Your library › Back up all), uninstall the old app, install 0.4.1.1, then
-> restore. Every later version installs over this one.
+> Your library › Back up all), uninstall the old app, install this version,
+> then restore. Every later version installs over this one.
 
 ### Added
 - **Answer sounds**: a sound for a right, a nearly right and a wrong answer,
@@ -66,6 +127,8 @@ Sounds, voices and a new look for Thoth.
   keep doing so, through the new Settings choice.
 
 ## 0.4.0 · 2026-11-15
+
+[Every change to the code since 0.3.0](https://github.com/DR-KD1997/Ankhwiz/compare/v0.3.0...v0.4.0)
 
 Ready for everyday use: Anki decks of every shape come in properly, and the
 app gains the tools for studying day after day.

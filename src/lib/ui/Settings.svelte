@@ -22,12 +22,17 @@
     setUpdateAtLaunch,
     setTheme,
     setThoth,
+    setThothStyle,
     skipDays,
     ui,
     type AutoRead,
     type Theme,
   } from '../store.svelte';
   import Icon from './Icon.svelte';
+  import OutLink from './OutLink.svelte';
+  import Thoth from './Thoth.svelte';
+  import Voices from './Voices.svelte';
+  import { resetTips, startPart } from '../tour.svelte';
   import WhatsNew from './WhatsNew.svelte';
 
   const themes: [Theme, string][] = [
@@ -35,6 +40,20 @@
     ['light', 'Light'],
     ['dark', 'Dark'],
   ];
+  let tipsReset = $state(false);
+  function setTips(on: boolean) {
+    data.settings.tips = on;
+    save();
+  }
+  function replayTour() {
+    ui.screen = 'library';
+    ui.deckId = null;
+    startPart('basics');
+  }
+  const STYLES = [
+    { id: 'classic', name: 'Classic', hint: 'Gold and ink, as on the logo' },
+    { id: 'bright', name: 'Bright Scribe', hint: 'Rounder and friendlier' },
+  ] as const;
   const modes: [ThothMode, string, string][] = [
     ['full', 'Full', 'Thoth guides you during lessons and on the path.'],
     ['quiet', 'Quiet', 'Thoth appears only when a lesson ends.'],
@@ -224,6 +243,15 @@
     </div>
     <p class="hint">{modes.find((m) => m[0] === data.settings.thoth)?.[2]}</p>
     {#if data.settings.thoth !== 'hidden'}
+      <div class="styles" role="radiogroup" aria-label="Portrait style">
+        {#each STYLES as st (st.id)}
+          {@const on = (data.settings.thothStyle ?? 'classic') === st.id}
+          <button class="style" role="radio" aria-checked={on} onclick={() => setThothStyle(st.id)}>
+            <span class="mini plain"><Thoth size={64} portrait look={st.id} /></span>
+            <span><strong>{st.name}</strong><small>{st.hint}</small></span>
+          </button>
+        {/each}
+      </div>
       <div class="seg" role="group" aria-label="Thoth's movement">
         <button aria-pressed={data.settings.motion !== false} onclick={() => setMotion(true)}>Moves</button>
         <button aria-pressed={data.settings.motion === false} onclick={() => setMotion(false)}>Still</button>
@@ -261,6 +289,24 @@
   </div>
 
   <div class="group">
+    <p class="label">Voices</p>
+    <Voices />
+  </div>
+
+  <div class="group">
+    <p class="label">Tour and tips</p>
+    <label class="row plain">
+      <span><strong>Feature tips</strong><small>Thoth explains Deck options, importing, the card editor, Test out and studying with him the first time you open each. The ? beside each explains it again.</small></span>
+      <input type="checkbox" checked={data.settings.tips !== false} onchange={(e) => setTips(e.currentTarget.checked)} />
+    </label>
+    <div class="pair">
+      <button class="quiet" onclick={replayTour}>Replay the welcome tour</button>
+      <button class="quiet" onclick={() => ((tipsReset = true), resetTips())}>Show every tip again</button>
+    </div>
+    {#if tipsReset}<p class="hint" role="status">Each tip shows again the next time you open its part of the app.</p>{/if}
+  </div>
+
+  <div class="group">
     <p class="label">New decks</p>
     <div class="row plain">
       <span><strong>Lesson size</strong><small>New notes per lesson, {limits.minLesson} to {limits.maxLesson}. Each deck can also set its own.</small></span>
@@ -289,7 +335,7 @@
       {#if preset?.note}<p class="hint">{preset.note}</p>{/if}
       <label class="field">
         <span>Address</span>
-        <input type="url" bind:value={data.ai.baseUrl} onchange={save} placeholder="https://…/v1" autocomplete="off" spellcheck="false" />
+        <input type="url" bind:value={data.ai.baseUrl} onchange={() => save()} placeholder="https://…/v1" autocomplete="off" spellcheck="false" />
       </label>
       <label class="field">
         <span>Key{preset && !preset.needsKey ? ' (if the service needs one)' : ''}</span>
@@ -304,11 +350,11 @@
       <datalist id="models">{#each models as m (m)}<option value={m}></option>{/each}</datalist>
       <label class="field">
         <span>Model for quick jobs <small>explanations, marking, questions to Thoth</small></span>
-        <input list="models" bind:value={data.ai.fastModel} onchange={save} placeholder="Model name" autocomplete="off" spellcheck="false" />
+        <input list="models" bind:value={data.ai.fastModel} onchange={() => save()} placeholder="Model name" autocomplete="off" spellcheck="false" />
       </label>
       <label class="field">
         <span>Model for larger jobs <small>writing cards and passages; leave empty to use the same one</small></span>
-        <input list="models" bind:value={data.ai.strongModel} onchange={save} placeholder="Model name (optional)" autocomplete="off" spellcheck="false" />
+        <input list="models" bind:value={data.ai.strongModel} onchange={() => save()} placeholder="Model name (optional)" autocomplete="off" spellcheck="false" />
       </label>
       {#if aiReady()}
         <p class="hint">
@@ -381,15 +427,15 @@
     </div>
     {#if update?.state === 'newer'}
       <div class="update ok" role="status">
-        <p><strong>Ankhwiz {update.version} is available.</strong> <a href={update.url} target="_blank" rel="noopener">Get it</a></p>
+        <p><strong>Ankhwiz {update.version} is available.</strong> <OutLink href={update.url}>Get it from GitHub</OutLink></p>
         {#if update.details}<WhatsNew notes={update.details} />{/if}
       </div>
     {:else if update?.state === 'current'}
       <p class="update" role="status">You have the latest version.</p>
     {:else if update?.state === 'none'}
-      <p class="update" role="status">No releases have been published yet. <a href={RELEASES} target="_blank" rel="noopener">Releases page</a></p>
+      <p class="update" role="status">No releases have been published yet. <OutLink href={RELEASES}>Releases page</OutLink></p>
     {:else if update?.state === 'failed'}
-      <p class="update" role="status">GitHub could not be reached. Try again later, or visit <a href={RELEASES} target="_blank" rel="noopener">the releases page</a>.</p>
+      <p class="update" role="status">GitHub could not be reached. Try again later, or visit <OutLink href={RELEASES}>the releases page</OutLink>.</p>
     {/if}
     <p class="hint">Ankhwiz asks GitHub for the latest version number and sends nothing else.</p>
   </div>
@@ -425,6 +471,51 @@
 </section>
 
 <style>
+  .styles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .style {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    min-height: 84px;
+    border: 2px solid var(--line);
+    background: var(--surface);
+    color: var(--text);
+    text-align: left;
+  }
+  .style[aria-checked='true'] {
+    border: 4px solid var(--brass);
+    padding: 6px;
+    background: var(--sel-bg);
+    color: var(--sel-text);
+  }
+  .style > span:last-child {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .style small {
+    font-size: 12px;
+    font-weight: 400;
+    opacity: 0.8;
+  }
+  .mini {
+    flex: none;
+    width: 64px;
+    height: 64px;
+    overflow: hidden;
+    border: 2px solid var(--line);
+    background: var(--surface);
+  }
+  @media (max-width: 380px) {
+    .styles {
+      grid-template-columns: 1fr;
+    }
+  }
   .settings {
     width: 100%;
     max-width: 560px;

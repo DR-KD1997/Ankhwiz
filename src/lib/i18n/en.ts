@@ -14,6 +14,11 @@ export const en = {
     'Now write it yourself. The colours will guide you.',
     'Type it out. Green means you are on the right path.',
   ],
+  thoth_build: [
+    'Put the words in order. Some of them do not belong.',
+    'Build the answer word by word. Leave out the strays.',
+    'A scribe sets each sign in its place. Tap the words in order.',
+  ],
   thoth_typedPlain: [
     'No colours now. Trust what you know.',
     'Write it from memory. I will check when you are done.',

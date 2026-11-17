@@ -716,7 +716,7 @@ pub fn parse_edits(deck: &Deck, scope: &str, text: &str) -> Result<ProposedChang
                 }
                 changes.push(Proposed {
                     describe: format!("Change “{}” · {}", clip(&crate::cards::cloze_full(&note.front), 40), parts.join(" · ")),
-                    edit: Edit::Update { note_id: id, front, back, extra, alts, wrong: None, labels: None, qmedia: None, amedia: None, cloze: None, front_more: None, extra_more: None, self_check: None, occlusion: None },
+                    edit: Edit::Update { note_id: id, front, back, extra, alts, wrong: None, labels: None, qmedia: None, amedia: None, cloze: None, front_more: None, extra_more: None, self_check: None, no_build: None, voices: None, occlusion: None },
                 });
             }
             "add" => {

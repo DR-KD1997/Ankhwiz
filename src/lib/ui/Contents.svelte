@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Help from './Help.svelte';
+  import { offerPart } from '../tour.svelte';
   // Cards: every card of the deck by unit and lesson, with search, labels,
   // a card editor with its history, and lesson renaming and reordering.
   // (Anki: the Browser.)
@@ -56,16 +58,23 @@
     return true;
   }
   const filtering = $derived(query.trim() !== '' || label !== '' || show !== 'all');
-  const groups = $derived(
-    deck.units.map((u) => ({
+  const groups = $derived.by(() => {
+    // `start`: how many cards come before this lesson, so long decks can be shown a part at a time.
+    let start = 0;
+    return deck.units.map((u) => ({
       unit: u,
-      lessons: u.lessonIds.map((id) => ({
-        lesson: deck.lessons[id],
-        notes: deck.lessons[id].noteIds.map((n) => deck.notes[n]).filter((n) => n && matches(n)),
-      })),
-    })),
-  );
+      lessons: u.lessonIds.map((id) => {
+        const notes = deck.lessons[id].noteIds.map((n) => deck.notes[n]).filter((n) => n && matches(n));
+        const at = start;
+        start += notes.length;
+        return { lesson: deck.lessons[id], notes, start: at };
+      }),
+    }));
+  });
   const shown = $derived(groups.reduce((t, g) => t + g.lessons.reduce((s, l) => s + l.notes.length, 0), 0));
+  // Very large decks list their cards a few hundred at a time, lesson by lesson.
+  const PAGE = 400;
+  let limit = $state(PAGE);
 
   function edit(edits: Edit[], message = '') {
     const r = editDeck(deck.id, edits);
@@ -87,10 +96,39 @@
     frontMore: [] as string[],
     extraMore: [] as string[],
     selfCheck: false,
+    noBuild: false,
+    voices: [] as { text: string; lang: string }[],
     picture: false,
     occlusion: null as Occlusion | null,
   });
   let form = $state(blank());
+  // The first time a card is opened for editing (or a new one), Thoth explains the editor.
+  $effect(() => {
+    if (editing || adding) offerPart('editor');
+  });
+
+  // Marking words to be read in another language: the words last selected in
+  // the question or answer, and the language to read them in.
+  let picked = $state('');
+  let markLang = $state('');
+  const voiceLangs = $derived.by(() => {
+    const l = deck.options.look;
+    const mine = [l.langBack, l.quoteLang, l.lang].filter((x): x is string => !!x);
+    return [...new Set([...mine, 'en-GB', 'en-US', 'es-ES', 'fr-FR', 'de-DE', 'it-IT', 'pt-PT', 'pt-BR', 'nl-NL', 'ja-JP', 'zh-CN', 'ko-KR', 'ru-RU', 'ar-SA', 'af-ZA', 'zu-ZA'])];
+  });
+  $effect(() => {
+    if (!markLang && voiceLangs.length) markLang = voiceLangs[0];
+  });
+  function pick(e: Event) {
+    const t = e.currentTarget as HTMLTextAreaElement;
+    const text = t.value.slice(t.selectionStart ?? 0, t.selectionEnd ?? 0).trim();
+    if (text) picked = text.slice(0, 120);
+  }
+  function addMark() {
+    if (!picked || !markLang) return;
+    form.voices = [...form.voices.filter((v) => v.text !== picked), { text: picked, lang: markLang }];
+    picked = '';
+  }
   /** Type size for the n-th extra field of a list: smaller each time, down to the fourth. */
   const step = (n: number) => ['s1', 's2', 's3'][Math.min(n, 2)];
   /** Drag a question or extra field to another place; the one moved to the top becomes the main field. */
@@ -136,6 +174,8 @@
       frontMore: [...(n.frontMore ?? [])],
       extraMore: [...(n.extraMore ?? [])],
       selfCheck: !!n.selfCheck,
+      noBuild: !!n.noBuild,
+      voices: (n.voices ?? []).map((v) => ({ ...v })),
       picture: !!n.occlusion,
       occlusion: n.occlusion ? structuredClone($state.snapshot(n.occlusion)) : null,
     };
@@ -172,6 +212,8 @@
             frontMore: form.frontMore,
             extraMore: form.extraMore,
             selfCheck: form.selfCheck,
+            noBuild: form.noBuild || undefined,
+            voices: form.voices.length ? $state.snapshot(form.voices) : undefined,
             occlusion: form.picture ? $state.snapshot(form.occlusion) : null,
           },
         },
@@ -197,6 +239,8 @@
         frontMore: form.frontMore,
         extraMore: form.extraMore,
         selfCheck: form.selfCheck,
+        noBuild: form.noBuild,
+        voices: $state.snapshot(form.voices),
         occlusion: form.picture && form.occlusion ? $state.snapshot(form.occlusion) : undefined,
       },
     ];
@@ -252,6 +296,7 @@
       <Icon name="back" />
     </button>
     <h1 class="display">{adding ? 'New card' : editing ? 'Edit card' : 'Cards'}</h1>
+    {#if editing || adding}<Help part="editor" />{/if}
     {#if !editing && !adding}<span class="count">{filtering ? `${shown} of ` : ''}{Object.keys(deck.notes).length}</span>{/if}
   </header>
 
@@ -269,12 +314,12 @@
       {#if form.picture}
         <OcclusionEditor deckId={deck.id} bind:value={form.occlusion} />
       {/if}
-      <div class="field">
+      <div class="field" data-tour="e-fields">
         <label for="q-main">{form.picture ? 'Heading' : 'Question'} <small>{form.picture ? 'Optional: shown above the picture' : 'Write gaps as {{c1::answer}} for a fill-the-gap card'}</small></label>
         <div class="more-list" use:sortable={{ onMove: (a, b) => reorderFields('front', a, b) }}>
         <div class="more-row" data-sort>
           {#if form.frontMore.length}<button class="grip" data-grip aria-label="Move question field 1: hold and drag, or use the arrow keys"><Icon name="grip" /></button>{/if}
-          <textarea id="q-main" class="input" rows={form.picture ? 1 : 3} bind:value={form.front} dir="auto"></textarea>
+          <textarea id="q-main" class="input" rows={form.picture ? 1 : 3} bind:value={form.front} dir="auto" onselect={pick} onkeyup={pick} onpointerup={pick}></textarea>
           {#if !form.picture && !isCloze && !form.frontMore.length}
             <button class="plus" aria-label="Add another question field" onclick={() => (form.frontMore = [...form.frontMore, ''])}><Icon name="plus" size={18} /></button>
           {/if}
@@ -299,10 +344,26 @@
       {:else}
         <label class="field">
           <span>Answer</span>
-          <textarea class="input" rows="2" bind:value={form.back} dir="auto"></textarea>
+          <textarea class="input" rows="2" bind:value={form.back} dir="auto" onselect={pick} onkeyup={pick} onpointerup={pick}></textarea>
         </label>
       {/if}
-      <div class="media-edit">
+      {#if deck.options.look.speak !== 'off' && !form.picture}
+        <div class="voices-edit">
+          <span class="label">Read in another language</span>
+          <div class="pick-row">
+            <span class="picked" dir="auto">{picked ? `“${picked}”` : 'Select words in the question or answer'}</span>
+            <select class="input" aria-label="Language for the selected words" bind:value={markLang}>
+              {#each voiceLangs as l (l)}<option value={l}>{l}</option>{/each}
+            </select>
+            <button class="quiet" disabled={!picked || !markLang} onclick={addMark}>Mark</button>
+          </div>
+          {#each form.voices as v, i (v.text + v.lang)}
+            <button class="chip" aria-label="Unmark {v.text}" onclick={() => (form.voices = form.voices.filter((_, j) => j !== i))}><span class="marked" lang={v.lang}>{v.text}</span> · {v.lang} <Icon name="close" size={12} /></button>
+          {/each}
+          {#if !form.voices.length}<small>Marked words are read in their own language wherever they appear, such as the Spanish in “What does la manzana mean?”.</small>{/if}
+        </div>
+      {/if}
+      <div class="media-edit" data-tour="e-media">
         <span class="label">Question pictures and sounds</span>
         <Media deckId={deck.id} names={form.qmedia} small />
         {#each form.qmedia as m (m)}
@@ -346,7 +407,13 @@
         <input type="checkbox" bind:checked={form.selfCheck} />
         <span>You check this card yourself <small>See the answer and say how close you were, instead of being marked</small></span>
       </label>
-      <label class="field">
+      {#if deck.options.buildSentences !== false && !form.picture && !form.selfCheck}
+        <label class="check">
+          <input type="checkbox" checked={!form.noBuild} onchange={(e) => (form.noBuild = !e.currentTarget.checked)} />
+          <span>Build the answer from words <small>In the first two stages, answers of three words or more are put together from word tiles</small></span>
+        </label>
+      {/if}
+      <label class="field" data-tour="e-more">
         <span>Also accepted <small>Other right answers, separated by commas</small></span>
         <input class="input" bind:value={form.alts} dir="auto" />
       </label>
@@ -438,6 +505,7 @@
     </div>
 
     {#each groups as g (g.unit.id)}
+      {#if !g.lessons.length || g.lessons[0].start < limit}
       <div class="unit">
         {#if renaming === g.unit.id}
           <form class="rename" onsubmit={(e) => (e.preventDefault(), rename('unit', g.unit.id))}>
@@ -451,7 +519,7 @@
           </p>
         {/if}
         {#each g.lessons as l, li (l.lesson.id)}
-          {#if !filtering || l.notes.length}
+          {#if (!filtering || l.notes.length) && (l.start < limit || (!l.notes.length && l.start === limit && shown <= limit))}
             <div class="lesson">
               <div class="lhead">
                 {#if renaming === l.lesson.id}
@@ -468,7 +536,7 @@
                 {/if}
               </div>
               <ul>
-                {#each l.notes as n (n.id)}
+                {#each l.notes.slice(0, Math.max(0, limit - l.start)) as n (n.id)}
                   {@const st = stateOf(n)}
                   <li>
                     <button class="row" onclick={() => open(n.id)}>
@@ -496,12 +564,55 @@
           {/if}
         {/each}
       </div>
+      {/if}
     {/each}
     {#if filtering && shown === 0}<p class="hint">No cards match.</p>{/if}
+    {#if shown > limit}
+      <button class="quiet more" onclick={() => (limit += PAGE)}>Show {Math.min(PAGE, shown - limit)} more cards ({shown - limit} not shown yet)</button>
+    {/if}
   {/if}
 </section>
 
 <style>
+  .voices-edit {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .voices-edit > .label,
+  .voices-edit > small {
+    flex-basis: 100%;
+  }
+  .voices-edit small {
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .pick-row {
+    flex-basis: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .pick-row .picked {
+    flex: 1 1 160px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    color: var(--muted);
+  }
+  .pick-row select {
+    width: auto;
+    min-height: 44px;
+  }
+  .pick-row .quiet {
+    min-height: 44px;
+    padding: 0 16px;
+  }
+  .marked {
+    text-decoration: underline 2px var(--brass);
+    text-underline-offset: 0.18em;
+  }
   .contents {
     width: 100%;
     max-width: 640px;
@@ -580,6 +691,11 @@
   textarea.input {
     resize: vertical;
     line-height: 1.4;
+  }
+  .more {
+    align-self: center;
+    min-height: 44px;
+    padding: 0 16px;
   }
   .add {
     align-self: flex-start;

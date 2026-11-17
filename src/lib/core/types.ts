@@ -33,6 +33,10 @@ export interface Note {
   extraMore?: string[];
   /** The learner checks this card themselves. */
   selfCheck?: boolean;
+  /** Never asked by building the answer from word tiles. */
+  noBuild?: boolean;
+  /** Words read aloud in their own language, wherever they appear in the note. */
+  voices?: { text: string; lang: string }[];
   /** A picture with hidden parts. */
   occlusion?: Occlusion | null;
 }
@@ -115,6 +119,8 @@ export interface Look {
   langBack?: string;
   /** 'on' shows speaker buttons by the question and the answer. */
   speak: 'off' | 'on';
+  /** Words in quotes are read in this language; the rest in the field's own. Empty or missing: off. */
+  quoteLang?: string;
 }
 
 export interface DeckOptions {
@@ -122,6 +128,10 @@ export interface DeckOptions {
   reviewCap: number;
   retention: number;
   bothWays: boolean;
+  /** When a card's other-way-round twin is asked. Missing in decks saved before 0.5.0: spread. */
+  reverseSpacing?: 'spread' | 'nextDay' | 'together';
+  /** Answers of three words or more are built from word tiles in stages 1 and 2. Missing before 0.5.0: on. */
+  buildSentences?: boolean;
   maxInterval: number;
   stageDays: [number, number, number];
   look: Look;
@@ -207,7 +217,7 @@ export interface Streak {
 export type Grade = 'again' | 'hard' | 'good' | 'easy';
 
 /** free: a long answer, written freely and marked by AI or by the learner. */
-export type ExerciseKind = 'meet' | 'choice' | 'typed' | 'free' | 'self';
+export type ExerciseKind = 'meet' | 'build' | 'choice' | 'typed' | 'free' | 'self';
 
 export interface Exercise {
   kind: ExerciseKind;
@@ -276,6 +286,8 @@ export interface RawNote {
   frontMore?: string[];
   extraMore?: string[];
   selfCheck?: boolean;
+  noBuild?: boolean;
+  voices?: { text: string; lang: string }[];
   occlusion?: Occlusion | null;
 }
 
@@ -344,6 +356,8 @@ export type Edit =
       frontMore?: string[];
       extraMore?: string[];
       selfCheck?: boolean;
+      noBuild?: boolean;
+      voices?: { text: string; lang: string }[];
       occlusion?: Occlusion;
     }
   | { op: 'add'; lessonId?: string | null; unit?: string | null; note: RawNote }

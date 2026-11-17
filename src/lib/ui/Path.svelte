@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Help from './Help.svelte';
+  import { signal } from '../tour.svelte';
   // The lesson path for one deck: units, lessons, and what to do next.
   import { canTestOut } from '../core';
   import type { LessonStatus } from '../core/types';
@@ -15,8 +17,6 @@
     startReview,
     startTestOut,
     testOutTried,
-    tipDue,
-    tipSeen,
     ui,
   } from '../store.svelte';
   import { summarise } from './deckView';
@@ -61,7 +61,7 @@
   <header>
     <button class="icon-btn" aria-label="Back to library" onclick={goLibrary}><Icon name="back" /></button>
     <h1 class="display">{deck.name}</h1>
-    <span class="streak plain" title="Days in a row"><Icon name="sun" size={18} /> {streak}</span>
+    <span class="streak plain" title="Days in a row" data-tour="streak"><Icon name="sun" size={18} /> {streak}</span>
     <button class="icon-btn" aria-label="Settings" onclick={() => (ui.screen = 'settings')}><Icon name="gear" /></button>
   </header>
 
@@ -110,7 +110,7 @@
       </span>
       <Icon name="play" size={18} />
     </button>
-    <button class="review card options-entry" class:here={ui.panel === 'options'} onclick={() => openPanel('options')}>
+    <button class="review card options-entry" data-tour="options" class:here={ui.panel === 'options'} onclick={() => openPanel('options')}>
       <span class="medal"><Icon name="gear" size={18} /></span>
       <span class="grow">
         <strong>Deck options</strong>
@@ -130,13 +130,6 @@
     {/if}
   {/if}
 
-  {#if !busy && rows.some((r) => r.testable && !r.tried) && tipDue('test-out') && Object.keys(progress).length > 0}
-    <div class="tip plain" role="note">
-      <p class="label tip-label"><Icon name="bulb" size={16} /> New for you: Test out</p>
-      <p>Know a unit already? Each unit now has <strong>Test out</strong>. Pass a short quiz and skip ahead.</p>
-      <button class="quiet" onclick={() => tipSeen('test-out')}>Got it</button>
-    </div>
-  {/if}
 
   {#each rows as row (row.unit.id)}
     <div class="unit">
@@ -147,21 +140,23 @@
             class="testout"
             disabled={row.tried}
             title={row.tried ? 'One try a day: come back tomorrow' : 'A short quiz without hints. Pass it to skip ahead.'}
-            onclick={() => (tipSeen('test-out'), startTestOut(deck.id, row.unit.id))}
+            onclick={() => startTestOut(deck.id, row.unit.id)}
           >
             <Icon name="flag" size={14} /> {row.tried ? 'Test out tomorrow' : 'Test out'}
           </button>
+          <Help part="testout" />
         {/if}
       </div>
       <ol>
-        {#each row.lessons as l (l.id)}
+        {#each row.lessons as l, li (l.id)}
           <li>
             <button
+              data-tour={row.number === 1 && li === 0 ? 'lesson1' : undefined}
               class="lesson card"
               class:picked={l.isNext && !sum.reviewFirst}
               class:locked={!l.open}
               disabled={!l.open || busy}
-              onclick={() => startLesson(deck.id, l.id)}
+              onclick={() => (startLesson(deck.id, l.id), signal('lesson'))}
             >
               <span class="medal" class:done={l.status.state === 'learned' || l.status.state === 'complete'}>
                 {#if !l.open}<Icon name="lock" size={16} />
@@ -360,6 +355,7 @@
   }
   .unit-head .label {
     margin: 0;
+    flex: 1;
   }
   .testout {
     display: inline-flex;
@@ -375,24 +371,5 @@
   }
   .testout:disabled {
     opacity: 0.6;
-  }
-  .tip {
-    padding: 12px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    border-color: var(--emerald);
-  }
-  .tip p {
-    margin: 0;
-  }
-  .tip-label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--emerald);
-  }
-  .tip .quiet {
-    align-self: flex-start;
   }
 </style>

@@ -1,4 +1,8 @@
 <script lang="ts">
+  import Help from './Help.svelte';
+  import { offerPart } from '../tour.svelte';
+  import { onMount } from 'svelte';
+  onMount(() => offerPart('thoth'));
   // Study with Thoth: the AI features for one deck. Everything AI writes
   // arrives as a draft to approve, and is labelled once it is in the deck.
   import { acceptNotice, aiHost, aiReady, ask, isLocal, plan } from '../ai.svelte';
@@ -236,6 +240,7 @@
   <header>
     <button class="icon-btn" aria-label="Back to lessons" onclick={() => openPanel('path')}><Icon name="back" /></button>
     <h1 class="display">Study with Thoth</h1>
+    <Help part="thoth" />
   </header>
 
   {#if !ready}

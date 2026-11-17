@@ -11,7 +11,7 @@ import { mediaBytes } from './media';
 import { saveBytes } from './platform';
 import { addImported, data, markBackedUp, restoreLibrary, snap } from './store.svelte';
 
-export const APP = 'Ankhwiz 0.4.1.1';
+export const APP = 'Ankhwiz 0.5.0';
 
 const fileName = (name: string, ext: string) =>
   `${name.replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80) || 'deck'}.${ext}`;
@@ -63,22 +63,47 @@ export { readPackage };
 export type { AnkiPackage, Mapping, SplitBy };
 
 /** An .apkg goes in once its fields are mapped. Returns the new deck's id and how many notes were left out. */
+/** Where an import has got to, for its progress bar. */
+export interface ImportStep {
+  stage: 'notes' | 'lessons' | 'media' | 'saving';
+  done: number;
+  total: number;
+}
+
+/** Lets the window draw (a progress bar, say) before the next long step. */
+const breathe = () => new Promise<void>((r) => (typeof requestAnimationFrame === 'function' ? requestAnimationFrame(() => setTimeout(r, 0)) : setTimeout(r, 0)));
+
 export async function importPackage(
   pkg: AnkiPackage,
   mappings: Record<string, Mapping>,
   options: { withProgress: boolean; name: string; splitBy?: SplitBy; read?: { lang: string; langBack: string } | null },
+  onStep?: (s: ImportStep) => void,
 ): Promise<{ id: string; skipped: number; notes: number }> {
+  const step = async (s: ImportStep) => {
+    onStep?.(s);
+    await breathe();
+  };
+  await step({ stage: 'notes', done: 0, total: pkg.notes.length });
   const { rows, skipped, notetypes, media } = packageRows(pkg, mappings, { withProgress: options.withProgress, splitBy: options.splitBy });
+  await step({ stage: 'lessons', done: 0, total: rows.length });
   const build = { lessonSize: data.settings.lessonSize };
   const { deck, progress } = ankiImport(options.name || pkg.name, rows as RawNote[], build, pkg.crt);
   deck.anki = { notetypes };
-  // Each note type keeps its own Ask both ways; cards made here later follow
-  // the deck's, which starts on when any imported type asks both ways.
   deck.options = { ...deck.options, bothWays: Object.values(notetypes).some((t) => t.bothWays) };
   if (options.read) deck.options.look = { ...deck.options.look, speak: 'on', lang: options.read.lang, langBack: options.read.langBack };
   const files: Record<string, Uint8Array> = {};
   for (const m of media) if (pkg.media[m]) files[m] = pkg.media[m];
-  const id = await addImported(deck, progress, files);
+  const total = Object.keys(files).length;
+  if (total) await step({ stage: 'media', done: 0, total });
+  let last = 0;
+  const id = await addImported(deck, progress, files, async (done) => {
+    // Redraw about every 2% of the files, not after each one.
+    if (done === total || done - last >= Math.max(1, Math.floor(total / 50))) {
+      last = done;
+      await step({ stage: 'media', done, total });
+    }
+  });
+  onStep?.({ stage: 'saving', done: 1, total: 1 });
   return { id, skipped, notes: Object.keys(deck.notes).length };
 }
 

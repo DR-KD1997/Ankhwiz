@@ -226,9 +226,39 @@ pub fn is_typeable(answer: &str) -> bool {
     answer_kind(answer) != AnswerKind::Long
 }
 
+/// Letters of scripts written without spaces between words.
+fn unspaced(c: char) -> bool {
+    matches!(c as u32, 0x0E00..=0x0EFF | 0x1000..=0x109F | 0x1780..=0x17FF | 0x3040..=0x30FF | 0x3400..=0x4DBF | 0x4E00..=0x9FFF | 0xAC00..=0xD7AF)
+}
+
+/// Whether an answer can be built from word tiles: a sentence or phrase of
+/// three words or more (up to 16), or a short run of text in a script written
+/// without spaces (split into words on the device).
+pub fn is_buildable(answer: &str) -> bool {
+    let t = answer.trim();
+    if t.is_empty() || t.contains('\n') || answer_kind(t) == AnswerKind::Number {
+        return false;
+    }
+    let words = t.split_whitespace().count();
+    if words >= 3 {
+        return words <= 16 && t.chars().count() <= 140;
+    }
+    words == 1 && t.chars().filter(|c| unspaced(*c)).count() >= 4 && t.chars().count() <= 30
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn sentences_and_unspaced_text_can_be_built() {
+        assert!(is_buildable("I would like an apple"));
+        assert!(is_buildable("我想吃苹果"));
+        assert!(!is_buildable("la manzana"));
+        assert!(!is_buildable("12 / 4 / 2026"));
+        assert!(!is_buildable("one two\nthree four"));
+        assert!(!is_buildable(&"word ".repeat(20)));
+    }
 
     fn v(items: &[&str]) -> Vec<String> {
         items.iter().map(|s| s.to_string()).collect()

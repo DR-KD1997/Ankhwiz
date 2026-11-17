@@ -9,7 +9,7 @@ use crate::cards::{face, gaps, note_of};
 use crate::model::{CardState, Deck, Note};
 use crate::rng::shuffle;
 use crate::text::{answer_kind, distance, normalize};
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 pub struct Index {
     pub lesson_of: BTreeMap<String, String>,
@@ -31,6 +31,25 @@ pub fn index_deck(deck: &Deck) -> Index {
         }
     }
     Index { lesson_of, unit_of }
+}
+
+/// Which lesson and unit each note belongs to, borrowing the deck's own
+/// strings (cheaper than `index_deck` when called for every card shown).
+/// Gives the same answers as `index_deck`.
+pub fn note_places(deck: &Deck) -> (HashMap<&str, &str>, HashMap<&str, &str>) {
+    let mut lesson_of = HashMap::with_capacity(deck.notes.len());
+    let mut unit_of = HashMap::with_capacity(deck.notes.len());
+    for unit in &deck.units {
+        for lesson_id in &unit.lesson_ids {
+            if let Some(lesson) = deck.lessons.get(lesson_id) {
+                for note_id in &lesson.note_ids {
+                    lesson_of.insert(note_id.as_str(), lesson_id.as_str());
+                    unit_of.insert(note_id.as_str(), unit.id.as_str());
+                }
+            }
+        }
+    }
+    (lesson_of, unit_of)
 }
 
 /// How many options to show: 2 right after first seeing the answer, 3 for a
@@ -93,27 +112,36 @@ pub fn pick_options(deck: &Deck, card_id: &str, count: usize, hard: bool) -> Vec
         }
     }
 
-    let index = index_deck(deck);
-    let my_lesson = index.lesson_of.get(note_id);
-    let my_unit = index.unit_of.get(note_id);
-    let mut tiers: [Vec<String>; 3] = [vec![], vec![], vec![]];
+    let (lesson_of, unit_of) = note_places(deck);
+    let my_lesson = lesson_of.get(note_id);
+    let my_unit = unit_of.get(note_id);
+    // Sort the notes into tiers first; their offers are only worked out for
+    // the tiers actually reached, which for most cards is the first.
+    let mut members: [Vec<&Note>; 3] = [vec![], vec![], vec![]];
     for other in deck.notes.values() {
         let tier = if other.id == note_id {
             // Other gaps of the same note are close relatives.
             0
-        } else if index.lesson_of.get(&other.id) == my_lesson {
+        } else if lesson_of.get(other.id.as_str()) == my_lesson {
             0
-        } else if index.unit_of.get(&other.id) == my_unit {
+        } else if unit_of.get(other.id.as_str()) == my_unit {
             1
         } else {
             2
         };
-        for text in offers(other, f.reverse, f.cloze, f.picture.is_some()) {
-            if answer_kind(&text) == kind {
-                tiers[tier].push(text);
+        members[tier].push(other);
+    }
+    let tier_texts = |notes: &[&Note]| -> Vec<String> {
+        let mut out = Vec::new();
+        for other in notes {
+            for text in offers(other, f.reverse, f.cloze, f.picture.is_some()) {
+                if answer_kind(&text) == kind {
+                    out.push(text);
+                }
             }
         }
-    }
+        out
+    };
 
     let target = normalize(&f.answer, strict);
     let target_len = target.chars().count() as f64;
@@ -124,10 +152,12 @@ pub fn pick_options(deck: &Deck, card_id: &str, count: usize, hard: bool) -> Vec
             - if same_start { 1.0 } else { 0.0 }
     };
 
-    for tier in tiers.iter_mut() {
+    for notes in members.iter() {
         if wrong.len() >= want {
             break;
         }
+        let mut tier = tier_texts(notes);
+        let tier = &mut tier;
         // Shuffle first so ties, and the easy case, vary from one showing to the next.
         shuffle(tier);
         if hard {
@@ -145,4 +175,118 @@ pub fn pick_options(deck: &Deck, card_id: &str, count: usize, hard: bool) -> Vec
     options.extend(wrong);
     shuffle(&mut options);
     options
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::cards::all_cards;
+    use crate::rng::seed;
+    use crate::sample::sample_deck;
+
+    /// The picker as it was before 0.5.0, kept to prove the faster one gives
+    /// exactly the same options.
+    fn reference(deck: &Deck, card_id: &str, count: usize, hard: bool) -> Vec<String> {
+        let Some(f) = face(deck, card_id) else { return vec![] };
+        let note_id = note_of(card_id);
+        let Some(note) = deck.notes.get(note_id) else { return vec![] };
+        let strict = deck.strict_accents;
+        let kind = answer_kind(&f.answer);
+        let mut taken: BTreeSet<String> = f.accepted.iter().map(|a| normalize(a, strict)).collect();
+        taken.insert(normalize(&f.answer, strict));
+        let mut wrong: Vec<String> = Vec::new();
+        let want = count.saturating_sub(1);
+        let mut offer = |text: &str, wrong: &mut Vec<String>| {
+            let key = normalize(text, strict);
+            if !key.is_empty() && taken.insert(key) {
+                wrong.push(text.to_string());
+            }
+        };
+        if !f.reverse && !f.cloze {
+            for w in &note.wrong {
+                if wrong.len() >= want {
+                    break;
+                }
+                offer(w, &mut wrong);
+            }
+        }
+        let index = index_deck(deck);
+        let my_lesson = index.lesson_of.get(note_id);
+        let my_unit = index.unit_of.get(note_id);
+        let mut tiers: [Vec<String>; 3] = [vec![], vec![], vec![]];
+        for other in deck.notes.values() {
+            let tier = if other.id == note_id {
+                0
+            } else if index.lesson_of.get(&other.id) == my_lesson {
+                0
+            } else if index.unit_of.get(&other.id) == my_unit {
+                1
+            } else {
+                2
+            };
+            for text in offers(other, f.reverse, f.cloze, f.picture.is_some()) {
+                if answer_kind(&text) == kind {
+                    tiers[tier].push(text);
+                }
+            }
+        }
+        let target = normalize(&f.answer, strict);
+        let target_len = target.chars().count() as f64;
+        let similarity = |text: &str| -> f64 {
+            let t = normalize(text, strict);
+            let same_start = t.chars().next() == target.chars().next();
+            distance(&t, &target) as f64 + (t.chars().count() as f64 - target_len).abs() * 0.5 - if same_start { 1.0 } else { 0.0 }
+        };
+        for tier in tiers.iter_mut() {
+            if wrong.len() >= want {
+                break;
+            }
+            shuffle(tier);
+            if hard {
+                tier.sort_by(|a, b| similarity(a).partial_cmp(&similarity(b)).unwrap_or(std::cmp::Ordering::Equal));
+            }
+            for text in tier.iter() {
+                if wrong.len() >= want {
+                    break;
+                }
+                offer(text, &mut wrong);
+            }
+        }
+        let mut options = vec![f.answer.clone()];
+        options.extend(wrong);
+        shuffle(&mut options);
+        options
+    }
+
+    #[test]
+    fn the_faster_picker_gives_exactly_the_same_options() {
+        // The sample deck, and a bigger deck of several units with similar answers.
+        let rows: Vec<crate::model::RawNote> = (0..400)
+            .map(|i| serde_json::from_value(serde_json::json!({"front": format!("palabra {i}"), "back": format!("word {}", i % 37)})).unwrap())
+            .collect();
+        let big = crate::split::build_deck("Big", &rows, &serde_json::from_str("{\"lessonSize\":8}").unwrap(), 0.0);
+        for (k, id) in all_cards(&big).iter().enumerate().step_by(7) {
+            for hard in [false, true] {
+                seed(k as u64 + 5);
+                let want = reference(&big, id, 4, hard);
+                seed(k as u64 + 5);
+                assert_eq!(pick_options(&big, id, 4, hard), want, "{id}");
+            }
+        }
+        let mut deck = sample_deck(0.0);
+        for both in [false, true] {
+            deck.options.both_ways = both;
+            for (i, id) in all_cards(&deck).iter().enumerate() {
+                for count in [2, 3, 4, 6, 8, 40] {
+                    for hard in [false, true] {
+                        let s = (i * 97 + count * 13 + hard as usize) as u64;
+                        seed(s);
+                        let want = reference(&deck, id, count, hard);
+                        seed(s);
+                        assert_eq!(pick_options(&deck, id, count, hard), want, "{id} {count} {hard}");
+                    }
+                }
+            }
+        }
+    }
 }

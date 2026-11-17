@@ -8,7 +8,7 @@ import { data, save } from './store.svelte';
 
 export const RELEASES = 'https://github.com/DR-KD1997/Ankhwiz/releases';
 const API = 'https://api.github.com/repos/DR-KD1997/Ankhwiz/releases/latest';
-export const VERSION = '0.4.1.1';
+export const VERSION = '0.5.0';
 
 /** Compare dotted versions: 1 when a is newer, -1 when older, 0 when equal. */
 export function compareVersions(a: string, b: string): number {

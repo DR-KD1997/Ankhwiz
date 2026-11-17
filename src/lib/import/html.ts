@@ -50,6 +50,8 @@ export function fieldText(html: string): string {
   let s = html
     .replace(/<(style|script)[^>]*>[\s\S]*?<\/\1>/gi, '')
     .replace(/\[sound:[^\]]*\]/g, '')
+    // Anki's reading tags only say how to read the words inside; keep the words.
+    .replace(/\[\/?anki:tts\b[^\]]*\]/gi, '')
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<\/(div|p|li|tr|h[1-6])>/gi, '\n')
     .replace(/<[^>]+>/g, '');

@@ -92,8 +92,11 @@ public class MainActivity extends Activity {
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                // The page never navigates away from the interface.
-                return !HOST.equals(Uri.parse(url).getHost());
+                // The page never navigates away from the interface; an https
+                // link (a new release, say) opens in the phone's browser.
+                if (HOST.equals(Uri.parse(url).getHost())) return false;
+                openInBrowser(url);
+                return true;
             }
         });
 
@@ -116,12 +119,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        tts = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                ttsReady = status == TextToSpeech.SUCCESS;
-            }
-        });
+        startSpeech(getSharedPreferences("speech", MODE_PRIVATE).getString("engine", ""));
 
         web.addJavascriptInterface(new Bridge(), "AnkhwizAndroid");
         if (state == null) web.loadUrl(START);
@@ -132,6 +130,28 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
         if (tts != null) tts.shutdown();
         super.onDestroy();
+    }
+
+    /** Starts the text-to-speech engine: the one chosen in Ankhwiz, or the phone's default. */
+    private void startSpeech(String engine) {
+        ttsReady = false;
+        if (tts != null) tts.shutdown();
+        TextToSpeech.OnInitListener ready = new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                ttsReady = status == TextToSpeech.SUCCESS;
+            }
+        };
+        tts = engine == null || engine.isEmpty() ? new TextToSpeech(this, ready) : new TextToSpeech(this, ready, engine);
+    }
+
+    private void openInBrowser(String url) {
+        if (url == null || !url.startsWith("https://")) return;
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        } catch (Exception e) {
+            // No browser installed: nothing to open it with.
+        }
     }
 
     private Locale localeOf(String lang) {
@@ -318,6 +338,17 @@ public class MainActivity extends Activity {
             return save(name, Base64.decode(base64, Base64.DEFAULT), "application/octet-stream");
         }
 
+        /** Opens an https page in the phone's browser. */
+        @JavascriptInterface
+        public void openLink(final String url) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    openInBrowser(url);
+                }
+            });
+        }
+
         /** Reads text aloud: "ok", "no-voice" when the language has no voice installed, or "not-ready". */
         @JavascriptInterface
         public String speak(String text, String lang) {
@@ -327,6 +358,87 @@ public class MainActivity extends Activity {
             tts.setLanguage(locale);
             tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, "ankhwiz");
             return "ok";
+        }
+
+        /**
+         * Reads pieces one after another, each in its own language: JSON
+         * [{"text": ..., "lang": ...}]. Each utterance keeps the language set
+         * when it was queued, so the voices take turns without overlapping.
+         */
+        @JavascriptInterface
+        public String speakPieces(String json) {
+            if (!ttsReady) return "not-ready";
+            try {
+                org.json.JSONArray list = new org.json.JSONArray(json);
+                int queued = 0;
+                for (int i = 0; i < list.length(); i++) {
+                    org.json.JSONObject p = list.getJSONObject(i);
+                    String text = p.optString("text", "");
+                    if (text.trim().isEmpty()) continue;
+                    Locale locale = localeOf(p.optString("lang", ""));
+                    if (tts.isLanguageAvailable(locale) < TextToSpeech.LANG_AVAILABLE) continue;
+                    tts.setLanguage(locale);
+                    tts.speak(text, queued == 0 ? TextToSpeech.QUEUE_FLUSH : TextToSpeech.QUEUE_ADD, null, "ankhwiz-" + i);
+                    queued++;
+                }
+                return queued > 0 ? "ok" : "no-voice";
+            } catch (org.json.JSONException e) {
+                return "error";
+            }
+        }
+
+        /** The speech engines on this phone, as JSON [{"name": package, "label": shown name}], and the one in use. */
+        @JavascriptInterface
+        public String speechEngines() {
+            try {
+                org.json.JSONObject out = new org.json.JSONObject();
+                org.json.JSONArray list = new org.json.JSONArray();
+                if (tts != null) {
+                    for (TextToSpeech.EngineInfo e : tts.getEngines()) {
+                        org.json.JSONObject o = new org.json.JSONObject();
+                        o.put("name", e.name);
+                        o.put("label", e.label);
+                        list.put(o);
+                    }
+                    out.put("current", tts.getDefaultEngine());
+                }
+                out.put("chosen", getSharedPreferences("speech", MODE_PRIVATE).getString("engine", ""));
+                out.put("engines", list);
+                return out.toString();
+            } catch (org.json.JSONException e) {
+                return "{}";
+            }
+        }
+
+        /** Use another speech engine ("" for the phone's default); it starts again in the background. */
+        @JavascriptInterface
+        public void setSpeechEngine(final String name) {
+            getSharedPreferences("speech", MODE_PRIVATE).edit().putString("engine", name == null ? "" : name).apply();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    startSpeech(name);
+                }
+            });
+        }
+
+        /** Opens the phone's text-to-speech settings, where voices are added. */
+        @JavascriptInterface
+        public void openSpeechSettings() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        startActivity(new Intent("com.android.settings.TTS_SETTINGS").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                    } catch (Exception e) {
+                        try {
+                            startActivity(new Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                        } catch (Exception ignored) {
+                            // Nothing on this phone can show them.
+                        }
+                    }
+                }
+            });
         }
 
         @JavascriptInterface

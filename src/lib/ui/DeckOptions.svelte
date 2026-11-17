@@ -21,6 +21,11 @@
   } from '../store.svelte';
   import Icon from './Icon.svelte';
   import TypeFields from './TypeFields.svelte';
+  import Help from './Help.svelte';
+  import { offerPart } from '../tour.svelte';
+  import { onMount } from 'svelte';
+
+  onMount(() => offerPart('options'));
 
   const deck = $derived(data.decks[ui.deckId!]);
   const o = $derived(deck.options);
@@ -47,6 +52,11 @@
     const own = plain.filter((n) => !n.anki || !deck.anki?.notetypes[n.anki.ntid]).length;
     return { list, own };
   });
+  const SPACING = {
+    spread: 'Asked later in the same lesson, never just after. Each day, only one way of a note comes up for review (Anki: bury siblings).',
+    nextDay: 'Met the day after, among the reviews. Each day, only one way of a note comes up for review (Anki: bury siblings).',
+    together: 'Asked straight after the first way, and both can come up for review on the same day.',
+  } as const;
   const cards = (n: number) => `${n} ${n === 1 ? 'note' : 'notes'}`;
   // Anki note types whose fields can be chosen again (pictures with hidden parts keep theirs).
   const mappable = $derived(deck.anki ? Object.values(deck.anki.notetypes).filter((t) => !t.occlusion && Object.values(deck.notes).some((n) => n.anki?.ntid === t.id)) : []);
@@ -85,9 +95,10 @@
   <header>
     <button class="icon-btn" aria-label="Back to lessons" onclick={() => openPanel('path')}><Icon name="back" /></button>
     <h1 class="display">Deck options</h1>
+    <Help part="options" />
   </header>
 
-  <div class="group">
+  <div class="group" data-tour="o-daily">
     <p class="label">Daily goal</p>
     <div class="row">
       <span><strong>New lessons a day</strong><small>{o.newLessonsPerDay ? 'Thoth says when the goal is reached; you can always go on' : 'No goal'} (Anki: new cards/day)</small></span>
@@ -124,7 +135,7 @@
     </div>
   </div>
 
-  <div class="group">
+  <div class="group" data-tour="o-kinds">
     <p class="label">Card kinds</p>
     {#if kinds.list.length}
       <div class="row kinds">
@@ -146,6 +157,20 @@
         <input type="checkbox" checked={o.bothWays} onchange={(e) => setTypeBothWays(deck.id, '', e.currentTarget.checked)} />
       </label>
     {/if}
+    {#if kinds.list.some((k) => k.on) || o.bothWays}
+      <label class="row">
+        <span><strong>Other way round</strong><small>{SPACING[o.reverseSpacing ?? 'spread']}</small></span>
+        <select aria-label="When the other way round is asked" value={o.reverseSpacing ?? 'spread'} onchange={(e) => setDeckOptions(deck.id, { reverseSpacing: e.currentTarget.value as 'spread' })}>
+          <option value="spread">Spread out</option>
+          <option value="nextDay">Next day</option>
+          <option value="together">Straight after</option>
+        </select>
+      </label>
+    {/if}
+    <label class="row">
+      <span><strong>Build sentences</strong><small>In the first two stages, answers of three words or more are put together from word tiles, with a few extra words mixed in. Each card can opt out in Cards.</small></span>
+      <input type="checkbox" checked={o.buildSentences !== false} onchange={(e) => setDeckOptions(deck.id, { buildSentences: e.currentTarget.checked })} />
+    </label>
     <label class="row">
       <span><strong>Require accents</strong><small>When off, “melocoton” counts for “melocotón”</small></span>
       <input type="checkbox" checked={deck.strictAccents} onchange={(e) => setDeckAccents(deck.id, e.currentTarget.checked)} />
@@ -173,7 +198,7 @@
     </div>
   </div>
 
-  <div class="group">
+  <div class="group" data-tour="o-look">
     <p class="label">Look</p>
     <div class="row">
       <span><strong>Text size</strong></span>
@@ -221,6 +246,12 @@
           <button class="icon-btn" aria-label="Try the answer voice" disabled={!canSpeak()} onclick={() => speak(sample?.back ?? deck.name, o.look.langBack || o.look.lang)}>
             <Icon name="sound" />
           </button>
+        </span>
+      </label>
+      <label class="row sub">
+        <span><strong>Read quotes in another language</strong><small>Words in quotes, like 'la manzana', are read in this language and the rest in the field's own. Empty: off. Words marked in Cards keep their own language.</small></span>
+        <span class="lang">
+          <input list="langs" value={o.look.quoteLang ?? ''} onchange={(e) => look({ quoteLang: e.currentTarget.value.trim() })} placeholder="Off" />
         </span>
       </label>
       <datalist id="langs">{#each languages as l (l)}<option value={l}></option>{/each}</datalist>

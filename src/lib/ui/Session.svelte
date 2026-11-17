@@ -9,13 +9,17 @@
   import { t } from '../i18n';
   import type { Exercise, Marked } from '../core/types';
   import { closeSession, currentStreak, data, grade, met, next, setAsideCurrent, snap, takeMilestone, ui } from '../store.svelte';
-  import { canSpeak, speak, stopSpeaking, voiceHelp } from '../speech';
+  import { canSpeak, speakPieces, stopSpeaking, voiceHelp } from '../speech';
+  import { pieces } from '../voices';
+  import VoiceText from './VoiceText.svelte';
   import { chosenSounds, playSound } from '../sounds';
+  import { builtRight, joinWords, makeTiles, type Tile } from '../build';
   import Fields from './Fields.svelte';
   import Media from './Media.svelte';
   import Picture from './Picture.svelte';
   import Icon from './Icon.svelte';
   import Thoth, { type Cue, type Reaction } from './Thoth.svelte';
+  import { offerPart, signal } from '../tour.svelte';
 
   const s = $derived(ui.session!);
   const ex = $derived(s.exercise);
@@ -37,6 +41,11 @@
   let marking = $state(false);
   let marked = $state<Marked | null>(null);
   let markError = $state('');
+  // Building the answer from word tiles: the tiles, and the ids put in order so far.
+  let tiles = $state<Tile[]>([]);
+  let built = $state<number[]>([]);
+  const builtWords = $derived(built.map((id) => tiles.find((t) => t.id === id)?.text ?? ''));
+  const bank = $derived(tiles.filter((t) => !built.includes(t.id)));
   // "Explain this", after an answer.
   let explaining = $state(false);
   let explanation = $state('');
@@ -49,11 +58,19 @@
   const voice = $derived(look.speak !== 'off' && canSpeak());
   const autoRead = $derived(data.settings.autoRead ?? 'off');
   const qLang = $derived(!ex ? look.lang : ex.reverse ? look.langBack || look.lang : look.lang);
-  const aLang = $derived(!ex ? look.lang : ex.reverse || ex.cloze || ex.picture ? look.lang : look.langBack || look.lang);
+  const answerLang = (e: Exercise) => (e.reverse || e.cloze || e.picture ? look.lang : look.langBack || look.lang);
+  const aLang = $derived(!ex ? look.lang : answerLang(ex));
   let voiceNote = $state('');
+  // Words marked with their own language in the card editor, and the deck's quote rule.
+  const marks = $derived(ex ? (deck.notes[ex.noteId]?.voices ?? []) : []);
+  const quoteLang = $derived(look.quoteLang ?? '');
   async function say(text: string, lang: string) {
-    const r = await speak(text, lang);
-    voiceNote = r === 'no-voice' ? `This device has no voice for ${lang}. ${voiceHelp()}` : r === 'unavailable' ? 'Reading aloud is not available on this device.' : '';
+    const r = await speakPieces(pieces(text, lang, marks, quoteLang));
+    voiceNote = r.missing.length
+      ? `This device has no voice for ${r.missing.join(' or ')}${r.result === 'ok' ? ', so those words were left out' : ''}. ${voiceHelp()}`
+      : r.result === 'unavailable'
+        ? 'Reading aloud is not available on this device.'
+        : '';
   }
   let menu = $state(false);
   let cue = $state<Cue | null>(null);
@@ -65,6 +82,13 @@
     if (s.finished && s.graded > 0 && !testing) untrack(() => (milestone = takeMilestone()));
   });
   // The end-of-lesson sound, once, when the summary appears (not after a test out that was not passed).
+  $effect(() => {
+    if (s.finished) untrack(() => signal('finished'));
+  });
+  // The first test out explains itself.
+  $effect(() => {
+    if (testing) untrack(() => offerPart('testout'));
+  });
   let endPlayed = false;
   $effect(() => {
     if (!s.finished || endPlayed) return;
@@ -106,6 +130,8 @@
     explaining = false;
     explanation = '';
     rated = null;
+    tiles = [];
+    built = [];
     startedAt = performance.now();
     voiceNote = '';
     stopSpeaking();
@@ -113,6 +139,11 @@
     react('nod');
     if (e.kind === 'meet') says = line('meet');
     else if (e.kind === 'choice') says = choiceLine(e.options!.length, s.lastMet === e.cardId);
+    else if (e.kind === 'build') {
+      says = line('build');
+      // Two stray words at first, three once the card is more familiar.
+      tiles = makeTiles(e.answer, e.options ?? [], e.stage >= 2 ? 3 : 2, answerLang(e));
+    }
     else if (e.kind === 'typed') says = line(e.live ? 'typedLive' : 'typedPlain');
     else if (e.kind === 'self') says = line('selfCheck');
     else says = ai ? line('freeAi') : line('self');
@@ -144,6 +175,7 @@
   }
 
   function settle(correct: boolean, assisted: boolean, aiGraded = false) {
+    signal('check');
     const r = grade({ correct, assisted, sawRed, ms: performance.now() - startedAt, aiGraded });
     playSound(correct ? (nearly() ? 'nearly' : 'right') : 'wrong');
     result = { correct, promoted: r.promoted };
@@ -166,6 +198,9 @@
     if (ex.kind === 'choice') {
       if (selected === null) return;
       settle(selected === ex.answer, true);
+    } else if (ex.kind === 'build') {
+      if (!built.length) return;
+      settle(builtRight(builtWords, ex.accepted, aLang), true);
     } else if (ex.kind === 'typed') {
       if (!typed.trim()) return;
       const verdict = checkAnswer(typed, ex.accepted, deck.strictAccents);
@@ -202,7 +237,7 @@
     if (!ex || explaining) return;
     explaining = true;
     try {
-      const given = ex.kind === 'choice' ? (selected ?? '') : ex.kind === 'typed' ? typed : free;
+      const given = ex.kind === 'choice' ? (selected ?? '') : ex.kind === 'build' ? joinWords(builtWords, ex.answer) : ex.kind === 'typed' ? typed : free;
       explanation = await ask<string>('explain', snap(deck), { noteId: ex.cardId, given: result?.correct ? '' : given });
     } catch (e) {
       explanation = e instanceof Error ? e.message : 'No explanation could be fetched.';
@@ -212,18 +247,22 @@
   }
 
   const canAct = $derived(
-    !ex ? true : done || ex.kind === 'meet' ? true : ex.kind === 'choice' ? selected !== null : ex.kind === 'typed' ? typed.trim().length > 0 : false,
+    !ex ? true : done || ex.kind === 'meet' ? true : ex.kind === 'choice' ? selected !== null : ex.kind === 'build' ? built.length > 0 : ex.kind === 'typed' ? typed.trim().length > 0 : false,
   );
   const actionLabel = $derived(!ex || done || ex.kind === 'meet' ? t('continue') : t('check'));
 
   function act() {
     if (!ex) return closeSession();
-    if (ex.kind === 'meet') return met();
+    if (ex.kind === 'meet') {
+      signal('met');
+      return met();
+    }
     if (done) return next();
     check();
   }
 
-  /** Keyboard: Enter checks and continues, 1–8 pick an option (or a self-check rating),
+  /** Keyboard: Enter checks and continues, 1–8 pick an option (or a self-check rating;
+   *  or, when building, 1–9 place a word and Backspace takes back the last),
    *  E explains, R reads aloud, S skips for today, Esc leaves, ? shows the keys. */
   function onKey(e: KeyboardEvent) {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
@@ -255,9 +294,24 @@
       help = !help;
       return;
     }
+    if (ex?.kind === 'build' && !done) {
+      if (/^[1-9]$/.test(e.key)) {
+        const tile = bank[Number(e.key) - 1];
+        if (tile) built = [...built, tile.id];
+        return;
+      }
+      if (e.key === 'Backspace') {
+        e.preventDefault();
+        built = built.slice(0, -1);
+        return;
+      }
+    }
     if (ex?.kind === 'choice' && !done && /^[1-8]$/.test(e.key)) {
       const option = ex.options![Number(e.key) - 1];
-      if (option !== undefined) selected = option;
+      if (option !== undefined) {
+        selected = option;
+        signal('pick');
+      }
       return;
     }
     if ((ex?.kind === 'self' || ex?.kind === 'free') && !done && (revealed || ex.kind === 'self') && /^[1-3]$/.test(e.key) && revealed && !marked) {
@@ -367,7 +421,7 @@
           {#if mode !== 'hidden'}<p class="said">{summaryLine}</p>{/if}
         {/if}
         {#if s.practice}<p class="fine">Practice does not change when your cards come back.</p>{/if}
-        <dl class="stats">
+        <dl class="stats" data-tour="result">
           <div class="plain"><dt>Correct</dt><dd>{s.correct} of {s.graded}</dd></div>
           <div class="plain"><dt>{s.kind === 'all' ? 'Decks' : 'New'}</dt><dd>{s.kind === 'all' ? (s.decks?.length ?? 1) : s.introduced}</dd></div>
           <div class="plain"><dt>Moved up</dt><dd>{s.promoted}</dd></div>
@@ -378,7 +432,7 @@
       {/if}
     </div>
     <div class="grow"></div>
-    <button class="primary" onclick={closeSession}>Continue</button>
+    <button class="primary" data-tour="act" onclick={() => (signal('closed'), closeSession())}>Continue</button>
   {:else if ex}
     <div class="top">
       <button class="icon-btn" aria-label="Close lesson" onclick={closeSession}><Icon name="close" /></button>
@@ -402,13 +456,13 @@
     </div>
 
     <div class="head">
-      <p class="label">
+      <p class="label" data-tour="stage">
         {where}{fromLesson && !testing ? ` · ${fromLesson}` : ''} · {stageWord}
         {#if ex.ai}<span class="tag" title="This card was written or changed by AI">AI</span>{/if}
       </p>
       {#if ex.kind !== 'meet'}
         <div class="said-row">
-          <h1 class="display" dir="auto" style="font-size: calc({promptSize}px * var(--scale))">{ex.prompt}</h1>
+          <h1 class="display" dir="auto" style="font-size: calc({promptSize}px * var(--scale))"><VoiceText text={ex.prompt} lang={qLang} {marks} {quoteLang} show={voice} /></h1>
           {#if voice && !ex.cloze}<button class="icon-btn speak" aria-label="Hear the question" onclick={() => say(ex.prompt, qLang)}><Icon name="sound" /></button>{/if}
         </div>
         <Fields items={ex.frontMore} first={2} base={promptSize * 0.8} label="question fields" />
@@ -423,7 +477,7 @@
       <div class="meet card">
         {#if meetFront}
           <div class="said-row">
-            <p class="display front" dir="auto">{meetFront}</p>
+            <p class="display front" dir="auto"><VoiceText text={meetFront} lang={qLang} {marks} {quoteLang} show={voice} /></p>
             {#if voice}<button class="icon-btn speak" aria-label="Hear the question" onclick={() => say(meetFront, qLang)}><Icon name="sound" /></button>{/if}
           </div>
         {/if}
@@ -433,7 +487,7 @@
         <hr />
         {#if ex.answer}
           <div class="said-row">
-            <p class="back" dir="auto">{ex.answer}</p>
+            <p class="back" dir="auto"><VoiceText text={ex.answer} lang={aLang} {marks} {quoteLang} show={voice} /></p>
             {#if voice}<button class="icon-btn speak" aria-label="Hear the answer" onclick={() => say(ex.answer, aLang)}><Icon name="sound" /></button>{/if}
           </div>
         {/if}
@@ -442,7 +496,7 @@
         <div class="extra"><Fields items={extras} base={16} label="extra fields" /></div>
       </div>
     {:else if ex.kind === 'choice'}
-      <div class="options" role="radiogroup" aria-label="Answers">
+      <div class="options" role="radiogroup" aria-label="Answers" data-tour="answers">
         {#each ex.options! as option, i (option)}
           {@const isAnswer = option === ex.answer}
           {@const picked = option === selected}
@@ -455,7 +509,7 @@
             role="radio"
             aria-checked={picked}
             disabled={done}
-            onclick={() => (selected = option)}
+            onclick={() => ((selected = option), signal('pick'))}
           >
             <span class="badge">
               {#if done && isAnswer}<Icon name="check" size={16} />
@@ -465,6 +519,30 @@
             <span class="text">{option}</span>
           </button>
         {/each}
+      </div>
+    {:else if ex.kind === 'build'}
+      <div class="build">
+        <p class="label" id="built-label">Your answer</p>
+        <div class="line card {done ? (result?.correct ? 'ok' : 'off') : ''}" role="group" aria-labelledby="built-label" dir="auto">
+          {#each built as id, i (id)}
+            <button class="tile placed" disabled={done} aria-label="{builtWords[i]}: take back" onclick={() => (built = built.filter((b) => b !== id))}>{builtWords[i]}</button>
+          {:else}
+            <span class="empty">Tap the words in order</span>
+          {/each}
+        </div>
+        {#if !done}
+          <div class="bank" role="group" aria-label="Words">
+            {#each tiles as t (t.id)}
+              {@const n = bank.indexOf(t)}
+              {#if built.includes(t.id)}
+                <span class="tile ghost" aria-hidden="true">{t.text}</span>
+              {:else}
+                <button class="tile" onclick={() => (built = [...built, t.id])}>{#if n < 9}<small class="key" aria-hidden="true">{n + 1}</small>{/if}{t.text}</button>
+              {/if}
+            {/each}
+          </div>
+          {#if built.length}<button class="quiet undo" onclick={() => (built = [])}>Clear</button>{/if}
+        {/if}
       </div>
     {:else if ex.kind === 'typed'}
       <div class="typed">
@@ -595,7 +673,7 @@
     {/if}
 
     {#if (ex.kind !== 'free' && ex.kind !== 'self') || done}
-      <button class="primary" disabled={!canAct} onclick={act}>{actionLabel}</button>
+      <button class="primary" data-tour="act" disabled={!canAct} onclick={act}>{actionLabel}</button>
     {/if}
   {/if}
   <p class="sr" role="status">{announce}</p>
@@ -604,6 +682,7 @@
       <p class="label">Keyboard shortcuts</p>
       <dl>
         <dt><kbd>1</kbd>–<kbd>8</kbd></dt><dd>Pick an option (self-check: 1 missed, 2 partly, 3 got it)</dd>
+        <dt><kbd>1</kbd>–<kbd>9</kbd>, <kbd>⌫</kbd></dt><dd>Building a sentence: place the numbered word; take back the last</dd>
         <dt><kbd>Enter</kbd></dt><dd>Check, then continue</dd>
         <dt><kbd>E</kbd></dt><dd>Explain this (with an AI connection)</dd>
         <dt><kbd>R</kbd></dt><dd>Read aloud (when the deck reads aloud)</dd>
@@ -718,6 +797,95 @@
   }
   .option.dim {
     opacity: 0.5;
+  }
+
+  .build {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .build .line {
+    min-height: 68px;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .build .line.ok {
+    border-color: var(--ok-line);
+    background: var(--ok-bg);
+    color: var(--ok-text);
+  }
+  .build .line.off {
+    border-color: var(--off-line);
+    background: var(--off-bg);
+    color: var(--off-text);
+  }
+  .build .empty {
+    color: var(--muted);
+    font-size: 15px;
+    padding: 0 6px;
+  }
+  .bank {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+  .tile {
+    position: relative;
+    min-height: 48px;
+    padding: 6px 14px;
+    border: 2px solid var(--line);
+    background: var(--surface);
+    color: var(--text);
+    font-size: calc(19px * var(--scale));
+    font-weight: 600;
+    box-shadow: 0 3px 0 var(--line);
+  }
+  .tile:active:not(:disabled) {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 var(--line);
+  }
+  .tile.placed {
+    box-shadow: none;
+    background: var(--sel-bg);
+    color: var(--sel-text);
+    border-color: var(--brass);
+  }
+  .line.ok .tile.placed,
+  .line.off .tile.placed {
+    background: transparent;
+    color: inherit;
+    border-color: currentColor;
+  }
+  .tile.ghost {
+    display: inline-flex;
+    align-items: center;
+    visibility: visible;
+    color: transparent;
+    border-style: dashed;
+    box-shadow: none;
+    background: transparent;
+  }
+  .tile .key {
+    position: absolute;
+    top: 1px;
+    left: 4px;
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--muted);
+  }
+  @media (hover: none) {
+    .tile .key {
+      display: none;
+    }
+  }
+  .undo {
+    align-self: center;
+    min-height: 40px;
+    padding: 0 16px;
   }
 
   .meet {
@@ -876,18 +1044,21 @@
   .session :global(.field) {
     font-size: calc(19px * var(--scale));
   }
+  .font-serif :global(.tile),
   .font-serif :global(h1),
   .font-serif :global(.option .text),
   .font-serif :global(.back),
   .font-serif :global(.front) {
     font-family: 'Fraunces', Georgia, serif;
   }
+  .font-rounded :global(.tile),
   .font-rounded :global(h1),
   .font-rounded :global(.option .text),
   .font-rounded :global(.back),
   .font-rounded :global(.front) {
     font-family: ui-rounded, 'Nunito', 'Arial Rounded MT Bold', system-ui, sans-serif;
   }
+  .font-mono :global(.tile),
   .font-mono :global(h1),
   .font-mono :global(.option .text),
   .font-mono :global(.back),

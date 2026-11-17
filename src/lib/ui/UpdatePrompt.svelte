@@ -7,6 +7,7 @@
   import { data, setUpdateAtLaunch, skipVersion, ui } from '../store.svelte';
   import { checkForUpdate, dueAtLaunch, VERSION, type UpdateResult } from '../updates';
   import Icon from './Icon.svelte';
+  import OutLink from './OutLink.svelte';
   import WhatsNew from './WhatsNew.svelte';
 
   let found = $state<Extract<UpdateResult, { state: 'newer' }> | null>(null);
@@ -44,7 +45,7 @@
     <p class="sub">You have {VERSION}. What's new:</p>
     <WhatsNew notes={found.details || found.notes} />
     <div class="actions">
-      <a class="primary link" href={found.url} target="_blank" rel="noopener" onclick={() => (found = null)}>Get it</a>
+      <OutLink class="primary link" href={found.url} onopen={() => (found = null)}>Get it</OutLink>
       <button class="quiet" onclick={() => (found = null)}>Later</button>
       <button class="quiet" onclick={() => (skipVersion(found!.version), (found = null))}>Skip this version</button>
     </div>
@@ -98,11 +99,11 @@
     gap: 8px;
     margin-top: 6px;
   }
-  .actions > * {
+  .actions > :global(*) {
     flex: 1 1 120px;
     min-height: 48px;
   }
-  .link {
+  .actions :global(a.link) {
     display: grid;
     place-items: center;
     text-decoration: none;

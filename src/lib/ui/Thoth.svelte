@@ -8,7 +8,7 @@
 </script>
 
 <script lang="ts">
-  // Thoth, final concept, traced from the approved artwork: profile against a
+  // Thoth, in one of two portrait styles chosen in Settings. Classic: traced from the approved artwork: profile against a
   // gold sun disc, emerald headdress, crescent and sphere crown. Revised in
   // 0.4.1 after the tomb-painting study: a slender ibis bill, ink outlines on
   // the disc and crown, and six pointed rays set out from the disc.
@@ -28,6 +28,7 @@
     mood = 'idle',
     cue = null,
     nodOn = undefined,
+    look = undefined,
   }: {
     size?: number;
     portrait?: boolean;
@@ -37,11 +38,24 @@
     cue?: Cue | null;
     /** Any value: he nods whenever it changes (for example his speech). */
     nodOn?: unknown;
+    /** A portrait style to show instead of the one chosen in Settings (for the chooser). */
+    look?: 'classic' | 'bright';
   } = $props();
+
+  // Two portrait styles share every movement: each drawing has the same named
+  // parts, with its own pivot points for the neck and the eye.
+  const style = $derived(look ?? data.settings.thothStyle ?? 'classic');
+  const bright = $derived(style === 'bright');
+  const PIVOTS = {
+    classic: { neck: { x: 165, y: 140 }, eye: { x: 181.5, y: 116.4 }, glance: 1 },
+    bright: { neck: { x: 168, y: 160 }, eye: { x: 190, y: 132 }, glance: 1.7 },
+  } as const;
+  const pivot = $derived(PIVOTS[style]);
 
   // Sun disc: centre and radius, smaller in the portrait so it fits the square.
   // Inside its ink outline sit a rust ring and a fine ink line.
   const disc = $derived.by(() => {
+    if (bright) return { x: 160, y: 176, r: 120, ring: 104, line: 0 };
     const d = portrait ? { x: 159.1, y: 171.9, r: 115.2 } : { x: 159.8, y: 170.9, r: 120.2 };
     const k = d.r / 120.2;
     return { ...d, ring: 108 * k, line: 104.5 * k };
@@ -66,7 +80,9 @@
   // Each Thoth on screen keeps his own rhythm.
   const delay = `${-(Math.random() * 8).toFixed(2)}s`;
   const blink = `${(5 + Math.random() * 3).toFixed(2)}s`;
-  const eyeClip = `thoth-eye-${Math.random().toString(36).slice(2, 9)}`;
+  const uid = Math.random().toString(36).slice(2, 9);
+  const eyeClip = `thoth-eye-${uid}`;
+  const discClip = `thoth-disc-${uid}`;
   const EYE = 'M166 116.4 Q181 103.4 197 116.4 Q181 127.4 166 116.4 Z';
 
   let reduced = $state(false);
@@ -86,16 +102,29 @@
   let glow = $state<SVGCircleElement>();
   let flare = $state<SVGGElement>();
   let ponder = $state<SVGGElement>();
+  let open = $state<SVGGElement>();
+  let smile = $state<SVGPathElement>();
 
   // Rotations and scales are written around an explicit point, in the
   // drawing's own units, so they behave the same in every web view.
   const around = (x: number, y: number, t: string) => `translate(${x}px, ${y}px) ${t} translate(${-x}px, ${-y}px)`;
-  const NECK = { x: 165, y: 140 };
   let ponderAngle = 0;
   // Every keyframe of one movement uses the same list of steps; blending
   // between different lists slides the pivot and makes parts jump.
-  const lidAt = (s: number) => ({ transform: around(181.5, 116.4, `scaleY(${s})`) });
-  const tilt = (deg: number) => ({ transform: around(NECK.x, NECK.y, `rotate(${deg}deg)`) });
+  const lidAt = (s: number) => ({ transform: around(pivot.eye.x, pivot.eye.y, `scaleY(${s})`) });
+  const tilt = (deg: number) => ({ transform: around(pivot.neck.x, pivot.neck.y, `rotate(${deg}deg)`) });
+
+  /** Bright Scribe smiles with his eye at joyful moments; the classic Thoth widens his instead. */
+  function beam(duration: number): boolean {
+    if (!bright || !smile || !open) return false;
+    const frames = [{ opacity: 0 }, { opacity: 1, offset: 0.15 }, { opacity: 1, offset: 0.8 }, { opacity: 0 }];
+    smile.animate(frames, { duration, easing: 'ease-in-out' });
+    open.animate(
+      frames.map((f) => ({ ...f, opacity: 1 - f.opacity })),
+      { duration, easing: 'ease-in-out' },
+    );
+    return true;
+  }
 
   function play(kind: Reaction) {
     if (still || !head) return;
@@ -114,6 +143,7 @@
       head.animate([tilt(0), tilt(-6), tilt(0), tilt(-3), tilt(0)], { duration: 900, ...ease });
       shine(1, 1200);
       spread(1.16, 24, 1200);
+      beam(1000);
     } else if (kind === 'delight') {
       // A streak milestone: eyes wide, a bigger hop, the rays turning further.
       whole?.animate(
@@ -121,7 +151,7 @@
         { duration: 1100, easing: 'cubic-bezier(.45,0,.25,1)' },
       );
       head.animate([tilt(0), tilt(-8), tilt(-8), tilt(0)], { duration: 1400, ...ease });
-      lid?.animate([lidAt(1), lidAt(1.3), lidAt(1.3), lidAt(1)], { duration: 1400, easing: 'ease-in-out' });
+      if (!beam(1400)) lid?.animate([lidAt(1), lidAt(1.3), lidAt(1.3), lidAt(1)], { duration: 1400, easing: 'ease-in-out' });
       shine(1, 1600);
       spread(1.22, 40, 1600);
     } else if (kind === 'encourage') {
@@ -162,7 +192,7 @@
       const target = thinking ? -3.5 + 1.5 * Math.sin((t / 2400) * Math.PI * 2) : 0;
       angle += (target - angle) * Math.min(1, dt * 5);
       ponderAngle = angle;
-      el.style.transform = around(NECK.x, NECK.y, `rotate(${angle.toFixed(3)}deg)`);
+      el.style.transform = around(pivot.neck.x, pivot.neck.y, `rotate(${angle.toFixed(3)}deg)`);
       if (thinking || Math.abs(angle) > 0.02) raf = requestAnimationFrame(step);
       else el.style.transform = '';
     };
@@ -194,15 +224,89 @@
 </script>
 
 <svg
-  viewBox={portrait ? '28.3 14.3 274.5 274.5' : '0 0 320 400'}
+  viewBox={portrait ? (bright ? '28.3 0 274.5 274.5' : '28.3 14.3 274.5 274.5') : '0 0 320 400'}
   width={size}
   height={portrait ? size : size * 1.25}
   role="img"
   aria-label="Thoth"
   class:still
   class:thinking={mood === 'think'}
-  style="--delay: {delay}; --blink: {blink}; --dx: {disc.x}px; --dy: {disc.y}px"
+  style="--delay: {delay}; --blink: {blink}; --dx: {disc.x}px; --dy: {disc.y}px; --ex: {pivot.eye.x}px; --ey: {pivot.eye.y}px; --g: {pivot.glance}"
 >
+  {#if bright}
+    {@const ex = 190}
+    {@const ey = 132}
+    <defs>
+      <clipPath id={discClip}><circle cx={disc.x} cy={disc.y} r="120" /></clipPath>
+      <clipPath id={eyeClip}><circle cx={ex} cy={ey} r="25" /></clipPath>
+    </defs>
+    <g bind:this={whole} class="move">
+      {#if !portrait}
+        <g bind:this={flare} class="move">
+          <g fill="#A8431F">
+            {#each rays as r, i (r.a)}
+              <g class="ray" style="animation-delay: calc(var(--delay) - {i * 0.6}s)">
+                {#if r.long}
+                  <rect x={disc.x - 8} y={disc.y - 160} width="16" height="28" rx="8" transform="rotate({r.a} {disc.x} {disc.y})" />
+                {:else}
+                  <rect x={disc.x - 6} y={disc.y - 150} width="12" height="17" rx="6" transform="rotate({r.a} {disc.x} {disc.y})" />
+                {/if}
+              </g>
+            {/each}
+          </g>
+        </g>
+      {/if}
+      <circle cx={disc.x} cy={disc.y} r="120" fill="#E0AE3A" />
+      <circle cx={disc.x - 34} cy={disc.y - 40} r="120" fill="none" stroke="#F7CB52" stroke-width="26" opacity=".5" clip-path="url(#{discClip})" />
+      <circle class="warm" cx={disc.x} cy={disc.y} r="120" fill="#F4C24A" />
+      <circle bind:this={glow} cx={disc.x} cy={disc.y} r="120" fill="#F7CB52" opacity="0" />
+      <circle cx={disc.x} cy={disc.y} r="104" fill="none" stroke="#B5532E" stroke-width="10" />
+      {#if !portrait}
+        <path class="breathe" d="M62 400 C62 342 100 312 160 312 C220 312 258 342 258 400 Z" fill="#1F1A14" stroke="var(--thoth-outline)" stroke-width="1.5" />
+      {/if}
+      <g class="bob">
+        <path d="M92 320 L92 178 C92 112 124 84 168 84 C182 84 192 88 198 94 L154 156 L154 320 Q122 334 92 320 Z" fill="#14513F" />
+        {#each [196, 224, 252, 280] as y (y)}<rect x="100" {y} width="46" height="12" rx="6" fill="#E0AE3A" />{/each}
+        <rect x="142" y="160" width="52" height="170" rx="24" fill="#1F1A14" />
+      </g>
+      {#if !portrait}
+        <path d="M84 400 A76 66 0 0 1 236 400" fill="none" stroke="#E0AE3A" stroke-width="15" stroke-linecap="round" />
+        <path d="M110 400 A50 44 0 0 1 210 400" fill="none" stroke="#14513F" stroke-width="15" stroke-linecap="round" />
+        <path d="M134 400 A26 22 0 0 1 186 400" fill="none" stroke="#E0AE3A" stroke-width="12" stroke-linecap="round" />
+      {/if}
+      <g class="bob">
+        <g bind:this={ponder} class="ponder">
+          <g bind:this={head} class="move">
+            <circle cx="170" cy="140" r="68" fill="#1F1A14" />
+            <path d="M214 100 C266 104 304 154 300 222 C299 236 284 240 278 228 C266 188 246 168 210 166 Z" fill="#1F1A14" stroke="var(--thoth-outline)" stroke-width="1.5" />
+            <path d="M224 110 C258 118 280 142 290 176" fill="none" stroke="#3A3127" stroke-width="5" stroke-linecap="round" />
+            <ellipse cx={ex - 6} cy={ey + 32} rx="11" ry="6" fill="#B5532E" opacity=".75" />
+            <g bind:this={lid} class="move">
+              <g class="blink">
+                <g bind:this={open}>
+                  <circle cx={ex} cy={ey} r="25" fill="#FBF4E2" />
+                  <g clip-path="url(#{eyeClip})">
+                    <g class="gaze">
+                      <g class="pupil">
+                        <circle cx={ex + 7} cy={ey + 1} r="13.5" fill="#1F1A14" />
+                        <circle cx={ex + 11} cy={ey - 5} r="4.6" fill="#FBF4E2" />
+                      </g>
+                    </g>
+                  </g>
+                </g>
+                <path bind:this={smile} d="M{ex - 18} {ey + 6} Q{ex} {ey - 17} {ex + 18} {ey + 6}" fill="none" stroke="#FBF4E2" stroke-width="9" stroke-linecap="round" opacity="0" />
+              </g>
+            </g>
+            <path d="M{ex - 26} {ey + 10} L{ex - 52} {ey + 16}" stroke="#FBF4E2" stroke-width="9" stroke-linecap="round" />
+            <path d="M124 29 A42 42 0 0 0 208 29 A44 25 0 0 1 124 29 Z" fill="#FBF4E2" stroke="#C99A2E" stroke-width="3" stroke-linejoin="round" />
+            <circle cx="166" cy="23" r="19" fill="#C99A2E" />
+            <path d="M154.5 17.5 A12 12 0 0 1 166.5 10" fill="none" stroke="#F7CB52" stroke-width="5" stroke-linecap="round" />
+            <circle class="glint" cx="159" cy="16" r="5.5" fill="#FFF3CC" />
+          </g>
+        </g>
+      </g>
+    </g>
+  {:else}
   <g bind:this={whole} class="move">
     {#if !portrait}
       <g bind:this={flare} class="move">
@@ -290,6 +394,7 @@
       </g>
     </g>
   </g>
+  {/if}
 </svg>
 
 <style>
@@ -345,10 +450,10 @@
     92%,
     96.5%,
     100% {
-      transform: translate(181.5px, 116.4px) scaleY(1) translate(-181.5px, -116.4px);
+      transform: translate(var(--ex), var(--ey)) scaleY(1) translate(calc(-1 * var(--ex)), calc(-1 * var(--ey)));
     }
     94% {
-      transform: translate(181.5px, 116.4px) scaleY(0.08) translate(-181.5px, -116.4px);
+      transform: translate(var(--ex), var(--ey)) scaleY(0.08) translate(calc(-1 * var(--ex)), calc(-1 * var(--ey)));
     }
   }
   .pupil {
@@ -362,7 +467,7 @@
     }
     42%,
     56% {
-      transform: translate(-3.5px, 0.5px);
+      transform: translate(calc(var(--g) * -3.5px), calc(var(--g) * 0.5px));
     }
     62%,
     74% {
@@ -370,7 +475,7 @@
     }
     78%,
     88% {
-      transform: translate(2.5px, -0.5px);
+      transform: translate(calc(var(--g) * 2.5px), calc(var(--g) * -0.5px));
     }
   }
 
@@ -421,7 +526,7 @@
     transition: transform 0.5s ease;
   }
   .thinking .gaze {
-    transform: translate(2px, -2px);
+    transform: translate(calc(var(--g) * 2px), calc(var(--g) * -2px));
   }
   .thinking .glint {
     animation-duration: 1.4s;
