@@ -124,6 +124,63 @@ public class MainActivity extends Activity {
         web.addJavascriptInterface(new Bridge(), "AnkhwizAndroid");
         if (state == null) web.loadUrl(START);
         else web.restoreState(state);
+        takeShare(getIntent());
+    }
+
+    /** Something shared to Ankhwiz from another app, waiting for the interface to take it. */
+    private volatile String pendingShare = "";
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        if (takeShare(intent)) web.evaluateJavascript("window.dispatchEvent(new Event('ankhwiz-share'))", null);
+    }
+
+    /**
+     * Keeps a shared web address, text or file (a PDF, a Word document, text)
+     * for the interface, which offers to add it to a deck. Files are read here,
+     * up to 25 MB, and handed over as base64.
+     */
+    private boolean takeShare(Intent intent) {
+        if (intent == null || !Intent.ACTION_SEND.equals(intent.getAction())) return false;
+        try {
+            JSONObject out = new JSONObject();
+            Uri stream = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            if (stream != null) {
+                String name = "shared";
+                android.database.Cursor c = getContentResolver().query(stream, new String[] { android.provider.OpenableColumns.DISPLAY_NAME }, null, null, null);
+                if (c != null) {
+                    if (c.moveToFirst()) name = c.getString(0);
+                    c.close();
+                }
+                InputStream in = getContentResolver().openInputStream(stream);
+                ByteArrayOutputStream buf = new ByteArrayOutputStream();
+                byte[] chunk = new byte[65536];
+                int n;
+                while (in != null && (n = in.read(chunk)) > 0) {
+                    buf.write(chunk, 0, n);
+                    if (buf.size() > 25 * 1024 * 1024) throw new Exception("too big");
+                }
+                if (in != null) in.close();
+                out.put("kind", "file");
+                out.put("name", name);
+                out.put("type", intent.getType() == null ? "" : intent.getType());
+                out.put("base64", Base64.encodeToString(buf.toByteArray(), Base64.NO_WRAP));
+            } else {
+                String text = intent.getStringExtra(Intent.EXTRA_TEXT);
+                if (text == null || text.trim().isEmpty()) return false;
+                out.put("kind", "text");
+                out.put("text", text);
+                String subject = intent.getStringExtra(Intent.EXTRA_SUBJECT);
+                out.put("subject", subject == null ? "" : subject);
+            }
+            pendingShare = out.toString();
+            return true;
+        } catch (Exception e) {
+            pendingShare = "{\"kind\":\"error\"}";
+            return true;
+        }
     }
 
     @Override
@@ -224,6 +281,14 @@ public class MainActivity extends Activity {
 
     /** What the interface can ask of this shell. Mirrors src/lib/platform.ts. */
     private class Bridge {
+        /** The item shared to Ankhwiz, once: JSON, or empty when there is none. */
+        @JavascriptInterface
+        public String takeShared() {
+            String s = pendingShare;
+            pendingShare = "";
+            return s;
+        }
+
         /** Sends a web request on a background thread and answers through window.__ankhwizHttp. */
         @JavascriptInterface
         public void http(final String id, final String requestJson) {

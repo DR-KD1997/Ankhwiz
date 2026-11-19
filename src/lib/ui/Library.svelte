@@ -4,15 +4,19 @@
   onMount(() => firstLaunch());
   // The library: every deck on this device, and three ways to add one.
   import { line } from '../core/thoth';
-  import { importAnkh, readPackage, type AnkiPackage } from '../exporting';
+  import { dropPackage, importAnkh, readPackage, type AnkiPackage } from '../exporting';
   import ImportMap from './ImportMap.svelte';
   import { parseList } from '../import/paste';
   import {
+    addBuiltDeck,
+    addEmptyDeck,
     addFromRows,
     addSample,
     allDue,
     data,
+    deckLoaded,
     dropPaused,
+    quickCounts,
     now,
     openDeck,
     openPanel,
@@ -25,6 +29,8 @@
     ui,
   } from '../store.svelte';
   import { summarise } from './deckView';
+  import { KINDS, type KindId } from '../cardTypes';
+  import LangPicker from './LangPicker.svelte';
   import ProgressBar from './ProgressBar.svelte';
   import Icon from './Icon.svelte';
   import Logo from './Logo.svelte';
@@ -33,24 +39,44 @@
   const decks = $derived(
     Object.values(data.decks)
       .sort((a, b) => a.created - b.created)
-      .map((deck) => ({ deck, sum: summarise(snap(deck), snap(data.progress[deck.id] ?? {}), now()) })),
+      // Decks not opened yet are counted from their progress, without reading their notes.
+      .map((deck) => ({ deck, sum: deckLoaded(deck.id) ? summarise(snap(deck), snap(data.progress[deck.id] ?? {}), now()) : quickCounts(deck.id, now()) })),
   );
   const hasSample = $derived(decks.some((d) => d.deck.name.includes('(sample)')));
 
   let pasting = $state(false);
+  let building = $state(false);
+  let buildName = $state('');
+  let buildKind = $state<KindId | 'sources'>('words');
+  let buildLang = $state('');
+  let buildLangBack = $state('en-GB');
+  function createBuilt() {
+    if (buildKind === 'sources') {
+      const id = addEmptyDeck(buildName || 'New deck', { by: 'sources' });
+      openDeck(id);
+      openPanel('sources');
+    } else {
+      const id = addBuiltDeck(buildName, buildKind, buildKind === 'words' && buildLang ? { lang: buildLang, langBack: buildLangBack } : null);
+      openDeck(id);
+      openPanel('builder');
+    }
+    building = false;
+    buildName = '';
+  }
   let listName = $state('');
   let listText = $state('');
   let busy = $state(false);
   let readingName = $state('');
   let message = $state<{ ok: boolean; text: string } | null>(null);
   let picker = $state<HTMLInputElement>();
-  let pending = $state<AnkiPackage | null>(null);
+  // Raw: a package holds every note of the deck, which must not be made reactive.
+  let pending = $state.raw<AnkiPackage | null>(null);
   const welcome = line('welcome');
   const paused = $derived(pausedSummary());
   // Recomputed with the deck list: reviews due in every deck, for "Study all decks".
   const due = $derived.by(() => {
     void decks;
-    return allDue().map((d) => ({ deck: data.decks[d.deckId], n: d.queue.length }));
+    return allDue().map((d) => ({ deck: data.decks[d.deckId], n: d.n }));
   });
   const dueTotal = $derived(due.reduce((t, d) => t + d.n, 0));
   const reminderText = $derived.by(() => {
@@ -192,6 +218,7 @@
         <Icon name="plus" size={18} /> {busy ? 'Reading…' : 'Import a deck (.apkg or .ankh)'}
       </button>
       {#if busy && readingName}<ProgressBar label={`Reading ${readingName}…`} />{/if}
+      <button class="quiet" aria-expanded={building} onclick={() => (building = !building)}><Icon name="plus" size={18} /> Build a deck</button>
       <button class="quiet" aria-expanded={pasting} onclick={() => (pasting = !pasting)}><Icon name="plus" size={18} /> Paste a list</button>
       {#if !hasSample}
         <button class="quiet" data-tour="sample" onclick={() => (openDeck(addSample()), signal('sample'))}><Icon name="plus" size={18} /> Add the sample deck</button>
@@ -201,7 +228,10 @@
     {#if pending}
       <ImportMap
         pkg={pending}
-        onCancel={() => (pending = null)}
+        onCancel={() => {
+          if (pending) dropPackage(pending);
+          pending = null;
+        }}
         onDone={(r) => {
           const name = data.decks[r.id].name;
           pending = null;
@@ -214,6 +244,29 @@
           }
         }}
       />
+    {/if}
+
+    {#if building}
+      <div class="paste plain build">
+        <label>
+          <span class="label">Deck name</span>
+          <input type="text" bind:value={buildName} placeholder="My deck" />
+        </label>
+        <span class="label">What are you learning?</span>
+        <div class="kinds">
+          {#each KINDS as k (k.id)}
+            <button class="kind" aria-pressed={buildKind === k.id} onclick={() => (buildKind = k.id)}><strong>{k.name}</strong><small>{k.blurb}</small></button>
+          {/each}
+          <button class="kind" aria-pressed={buildKind === 'sources'} onclick={() => (buildKind = 'sources')}><strong>From files or pages</strong><small>Thoth plans lessons and writes cards from your PDFs, documents and web pages</small></button>
+        </div>
+        {#if buildKind === 'words'}
+          <div class="langs2">
+            <div><span class="label">Words in</span><LangPicker label="Language of the words" value={buildLang} emptyLabel="Not a language deck" onPick={(c) => (buildLang = c)} /></div>
+            <div><span class="label">Meanings in</span><LangPicker label="Language of the meanings" value={buildLangBack} emptyLabel="Same" onPick={(c) => (buildLangBack = c)} /></div>
+          </div>
+        {/if}
+        <button class="primary" onclick={createBuilt}>Create deck</button>
+      </div>
     {/if}
 
     {#if pasting}
@@ -321,6 +374,43 @@
     gap: 14px;
   }
   .paste label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .kinds {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px;
+  }
+  .kind {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    min-height: 56px;
+    padding: 8px 12px;
+    text-align: left;
+    border: 2px solid var(--line);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    cursor: pointer;
+  }
+  .kind small {
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .kind[aria-pressed='true'] {
+    background: var(--sel-bg);
+    border: 3px solid var(--sel-text);
+  }
+  .langs2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+  }
+  .langs2 > div {
     display: flex;
     flex-direction: column;
     gap: 6px;

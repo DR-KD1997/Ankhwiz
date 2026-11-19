@@ -13,13 +13,15 @@
   import Media from './Media.svelte';
   import OcclusionEditor from './OcclusionEditor.svelte';
   import { moved, sortable } from './sortable';
+  import { noteHas } from './searchIndex';
+  import { flagOf, langName } from '../languages';
 
   const deck = $derived(data.decks[ui.deckId!]);
   const progress = $derived(data.progress[ui.deckId!] ?? {});
 
   let query = $state('');
   let label = $state('');
-  let show = $state<'all' | 'stopped' | 'tricky' | 'ai' | 'new'>('all');
+  let show = $state<'all' | 'stopped' | 'tricky' | 'ai' | 'new' | 'unsourced'>('all');
   let editing = $state<string | null>(ui.editNote);
   let adding = $state<string | null>(null);
   let renaming = $state<string | null>(null);
@@ -46,12 +48,13 @@
       met: states.length > 0,
     };
   }
+  const q = $derived(query.trim().toLowerCase());
   function matches(n: Note): boolean {
-    const q = query.trim().toLowerCase();
-    if (q && ![n.front, n.back, n.extra ?? '', ...(n.alts ?? []), ...(n.labels ?? [])].some((t) => t.toLowerCase().includes(q))) return false;
+    if (q && !noteHas(deck.notes, n, q)) return false;
     if (label && !(n.labels ?? []).includes(label)) return false;
     if (show === 'all') return true;
     if (show === 'ai') return !!n.ai;
+    if (show === 'unsourced') return !!n.source && !n.source.found;
     // Only these filters need the cards' progress, which is slower to look up for every note.
     const st = stateOf(n);
     if (show === 'stopped' && !st.stopped) return false;
@@ -355,12 +358,12 @@
           <div class="pick-row">
             <span class="picked" dir="auto">{picked ? `“${picked}”` : 'Select words in the question or answer'}</span>
             <select class="input" aria-label="Language for the selected words" bind:value={markLang}>
-              {#each voiceLangs as l (l)}<option value={l}>{l}</option>{/each}
+              {#each voiceLangs as l (l)}<option value={l}>{flagOf(l)} {langName(l)}</option>{/each}
             </select>
             <button class="quiet" disabled={!picked || !markLang} onclick={addMark}>Mark</button>
           </div>
           {#each form.voices as v, i (v.text + v.lang)}
-            <button class="chip" aria-label="Unmark {v.text}" onclick={() => (form.voices = form.voices.filter((_, j) => j !== i))}><span class="marked" lang={v.lang}>{v.text}</span> · {v.lang} <Icon name="close" size={12} /></button>
+            <button class="chip" aria-label="Unmark {v.text}" onclick={() => (form.voices = form.voices.filter((_, j) => j !== i))}><span class="marked" lang={v.lang}>{v.text}</span> · {flagOf(v.lang)} {langName(v.lang)} <Icon name="close" size={12} /></button>
           {/each}
           {#if !form.voices.length}<small>Marked words are read in their own language wherever they appear, such as the Spanish in “What does la manzana mean?”.</small>{/if}
         </div>
@@ -495,6 +498,7 @@
           <option value="tricky">Tricky</option>
           <option value="stopped">Stopped</option>
           <option value="ai">Written by AI</option>
+          {#if deck.sources?.length}<option value="unsourced">Not found in sources</option>{/if}
         </select>
         {#if allLabels.length}
           <select class="input" bind:value={label} aria-label="Label">

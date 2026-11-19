@@ -95,37 +95,52 @@ export async function hasVoice(lang: string): Promise<boolean | null> {
   return web() ? webVoice(lang) : false;
 }
 
+/** Names of this device's own voices for a language (empty when it has none, or cannot list them, as on Android). */
+export async function deviceVoiceNames(lang: string): Promise<string[]> {
+  const invoke = tauri();
+  if (invoke) {
+    const voices = await desktopVoices(invoke);
+    if (voices) return [...new Set(voices.filter((v) => matches(v.language, lang)).map((v) => v.name))];
+  }
+  if (bridge()) return [];
+  if (!web()) return [];
+  return [...new Set(window.speechSynthesis.getVoices().filter((v) => matches(v.lang, lang)).map((v) => v.name))];
+}
+
 function webVoice(lang: string): boolean | null {
   const voices = window.speechSynthesis.getVoices();
   if (!voices.length) return null; // still loading
   return voices.some((v) => matches(v.lang, lang));
 }
 
-/** Read text aloud in a language, cutting off anything still being read. */
-export async function speak(text: string, lang: string): Promise<SpeakResult> {
+/**
+ * Read text aloud in a language, cutting off anything still being read.
+ * `rate` slows it down (0.7) or speeds it up, where the device allows.
+ */
+export async function speak(text: string, lang: string, rate = 1): Promise<SpeakResult> {
   if (!text.trim() || typeof window === 'undefined') return 'unavailable';
   const mine = ++turn;
   const piper = piperFor(lang);
   if (piper) {
     stopDevice();
     piperStop();
-    void piperSpeak(piper, text).catch(() => {
+    void piperSpeak(piper, text, rate).catch(() => {
       // The voice could not run here: read with the device's own instead.
-      if (mine === turn) void deviceSpeak(text, lang);
+      if (mine === turn) void deviceSpeak(text, lang, rate);
     });
     return 'ok';
   }
-  return deviceSpeak(text, lang);
+  return deviceSpeak(text, lang, rate);
 }
 
-async function deviceSpeak(text: string, lang: string): Promise<SpeakResult> {
+async function deviceSpeak(text: string, lang: string, rate = 1): Promise<SpeakResult> {
   const invoke = tauri();
   if (invoke) {
     const voices = await desktopVoices(invoke);
     if (voices) {
       if (lang && !voices.some((v) => matches(v.language, lang))) return 'no-voice';
       try {
-        await invoke('plugin:tts|speak', { payload: { text, language: lang || null, queueMode: 'flush' } });
+        await invoke('plugin:tts|speak', { payload: { text, language: lang || null, queueMode: 'flush', ...(rate !== 1 ? { rate } : {}) } });
         return 'ok';
       } catch {
         /* fall through to the web view's own voices */
@@ -143,6 +158,7 @@ async function deviceSpeak(text: string, lang: string): Promise<SpeakResult> {
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     if (lang) u.lang = lang;
+    u.rate = rate;
     window.speechSynthesis.speak(u);
     return 'ok';
   } catch {

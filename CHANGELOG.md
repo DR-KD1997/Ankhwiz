@@ -3,6 +3,99 @@
 What changed in each version of Ankhwiz. Downloads are on the
 [Releases page](https://github.com/DR-KD1997/Ankhwiz/releases).
 
+## 0.6.0 · 2026-11-20
+
+[Every change to the code since 0.5.1](https://github.com/DR-KD1997/Ankhwiz/compare/v0.5.1...v0.6.0)
+
+Build decks for any subject, from scratch or from your own files and pages, practise in three new ways, and find voices by name. Big decks open and save faster, and imports run in the background.
+
+### Added
+- **Build a deck** (Your decks › Build a deck): choose what you are learning
+  (words and phrases, formulas, dates and events, or questions and answers)
+  and the deck gets fields to match. Type cards, or paste rows from a
+  spreadsheet, check them in a list, and add them in one go. Decks also have
+  **Add cards** for this.
+- **Card types:** name a type's fields, choose which is the question, the
+  answer and the extra, add, remove and reorder fields, and design the
+  card's layout (Anki's templates and styling) with a live preview of your
+  own cards. The layout is what Anki shows, and can be shown with the answer
+  in Ankhwiz too. Cards made in Ankhwiz can be given a card type of their own.
+  Scripts in layouts are left out, so shared decks stay safe.
+- **Build from sources with Thoth** (needs your AI connection): add PDFs,
+  Word documents (.docx), text and Markdown files, and web pages to a
+  deck's sources. Thoth asks three quick questions (what it is for, how much
+  you know, by when), suggests units and lessons from the shape of your
+  sources for you to rename, reorder or drop, writes a few sample cards you
+  can steer ("shorter answers", "keep technical terms"), then writes every
+  lesson's cards. Each card links to the passage it comes from: tap "From"
+  on its answer to read it with the sentence highlighted. A card whose
+  sentence cannot be found in the source is added switched off, for you to
+  keep or delete. Only the openings of each part of your sources are sent to
+  plan the outline, and only the parts a lesson uses to write its cards.
+  Video is not supported.
+- **On Android, share to Ankhwiz:** a web page, some text, a PDF or a Word
+  document shared from another app can go straight into a deck's sources.
+- **Dictation** (Practice): hear a card, from its own recording or a voice,
+  and write it, at normal speed or 0.7×. Answers are checked word by word,
+  so one slip doesn't fail the sentence, and a missing accent counts as
+  nearly right. Keys for the language's own letters, and first letters as a
+  hint.
+- **Unit recall** (Practice): no questions, just three minutes to write
+  everything you remember from a unit. Near spellings count, words from
+  other units are recognised, and cards you miss come back in the next day's
+  review.
+- **Reading round** (Practice, and after a lesson): sentences from your cards
+  and their example fields, made of words you have studied, easiest first,
+  with questions on them. Tap any word to see its meaning on your cards.
+  With your AI connection, Thoth writes short stories from the words you
+  know, and can prepare some ahead for times without a connection.
+- **Unused fields:** an Anki note type's fields that no card shows can be
+  left out when importing, or their text deleted later in Deck options
+  (a backup is made first).
+
+### Changed
+- **Languages by name and flag:** everywhere a language is chosen (deck
+  options, importing, Settings › Voices, the card editor) it is shown as
+  "Turkish (Türkiye)" with its flag, instead of a code like tr-TR, and found
+  by one search across names in English and in the language itself,
+  countries, codes and other names (Farsi, castellano, Brazil). Languages
+  with a voice ready on the device come first, then those Ankhwiz can
+  download a voice for. Flags are drawn by a small font that comes with
+  Ankhwiz, so Windows shows them too. Settings › Voices lists the device's
+  own voices for each language, and can find a voice for any language.
+- **Decks are stored in a new way:** a small head with the deck's settings
+  and lessons, and its cards in chunks, so changing an option rewrites only
+  the head and an edit only the chunks it touched. Backups share chunks with
+  the deck instead of holding whole copies, and cards are stored more
+  compactly. With the 33,000-card Turkish deck, the stored deck went from
+  20.7 MB to 13.4 MB.
+- **Decks are read when you open them:** Ankhwiz opens to your library
+  without reading any deck's cards, so it starts as quickly with many big
+  decks as with one. The deck you used last is read while the library is on
+  screen, so it opens straight away (0.12 s with the Turkish deck); another
+  big deck takes about half a second the first time.
+- **Imports run in the background:** reading and building a deck from an
+  .apkg happen away from the window, which stays usable. The Turkish deck
+  now imports in about 3 seconds (from 5.6).
+- **The card list keeps a search index**: each card's text is prepared
+  once, so a search in a big deck no longer works through every card's text
+  again with each letter typed.
+- **Importing picks the right question:** a field that only holds a short
+  label repeated across the notes (such as a "Kind" field saying "Sentence"
+  or "Word") is no longer made the question; it is shown beside it instead.
+
+### Fixed
+- **Decks imported from .apkg files in 0.5.1 were not saved,** and once one
+  had been imported, nothing else in that session was saved either: closing
+  Ankhwiz lost the deck and the session's progress, and the app said "This
+  device is not letting the app save". Imports are saved again, and decks
+  are now stored in a way that cannot run into this.
+
+Your decks and progress carry over: the first time 0.6.0 opens, it stores
+your library in the new way. After that, an older Ankhwiz cannot read it;
+it shows an empty library but leaves your data alone, so going back to
+0.6.0 brings everything back.
+
 ## 0.5.1 · 2026-11-19
 
 [Every change to the code since 0.5.0](https://github.com/DR-KD1997/Ankhwiz/compare/v0.5.0...v0.5.1)

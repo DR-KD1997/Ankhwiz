@@ -15,7 +15,7 @@
 
 import { unzipSync } from 'fflate';
 import { decompress as unzstd } from 'fzstd';
-import { parseOcclusion } from '../core';
+import { parseOcclusion } from '../core/bridge';
 import type { AnkiNotetype, AnkiSched, AnkiTemplate, RawNote } from '../core/types';
 import { decodeEntities, fieldText } from './html';
 import { marksInField, ttsFields, type Mark } from '../voices';
@@ -156,6 +156,47 @@ export function templateFields(fmt: string, fields: string[]): string[] {
     if (/^[#^/]/.test(inner)) continue; // section markers
     const name = inner.split(':').pop()!.trim();
     if (fields.includes(name) && !out.includes(name)) out.push(name);
+  }
+  return out;
+}
+
+/** Fields that hold labels: few different short values, repeated across many notes. */
+export function labelFields(rows: string[][], width: number): Set<number> {
+  const out = new Set<number>();
+  for (let i = 0; i < width; i++) {
+    const values = rows.map((r) => fieldText(r[i] ?? '').trim()).filter(Boolean);
+    if (values.length < Math.max(10, rows.length / 2)) continue;
+    const distinct = new Set(values).size;
+    const avg = values.reduce((t, v) => t + v.length, 0) / values.length;
+    if (distinct <= Math.max(12, values.length * 0.03) && avg <= 24) out.add(i);
+  }
+  return out;
+}
+
+/** A mapping whose question or answer is a label field moves to the next field that is not, keeping the label beside it. */
+export function avoidLabels<T extends Pick<Mapping, 'question' | 'answer' | 'questionMore' | 'extraMore'> & { extra?: number | null; cloze?: boolean; occlusion?: boolean; matched?: string; fields: string[] }>(
+  t: T,
+  rows: string[][],
+): Partial<T> {
+  if (t.cloze || t.occlusion || t.matched === 'ankhwiz') return {};
+  const labels = labelFields(rows, t.fields.length);
+  if (!labels.size) return {};
+  const out: Partial<T> = {};
+  if (labels.has(t.question)) {
+    const next = t.questionMore.find((i) => !labels.has(i));
+    if (next !== undefined) {
+      out.question = next;
+      out.questionMore = [...t.questionMore.filter((i) => i !== next), t.question];
+    }
+  }
+  if (labels.has(t.answer) && t.answer !== t.question) {
+    const pool = [t.extra, ...t.extraMore].filter((i): i is number => i !== null && i !== undefined && !labels.has(i));
+    if (pool.length) {
+      const next = pool[0];
+      out.answer = next;
+      if (t.extra === next) out.extra = t.answer;
+      else out.extraMore = [...t.extraMore.filter((i) => i !== next), t.answer];
+    }
   }
   return out;
 }
@@ -361,6 +402,13 @@ export function readCollection(db: Database, fallbackName: string, media: Record
     const flds = Array.from({ length: n }, (_, i) => `Field ${i + 1}`);
     const t = { id: ntid, name: 'Notes', cloze: false, fields: flds, templates: [], css: '' };
     types.push({ ...t, ...autoMapping(t) });
+  }
+  // A template that starts with a short label ({{Kind}}: "Sentence", "Verb"…)
+  // would make that label the question. Fields whose values are a handful of
+  // short words repeated across the notes are labels, not questions.
+  for (const t of types) {
+    const own = notes.filter((n) => n.ntid === t.id).slice(0, 3000);
+    if (own.length >= 20) Object.assign(t, avoidLabels(t, own.map((n) => n.fields)));
   }
   return {
     name,

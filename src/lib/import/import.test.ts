@@ -6,7 +6,7 @@ import { ankiImport, applyEdits, buildDeck, initCore, introduce, sampleDeck } fr
 import type { Progress } from '../core/types';
 import { buildAnkh, readAnkh } from '../export/ankh';
 import { buildApkg } from '../export/apkg';
-import { fieldMedia, packageRows, readPackage, type OpenDatabase } from './apkg';
+import { avoidLabels, fieldMedia, packageRows, readPackage, type OpenDatabase } from './apkg';
 import { clozeToPair, fieldText } from './html';
 import { parseList } from './paste';
 
@@ -222,5 +222,20 @@ describe('matching note types', () => {
     const off = packageRows(pkg, { [reversed.id]: { bothWays: false } }, false).notetypes;
     expect(off[reversed.id].bothWays).toBe(false);
     expect(off[vocab.id].bothWays).toBe(false);
+  });
+});
+
+describe('label fields', () => {
+  it('does not make a short repeated label the question', () => {
+    const kinds = ['Sentence', 'Word', 'Phrase'];
+    const rows = Array.from({ length: 60 }, (_, i) => [kinds[i % 3], `türkçe ${i}`, `english ${i}`, `[sound:${i}.mp3]`]);
+    const t = { fields: ['Kind', 'Turkish', 'English', 'Audio'], question: 0, questionMore: [1, 3], answer: 2, extra: null, extraMore: [], matched: 'template' };
+    expect(avoidLabels(t, rows)).toEqual({ question: 1, questionMore: [3, 0] });
+  });
+
+  it('leaves real questions alone, even short ones', () => {
+    const rows = Array.from({ length: 60 }, (_, i) => [`w${i}`, `m${i}`]);
+    const t = { fields: ['Front', 'Back'], question: 0, questionMore: [], answer: 1, extra: null, extraMore: [], matched: 'template' };
+    expect(avoidLabels(t, rows)).toEqual({});
   });
 });

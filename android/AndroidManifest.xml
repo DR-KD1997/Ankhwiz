@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="app.ankhwiz"
-    android:versionCode="8"
-    android:versionName="0.5.1">
+    android:versionCode="9"
+    android:versionName="0.6.0">
 
     <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="34" />
 
@@ -30,10 +30,21 @@
             android:name=".MainActivity"
             android:exported="true"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode|smallestScreenSize"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize"
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- Web pages, text and documents shared from other apps, to build a deck from. -->
+            <intent-filter android:label="Add to an Ankhwiz deck">
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+                <data android:mimeType="text/markdown" />
+                <data android:mimeType="text/html" />
+                <data android:mimeType="application/pdf" />
+                <data android:mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
             </intent-filter>
         </activity>
         <receiver android:name=".ReminderReceiver" android:exported="true">

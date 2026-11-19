@@ -65,6 +65,10 @@ pub struct Note {
     /// A picture with hidden parts: one card per hidden part number.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub occlusion: Option<Occlusion>,
+    /// Where the note's facts come from (a passage of a source the deck was
+    /// built from). Kept as the app wrote it; the core only carries it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source: Option<serde_json::Value>,
 }
 
 /// A picture with hidden parts (Anki: Image Occlusion).
@@ -154,6 +158,10 @@ pub struct AnkiNotetype {
     /// (decks from before 0.4.1 had one setting for every card).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub both_ways: Option<bool>,
+    /// Show the type's own card layout (its templates and styling) with the
+    /// answer, as well as Ankhwiz's plain one.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub show_layout: bool,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
@@ -309,6 +317,13 @@ pub struct Deck {
     /// Note types from an Anki import, kept for export.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub anki: Option<AnkiDeck>,
+    /// Files and pages the deck was built from (their text is stored apart).
+    /// Kept as the app wrote them; the core only carries them.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub sources: Vec<serde_json::Value>,
+    /// How the deck was made (its subject kind, say), for the app.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub made: Option<serde_json::Value>,
 }
 
 /// What the scheduler remembers about a card.
@@ -468,6 +483,8 @@ pub struct RawNote {
     pub voices: Vec<VoiceMark>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub occlusion: Option<Occlusion>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source: Option<serde_json::Value>,
 }
 
 /// One Anki card's scheduling, as stored in its collection.

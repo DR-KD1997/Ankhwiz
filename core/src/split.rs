@@ -82,6 +82,7 @@ pub fn note_from(row: &RawNote, ai: bool) -> Option<Note> {
         no_build: row.no_build,
         voices: row.voices.clone(),
         occlusion,
+        source: row.source.clone(),
     })
 }
 
@@ -164,6 +165,8 @@ pub fn build_deck(name: &str, rows: &[RawNote], options: &BuildOptions, now: f64
         readings: vec![],
         options: crate::model::DeckOptions::default(),
         anki: None,
+        sources: vec![],
+        made: None,
     }
 }
 

@@ -149,6 +149,11 @@
         <Icon name="target" size={18} /> Practice{sum.tricky ? ` (${sum.tricky})` : ''}
       </button>
     </div>
+    <div class="trio second">
+      <button class="quiet" class:here={ui.panel === 'builder'} onclick={() => openPanel('builder')}><Icon name="plus" size={18} /> Add cards</button>
+      <button class="quiet" class:here={ui.panel === 'sources'} onclick={() => openPanel('sources')}><Icon name="layers" size={18} /> From sources</button>
+      <button class="quiet" class:here={ui.panel === 'types'} onclick={() => openPanel('types')}><Icon name="edit" size={18} /> Card types</button>
+    </div>
     {#if sum.goalMet && sum.nextId}
       <p class="goal">Today's goal of {sum.goal} new {sum.goal === 1 ? 'lesson' : 'lessons'} is done. You can keep going.</p>
     {/if}
@@ -223,6 +228,9 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
     margin-top: -8px;
+  }
+  .trio.second {
+    margin-top: 0;
   }
   .trio button {
     min-height: 48px;

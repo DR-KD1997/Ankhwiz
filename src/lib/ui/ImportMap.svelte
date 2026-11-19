@@ -9,8 +9,11 @@
   import { readingLanguages } from '../import/apkg';
   import { importPackage, type AnkiPackage, type ImportStep, type Mapping, type SplitBy } from '../exporting';
   import { canSpeak } from '../speech';
+  import { unusedFields } from '../fields';
+  import type { AnkiNotetype } from '../core/types';
   import { data } from '../store.svelte';
   import FieldMapper from './FieldMapper.svelte';
+  import LangPicker from './LangPicker.svelte';
   import Icon from './Icon.svelte';
   import ProgressBar from './ProgressBar.svelte';
   import Help from './Help.svelte';
@@ -45,6 +48,11 @@
     ),
   );
   let withProgress = $state(true);
+  // Fields no card will show, with the choices made above: their text can be left out.
+  let dropUnusedText = $state(false);
+  const unusedNames = $derived(
+    [...new Set(pkg.notetypes.flatMap((t) => unusedFields({ ...t, ...maps[t.id] } as AnkiNotetype).map((i) => t.fields[i])))],
+  );
   // Templates that read fields aloud with {{tts es_ES:Field}} turn reading on, in their languages.
   // svelte-ignore state_referenced_locally
   const reading = readingLanguages(pkg);
@@ -93,7 +101,12 @@
     busy = true;
     error = '';
     try {
-      const r = await importPackage(pkg, $state.snapshot(maps), { withProgress: withProgress && pkg.studied, name: name.trim(), splitBy, read: read ? { lang: lang.trim(), langBack: langBack.trim() } : null }, (s) => (stepNow = s));
+      const r = await importPackage(
+        pkg,
+        $state.snapshot(maps),
+        { withProgress: withProgress && pkg.studied, name: name.trim(), splitBy, read: read ? { lang: lang.trim(), langBack: langBack.trim() } : null, dropUnused: dropUnusedText },
+        (s) => (stepNow = s),
+      );
       onDone({ ...r, suggest });
     } catch (e) {
       error = e instanceof Error ? e.message : 'The deck could not be imported.';
@@ -157,17 +170,19 @@
     <label class="check"><input type="checkbox" bind:checked={read} /> <span>Read aloud <small>A speaker button by the question and the answer, with this device's own voices.</small></span></label>
     {#if read}
       <div class="langs">
-        <label class="field"><span>Question language</span><input class="input" bind:value={lang} placeholder="es-ES" list="import-langs" /></label>
-        <label class="field"><span>Answer language</span><input class="input" bind:value={langBack} placeholder="Same" list="import-langs" /></label>
-        <datalist id="import-langs">{#each ['en-GB', 'en-US', 'es-ES', 'fr-FR', 'de-DE', 'it-IT', 'pt-BR', 'ja-JP', 'zh-CN', 'ko-KR', 'ar-SA', 'ru-RU', 'tr-TR'] as l (l)}<option value={l}></option>{/each}</datalist>
+        <div class="field"><span>Question language</span><LangPicker label="Question language" value={lang} emptyLabel="The device's own language" onPick={(c) => (lang = c)} /></div>
+        <div class="field"><span>Answer language</span><LangPicker label="Answer language" value={langBack} emptyLabel="Same as the question" onPick={(c) => (langBack = c)} /></div>
       </div>
     {/if}
   {/if}
   {#if aiReady()}
     <label class="check"><input type="checkbox" bind:checked={suggest} /> <span>Suggest lesson names and wrong options <small>Opens Thoth's suggestions after importing. Uses your AI connection; you approve each one.</small></span></label>
   {/if}
+  {#if unusedNames.length}
+    <label class="check"><input type="checkbox" bind:checked={dropUnusedText} /> <span>Leave out fields no card shows <small>{unusedNames.join(', ')}. The deck is smaller and quicker to open, but goes back to Anki without them.</small></span></label>
+  {/if}
   <p class="hint">
-    {mediaCount ? `${mediaCount} ${mediaCount === 1 ? 'picture or sound comes' : 'pictures and sounds come'} with it. ` : ''}Fields you do not use are kept, and go back to Anki unchanged if you export the deck.
+    {mediaCount ? `${mediaCount} ${mediaCount === 1 ? 'picture or sound comes' : 'pictures and sounds come'} with it. ` : ''}{dropUnusedText ? '' : 'Fields you do not use are kept, and go back to Anki unchanged if you export the deck. You can delete them later in Deck options.'}
   </p>
   {#if busy && stepNow}
     <ProgressBar label={stepNow.stage === 'media' ? `${STAGE.media}: ${stepNow.done} of ${stepNow.total}` : `${STAGE[stepNow.stage]}…`} value={share} />
@@ -297,7 +312,7 @@
   }
   .langs {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 10px;
     margin-left: 32px;
   }

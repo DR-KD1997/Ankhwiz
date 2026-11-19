@@ -37,7 +37,7 @@ function withMedia(text: string, media: string[]): string {
 }
 
 /** A note's Anki fields with any text edited in Ankhwiz written back where it came from (as export does). */
-function foldEdits(note: Note, type: AnkiNotetype): string[] {
+export function foldEdits(note: Note, type: AnkiNotetype): string[] {
   const a = note.anki!;
   const fields = [...a.fields];
   while (fields.length < type.fields.length) fields.push('');

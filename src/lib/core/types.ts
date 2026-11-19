@@ -39,6 +39,35 @@ export interface Note {
   voices?: { text: string; lang: string }[];
   /** A picture with hidden parts. */
   occlusion?: Occlusion | null;
+  /** Where the note's facts come from, for decks built from sources. */
+  source?: NoteSource | null;
+}
+
+/** The passage a note was made from. */
+export interface NoteSource {
+  /** The source's id in the deck's `sources`. */
+  id: string;
+  /** Where in it: "p. 41", "§2 Diffusion". */
+  at: string;
+  /** The sentence that supports the card, as the source has it. */
+  quote: string;
+  /** False when the quote was not found in the source: the card is not backed by it. */
+  found: boolean;
+}
+
+/** A file or page a deck was built from. Its text is stored apart (see sources.ts). */
+export interface DeckSource {
+  id: string;
+  title: string;
+  kind: 'pdf' | 'web' | 'text' | 'markdown' | 'word' | 'html';
+  /** The page's address, for web sources. */
+  url?: string;
+  /** Sections the text was divided into. */
+  sections: number;
+  chars: number;
+  added: number;
+  /** Switched off: not used when Thoth plans or writes cards. */
+  off?: boolean;
 }
 
 export interface Shape {
@@ -107,6 +136,8 @@ export interface AnkiNotetype {
   occlusion?: boolean;
   /** Ask this type's cards both ways. Unset: follow the deck's Ask both ways. */
   bothWays?: boolean | null;
+  /** Show the type's own card layout (templates and styling) with the answer. */
+  showLayout?: boolean;
 }
 
 export interface Look {
@@ -179,6 +210,10 @@ export interface Deck {
   readings?: Reading[];
   options: DeckOptions;
   anki?: { notetypes: Record<string, AnkiNotetype> } | null;
+  /** Files and pages the deck was built from. */
+  sources?: DeckSource[];
+  /** How the deck was made: its subject kind in the deck builder. */
+  made?: { kind?: string; by?: 'builder' | 'sources' } | null;
 }
 
 export interface CardState {
@@ -289,6 +324,7 @@ export interface RawNote {
   noBuild?: boolean;
   voices?: { text: string; lang: string }[];
   occlusion?: Occlusion | null;
+  source?: NoteSource | null;
 }
 
 export interface AnkiSched {
@@ -451,4 +487,26 @@ export interface ChallengeQuestion extends ReadingQuestion {
 export interface Marked {
   correct: boolean;
   feedback: string;
+}
+
+export interface OutlineLesson {
+  name: string;
+  /** Sections it draws on: [source id, place]. */
+  from: [string, string][];
+  kind: 'words' | 'qa' | 'dates' | 'formula' | 'order';
+  cards: number;
+}
+
+export interface OutlineUnit {
+  name: string;
+  lessons: OutlineLesson[];
+}
+
+export interface SourceCard {
+  front: string;
+  back: string;
+  extra: string;
+  source: string;
+  at: string;
+  quote: string;
 }

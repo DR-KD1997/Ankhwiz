@@ -316,6 +316,230 @@ counting from 0. {JSON_ONLY} Shape: {shape}\n\n{}",
     request("reading", vec![sys(&instructions), user(ask)], true, true, 0.7)
 }
 
+/// A short story for a reading round, written mostly in words the learner has
+/// studied, with a few new ones, and questions on it.
+pub fn story_request(deck: &Deck, known: &[String], count: usize) -> AiRequest {
+    let count = count.clamp(1, 6);
+    let shape = "{\"title\":\"…\",\"passage\":\"…\",\"questions\":[{\"question\":\"…\",\"options\":[\"…\",\"…\",\"…\"],\"answer\":0}],\"newWords\":[\"…\"]}";
+    let mut words: Vec<&str> = known.iter().map(String::as_str).collect();
+    words.truncate(600);
+    let instructions = format!(
+        "Write a short story of 60 to 140 words for a learner of this deck, in the language being learned. Use almost only words from \
+the KNOWN list (any grammatical form is fine), plus at most three new words, which you list in `newWords`. Keep sentences short and \
+everyday. Then write {count} questions about the story in English, each with exactly 3 options and `answer` as the position of the \
+correct one counting from 0. {JSON_ONLY} Shape: {shape}\n\n{}",
+        deck_context(deck, 1500)
+    );
+    let ask = format!("KNOWN:\n{}", clip(&words.join(", "), 6000));
+    request("story", vec![sys(&instructions), user(ask)], true, true, 0.8)
+}
+
+/// A source as the outline step sees it: its sections' places and openings.
+#[derive(serde::Deserialize, Default, Clone)]
+#[serde(default)]
+pub struct SourceBrief {
+    pub id: String,
+    pub title: String,
+    pub sections: Vec<SectionBrief>,
+}
+
+#[derive(serde::Deserialize, Default, Clone)]
+#[serde(default)]
+pub struct SectionBrief {
+    /// Where the section is ("p. 4", "§2 Diffusion").
+    pub at: String,
+    /// Its opening words.
+    pub text: String,
+    /// Its length in characters.
+    pub size: usize,
+}
+
+/// What the learner said before building: what it is for, how much they know, by when.
+#[derive(serde::Deserialize, Default, Clone)]
+#[serde(default)]
+pub struct BuildGoal {
+    pub goal: String,
+    pub level: String,
+    pub days: u32,
+    pub notes: String,
+}
+
+/// Units and lessons for a new deck, from the shape of its sources.
+pub fn outline_request(deck: &Deck, sources: &[SourceBrief], goal: &BuildGoal) -> AiRequest {
+    let shape = "{\"units\":[{\"name\":\"…\",\"lessons\":[{\"name\":\"…\",\"from\":[{\"source\":\"s1\",\"at\":\"p. 4\"}],\"kind\":\"qa\",\"cards\":12}]}]}";
+    let mut brief = String::new();
+    let mut left: usize = 14_000;
+    for s in sources {
+        brief.push_str(&format!("\nSOURCE {} \"{}\"\n", s.id, clip(&s.title, 120)));
+        for sec in &s.sections {
+            let line = format!("- [{}] ({} chars) {}\n", clip(&sec.at, 60), sec.size, clip(sec.text.trim(), 220));
+            if line.chars().count() > left {
+                break;
+            }
+            left -= line.chars().count();
+            brief.push_str(&line);
+        }
+    }
+    let instructions = format!(
+        "You plan a flashcard deck from the learner's own sources. Group the material into units (2 to 8) of lessons (each lesson one \
+topic, 5 to 30 cards). Follow the order of the sources. For each lesson give `from`: the sections it draws on, by source id and \
+section place exactly as given; a `kind`: \"words\" (terms or vocabulary with meanings), \"qa\" (questions and answers), \"dates\" \
+(events and years), \"formula\" (formulas and their names) or \"order\" (steps of a process); and `cards`: about how many cards it \
+needs. Leave out parts that are not study material (adverts, thanks, contents pages, references). {JSON_ONLY} Shape: {shape}"
+    );
+    let ask = format!(
+        "Deck name: {}\nFor: {}\nAlready knows: {}\nTime: {}\nOther wishes: {}\n{}",
+        deck.name,
+        if goal.goal.is_empty() { "general study" } else { &goal.goal },
+        if goal.level.is_empty() { "unknown" } else { &goal.level },
+        if goal.days == 0 { "no deadline".to_string() } else { format!("{} days", goal.days) },
+        if goal.notes.trim().is_empty() { "none" } else { goal.notes.trim() },
+        brief
+    );
+    request("outline", vec![sys(&instructions), user(ask)], true, true, 0.4)
+}
+
+/// A planned lesson from an outline reply.
+#[derive(serde::Serialize, Clone, Debug, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct OutlineLesson {
+    pub name: String,
+    pub from: Vec<(String, String)>,
+    pub kind: String,
+    pub cards: usize,
+}
+
+#[derive(serde::Serialize, Clone, Debug, PartialEq)]
+pub struct OutlineUnit {
+    pub name: String,
+    pub lessons: Vec<OutlineLesson>,
+}
+
+pub fn parse_outline(text: &str) -> Result<Vec<OutlineUnit>, String> {
+    let v = extract_json(text)?;
+    let kinds = ["words", "qa", "dates", "formula", "order"];
+    let mut out = Vec::new();
+    for u in v["units"].as_array().cloned().unwrap_or_default() {
+        let name = text_of(&u["name"]);
+        let lessons: Vec<OutlineLesson> = u["lessons"]
+            .as_array()
+            .cloned()
+            .unwrap_or_default()
+            .iter()
+            .filter_map(|l| {
+                let name = text_of(&l["name"]);
+                if name.is_empty() {
+                    return None;
+                }
+                let from = l["from"]
+                    .as_array()
+                    .cloned()
+                    .unwrap_or_default()
+                    .iter()
+                    .map(|f| (text_of(&f["source"]), text_of(&f["at"])))
+                    .filter(|(s, _)| !s.is_empty())
+                    .collect();
+                let kind = text_of(&l["kind"]);
+                let cards = l["cards"].as_u64().unwrap_or(10).clamp(1, 60) as usize;
+                Some(OutlineLesson { name: clip(&name, 80), from, kind: if kinds.contains(&kind.as_str()) { kind } else { "qa".into() }, cards })
+            })
+            .collect();
+        if !lessons.is_empty() {
+            out.push(OutlineUnit { name: if name.is_empty() { "Unit".into() } else { clip(&name, 80) }, lessons });
+        }
+    }
+    if out.is_empty() {
+        return Err("Thoth did not return a usable outline. Try again.".into());
+    }
+    Ok(out)
+}
+
+/// What the learner asked to change after seeing sample cards.
+#[derive(serde::Deserialize, Default, Clone)]
+#[serde(rename_all = "camelCase", default)]
+pub struct CardStyle {
+    pub short: bool,
+    pub exam: bool,
+    pub keep_terms: bool,
+    pub notes: String,
+}
+
+/// Cards for one lesson from passages of the learner's sources, each citing
+/// the sentence it comes from, so the app can check it is really there.
+pub fn source_cards_request(deck: &Deck, lesson: &str, kind: &str, count: usize, passages: &str, style: &CardStyle) -> AiRequest {
+    let count = count.clamp(1, 40);
+    let kind_rule = match kind {
+        "words" => "Each card: `front` is the term or word, `back` its meaning in a few words.",
+        "dates" => "Each card: `front` is the event, `back` the year or date.",
+        "formula" => "Each card: `front` is what the formula gives (its name), `back` the formula written in plain text (E = ½ m v²).",
+        "order" => "Each card asks for one step of a process: `front` names the process and step number, `back` the step.",
+        _ => "Each card: `front` is a question, `back` its answer.",
+    };
+    let mut wishes = vec![];
+    if style.short {
+        wishes.push("Keep answers very short, ideally under five words.");
+    }
+    if style.exam {
+        wishes.push("Phrase questions the way an exam would.");
+    }
+    if style.keep_terms {
+        wishes.push("Keep technical terms and Latin names exactly as the source writes them.");
+    }
+    let shape = "{\"cards\":[{\"front\":\"…\",\"back\":\"…\",\"extra\":\"…\",\"source\":\"s1\",\"at\":\"p. 4\",\"quote\":\"…\"}]}";
+    let instructions = format!(
+        "You write flashcards for the lesson \"{}\" from the PASSAGES below, which come from the learner's own sources. Use only facts the \
+passages state. {} Give each card `source` and `at` (copied from the passage header it comes from) and `quote`: one sentence copied \
+word for word from that passage that supports the card. Add `extra` only for a short example or clarification. Write up to {count} \
+cards; fewer is better than padding. {} {JSON_ONLY} Shape: {shape}\n\nEXISTING DECK (sample, do not repeat):\n{}",
+        clip(lesson, 120),
+        kind_rule,
+        wishes.join(" "),
+        deck_context(deck, 1200)
+    );
+    let mut ask = format!("PASSAGES:\n{}", clip(passages, 16_000));
+    if !style.notes.trim().is_empty() {
+        ask.push_str(&format!("\n\nTHE LEARNER ASKS: {}", clip(style.notes.trim(), 400)));
+    }
+    request("sourceCards", vec![sys(&instructions), user(ask)], true, true, 0.4)
+}
+
+/// A card drafted from a source, with the passage it cites.
+#[derive(serde::Serialize, Clone, Debug, PartialEq)]
+pub struct SourceCard {
+    pub front: String,
+    pub back: String,
+    pub extra: String,
+    pub source: String,
+    pub at: String,
+    pub quote: String,
+}
+
+pub fn parse_source_cards(deck: &Deck, text: &str) -> Result<Vec<SourceCard>, String> {
+    let v = extract_json(text)?;
+    let strict = deck.strict_accents;
+    let mut seen: BTreeSet<String> = deck.notes.values().map(|n| normalize(&n.front, strict)).collect();
+    let mut out = Vec::new();
+    for c in v["cards"].as_array().cloned().unwrap_or_default() {
+        let front = text_of(&c["front"]);
+        let back = text_of(&c["back"]);
+        if front.is_empty() || back.is_empty() || !seen.insert(normalize(&front, strict)) {
+            continue;
+        }
+        out.push(SourceCard {
+            front: clip(&front, 400),
+            back: clip(&back, 400),
+            extra: clip(&text_of(&c["extra"]), 400),
+            source: text_of(&c["source"]),
+            at: clip(&text_of(&c["at"]), 80),
+            quote: clip(&text_of(&c["quote"]), 600),
+        });
+    }
+    if out.is_empty() {
+        return Err("Thoth did not return any cards for this lesson. Try again.".into());
+    }
+    Ok(out)
+}
+
 // ---------- transport ----------
 
 fn join(base: &str, path: &str) -> String {
@@ -936,5 +1160,31 @@ mod tests {
         assert_eq!(done.added.len(), 1);
         assert_eq!(copy.lessons[&copy.units[0].lesson_ids[1]].name, "Bebidas");
         assert!(parse_edits(&deck, "deck", r#"{"changes":[]}"#).is_err());
+    }
+
+    #[test]
+    fn outlines_keep_their_sources_and_sensible_kinds() {
+        let reply = r#"Here: {"units":[{"name":"The membrane","lessons":[{"name":"Structure","from":[{"source":"s1","at":"p. 2"}],"kind":"qa","cards":12},{"name":"","from":[]},{"name":"Steps","from":[{"source":"s2","at":"§3"}],"kind":"poem","cards":500}]},{"name":"Empty","lessons":[]}]}"#;
+        let units = parse_outline(reply).unwrap();
+        assert_eq!(units.len(), 1);
+        assert_eq!(units[0].lessons.len(), 2);
+        assert_eq!(units[0].lessons[0].from, vec![("s1".to_string(), "p. 2".to_string())]);
+        assert_eq!(units[0].lessons[1].kind, "qa");
+        assert_eq!(units[0].lessons[1].cards, 60);
+        assert!(parse_outline("{\"units\":[]}").is_err());
+    }
+
+    #[test]
+    fn source_cards_carry_their_quote_and_skip_repeats() {
+        let deck = crate::sample::sample_deck(0.0);
+        let existing = deck.notes.values().next().unwrap().front.clone();
+        let reply = format!(r#"{{"cards":[{{"front":"What is a bilayer?","back":"two layers","source":"s1","at":"p. 2","quote":"The membrane is a bilayer."}},{{"front":"{existing}","back":"x"}},{{"front":"What is a bilayer?","back":"again"}}]}}"#);
+        let cards = parse_source_cards(&deck, &reply).unwrap();
+        assert_eq!(cards.len(), 1);
+        assert_eq!(cards[0].quote, "The membrane is a bilayer.");
+        let req = source_cards_request(&deck, "Structure", "qa", 10, "[s1 p. 2] The membrane is a bilayer.", &CardStyle { short: true, ..Default::default() });
+        assert!(req.messages[0].content.contains("under five words"));
+        let story = story_request(&deck, &["ekmek".into(), "su".into()], 3);
+        assert!(story.messages[1].content.contains("ekmek, su"));
     }
 }

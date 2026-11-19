@@ -74,7 +74,13 @@ with a retention slider per deck.
 - **Test out of a unit** you already know: up to 12 questions without hints;
   pass 10 and the unit opens with its cards at stage 3.
 - **Practice** rounds (tricky cards, one unit, or the weakest cards) that
-  never change the schedule.
+  never change the schedule, and three more ways to practise:
+  **Dictation** (hear a card and write it, checked word by word, with a
+  missing accent counted as nearly right), **Unit recall** (write everything
+  you remember from a unit; what you miss comes back the next day) and the
+  **Reading round** (sentences from your cards made of words you know, with
+  questions; with an AI connection, Thoth writes stories from those words,
+  and can prepare some for times without a connection).
 - **Pick up where you left off** after closing the app mid-lesson.
 - **Skip for today** and **Stop asking this one** (Anki's bury and suspend).
 - **Daily goal** you can pass, a **streak** with milestones, and a
@@ -85,7 +91,9 @@ with a retention slider per deck.
   voices downloaded on demand: a speaker button by the question and the
   answer, a language for each, words in quotes or marked in the editor read
   in their own language, and, if you like, reading by itself as each card
-  opens or once it is checked.
+  opens or once it is checked. Languages are chosen by name with their
+  country's flag (on Windows too), from one search across names, countries
+  and codes, with those that have a voice ready listed first.
 - **Build the sentence** from word tiles, for answers of three words or more,
   in the first two stages.
 - **Keyboard shortcuts** on desktop: number keys, Enter, E to explain, R to
@@ -113,6 +121,15 @@ with a retention slider per deck.
   deck.
 - **Card browser and editor** with search, filters and each card's history;
   rename and reorder lessons and units; up to five backups per deck.
+- **Deck builder:** a new deck for words and phrases, formulas, dates and
+  events, or questions and answers, with fields to match; type cards or
+  paste rows from a spreadsheet.
+- **Card types:** name a type's fields, choose which is the question, the
+  answer and the extra, add or remove fields, and design the card's layout
+  (Anki's templates and styling) with a live preview. The layout is what
+  Anki shows, and can be shown with the answer in Ankhwiz too.
+- **Unused fields:** fields of an Anki note type that no card shows can be
+  left out when importing, or deleted later in Deck options.
 
 ### Thoth and AI
 Thoth's built-in lines and animations work offline: he breathes, blinks and
@@ -133,6 +150,7 @@ Ollama, LM Studio, or any service using the OpenAI chat format) and
 | Improve | More accepted answers, harder wrong options, flags on doubtful cards, lesson names, and changes described in your own words, with a preview and an optional backup |
 | Challenge | Fresh questions on what you have met, without touching the schedule |
 | Reading | Passages with questions, written by AI or by you |
+| Build from sources | A deck from your PDFs, Word documents, text files and web pages: three quick questions, an outline to change before any cards are made, a sample, then every lesson's cards, each linked to the passage it comes from. Cards Thoth cannot back with a sentence of the source are added switched off for you to check. On Android, share a page or document to Ankhwiz to add it |
 | In lessons | "Explain this" after any answer, and marking of long written answers |
 
 Everything AI writes arrives as a draft for you to approve and is tagged
@@ -287,7 +305,7 @@ connection or ask it to check for updates; see Settings for what each sends.
 - **Anki's own engine** (`rslib`) in place of today's stand-ins (the FSRS
   formulas in the core, `.apkg` handling in the web view, storage in the
   web view), bringing **sync** through Anki's sync server.
-- Card templates you can edit, and translations beyond English.
+- Translations beyond English.
 - A dictionary-tool connection (AnkiConnect-compatible) for adding cards
   while reading.
 - The Tauri Android shell, and signed Windows builds.
@@ -301,6 +319,11 @@ Anki or its developers. The scheduling formulas follow
 [FSRS](https://github.com/open-spaced-repetition) (MIT); third-party code in
 the core is listed in [`core/THIRD-PARTY.md`](core/THIRD-PARTY.md). Fonts:
 Marcellus, Source Sans 3 and Fraunces, under the SIL Open Font License.
+Country flags: the Twemoji Country Flags font from
+[country-flag-emoji-polyfill](https://github.com/talkjs/country-flag-emoji-polyfill)
+(MIT), with flag art from [Twemoji](https://github.com/twitter/twemoji)
+(CC BY 4.0). PDFs are read with [pdf.js](https://mozilla.github.io/pdf.js/)
+(Apache 2.0).
 Downloadable voices are fetched only when you ask for one and are not part
 of Ankhwiz's own download: [Piper](https://github.com/rhasspy/piper) voices
 (each under the licence in its model card), run with

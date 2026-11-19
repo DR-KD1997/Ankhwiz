@@ -288,8 +288,9 @@ export async function synthesize(id: string, text: string): Promise<Blob> {
 let playing: HTMLAudioElement | null = null;
 
 /** Speak in a downloaded voice; resolves when it has finished (or was stopped). */
-export async function piperSpeak(id: string, text: string): Promise<void> {
+export async function piperSpeak(id: string, text: string, rate = 1): Promise<void> {
   const audio = new Audio(URL.createObjectURL(await synthesize(id, text)));
+  audio.playbackRate = rate;
   piperStop();
   playing = audio;
   await new Promise<void>((resolve) => {

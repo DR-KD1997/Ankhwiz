@@ -14,6 +14,7 @@ export interface HttpReply {
 }
 
 interface AndroidBridge {
+  takeShared?(): string;
   http(id: string, request: string): void;
   openLink?(url: string): void;
   getSecret(name: string): string;
@@ -247,4 +248,24 @@ export async function notify(title: string, body: string): Promise<boolean> {
     /* no notification */
   }
   return false;
+}
+
+// ---------- shared from other apps (Android) ----------
+
+export type Shared = { kind: 'text'; text: string; subject: string } | { kind: 'file'; name: string; type: string; base64: string } | { kind: 'error' };
+
+/** What another app shared to Ankhwiz, once; null when nothing is waiting. */
+export function takeShared(): Shared | null {
+  const raw = android()?.takeShared?.() ?? '';
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as Shared;
+  } catch {
+    return null;
+  }
+}
+
+/** Call `fn` whenever something is shared to Ankhwiz while it is open. */
+export function onShared(fn: () => void): void {
+  window.addEventListener('ankhwiz-share', fn);
 }

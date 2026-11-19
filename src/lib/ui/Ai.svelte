@@ -8,7 +8,7 @@
   import { acceptNotice, aiHost, aiReady, ask, isLocal, plan } from '../ai.svelte';
   import { addNotes } from '../core';
   import type { ChallengeQuestion, Message, ProposedChanges, RawNote, Reading, ReadingQuestion, Suggestion } from '../core/types';
-  import { data, editDeck, openPanel, putDeck, save, snap, ui } from '../store.svelte';
+  import { data, editDeck, openPanel, putDeck, save, setDeckExtras, snap, ui } from '../store.svelte';
   import Icon from './Icon.svelte';
   import Quiz from './Quiz.svelte';
   import Thoth from './Thoth.svelte';
@@ -186,8 +186,7 @@
   const readings = $derived(deck.readings ?? []);
 
   function keep(reading: Reading) {
-    deck.readings = [...(deck.readings ?? []), reading];
-    save();
+    setDeckExtras(deck.id, { readings: [...(deck.readings ?? []), reading] });
     openReading(reading);
   }
   function openReading(reading: Reading) {
@@ -223,15 +222,13 @@
   function finishReading(correct: number) {
     readScore = correct;
     answering = false;
-    const stored = deck.readings?.find((r) => r.id === open?.id);
-    if (stored) {
-      stored.best = Math.max(stored.best ?? 0, correct);
-      save();
+    const id = open?.id;
+    if (deck.readings?.some((r) => r.id === id)) {
+      setDeckExtras(deck.id, { readings: deck.readings.map((r) => (r.id === id ? { ...r, best: Math.max(r.best ?? 0, correct) } : r)) });
     }
   }
   function removeReading(id: string) {
-    deck.readings = (deck.readings ?? []).filter((r) => r.id !== id);
-    save();
+    setDeckExtras(deck.id, { readings: (deck.readings ?? []).filter((r) => r.id !== id) });
     open = null;
   }
 </script>

@@ -9,6 +9,7 @@
     copyOptionsToAll,
     data,
     deleteBackup,
+    deleteUnusedFields,
     makeBackup,
     openPanel,
     removeDeck,
@@ -21,6 +22,9 @@
   } from '../store.svelte';
   import Icon from './Icon.svelte';
   import TypeFields from './TypeFields.svelte';
+  import LangPicker from './LangPicker.svelte';
+  import { langName } from '../languages';
+  import { unusedReport } from '../fields';
   import Help from './Help.svelte';
   import { offerPart } from '../tour.svelte';
   import { onMount } from 'svelte';
@@ -74,7 +78,8 @@
     };
   });
   const sample = $derived(Object.values(deck.notes).find((n) => !n.cloze && !n.occlusion && n.front && n.back));
-  const languages = ['en-GB', 'en-US', 'es-ES', 'es-MX', 'fr-FR', 'de-DE', 'it-IT', 'pt-BR', 'pt-PT', 'nl-NL', 'ja-JP', 'zh-CN', 'ko-KR', 'ar-SA', 'he-IL', 'ru-RU', 'tr-TR', 'af-ZA', 'zu-ZA'];
+  /** Languages this deck already uses, offered first. */
+  const used = $derived([o.look.lang, o.look.langBack ?? '', o.look.quoteLang ?? ''].filter(Boolean));
 
   async function run(kind: 'apkg' | 'ankh') {
     exporting = kind;
@@ -86,6 +91,17 @@
     } finally {
       exporting = '';
     }
+  }
+
+  // Text in Anki fields that no card shows: kept for going back to Anki, and deletable.
+  const unused = $derived(unusedReport(deck));
+  const unusedSize = $derived(unused.reduce((t, r) => t + r.size, 0));
+  let confirmUnused = $state(false);
+  const sizeText = (chars: number) => (chars >= 1_000_000 ? `${(chars / 1_000_000).toFixed(1)} MB` : chars >= 1000 ? `${Math.round(chars / 1000)} KB` : `${chars} characters`);
+  function dropUnused() {
+    const n = deleteUnusedFields(deck.id);
+    confirmUnused = false;
+    message = n ? `Deleted the text of unused fields in ${n} ${n === 1 ? 'note' : 'notes'}. A backup was made first.` : 'There was nothing to delete.';
   }
 
   const when = (t: number) => new Date(t).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
@@ -186,6 +202,27 @@
     </div>
   {/if}
 
+  {#if unused.length}
+    <div class="group">
+      <p class="label">Unused fields</p>
+      <p class="hint">These Anki fields hold text that no card shows. It is kept so the deck can go back to Anki as it came; deleting it makes the deck smaller and quicker to open.</p>
+      {#each unused as r (r.ntid)}
+        <div class="row">
+          <span><strong>{r.names.join(', ')}</strong><small>{r.type} · text in {r.notes} {r.notes === 1 ? 'note' : 'notes'} · about {sizeText(r.size)}</small></span>
+        </div>
+      {/each}
+      {#if confirmUnused}
+        <p class="hint">Delete the text of these fields in every note? A backup of the deck is made first. If you later choose one of these fields for the question, answer or extra, it will be empty.</p>
+        <span class="pair">
+          <button class="quiet" onclick={() => (confirmUnused = false)}>Cancel</button>
+          <button class="quiet danger" onclick={dropUnused}>Delete their text</button>
+        </span>
+      {:else}
+        <button class="quiet" onclick={() => (confirmUnused = true)}>Delete the text of unused fields ({sizeText(unusedSize)})</button>
+      {/if}
+    </div>
+  {/if}
+
   <div class="group">
     <p class="label">Lessons</p>
     <div class="row">
@@ -230,32 +267,31 @@
       <input type="checkbox" checked={o.look.speak !== 'off'} disabled={!canSpeak()} onchange={(e) => look({ speak: e.currentTarget.checked ? 'on' : 'off' })} />
     </label>
     {#if o.look.speak !== 'off'}
-      <label class="row sub">
-        <span><strong>Question language</strong><small>For example es-ES or fr-FR; empty for the device's own</small></span>
+      <div class="row sub wrap">
+        <span><strong>Question language</strong><small>What the question side is read in</small></span>
         <span class="lang">
-          <input list="langs" value={o.look.lang} onchange={(e) => look({ lang: e.currentTarget.value.trim() })} placeholder="es-ES" />
+          <LangPicker label="Question language" value={o.look.lang} emptyLabel="The device's own language" extra={used} onPick={(c) => look({ lang: c })} />
           <button class="icon-btn" aria-label="Try the question voice" disabled={!canSpeak()} onclick={() => speak(sample?.front ?? deck.name, o.look.lang)}>
             <Icon name="sound" />
           </button>
         </span>
-      </label>
-      <label class="row sub">
-        <span><strong>Answer language</strong><small>Empty when it is the same as the question's</small></span>
+      </div>
+      <div class="row sub wrap">
+        <span><strong>Answer language</strong><small>What the answer side is read in</small></span>
         <span class="lang">
-          <input list="langs" value={o.look.langBack ?? ''} onchange={(e) => look({ langBack: e.currentTarget.value.trim() })} placeholder="Same" />
+          <LangPicker label="Answer language" value={o.look.langBack ?? ''} emptyLabel="Same as the question" extra={used} onPick={(c) => look({ langBack: c })} />
           <button class="icon-btn" aria-label="Try the answer voice" disabled={!canSpeak()} onclick={() => speak(sample?.back ?? deck.name, o.look.langBack || o.look.lang)}>
             <Icon name="sound" />
           </button>
         </span>
-      </label>
-      <label class="row sub">
-        <span><strong>Read quotes in another language</strong><small>Words in quotes, like 'la manzana', are read in this language and the rest in the field's own. Empty: off. Words marked in Cards keep their own language.</small></span>
+      </div>
+      <div class="row sub wrap">
+        <span><strong>Read quotes in another language</strong><small>Words in quotes, like 'la manzana', are read in this language and the rest in the field's own. Words marked in Cards keep their own language.</small></span>
         <span class="lang">
-          <input list="langs" value={o.look.quoteLang ?? ''} onchange={(e) => look({ quoteLang: e.currentTarget.value.trim() })} placeholder="Off" />
+          <LangPicker label="Language for words in quotes" value={o.look.quoteLang ?? ''} emptyLabel="Off" extra={used} onPick={(c) => look({ quoteLang: c })} />
         </span>
-      </label>
-      <datalist id="langs">{#each languages as l (l)}<option value={l}></option>{/each}</datalist>
-      {#if missing.length}<p class="hint warn" role="status">No voice for {missing.join(' or ')} on this device yet. {voiceHelp()}</p>{/if}
+      </div>
+      {#if missing.length}<p class="hint warn" role="status">No voice for {missing.map(langName).join(' or ')} on this device yet. {voiceHelp()} Settings › Voices can download one for many languages.</p>{/if}
       <p class="hint">To have cards read by themselves as you go, choose what is read in Settings.</p>
     {/if}
   </div>
@@ -284,11 +320,14 @@
     <p class="hint">Copies of this deck kept on this device, the newest {backups.length ? 'first' : 'kept here'}. Thoth's changes can make one first.</p>
     {#each backups as b (b.id)}
       <div class="row">
-        <span><strong>{b.label}</strong><small>{when(b.t)} · {Object.keys(b.deck.notes).length} notes</small></span>
+        <span><strong>{b.label}</strong><small>{when(b.t)} · {b.order.length} notes</small></span>
         {#if confirmRestore === b.id}
           <span class="pair">
             <button class="quiet" onclick={() => (confirmRestore = '')}>Cancel</button>
-            <button class="quiet" onclick={() => ((confirmRestore = ''), restoreBackup(deck.id, b.id), (message = 'Deck restored. The version you had is now a backup.'))}>Restore</button>
+            <button class="quiet" onclick={async () => {
+                confirmRestore = '';
+                message = (await restoreBackup(deck.id, b.id)) ? 'Deck restored. The version you had is now a backup.' : 'That backup could not be read, so nothing was changed.';
+              }}>Restore</button>
           </span>
         {:else}
           <span class="pair">
@@ -432,7 +471,6 @@
     accent-color: var(--emerald);
   }
   select,
-  .lang input,
   .num {
     min-height: 44px;
     padding: 6px 10px;
@@ -446,10 +484,15 @@
   }
   .lang {
     display: inline-flex;
+    align-items: flex-start;
     gap: 6px;
+    flex: 1 1 260px;
+    justify-content: flex-end;
+    min-width: 0;
   }
-  .lang input {
-    width: 120px;
+  .row.wrap {
+    flex-wrap: wrap;
+    align-items: flex-start;
   }
   .seg {
     flex: none;

@@ -62,9 +62,9 @@
   /* Keyboard focus: dark green on parchment, gold on the dark theme (3:1 or more against both grounds). */
   --focus: #14513f;
 
-  --display: 'Marcellus', 'Palatino Linotype', Georgia, serif;
-  --body: 'Source Sans 3', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --button: 'Fraunces', Georgia, serif;
+  --display: 'Twemoji Country Flags', 'Marcellus', 'Palatino Linotype', Georgia, serif;
+  --body: 'Twemoji Country Flags', 'Source Sans 3', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --button: 'Twemoji Country Flags', 'Fraunces', Georgia, serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -318,4 +318,18 @@ p {
   [data-sort] {
     transition: none;
   }
+}
+
+/* Country flags, drawn the same on every platform (Windows has no flag emoji
+   of its own). Only the flag characters come from this font. */
+@font-face {
+  font-family: 'Twemoji Country Flags';
+  unicode-range: U+1F1E6-1F1FF, U+1F3F4, U+E0062-E0063, U+E0065, U+E0067, U+E006C, U+E006E, U+E0073-E0074, U+E0077, U+E007F;
+  src: url('./lib/fonts/TwemojiCountryFlags.woff2') format('woff2');
+  font-display: swap;
+}
+.flag {
+  font-family: 'Twemoji Country Flags', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+  font-style: normal;
+  line-height: 1;
 }

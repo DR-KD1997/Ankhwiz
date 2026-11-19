@@ -3,21 +3,37 @@
   // device's own voice or a downloaded Piper voice; on Android, which of the
   // phone's speech engines reads.
   import { downloadedVoices, downloadVoice, piperVoicesFor, removeVoice, PIPER_VOICES } from '../piper';
-  import { openSpeechSettings, setSpeechEngine, speak, speechEngines, type SpeechEngines } from '../speech';
+  import { deviceVoiceNames, hasVoice, openSpeechSettings, setSpeechEngine, speak, speechEngines, voiceHelp, type SpeechEngines } from '../speech';
+  import { flagOf, langName, nativeName, sameLang, tidyLang } from '../languages';
+  import LangPicker from './LangPicker.svelte';
   import { data, setPiperVoice } from '../store.svelte';
   import Icon from './Icon.svelte';
   import ProgressBar from './ProgressBar.svelte';
 
-  /** Languages read aloud by the learner's decks, as written in their options. */
+  /** Languages read aloud by the learner's decks, as written in their options, and any added here. */
+  let added = $state<string[]>([]);
   const langs = $derived.by(() => {
     const out = new Map<string, string>();
     for (const d of Object.values(data.decks)) {
       if (d.options.look.speak === 'off') continue;
       const l = d.options.look;
-      for (const x of [l.lang, l.langBack, l.quoteLang]) if (x) out.set(x.toLowerCase(), x);
-      for (const n of Object.values(d.notes)) for (const v of n.voices ?? []) out.set(v.lang.toLowerCase(), v.lang);
+      for (const x of [l.lang, l.langBack, l.quoteLang]) if (x) out.set(tidyLang(x).toLowerCase(), tidyLang(x));
+      for (const n of Object.values(d.notes)) for (const v of n.voices ?? []) out.set(tidyLang(v.lang).toLowerCase(), tidyLang(v.lang));
     }
+    for (const x of added) out.set(x.toLowerCase(), x);
     return [...out.values()];
+  });
+  // The device's own voices for each language, by name where the device lists them.
+  let device = $state<Record<string, { names: string[]; ready: boolean | null }>>({});
+  $effect(() => {
+    const list = langs;
+    let live = true;
+    void Promise.all(list.map(async (l) => [l, { names: await deviceVoiceNames(l), ready: await hasVoice(l) }] as const)).then((r) => {
+      if (live) device = Object.fromEntries(r);
+    });
+    return () => {
+      live = false;
+    };
   });
 
   let have = $state<string[]>([]);
@@ -97,8 +113,11 @@
       {@const v = PIPER_VOICES.find((x) => x.id === value)}
       <div class="lang">
         <label class="row">
-          <span><strong>{lang}</strong><small>{chosen(lang) ? 'A downloaded voice, on this device' : "This device's own voice"}</small></span>
-          <select aria-label="Voice for {lang}" {value} disabled={!!busy} onchange={(e) => pick(lang, e.currentTarget.value)}>
+          <span class="who">
+            <span class="flag big" aria-hidden="true">{flagOf(lang) || '🌐'}</span>
+            <span><strong>{langName(lang)}</strong><small>{nativeName(lang) ? `${nativeName(lang)} · ` : ''}{lang} · {chosen(lang) ? 'a downloaded voice' : "this device's own voice"}</small></span>
+          </span>
+          <select aria-label="Voice for {langName(lang)}" {value} disabled={!!busy} onchange={(e) => pick(lang, e.currentTarget.value)}>
             <option value="device">Device voice</option>
             {#each options as o (o.id)}<option value={o.id}>{o.name}{o.lang.toLowerCase() !== lang.toLowerCase() ? ` (${o.lang})` : ''}{have.includes(o.id) ? ' · downloaded' : ` · ${o.mb} MB`}</option>{/each}
           </select>
@@ -116,12 +135,21 @@
         {:else}
           <button class="quiet try" onclick={() => speak(sample(lang), lang)}><Icon name="sound" size={18} /> Try</button>
         {/if}
-        {#if !options.length}<p class="hint">No downloadable voice for {lang} yet.</p>{/if}
+        {#if device[lang]?.names.length}
+          <p class="hint">On this device: {device[lang].names.join(', ')}</p>
+        {:else if device[lang] && device[lang].ready === false && !chosen(lang)}
+          <p class="hint warn">No voice for {langName(lang)} on this device yet. {options.length ? 'Download one above, or add one in the system: ' : ''}{voiceHelp()}</p>
+        {/if}
+        {#if !options.length}<p class="hint">Ankhwiz has no downloadable voice for {langName(lang)} yet.</p>{/if}
       </div>
     {/each}
     {#if error}<p class="hint bad" role="alert">{error}</p>{/if}
     <p class="hint">Downloaded voices are Piper voices: they sound more natural than many built-in ones, run on this device and work offline once downloaded. They come from the Piper project on Hugging Face.</p>
   {/if}
+  <div class="add">
+    <strong>Find a voice for another language</strong>
+    <LangPicker label="Find a voice for a language" value="" emptyLabel="Search for a language" onPick={(c) => c && !langs.some((l) => sameLang(l, c)) && (added = [...added, c])} />
+  </div>
 </div>
 
 <style>
@@ -147,6 +175,32 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
+  }
+  .row > .who {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+  }
+  .who > span:last-child {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .flag.big {
+    font-size: 26px;
+    width: 1.3em;
+    text-align: center;
+    flex: none;
+  }
+  .warn {
+    color: var(--close-text);
+  }
+  .add {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 8px;
+    border-top: 1.5px solid var(--hair);
   }
   .row small,
   .hint {

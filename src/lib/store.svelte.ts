@@ -1,7 +1,8 @@
 // App state, saved on the device. Nothing here talks to a server.
 
-import { del, delMany, get, getMany, keys, setMany } from 'idb-keyval';
+import { delMany, get, getMany, keys, setMany } from 'idb-keyval';
 import {
+  addNotes,
   applyEdits,
   buildDeck,
   defaultOptions,
@@ -12,6 +13,7 @@ import {
   exercise,
   gradeCard,
   deckSettingsChanged,
+  deckEquivalent,
   forgetDeck,
   initCore,
   introduce,
@@ -29,10 +31,14 @@ import {
 } from './core';
 import type { ThothMode } from './core/thoth';
 import type { SoundSet } from './sounds';
-import type { CardState, Deck, DeckOptions, Edit, Exercise, Outcome, Progress, QueueItem, RawNote, Streak, TestResult } from './core/types';
+import type { AnkiNotetype, CardState, Deck, DeckOptions, Edit, Exercise, Note, Outcome, Progress, QueueItem, RawNote, Streak, TestResult } from './core/types';
 import { hasMedia, putMedia, removeDeckMedia } from './media';
 import { applyRemap, mediaNamed } from './remap';
 import type { FieldMap } from './import/apkg';
+import { decodeNotes, encodeNotes, headOf, type DeckHead, type Encoded, type StoredHead } from './storage';
+import { dropUnused } from './fields';
+import { deckWithType, KINDS, reshapeFields, typeForOwnNotes, type KindId } from './cardTypes';
+import { removeDeckSources } from './sources';
 
 const DAY = 86_400_000;
 
@@ -53,7 +59,7 @@ export interface AiSettings {
 }
 
 /** The version of the stored data. Raise it with a step in MIGRATIONS whenever the shape changes. */
-export const DATA_VERSION = 4;
+export const DATA_VERSION = 5;
 
 export interface Reminder {
   on: boolean;
@@ -83,6 +89,8 @@ export interface AppData {
     sounds?: SoundSet | 'off';
     /** Read aloud by itself, in decks with reading aloud on: the question as a card opens, the answer once checked. */
     autoRead?: AutoRead;
+    /** The deck opened last, read ahead of time when Ankhwiz opens. */
+    lastDeck?: string;
   };
   ai: AiSettings;
   streak: Streak;
@@ -112,18 +120,27 @@ export interface AppData {
   };
 }
 
+/**
+ * A copy of a deck from before a larger change. Since 0.6.0 it holds the
+ * deck's head and the names of its note chunks, which it shares with the deck
+ * (and other backups) wherever the notes are the same, instead of a full copy.
+ */
 export interface Backup {
   id: string;
   /** When it was made, in milliseconds. */
   t: number;
   label: string;
-  deck: Deck;
+  head: DeckHead;
+  order: string[];
+  k: number;
+  chunks: string[];
+  labels: string[];
   progress: Progress;
 }
 
 const MAX_BACKUPS = 5;
 
-export type Panel = 'path' | 'ai' | 'options' | 'contents' | 'progress' | 'practice';
+export type Panel = 'path' | 'ai' | 'options' | 'contents' | 'progress' | 'practice' | 'dictation' | 'recall' | 'reading' | 'types' | 'sources' | 'builder';
 
 export type SessionKind = 'lesson' | 'review' | 'practice' | 'all' | 'testout';
 
@@ -203,6 +220,36 @@ function withSettings(deck: Deck, fields: Partial<Pick<Deck, 'options' | 'strict
 }
 const withOptions = (deck: Deck, options: DeckOptions): Deck => withSettings(deck, { options });
 
+/** Change parts of a deck the core does not read (readings, sources, how it was made), and save them. */
+export function setDeckExtras(id: string, fields: Partial<Pick<Deck, 'readings' | 'sources' | 'made'>>): void {
+  const before = data.decks[id];
+  if (!before) return;
+  const next = { ...before, ...fields };
+  deckEquivalent(before, next);
+  setDeck(id, next);
+  save({ deck: id });
+}
+
+/** Missed cards come back tomorrow instead of waiting for their date (after unit recall, say). */
+export function bringForward(deckId: string, cardIds: string[]): number {
+  const progress = data.progress[deckId];
+  if (!progress) return 0;
+  const t = new Date(now());
+  const tomorrow = new Date(t.getFullYear(), t.getMonth(), t.getDate() + 1, 4).getTime();
+  const moved: string[] = [];
+  for (const id of cardIds) {
+    const c = progress[id];
+    if (!c || c.suspended || c.due <= tomorrow) continue;
+    progress[id] = { ...c, due: tomorrow };
+    moved.push(id);
+  }
+  if (moved.length) {
+    touchProgress(deckId, moved);
+    save({ cards: { deck: deckId, ids: moved } });
+  }
+  return moved.length;
+}
+
 function fresh(): AppData {
   return {
     v: DATA_VERSION,
@@ -247,6 +294,8 @@ export const ui = $state({
   /** Which Study with Thoth tab to open, and with which cards. */
   aiTab: 'ask' as 'ask' | 'cards' | 'improve' | 'challenge' | 'reading',
   aiNotes: [] as string[],
+  /** Set when a deck's notes could not be read. */
+  loadError: '',
 });
 
 export function now(): number {
@@ -255,15 +304,25 @@ export function now(): number {
 
 // ---------- saving ----------
 //
-// Since 0.5.0 the library is stored in parts: the settings and everything
-// small in one entry, and each deck's cards, progress and backups in entries
-// of their own. An answer then rewrites one deck's progress instead of the
-// whole library. Every save that does not say what changed writes all parts,
-// as before, in one transaction, so a part is never written without the rest.
+// The library is stored in parts: the settings and everything small in one
+// entry, and for each deck a head (everything but its notes), its notes in
+// chunks (see storage.ts), its progress, a journal of recent answers, and its
+// backups. An answer rewrites a small journal; a change of options rewrites
+// the head; an edit rewrites the chunks it touched. Every save that does not
+// say what changed writes all the small parts, in one transaction.
+//
+// Decks are read in two steps. When Ankhwiz opens it reads only heads and
+// progress, which is enough for the library; a deck's notes are read when it
+// is opened (`ensureDeck`). Until then the deck holds an empty notes object
+// that marks it as not loaded.
 
 let saveTimer: ReturnType<typeof setTimeout> | undefined;
 const META = `${KEY}:meta`;
-const part = (kind: 'deck' | 'progress' | 'backups' | 'journal', id: string) => `${KEY}:${kind}:${id}`;
+/** Version of the layout of the stored parts. 2: whole decks (0.5); 3: heads and chunks (0.6). */
+const LAYOUT = 3;
+type PartKind = 'head' | 'progress' | 'backups' | 'journal';
+const part = (kind: PartKind | 'deck', id: string) => `${KEY}:${kind}:${id}`;
+const chunkKey = (id: string, name: string) => `${KEY}:chunk:${id}:${name}`;
 const BIG = new Set(['decks', 'progress', 'backups']);
 type Scope = { deck?: string; progress?: string; cards?: { deck: string; ids: string[] } };
 let pending = { all: true, decks: new Set<string>(), progress: new Set<string>(), cards: new Map<string, Set<string>>() };
@@ -275,11 +334,67 @@ let pending = { all: true, decks: new Set<string>(), progress: new Set<string>()
 const JOURNAL_MAX = 400;
 const journals = new Map<string, Record<string, CardState | null>>();
 
+/** Each deck's notes as last written (or read): while the deck keeps the same notes object, its chunks are unchanged. */
+const written = new Map<string, Encoded>();
+/** Chunk contents not yet written, by deck. */
+const unwritten = new Map<string, Map<string, string>>();
+/** Chunks known to be stored, by deck. */
+const stored = new Map<string, Set<string>>();
+/** Decks whose backups have been read (or that are new): only theirs are written, and only their chunks are tidied. */
+const backupsRead = new Set<string>();
+/** Notes objects that stand in for notes not yet read. */
+const STUBS = new WeakSet<object>();
+/** Card totals for the library, by deck, from the last time the deck's view was worked out. */
+const totals = new Map<string, number>();
+
+/** Whether a deck's notes have been read. */
+export function deckLoaded(id: string): boolean {
+  const deck = data.decks[id];
+  return !!deck && !STUBS.has(deck.notes);
+}
+
+/** The deck's notes as chunks, noting any chunk that still has to be written. */
+function encoded(id: string): Encoded {
+  const prev = written.get(id);
+  const enc = encodeNotes(data.decks[id].notes, prev);
+  if (enc !== prev) {
+    written.set(id, enc);
+    queueChunks(id, enc);
+  }
+  return enc;
+}
+
+function queueChunks(id: string, enc: Pick<Encoded, 'chunks' | 'texts'>): void {
+  const have = stored.get(id);
+  let todo = unwritten.get(id);
+  for (const name of enc.chunks) {
+    if (have?.has(name) || todo?.has(name)) continue;
+    const text = enc.texts.get(name);
+    if (text === undefined) continue;
+    if (!todo) unwritten.set(id, (todo = new Map()));
+    todo.set(name, text);
+  }
+}
+
+/** Record how many cards a deck has, for the library while it is not loaded. */
+export function noteTotal(id: string, total: number): void {
+  totals.set(id, total);
+}
+
 /** The small parts of the library, with the list of decks. */
 function metaSnapshot(): Record<string, unknown> {
-  const out: Record<string, unknown> = { layout: 2, deckIds: Object.keys(data.decks) };
+  const out: Record<string, unknown> = { layout: LAYOUT, deckIds: Object.keys(data.decks) };
   for (const [k, v] of Object.entries(data)) if (!BIG.has(k)) out[k] = $state.snapshot(v);
   return out;
+}
+
+function headEntry(id: string): string {
+  const deck = data.decks[id];
+  const enc = encoded(id);
+  const head: StoredHead = { deck: headOf(deck), order: enc.order, k: enc.k, chunks: enc.chunks, labels: enc.labels };
+  const total = totals.get(id);
+  if (total !== undefined) head.sum = { total };
+  return JSON.stringify(head);
 }
 
 async function flush(): Promise<void> {
@@ -298,40 +413,90 @@ async function flush(): Promise<void> {
     if (Object.keys(j).length > JOURNAL_MAX) progressIds.add(id);
     else journalIds.push(id);
   }
-  // The stores copy what they are given when it is written, so plain decks go as they are.
   const entries: [string, unknown][] = [[META, metaSnapshot()]];
+  const chunksOut: [string, string, string][] = [];
   for (const id of deckIds) {
-    entries.push([part('deck', id), data.decks[id]]);
-    entries.push([part('backups', id), data.backups[id] ?? []]);
+    entries.push([part('head', id), headEntry(id)]);
+    if (backupsRead.has(id)) entries.push([part('backups', id), JSON.stringify(data.backups[id] ?? [])]);
   }
+  for (const [id, todo] of unwritten) {
+    if (!data.decks[id]) continue;
+    for (const [name, text] of todo) {
+      entries.push([chunkKey(id, name), text]);
+      chunksOut.push([id, name, text]);
+    }
+  }
+  // Progress is written as text: the store would refuse an object it cannot copy.
   for (const id of progressIds) {
-    entries.push([part('progress', id), data.progress[id] ?? {}]);
-    entries.push([part('journal', id), {}]);
+    entries.push([part('progress', id), JSON.stringify(data.progress[id] ?? {})]);
+    entries.push([part('journal', id), '{}']);
     journals.delete(id);
   }
-  for (const id of journalIds) entries.push([part('journal', id), journals.get(id)]);
+  for (const id of journalIds) entries.push([part('journal', id), JSON.stringify(journals.get(id))]);
   try {
     await setMany(entries);
-    if (p.all) {
-      // Parts of decks no longer in the library, and the pre-0.5 single entry.
-      const written = new Set(entries.map(([k]) => k));
-      const stale = (await keys()).filter((k) => typeof k === 'string' && (k === KEY || (k.startsWith(`${KEY}:`) && !written.has(k))));
-      if (stale.length) await delMany(stale);
+    for (const [id, name] of chunksOut) {
+      unwritten.get(id)?.delete(name);
+      let have = stored.get(id);
+      if (!have) stored.set(id, (have = new Set()));
+      have.add(name);
     }
+    await tidy(p.all ? ids : deckIds, p.all);
     ui.persistent = true;
   } catch {
-    // Keep what was not written for the next save, and try the browser's simpler storage.
+    // Keep what was not written for the next save. (Chunks not written stay queued.)
     pending.all ||= p.all;
-    p.decks.forEach((d) => pending.decks.add(d));
+    deckIds.forEach((d) => pending.decks.add(d));
     progressIds.forEach((d) => pending.progress.add(d));
     journalIds.forEach((d) => pending.progress.add(d));
-    try {
-      localStorage.setItem(KEY, JSON.stringify($state.snapshot(data)));
-      ui.persistent = true;
-    } catch {
-      ui.persistent = false;
+    ui.persistent = false;
+  }
+}
+
+/**
+ * Remove what nothing needs any more: chunks of these decks that neither the
+ * deck nor its backups use, and, after a full save, every part of decks no
+ * longer in the library and parts in the layout from before 0.6.
+ */
+async function tidy(deckIds: string[], all: boolean): Promise<void> {
+  const drop: string[] = [];
+  const used = (id: string) => new Set([...(written.get(id)?.chunks ?? []), ...(data.backups[id] ?? []).flatMap((b) => b.chunks)]);
+  if (all) {
+    const live = new Set(Object.keys(data.decks));
+    const keep = new Map<string, Set<string>>();
+    for (const k of await keys()) {
+      if (typeof k !== 'string' || (k !== KEY && !k.startsWith(`${KEY}:`))) continue;
+      if (k === KEY) {
+        drop.push(k);
+        continue;
+      }
+      const [, kind, id, name] = k.split(':');
+      if (kind === 'meta') continue;
+      if (kind === 'deck' || !live.has(id)) {
+        drop.push(k);
+        continue;
+      }
+      if (kind === 'chunk' && backupsRead.has(id)) {
+        let u = keep.get(id);
+        if (!u) keep.set(id, (u = used(id)));
+        if (!u.has(name)) drop.push(k);
+        else stored.get(id)?.add(name) ?? stored.set(id, new Set([name]));
+      }
+    }
+  } else {
+    for (const id of deckIds) {
+      if (!backupsRead.has(id)) continue;
+      const have = stored.get(id);
+      if (!have) continue;
+      const u = used(id);
+      for (const name of [...have]) {
+        if (u.has(name) || unwritten.get(id)?.has(name)) continue;
+        drop.push(chunkKey(id, name));
+        have.delete(name);
+      }
     }
   }
+  if (drop.length) await delMany(drop);
 }
 
 /**
@@ -354,36 +519,126 @@ export function save(scope?: Scope): void {
   saveTimer = setTimeout(() => void flush(), 250);
 }
 
-/** Read the library: the parts written since 0.5.0, or the single entry from before. */
+/** Write everything waiting now (before the app is hidden or closed). */
+export async function saveNow(): Promise<void> {
+  clearTimeout(saveTimer);
+  await flush();
+}
+
+const parsed = <T>(v: unknown): T | undefined => (typeof v === 'string' ? (JSON.parse(v) as T) : (v as T | undefined));
+
+/** Read the library: heads and progress since 0.6; whole decks from 0.5; or the single entry from before. */
 async function readStored(): Promise<unknown> {
-  const meta = (await get(META)) as (Record<string, unknown> & { deckIds?: string[] }) | undefined;
+  const meta = (await get(META)) as (Record<string, unknown> & { deckIds?: string[]; layout?: number }) | undefined;
   if (!meta) {
     pending.all = true;
     return get(KEY);
   }
   const ids = meta.deckIds ?? [];
-  const values = await getMany(ids.flatMap((id) => [part('deck', id), part('progress', id), part('backups', id), part('journal', id)]));
+  const old = (meta.layout ?? 2) < LAYOUT;
+  const kinds: (PartKind | 'deck')[] = old ? ['deck', 'progress', 'backups', 'journal'] : ['head', 'progress', 'journal'];
+  const values = await getMany(ids.flatMap((id) => kinds.map((k) => part(k, id))));
   const decks: Record<string, unknown> = {};
   const progress: Record<string, unknown> = {};
   const backups: Record<string, unknown> = {};
   ids.forEach((id, i) => {
-    const [deck, prog, back, journal] = values.slice(i * 4, i * 4 + 4);
-    if (!deck) return;
-    decks[id] = deck;
-    const cards = (prog ?? {}) as Record<string, unknown>;
+    const row = values.slice(i * kinds.length, (i + 1) * kinds.length);
+    const [first, prog, ...more] = row;
+    const journal = parsed<Record<string, unknown>>(old ? more[1] : more[0]);
+    if (!first) return;
+    if (old) {
+      decks[id] = first;
+      const back = more[0] as unknown[] | undefined;
+      if (back?.length) backups[id] = back;
+    } else {
+      const head = parsed<StoredHead>(first)!;
+      const notes = Object.create(null) as Record<string, never>;
+      STUBS.add(notes);
+      decks[id] = { ...head.deck, notes };
+      written.set(id, { notes, order: head.order, k: head.k, chunks: head.chunks, labels: head.labels, texts: new Map() });
+      stored.set(id, new Set(head.chunks));
+      if (head.sum) totals.set(id, head.sum.total);
+    }
+    const cards = (parsed<Record<string, unknown>>(prog) ?? {}) as Record<string, unknown>;
     // Answers saved since the progress was last written in full.
-    const changes = Object.entries((journal ?? {}) as Record<string, unknown>);
+    const changes = Object.entries(journal ?? {});
     for (const [c, state] of changes) {
       if (state) cards[c] = state;
       else delete cards[c];
     }
     if (prog || changes.length) progress[id] = cards;
     if (changes.length) journals.set(id, journal as Record<string, CardState | null>);
-    if (back && (back as unknown[]).length) backups[id] = back;
   });
   const { layout: _layout, deckIds: _ids, ...rest } = meta;
-  pending.all = false;
+  // A library in the 0.5 layout is written again in the new one, and its old parts removed.
+  pending.all = old;
   return { ...rest, decks, progress, backups };
+}
+
+const loading = new Map<string, Promise<void>>();
+
+/** Read the chunks of a deck by name, from those waiting to be written or from storage. */
+async function readChunks(id: string, names: string[]): Promise<(string | undefined)[]> {
+  const todo = unwritten.get(id);
+  const out: (string | undefined)[] = names.map((n) => todo?.get(n));
+  const missing = names.map((n, i) => (out[i] === undefined ? i : -1)).filter((i) => i >= 0);
+  if (missing.length) {
+    const got = await getMany(missing.map((i) => chunkKey(id, names[i])));
+    missing.forEach((i, j) => (out[i] = got[j] as string | undefined));
+  }
+  return out;
+}
+
+/** Read a deck's notes and backups, if they are not read yet. */
+export function ensureDeck(id: string): Promise<void> {
+  if (!data.decks[id] || deckLoaded(id)) return Promise.resolve();
+  let p = loading.get(id);
+  if (p) return p;
+  p = (async () => {
+    const enc = written.get(id)!;
+    const [texts, back] = await Promise.all([readChunks(id, enc.chunks), get(part('backups', id))]);
+    const notes = decodeNotes(enc, texts);
+    const stub = data.decks[id];
+    if (!stub) return;
+    // The head may have changed while the notes were read (options, say): keep it.
+    written.set(id, { ...enc, notes });
+    const list = parsed<Backup[]>(back) ?? [];
+    backupsRead.add(id);
+    for (const b of list) b.chunks.forEach((c) => stored.get(id)?.add(c));
+    setBackups(id, list.length ? list : null);
+    setDeck(id, { ...data.decks[id], notes });
+  })().finally(() => loading.delete(id));
+  loading.set(id, p);
+  return p;
+}
+
+/** Read every deck's notes (to export the library, say). */
+export async function ensureAll(): Promise<void> {
+  for (const id of Object.keys(data.decks)) await ensureDeck(id);
+}
+
+/**
+ * Counts for the library for a deck whose notes are not read: cards met so
+ * far, and cards due now. They follow the core's rules closely but not in every
+ * detail; the deck's own screen works them out exactly.
+ */
+export function quickCounts(id: string, at: number): { total: number; introduced: number; due: number } {
+  const deck = data.decks[id];
+  const progress = data.progress[id] ?? {};
+  const day = Math.floor((at - new Date(at).getTimezoneOffset() * 60_000) / DAY);
+  let introduced = 0;
+  let due = 0;
+  let doneToday = 0;
+  for (const c of Object.values(progress)) {
+    introduced++;
+    if (c.hist?.some((h) => h.day === day && h.stage > 1)) doneToday++;
+    if (c.suspended || c.buried === day || c.due > at) continue;
+    due++;
+  }
+  const cap = deck?.options.reviewCap ?? 0;
+  if (cap > 0) due = Math.min(due, Math.max(0, cap - doneToday));
+  const total = totals.get(id) ?? written.get(id)?.order.length ?? introduced;
+  return { total: Math.max(total, introduced), introduced, due };
 }
 
 type Saved = Record<string, unknown>;
@@ -441,6 +696,11 @@ const MIGRATIONS: Record<number, (saved: Saved) => void> = {
       settings.autoRead = ways.size > 1 ? 'both' : [...ways][0];
     }
   },
+  // 4 → 5 (0.6): decks are stored as heads and chunks (see storage.ts); the
+  // stored layout is converted on reading, so nothing changes here. The
+  // version goes up so an older Ankhwiz, which cannot read the new layout,
+  // leaves the library alone instead of saving over it.
+  4: () => {},
 };
 
 /** Bring stored data up to DATA_VERSION. False when it is from a newer Ankhwiz. */
@@ -457,6 +717,27 @@ export function migrate(saved: Saved): boolean {
   return true;
 }
 
+/** A backup as 0.5 kept it: a whole copy of the deck. */
+interface OldBackup {
+  id: string;
+  t: number;
+  label: string;
+  deck: Deck;
+  progress: Progress;
+}
+
+/** A backup in the 0.6 form from a whole copy of a deck, sharing chunks with the deck where the notes match. */
+function backupFrom(id: string, current: Deck, b: OldBackup): Backup {
+  const base = written.get(id) ?? encodeNotes(current.notes, written.get(id));
+  if (!written.has(id) && !STUBS.has(current.notes)) {
+    written.set(id, base);
+    queueChunks(id, base);
+  }
+  const enc = encodeNotes(b.deck.notes, { notes: {}, k: base.k, labels: base.labels });
+  queueChunks(id, enc);
+  return { id: b.id, t: b.t, label: b.label, head: headOf(b.deck), order: enc.order, k: enc.k, chunks: enc.chunks, labels: enc.labels, progress: b.progress };
+}
+
 function adopt(saved: unknown): boolean {
   if (!saved || typeof saved !== 'object') return false;
   if (!migrate(saved as Saved)) return false;
@@ -468,11 +749,15 @@ function adopt(saved: unknown): boolean {
   for (const deck of Object.values(decks)) {
     deck.options = { ...defaults, ...deck.options, look: { ...defaults.look, ...deck.options?.look } };
     plain(deck);
+    // A deck read whole (from 0.5, or a backup file) has its backups with it.
+    if (!STUBS.has(deck.notes)) backupsRead.add(deck.id);
   }
   const progress = (s.progress ?? {}) as Record<string, Progress>;
   Object.values(progress).forEach(plain);
-  const backups = (s.backups ?? {}) as Record<string, Backup[]>;
-  Object.values(backups).forEach(plain);
+  const backups = (s.backups ?? {}) as Record<string, (Backup | OldBackup)[]>;
+  for (const [id, list] of Object.entries(backups)) {
+    if (decks[id]) backups[id] = plain(list.map((b) => ('deck' in b ? backupFrom(id, decks[id], b) : b)));
+  }
   Object.assign(data, base, s, {
     decks: shelf(decks),
     progress: shelf(progress),
@@ -554,7 +839,14 @@ export async function restoreLibrary(
   replace: boolean,
 ): Promise<{ added: number; skipped: number }> {
   if (replace) {
-    for (const id of Object.keys(data.decks)) void removeDeckMedia(id);
+    for (const id of Object.keys(data.decks)) {
+      void removeDeckMedia(id);
+      forgetDeck(id);
+    }
+    written.clear();
+    unwritten.clear();
+    stored.clear();
+    journals.clear();
     const keepAi = data.ai;
     Object.assign(data, fresh(), lib.settings, { decks: {}, progress: {}, backups: {} });
     // The AI connection in the file points at a service; its key never travels, so the setup is kept only if one exists here.
@@ -591,8 +883,15 @@ export async function eraseAll(): Promise<void> {
   ui.screen = 'library';
   ui.deckId = null;
   applyTheme();
+  clearTimeout(saveTimer);
+  written.clear();
+  unwritten.clear();
+  stored.clear();
+  backupsRead.clear();
+  journals.clear();
   try {
-    await del(KEY);
+    const all = (await keys()).filter((k) => typeof k === 'string' && (k === KEY || k.startsWith(`${KEY}:`)));
+    await delMany(all);
   } catch {
     /* nothing stored */
   }
@@ -680,6 +979,7 @@ export function addDeck(deck: Deck, progress: Progress = {}): string {
   deck.options = { ...defaults, ...deck.options, look: { ...defaults.look, ...deck.options?.look } };
   setDeck(deck.id, deck);
   setProgress(deck.id, progress);
+  backupsRead.add(deck.id);
   save({ deck: deck.id, progress: deck.id });
   return deck.id;
 }
@@ -693,6 +993,52 @@ export async function addImported(deck: Deck, progress: Progress, media: Record<
     await onMedia?.(++done);
   }
   return addDeck(deck, progress);
+}
+
+/** A new deck for the deck builder: no cards yet, one card type for its kind, and its languages if it has them. */
+export function addBuiltDeck(name: string, kindId: KindId, langs: { lang: string; langBack: string } | null = null): string {
+  const kind = KINDS.find((k) => k.id === kindId) ?? KINDS[0];
+  const empty = buildDeck(name.trim() || kind.name, [], { lessonSize: data.settings.lessonSize });
+  const deck = deckWithType(empty, kind);
+  if (langs?.lang) {
+    const defaults = defaultOptions();
+    deck.options = { ...defaults, ...deck.options, look: { ...defaults.look, ...deck.options?.look, speak: 'on', lang: langs.lang, langBack: langs.langBack } };
+  }
+  return addDeck(deck);
+}
+
+/** A new deck with no cards yet, to be filled by the deck builder or from sources. */
+export function addEmptyDeck(name: string, made: NonNullable<Deck['made']>): string {
+  const deck = buildDeck(name.trim() || 'New deck', [], { lessonSize: data.settings.lessonSize });
+  deck.made = made;
+  return addDeck(deck);
+}
+
+/**
+ * A deck after cards were added from its sources: replaced, and the cards
+ * whose quote was not found in the source switched off until the learner
+ * looks at them.
+ */
+export function putBuiltDeck(deckId: string, deck: Deck, offCards: string[]): void {
+  setDeck(deckId, plain(deck));
+  if (offCards.length) {
+    const progress = progressOf(deckId);
+    for (const id of offCards) progress[id] = { ...(progress[id] ?? introduce()), suspended: true };
+    touchProgress(deckId, offCards);
+  }
+  save({ deck: deckId, progress: deckId });
+}
+
+/** Cards back to new: their progress is forgotten (a switched-off card the learner chose to keep, say). */
+export function clearCards(deckId: string, cardIds: string[]): void {
+  const progress = data.progress[deckId];
+  if (!progress) return;
+  const gone = cardIds.filter((id) => progress[id]);
+  for (const id of gone) delete progress[id];
+  if (gone.length) {
+    touchProgress(deckId, gone);
+    save({ cards: { deck: deckId, ids: gone } });
+  }
 }
 
 export function addSample(): string {
@@ -712,8 +1058,13 @@ export function removeDeck(id: string): void {
   data.progress = progress;
   setBackups(id, null);
   journals.delete(id);
+  written.delete(id);
+  unwritten.delete(id);
+  stored.delete(id);
+  totals.delete(id);
   forgetDeck(id);
   void removeDeckMedia(id);
+  void removeDeckSources(id);
   if (ui.deckId === id) {
     ui.deckId = null;
     ui.screen = 'library';
@@ -764,13 +1115,24 @@ export function copyOptionsToAll(id: string): number {
 // ---------- editing and backups ----------
 
 export function makeBackup(deckId: string, label: string): void {
-  // Decks are never changed in place, so a backup can hold the deck itself;
-  // progress is, so it holds a copy (its cards are replaced, not changed).
-  const list = [
-    { id: `b${Date.now().toString(36)}`, t: Date.now(), label, deck: data.decks[deckId], progress: { ...(data.progress[deckId] ?? {}) } },
-    ...(data.backups[deckId] ?? []),
-  ].slice(0, MAX_BACKUPS);
-  setBackups(deckId, list);
+  // The backup names the deck's chunks as they are now; chunks are never
+  // changed, only replaced, so it shares them with the deck. Progress is
+  // changed in place, so it holds a copy (its cards are replaced, not changed).
+  const deck = data.decks[deckId];
+  if (!deckLoaded(deckId)) return;
+  const enc = encoded(deckId);
+  const b: Backup = {
+    id: `b${Date.now().toString(36)}`,
+    t: Date.now(),
+    label,
+    head: headOf(deck),
+    order: enc.order,
+    k: enc.k,
+    chunks: enc.chunks,
+    labels: enc.labels,
+    progress: { ...(data.progress[deckId] ?? {}) },
+  };
+  setBackups(deckId, [b, ...(data.backups[deckId] ?? [])].slice(0, MAX_BACKUPS));
   save({ deck: deckId });
 }
 
@@ -798,13 +1160,23 @@ export async function remapFields(deckId: string, ntid: string, next: FieldMap):
   return null;
 }
 
-export function restoreBackup(deckId: string, backupId: string): boolean {
+export async function restoreBackup(deckId: string, backupId: string): Promise<boolean> {
   const backup = data.backups[deckId]?.find((b) => b.id === backupId);
   if (!backup) return false;
+  let notes: Record<string, Note>;
+  try {
+    notes = decodeNotes(backup, await readChunks(deckId, backup.chunks));
+  } catch {
+    return false;
+  }
   // The deck as it is now becomes a backup itself, so a restore can be undone.
   makeBackup(deckId, 'Before restoring an earlier copy');
-  setDeck(deckId, backup.deck);
+  const deck = plain({ ...structuredClone(backup.head), notes } as Deck);
+  written.set(deckId, { notes, order: backup.order, k: backup.k, chunks: backup.chunks, labels: backup.labels, texts: new Map() });
+  setDeck(deckId, deck);
   setProgress(deckId, { ...backup.progress });
+  // A lesson left part way holds the cards as they were.
+  if (data.paused?.deckId === deckId) data.paused = null;
   save({ deck: deckId, progress: deckId });
   return true;
 }
@@ -812,6 +1184,69 @@ export function restoreBackup(deckId: string, backupId: string): boolean {
 export function deleteBackup(deckId: string, backupId: string): void {
   setBackups(deckId, (data.backups[deckId] ?? []).filter((b) => b.id !== backupId));
   save({ deck: deckId });
+}
+
+// ---------- card types ----------
+
+/** Change a card type's name, layout or settings (not its fields). */
+export function updateType(deckId: string, ntid: string, patch: Partial<Pick<AnkiNotetype, 'name' | 'templates' | 'css' | 'showLayout' | 'bothWays'>>): void {
+  const deck = data.decks[deckId];
+  const type = deck.anki?.notetypes[ntid];
+  if (!type || !deck.anki) return;
+  setDeck(deckId, withSettings(deck, { anki: { ...deck.anki, notetypes: { ...deck.anki.notetypes, [ntid]: { ...type, ...patch } } } }));
+  save({ deck: deckId });
+}
+
+/** Rename, add, remove or reorder a card type's fields (a backup is made first). */
+export function reshapeType(deckId: string, ntid: string, plan: { from: number; name: string }[]): string | null {
+  try {
+    const next = reshapeFields(data.decks[deckId], ntid, plan);
+    makeBackup(deckId, `Before changing the fields of ${data.decks[deckId].anki?.notetypes[ntid]?.name ?? 'a card type'}`);
+    setDeck(deckId, plain(next));
+    save({ deck: deckId });
+    return null;
+  } catch (e) {
+    return e instanceof Error ? e.message : 'The fields could not be changed.';
+  }
+}
+
+/** Give the deck's cards made in Ankhwiz a card type, so their layout can be designed. */
+export function giveOwnType(deckId: string): void {
+  const next = typeForOwnNotes(data.decks[deckId]);
+  if (next === data.decks[deckId]) return;
+  makeBackup(deckId, 'Before giving cards a card type');
+  setDeck(deckId, plain(next));
+  save({ deck: deckId });
+}
+
+/** Add new cards at the end of a unit: the last lesson is filled up first if no card of it has been met. */
+export function addRows(deckId: string, rows: RawNote[], unit: string): number {
+  if (!rows.length) return 0;
+  let deck = data.decks[deckId];
+  const progress = data.progress[deckId] ?? {};
+  const u = deck.units.find((x) => x.name === unit) ?? deck.units.at(-1);
+  const last = u?.lessonIds.at(-1);
+  const lesson = last ? deck.lessons[last] : null;
+  let room = lesson && !lesson.noteIds.some((n) => progress[n]) ? Math.max(0, deck.lessonSize - lesson.noteIds.length) : 0;
+  const first = rows.slice(0, room);
+  if (first.length && lesson) deck = applyEdits(deck, first.map((note) => ({ op: 'add' as const, lessonId: lesson.id, note }))).deck;
+  const rest = rows.slice(first.length);
+  if (rest.length) deck = addNotes(deck, u?.name ?? unit, rest, false).deck;
+  room = 0;
+  setDeck(deckId, plain(deck));
+  save({ deck: deckId });
+  return rows.length;
+}
+
+/** Delete the text of fields no card shows (a backup is made first). Returns how many notes changed. */
+export function deleteUnusedFields(deckId: string): number {
+  const before = data.decks[deckId];
+  const r = dropUnused(before);
+  if (!r.changed) return 0;
+  makeBackup(deckId, 'Before deleting the text of unused fields');
+  setDeck(deckId, plain(r.deck));
+  save({ deck: deckId });
+  return r.changed;
 }
 
 /** Apply changes to a deck's contents. Progress of removed notes goes with them. */
@@ -848,6 +1283,26 @@ export function openDeck(id: string): void {
   ui.screen = 'deck';
   ui.session = null;
   ui.panel = 'path';
+  if (data.settings.lastDeck !== id) {
+    data.settings.lastDeck = id;
+    save({});
+  }
+  void ensureDeck(id).catch((e) => (ui.loadError = e instanceof Error ? e.message : String(e)));
+}
+
+/**
+ * Once the library is on screen and nothing else is happening, read the deck
+ * opened last and let the core take it in, so opening it again is quick.
+ */
+export function readAhead(warm: (deck: Deck, progress: Progress) => void): void {
+  const id = data.settings.lastDeck;
+  if (!id || !data.decks[id] || deckLoaded(id)) return;
+  const idle = (fn: () => void) => ('requestIdleCallback' in window ? window.requestIdleCallback(fn, { timeout: 4000 }) : setTimeout(fn, 1200));
+  idle(() => {
+    void ensureDeck(id)
+      .then(() => idle(() => !ui.session && data.decks[id] && warm(data.decks[id], data.progress[id] ?? {})))
+      .catch(() => {});
+  });
 }
 
 export function openPanel(panel: Panel): void {
@@ -900,16 +1355,20 @@ export function startPractice(deckId: string, mode: 'tricky' | 'unit' | 'cram', 
   return queue.length > 0;
 }
 
-/** Reviews due in every deck, as one session that takes a deck at a time in turn. */
-export function allDue(): { deckId: string; queue: QueueItem[] }[] {
+/** How many reviews are due in each deck (decks with none left out). Decks not yet read are counted from their progress. */
+export function allDue(): { deckId: string; n: number }[] {
+  const at = now();
   return Object.values(data.decks)
-    .map((d) => ({ deckId: d.id, queue: reviewQueue(d, data.progress[d.id] ?? {}) }))
-    .filter((d) => d.queue.length);
+    .map((d) => ({ deckId: d.id, n: deckLoaded(d.id) ? reviewQueue(d, data.progress[d.id] ?? {}).length : quickCounts(d.id, at).due }))
+    .filter((d) => d.n);
 }
 
 /** Study all decks: due reviews from every deck, mixed. Returns false when nothing is due. */
-export function startAll(): boolean {
-  const lists = allDue();
+export async function startAll(): Promise<boolean> {
+  for (const d of allDue()) await ensureDeck(d.deckId);
+  const lists = Object.values(data.decks)
+    .map((d) => ({ deckId: d.id, queue: reviewQueue(d, data.progress[d.id] ?? {}) }))
+    .filter((d) => d.queue.length);
   if (!lists.length) return false;
   const queue: SessionItem[] = [];
   for (let i = 0; lists.some((l) => i < l.queue.length); i++) {
@@ -980,12 +1439,13 @@ function keepPaused(): void {
 }
 
 /** Pick up a lesson or review left part way. */
-export function resumePaused(): boolean {
+export async function resumePaused(): Promise<boolean> {
   const p = data.paused;
   if (!p || !data.decks[p.deckId]) {
     data.paused = null;
     return false;
   }
+  for (const id of new Set([p.deckId, ...(p.decks ?? [])])) await ensureDeck(id);
   ui.deckId = p.deckId;
   ui.screen = 'deck';
   ui.panel = 'path';
@@ -1156,6 +1616,7 @@ export { snap };
 export function goBack(): boolean {
   if (ui.screen === 'settings') ui.screen = ui.deckId && data.decks[ui.deckId] ? 'deck' : 'library';
   else if (ui.session) ui.session = null;
+  else if (ui.panel === 'dictation' || ui.panel === 'recall' || ui.panel === 'reading') ui.panel = 'practice';
   else if (ui.panel !== 'path') ui.panel = 'path';
   else if (ui.screen === 'deck') goLibrary();
   else return false;

@@ -285,6 +285,9 @@ fn run(c: &Call) -> Result<Value, String> {
                 "grade" => ai::grade_request(&deck, &s("noteId"), &s("given")),
                 "reading" => ai::reading_request(&deck, &s("topic"), &s("passage"), n("count", 4)),
                 "edit" => ai::edit_request(&deck, &s("scope"), &s("instruction")),
+                "story" => ai::story_request(&deck, &opt::<Vec<String>>(v, "known"), n("count", 3)),
+                "outline" => ai::outline_request(&deck, &opt::<Vec<ai::SourceBrief>>(v, "sources"), &opt::<ai::BuildGoal>(v, "goal")),
+                "sourceCards" => ai::source_cards_request(&deck, &s("lesson"), &s("kind"), n("count", 12), &s("passages"), &opt::<ai::CardStyle>(v, "style")),
                 other => return Err(format!("unknown AI task `{other}`")),
             })
         }
@@ -298,7 +301,9 @@ fn run(c: &Call) -> Result<Value, String> {
                 "explain" | "chat" => out(text),
                 "challenge" => out(ai::parse_challenge(&text)?),
                 "grade" => out(ai::parse_grade(&text)?),
-                "reading" => out(ai::parse_reading(&text, &opt::<String>(v, "passage"))?),
+                "reading" | "story" => out(ai::parse_reading(&text, &opt::<String>(v, "passage"))?),
+                "outline" => out(ai::parse_outline(&text)?),
+                "sourceCards" => out(ai::parse_source_cards(&*c.deck()?, &text)?),
                 "edit" => out(ai::parse_edits(&*c.deck()?, &opt::<String>(v, "scope"), &text)?),
                 "cards" => out(ai::parse_cards(&*c.deck()?, &text)?),
                 "lessons" => out(ai::parse_lessons(&*c.deck()?, &text)?),

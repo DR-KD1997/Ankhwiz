@@ -5,16 +5,18 @@
   import { tick, untrack } from 'svelte';
   import { aiReady, ask } from '../ai.svelte';
   import { checkAnswer, limits, liveFeedback, noteLessons } from '../core';
+  import { langName } from '../languages';
   import { choiceLine, lessonEndLine, line, streakLine } from '../core/thoth';
   import { t } from '../i18n';
   import type { Exercise, Marked } from '../core/types';
-  import { closeSession, currentStreak, data, grade, met, next, setAsideCurrent, snap, takeMilestone, ui } from '../store.svelte';
+  import { closeSession, currentStreak, data, grade, met, next, openPanel, setAsideCurrent, snap, takeMilestone, ui } from '../store.svelte';
   import { canSpeak, speakPieces, stopSpeaking, voiceHelp } from '../speech';
   import { pieces } from '../voices';
   import VoiceText from './VoiceText.svelte';
   import { chosenSounds, playSound } from '../sounds';
   import { builtRight, joinWords, makeTiles, type Tile } from '../build';
   import Fields from './Fields.svelte';
+  import AnswerExtras from './AnswerExtras.svelte';
   import Media from './Media.svelte';
   import Picture from './Picture.svelte';
   import Icon from './Icon.svelte';
@@ -67,7 +69,7 @@
   async function say(text: string, lang: string) {
     const r = await speakPieces(pieces(text, lang, marks, quoteLang));
     voiceNote = r.missing.length
-      ? `This device has no voice for ${r.missing.join(' or ')}${r.result === 'ok' ? ', so those words were left out' : ''}. ${voiceHelp()}`
+      ? `This device has no voice for ${r.missing.map(langName).join(' or ')}${r.result === 'ok' ? ', so those words were left out' : ''}. ${voiceHelp()}`
       : r.result === 'unavailable'
         ? 'Reading aloud is not available on this device.'
         : '';
@@ -369,6 +371,16 @@
   const position = $derived(Math.min(s.index + 1, s.queue.length));
   const letters = 'ABCDEFGH';
   const summaryLine = $derived(s.finished ? lessonEndLine(s.correct, s.graded, !s.lessonId) : '');
+  // After a lesson, a reading round is offered when one can be made: a story
+  // ready, the AI connection, or enough sentences of studied words.
+  const bonus = $derived.by(() => {
+    if (!s.finished || s.kind !== 'lesson' || s.practice) return false;
+    const d = data.decks[s.deckId];
+    if (!d) return false;
+    if (aiReady() || (d.readings ?? []).some((r) => r.ai && r.best == null)) return true;
+    // Without Thoth, a round from the deck's own sentences needs enough cards met (worked out when opened).
+    return untrack(() => Object.keys(data.progress[s.deckId] ?? {}).length >= 20);
+  });
   const extras = $derived(ex ? [ex.extra, ...ex.extraMore] : []);
   const isSound = (m: string) => /\.(mp3|ogg|wav|m4a|opus|flac|aac|webm)$/i.test(m);
   /** Test out: how each lesson of the unit went. */
@@ -439,6 +451,9 @@
       {/if}
     </div>
     <div class="grow"></div>
+    {#if bonus}
+      <button class="quiet bonus" onclick={() => (signal('closed'), closeSession(), openPanel('reading'))}><Icon name="layers" size={18} /> Bonus: a reading round</button>
+    {/if}
     <button class="primary" data-tour="act" onclick={() => (signal('closed'), closeSession())}>Continue</button>
   {:else if ex}
     <div class="top">
@@ -501,6 +516,7 @@
         <Fields items={ex.answerMore} first={2} base={18} label="fields" />
         <Media deckId={s.deckId} names={ex.amedia} autoplay={!ex.qmedia.some(isSound)} />
         <div class="extra"><Fields items={extras} base={16} label="extra fields" /></div>
+        <AnswerExtras deckId={s.deckId} noteId={ex.noteId} />
       </div>
     {:else if ex.kind === 'choice'}
       <div class="options" role="radiogroup" aria-label="Answers" data-tour="answers">
@@ -665,6 +681,7 @@
           <Fields items={extras} base={16} label="extra fields" />
         </div>
       {/if}
+      <AnswerExtras deckId={s.deckId} noteId={ex.noteId} />
       {#if explanation}
         <div class="explain plain"><p class="label">Thoth explains <span class="tag">AI</span></p><p>{explanation}</p></div>
       {:else if ai && !testing}

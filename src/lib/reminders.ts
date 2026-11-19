@@ -9,7 +9,7 @@
 
 import { lessonQueue, reviewQueue, today } from './core';
 import { markStudiedNative, notify, remindsNatively, setNativeReminder } from './platform';
-import { data, now, onStudied, snap } from './store.svelte';
+import { data, deckLoaded, now, onStudied, quickCounts, snap } from './store.svelte';
 
 const NOTIFIED = 'ankhwiz-reminded';
 
@@ -19,12 +19,15 @@ export function reminderText(): string {
   let next: { deck: string; lesson: string; cards: number } | null = null;
   for (const deck of Object.values(data.decks)) {
     const progress = snap(data.progress[deck.id] ?? {});
-    due += reviewQueue(snap(deck), progress).length;
+    const loaded = deckLoaded(deck.id);
+    // Decks not opened since Ankhwiz started are counted without reading their notes.
+    due += loaded ? reviewQueue(snap(deck), progress).length : quickCounts(deck.id, now()).due;
     if (!next) {
       for (const id of deck.units.flatMap((u) => u.lessonIds)) {
         const fresh = deck.lessons[id].noteIds.some((n) => !progress[n]);
         if (fresh) {
-          next = { deck: deck.name, lesson: deck.lessons[id].name, cards: lessonQueue(snap(deck), progress, id).length };
+          const cards = loaded ? lessonQueue(snap(deck), progress, id).length : deck.lessons[id].noteIds.length * 3;
+          next = { deck: deck.name, lesson: deck.lessons[id].name, cards };
           break;
         }
       }

@@ -4,6 +4,7 @@
   import { deckView } from '../core';
   import { data, openPanel, snap, startPractice, ui } from '../store.svelte';
   import Icon from './Icon.svelte';
+  import { aiReady } from '../ai.svelte';
 
   const deck = $derived(data.decks[ui.deckId!]);
   const progress = $derived(data.progress[ui.deckId!] ?? {});
@@ -51,6 +52,29 @@
       <small>Your 20 weakest cards from the whole deck</small>
     </span>
     <Icon name="play" size={18} />
+  </button>
+
+  <p class="label">Other ways to practise</p>
+  <button class="choice card" disabled={!view.introduced} onclick={() => openPanel('dictation')}>
+    <span class="grow">
+      <strong>Dictation</strong>
+      <small>Hear a card and write it, checked word by word</small>
+    </span>
+    <Icon name="sound" size={18} />
+  </button>
+  <button class="choice card" disabled={!view.introduced} onclick={() => openPanel('recall')}>
+    <span class="grow">
+      <strong>Unit recall</strong>
+      <small>Write everything you remember from a unit; what you miss comes back tomorrow</small>
+    </span>
+    <Icon name="edit" size={18} />
+  </button>
+  <button class="choice card" disabled={!view.introduced} onclick={() => openPanel('reading')}>
+    <span class="grow">
+      <strong>Reading round</strong>
+      <small>A short text made of words you know, then a few questions{aiReady() ? '; Thoth can write stories' : ''}</small>
+    </span>
+    <Icon name="layers" size={18} />
   </button>
 
   {#if message}<p class="hint" role="status">{message}</p>{/if}
