@@ -3,6 +3,36 @@
 What changed in each version of Ankhwiz. Downloads are on the
 [Releases page](https://github.com/DR-KD1997/Ankhwiz/releases).
 
+## 0.5.1 · 2026-11-19
+
+[Every change to the code since 0.5.0](https://github.com/DR-KD1997/Ankhwiz/compare/v0.5.0...v0.5.1)
+
+Large decks now run as smoothly as small ones, and Bright Scribe gets a few touches.
+
+### Changed
+- **Large decks are fast.** With a 33,000-card deck imported from Anki, each
+  answer in a lesson used to take 2 to 6 seconds; it now takes about as long
+  as with the built-in Spanish deck. Measured with that deck on the same
+  computer:
+
+  | | 0.5.0 | 0.5.1 |
+  |---|---|---|
+  | Opening the deck | 6.3 s | 0.17 s |
+  | Starting a lesson | 4.3 s | 0.10 s |
+  | Each answer | 2 to 6 s | under 0.12 s |
+  | Changing a deck option | 5.5 s | 0.13 s |
+  | Importing the deck | 13 s | 5.6 s |
+
+  How: decks are no longer copied whenever they're used; the learning core
+  keeps each deck and is sent only the cards that changed; the lesson path
+  is worked out in one go and waits while a lesson is open; long units show
+  their lessons a window at a time; and answers save just the cards they
+  changed, with the full progress written at the end of a session.
+- **Bright Scribe:** at the end of a lesson he now fits inside his frame,
+  disc and all, and his beak joins his head without a seam.
+
+Your decks and progress carry over as they are.
+
 ## 0.5.0 · 2026-11-17
 
 [Every change to the code since 0.4.1.1](https://github.com/DR-KD1997/Ankhwiz/compare/v0.4.1.1...v0.5.0)

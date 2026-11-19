@@ -18,6 +18,7 @@ import {
   gradeCard,
   initCore,
   introduce,
+  progressChanged,
   lessonQueue,
   lessonTags,
   limits,
@@ -41,7 +42,7 @@ beforeAll(async () => {
 
 describe('bridge', () => {
   it('loads the core and reads its limits', () => {
-    expect(call<string>('version')).toBe('0.5.0');
+    expect(call<string>('version')).toBe('0.5.1');
     expect(limits.stageNames).toEqual(['Meet', 'Recognise', 'Assisted recall', 'Firm recall', 'Mastered']);
     expect(limits.minLesson).toBe(3);
   });
@@ -69,12 +70,14 @@ describe('a learner’s first days, through the bridge', () => {
       const ex = exercise(deck, progress, item.cardId, lastMet === item.cardId)!;
       if (ex.kind === 'meet') {
         progress[item.cardId] = introduce();
+        progressChanged(progress, [item.cardId]);
         lastMet = item.cardId;
         continue;
       }
       expect(ex.kind).toBe('choice');
       expect(ex.options).toContain(ex.answer);
       progress[item.cardId] = gradeCard(progress[item.cardId], { correct: true, assisted: true, sawRed: false, ms: 2000 }, ex.answer.length).card;
+      progressChanged(progress, [item.cardId]);
       lastMet = '';
     }
     let view = deckView(deck, progress);
@@ -90,6 +93,8 @@ describe('a learner’s first days, through the bridge', () => {
         const ex = exercise(deck, progress, item.cardId, false)!;
         expect(ex.kind).toBe('choice');
         progress[item.cardId] = gradeCard(progress[item.cardId], { correct: true, assisted: true, sawRed: false, ms: 2000 }, ex.answer.length).card;
+        // Progress changed in place: the core is told which cards, as the store does.
+        progressChanged(progress, [item.cardId]);
       }
     }
     time = T0 + 2 * DAY;

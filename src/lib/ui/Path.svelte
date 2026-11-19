@@ -2,7 +2,6 @@
   import Help from './Help.svelte';
   import { signal } from '../tour.svelte';
   // The lesson path for one deck: units, lessons, and what to do next.
-  import { canTestOut } from '../core';
   import type { LessonStatus } from '../core/types';
   import {
     currentStreak,
@@ -13,20 +12,29 @@
     pausedSummary,
     resumePaused,
     startLesson,
-    snap,
     startReview,
     startTestOut,
     testOutTried,
     ui,
   } from '../store.svelte';
-  import { summarise } from './deckView';
+  import { summarisePath, type DeckSummary } from './deckView';
   import Icon from './Icon.svelte';
   import Thoth from './Thoth.svelte';
 
   const deck = $derived(data.decks[ui.deckId!]);
   const progress = $derived(data.progress[ui.deckId!] ?? {});
   const time = $derived(now());
-  const sum = $derived(summarise(snap(deck), snap(progress), time));
+  // While a lesson is open beside the path, the path keeps what it showed when
+  // the lesson began: working it out again after every answer would slow a
+  // large deck down, and it is brought up to date when the lesson closes.
+  let kept: { deck: object; sum: DeckSummary & { testable: Set<string> } } | null = null;
+  const sum = $derived.by(() => {
+    const d = deck, p = progress, t = time;
+    if (ui.session && kept?.deck === d) return kept.sum;
+    const fresh = summarisePath(d, p, t);
+    kept = { deck: d, sum: fresh };
+    return fresh;
+  });
   const streak = $derived(currentStreak());
   const mode = $derived(data.settings.thoth);
   const busy = $derived(ui.session !== null);
@@ -37,7 +45,7 @@
     deck.units.map((unit, u) => ({
       unit,
       number: u + 1,
-      testable: canTestOut(snap(deck), snap(progress), unit.id),
+      testable: sum.testable.has(unit.id),
       tried: testOutTried(deck.id, unit.id),
       lessons: unit.lessonIds.map((id) => ({
         id,
@@ -48,6 +56,22 @@
       })),
     })),
   );
+
+  // Long units show a window of lessons around the next one, widened on request.
+  const WINDOW = 40;
+  let windows = $state<Record<string, { from: number; to: number }>>({});
+  function windowOf(unitId: string, ids: string[]): { from: number; to: number } {
+    if (ids.length <= WINDOW + 10) return { from: 0, to: ids.length };
+    const w = windows[unitId];
+    if (w) return w;
+    const at = Math.max(0, ids.indexOf(sum.nextId ?? ''));
+    const from = Math.max(0, Math.min(at - 5, ids.length - WINDOW));
+    return { from, to: Math.min(ids.length, from + WINDOW) };
+  }
+  function widen(unitId: string, ids: string[], side: 'from' | 'to') {
+    const w = windowOf(unitId, ids);
+    windows[unitId] = side === 'from' ? { ...w, from: Math.max(0, w.from - WINDOW) } : { ...w, to: Math.min(ids.length, w.to + WINDOW * 2) };
+  }
 
   function describe(st: LessonStatus): string {
     if (st.state === 'new') return `${st.total} new`;
@@ -132,6 +156,8 @@
 
 
   {#each rows as row (row.unit.id)}
+    {@const ids = row.unit.lessonIds}
+    {@const win = windowOf(row.unit.id, ids)}
     <div class="unit">
       <div class="unit-head">
         <p class="label">Unit {row.number}{row.unit.name !== deck.name ? ` · ${row.unit.name}` : ''}</p>
@@ -147,8 +173,10 @@
           <Help part="testout" />
         {/if}
       </div>
-      <ol>
-        {#each row.lessons as l, li (l.id)}
+      {#if win.from > 0}<button class="quiet more" onclick={() => widen(row.unit.id, ids, 'from')}>Show {Math.min(WINDOW, win.from)} earlier lessons</button>{/if}
+      <ol start={win.from + 1}>
+        {#each row.lessons.slice(win.from, win.to) as l, i (l.id)}
+          {@const li = win.from + i}
           <li>
             <button
               data-tour={row.number === 1 && li === 0 ? 'lesson1' : undefined}
@@ -178,12 +206,18 @@
           </li>
         {/each}
       </ol>
+      {#if win.to < ids.length}<button class="quiet more" onclick={() => widen(row.unit.id, ids, 'to')}>Show more lessons ({ids.length - win.to} to go)</button>{/if}
     </div>
   {/each}
 
 </section>
 
 <style>
+  .more {
+    width: 100%;
+    min-height: 44px;
+    margin: 6px 0;
+  }
   .trio {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));

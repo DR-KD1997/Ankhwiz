@@ -1,6 +1,6 @@
 [package]
 name = "ankhwiz-core"
-version = "0.5.0"
+version = "0.5.1"
 edition = "2021"
 description = "Ankhwiz learning core: stages, grading, sessions, lesson splitting and AI request building"
 license = "AGPL-3.0-or-later"

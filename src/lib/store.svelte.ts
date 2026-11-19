@@ -11,8 +11,11 @@ import {
   currentStreakOf,
   exercise,
   gradeCard,
+  deckSettingsChanged,
+  forgetDeck,
   initCore,
   introduce,
+  progressChanged,
   lessonQueue,
   limits,
   requeue,
@@ -150,15 +153,65 @@ export interface Session {
   decks?: string[];
 }
 
+// ---------- decks and progress as plain data ----------
+//
+// Decks, their progress and their backups can be tens of megabytes. Kept as
+// ordinary reactive state, every read went through a proxy and every hand-off
+// to the core made a full copy, which made large decks slow. Instead they live
+// in "shelves": objects without a prototype, which Svelte leaves alone. A
+// change replaces the shelf (so the screens that show it update) and, for a
+// deck, the deck object itself, so the core knows to read it again. Progress
+// changes one card at a time in place, and the core is told which cards.
+
+/** A record Svelte does not make reactive inside; replace it to show a change. */
+function shelf<T>(from: Record<string, T> = {}): Record<string, T> {
+  return Object.assign(Object.create(null) as Record<string, T>, from);
+}
+const PLAIN = new WeakSet<object>();
+function plain<T>(value: T): T {
+  if (value && typeof value === 'object') PLAIN.add(value as object);
+  return value;
+}
+function setDeck(id: string, deck: Deck): void {
+  data.decks = shelf({ ...data.decks, [id]: plain(deck) });
+}
+function setProgress(id: string, progress: Progress): void {
+  data.progress = shelf({ ...data.progress, [id]: plain(progress) });
+}
+/** Progress was changed in place: show it, and tell the core which cards changed. */
+function touchProgress(id: string, cardIds: string[]): void {
+  const p = data.progress[id];
+  if (p) progressChanged(p, cardIds);
+  data.progress = shelf(data.progress);
+}
+function setBackups(id: string, list: Backup[] | null): void {
+  const next = shelf({ ...data.backups });
+  if (list) next[id] = plain(list);
+  else delete next[id];
+  data.backups = next;
+}
+/** A deck's progress, created empty if it has none yet. */
+function progressOf(id: string): Progress {
+  if (!data.progress[id]) setProgress(id, {});
+  return data.progress[id];
+}
+/** A deck with some of its settings changed: a new deck object, with the core told just what changed. */
+function withSettings(deck: Deck, fields: Partial<Pick<Deck, 'options' | 'strictAccents' | 'anki'>>): Deck {
+  const next = { ...deck, ...fields };
+  deckSettingsChanged(deck, next, fields);
+  return next;
+}
+const withOptions = (deck: Deck, options: DeckOptions): Deck => withSettings(deck, { options });
+
 function fresh(): AppData {
   return {
     v: DATA_VERSION,
-    decks: {},
-    progress: {},
+    decks: shelf(),
+    progress: shelf(),
     settings: { theme: 'system', thoth: 'full', lessonSize: limits.defaultLesson },
     ai: { preset: '', baseUrl: '', fastModel: '', strongModel: '', noticeSeen: false },
     streak: { count: 0, last: null, best: 0, days: [] },
-    backups: {},
+    backups: shelf(),
     dayOffset: 0,
     tips: [],
     testOuts: {},
@@ -174,8 +227,8 @@ export const data = $state<AppData>(fresh());
 
 /** Replace a deck after the core or the learner changed it. */
 export function putDeck(deck: Deck): void {
-  data.decks[deck.id] = deck;
-  save();
+  setDeck(deck.id, deck);
+  save({ deck: deck.id });
 }
 
 export const ui = $state({
@@ -210,10 +263,17 @@ export function now(): number {
 
 let saveTimer: ReturnType<typeof setTimeout> | undefined;
 const META = `${KEY}:meta`;
-const part = (kind: 'deck' | 'progress' | 'backups', id: string) => `${KEY}:${kind}:${id}`;
+const part = (kind: 'deck' | 'progress' | 'backups' | 'journal', id: string) => `${KEY}:${kind}:${id}`;
 const BIG = new Set(['decks', 'progress', 'backups']);
-type Scope = { deck?: string; progress?: string };
-let pending = { all: true, decks: new Set<string>(), progress: new Set<string>() };
+type Scope = { deck?: string; progress?: string; cards?: { deck: string; ids: string[] } };
+let pending = { all: true, decks: new Set<string>(), progress: new Set<string>(), cards: new Map<string, Set<string>>() };
+
+// Answers change a card or two of a deck that may have tens of thousands.
+// Rather than rewrite all of its progress after each one, the changed cards
+// go into a small journal entry beside it; the full progress is written again
+// at the end of a session, or once the journal has grown.
+const JOURNAL_MAX = 400;
+const journals = new Map<string, Record<string, CardState | null>>();
 
 /** The small parts of the library, with the list of decks. */
 function metaSnapshot(): Record<string, unknown> {
@@ -224,16 +284,32 @@ function metaSnapshot(): Record<string, unknown> {
 
 async function flush(): Promise<void> {
   const p = pending;
-  pending = { all: false, decks: new Set(), progress: new Set() };
+  pending = { all: false, decks: new Set(), progress: new Set(), cards: new Map() };
   const ids = Object.keys(data.decks);
   const deckIds = p.all ? ids : [...p.decks].filter((id) => data.decks[id]);
-  const progressIds = p.all ? ids : [...p.progress].filter((id) => data.decks[id]);
+  const progressIds = new Set(p.all ? ids : [...p.progress].filter((id) => data.decks[id]));
+  // Changed cards go to the journal, unless it is full: then the whole progress is written.
+  const journalIds: string[] = [];
+  for (const [id, cards] of p.cards) {
+    if (progressIds.has(id) || !data.decks[id]) continue;
+    const j = journals.get(id) ?? {};
+    for (const c of cards) j[c] = data.progress[id]?.[c] ?? null;
+    journals.set(id, j);
+    if (Object.keys(j).length > JOURNAL_MAX) progressIds.add(id);
+    else journalIds.push(id);
+  }
+  // The stores copy what they are given when it is written, so plain decks go as they are.
   const entries: [string, unknown][] = [[META, metaSnapshot()]];
   for (const id of deckIds) {
-    entries.push([part('deck', id), $state.snapshot(data.decks[id])]);
-    entries.push([part('backups', id), $state.snapshot(data.backups[id] ?? [])]);
+    entries.push([part('deck', id), data.decks[id]]);
+    entries.push([part('backups', id), data.backups[id] ?? []]);
   }
-  for (const id of progressIds) entries.push([part('progress', id), $state.snapshot(data.progress[id] ?? {})]);
+  for (const id of progressIds) {
+    entries.push([part('progress', id), data.progress[id] ?? {}]);
+    entries.push([part('journal', id), {}]);
+    journals.delete(id);
+  }
+  for (const id of journalIds) entries.push([part('journal', id), journals.get(id)]);
   try {
     await setMany(entries);
     if (p.all) {
@@ -247,7 +323,8 @@ async function flush(): Promise<void> {
     // Keep what was not written for the next save, and try the browser's simpler storage.
     pending.all ||= p.all;
     p.decks.forEach((d) => pending.decks.add(d));
-    p.progress.forEach((d) => pending.progress.add(d));
+    progressIds.forEach((d) => pending.progress.add(d));
+    journalIds.forEach((d) => pending.progress.add(d));
     try {
       localStorage.setItem(KEY, JSON.stringify($state.snapshot(data)));
       ui.persistent = true;
@@ -267,6 +344,11 @@ export function save(scope?: Scope): void {
   else {
     if (scope.deck) pending.decks.add(scope.deck);
     if (scope.progress) pending.progress.add(scope.progress);
+    if (scope.cards) {
+      const set = pending.cards.get(scope.cards.deck) ?? new Set<string>();
+      scope.cards.ids.forEach((c) => set.add(c));
+      pending.cards.set(scope.cards.deck, set);
+    }
   }
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => void flush(), 250);
@@ -280,15 +362,23 @@ async function readStored(): Promise<unknown> {
     return get(KEY);
   }
   const ids = meta.deckIds ?? [];
-  const values = await getMany(ids.flatMap((id) => [part('deck', id), part('progress', id), part('backups', id)]));
+  const values = await getMany(ids.flatMap((id) => [part('deck', id), part('progress', id), part('backups', id), part('journal', id)]));
   const decks: Record<string, unknown> = {};
   const progress: Record<string, unknown> = {};
   const backups: Record<string, unknown> = {};
   ids.forEach((id, i) => {
-    const [deck, prog, back] = values.slice(i * 3, i * 3 + 3);
+    const [deck, prog, back, journal] = values.slice(i * 4, i * 4 + 4);
     if (!deck) return;
     decks[id] = deck;
-    if (prog) progress[id] = prog;
+    const cards = (prog ?? {}) as Record<string, unknown>;
+    // Answers saved since the progress was last written in full.
+    const changes = Object.entries((journal ?? {}) as Record<string, unknown>);
+    for (const [c, state] of changes) {
+      if (state) cards[c] = state;
+      else delete cards[c];
+    }
+    if (prog || changes.length) progress[id] = cards;
+    if (changes.length) journals.set(id, journal as Record<string, CardState | null>);
     if (back && (back as unknown[]).length) backups[id] = back;
   });
   const { layout: _layout, deckIds: _ids, ...rest } = meta;
@@ -372,19 +462,27 @@ function adopt(saved: unknown): boolean {
   if (!migrate(saved as Saved)) return false;
   const base = fresh();
   const s = saved as Partial<AppData>;
+  // Decks saved before deck options existed get the defaults.
+  const defaults = defaultOptions();
+  const decks = (s.decks ?? {}) as Record<string, Deck>;
+  for (const deck of Object.values(decks)) {
+    deck.options = { ...defaults, ...deck.options, look: { ...defaults.look, ...deck.options?.look } };
+    plain(deck);
+  }
+  const progress = (s.progress ?? {}) as Record<string, Progress>;
+  Object.values(progress).forEach(plain);
+  const backups = (s.backups ?? {}) as Record<string, Backup[]>;
+  Object.values(backups).forEach(plain);
   Object.assign(data, base, s, {
+    decks: shelf(decks),
+    progress: shelf(progress),
+    backups: shelf(backups),
     settings: { ...base.settings, ...s.settings },
     ai: { ...base.ai, ...s.ai },
     streak: { ...base.streak, ...s.streak },
-    backups: s.backups ?? {},
     reminder: { ...base.reminder, ...s.reminder },
     updates: { ...base.updates, ...s.updates },
   });
-  // Decks saved before deck options existed get the defaults.
-  const defaults = defaultOptions();
-  for (const deck of Object.values(data.decks)) {
-    deck.options = { ...defaults, ...deck.options, look: { ...defaults.look, ...deck.options?.look } };
-  }
   if (data.paused && (!data.decks[data.paused.deckId] || !data.paused.kind)) data.paused = null;
   return true;
 }
@@ -580,9 +678,9 @@ export function skipDays(days: number): void {
 export function addDeck(deck: Deck, progress: Progress = {}): string {
   const defaults = defaultOptions();
   deck.options = { ...defaults, ...deck.options, look: { ...defaults.look, ...deck.options?.look } };
-  data.decks[deck.id] = deck;
-  data.progress[deck.id] = progress;
-  save();
+  setDeck(deck.id, deck);
+  setProgress(deck.id, progress);
+  save({ deck: deck.id, progress: deck.id });
   return deck.id;
 }
 
@@ -606,9 +704,15 @@ export function addFromRows(name: string, rows: RawNote[]): string {
 }
 
 export function removeDeck(id: string): void {
-  delete data.decks[id];
-  delete data.progress[id];
-  delete data.backups[id];
+  const decks = shelf(data.decks);
+  delete decks[id];
+  const progress = shelf(data.progress);
+  delete progress[id];
+  data.decks = decks;
+  data.progress = progress;
+  setBackups(id, null);
+  journals.delete(id);
+  forgetDeck(id);
   void removeDeckMedia(id);
   if (ui.deckId === id) {
     ui.deckId = null;
@@ -619,58 +723,55 @@ export function removeDeck(id: string): void {
 }
 
 export function setDeckLessonSize(id: string, size: number): void {
-  data.decks[id] = resplit(snap(data.decks[id]), snap(data.progress[id] ?? {}), size);
-  save();
+  setDeck(id, resplit(data.decks[id], data.progress[id] ?? {}, size));
+  save({ deck: id });
 }
 
 export function setDeckAccents(id: string, strict: boolean): void {
-  data.decks[id].strictAccents = strict;
-  save();
+  setDeck(id, withSettings(data.decks[id], { strictAccents: strict }));
+  save({ deck: id });
 }
 
 export function setDeckOptions(id: string, patch: Partial<DeckOptions>): void {
   const deck = data.decks[id];
-  deck.options = { ...deck.options, ...patch, look: { ...deck.options.look, ...patch.look } };
-  save();
+  setDeck(id, withOptions(deck, { ...deck.options, ...patch, look: { ...deck.options.look, ...patch.look } }));
+  save({ deck: id });
 }
 
 /** Ask the cards of one Anki note type both ways, or not ('' means cards made in Ankhwiz). */
 export function setTypeBothWays(id: string, ntid: string, on: boolean): void {
   const deck = data.decks[id];
   const type = ntid ? deck.anki?.notetypes[ntid] : null;
-  if (type) type.bothWays = on;
-  else deck.options = { ...deck.options, bothWays: on };
-  save();
+  if (type && deck.anki) setDeck(id, withSettings(deck, { anki: { ...deck.anki, notetypes: { ...deck.anki.notetypes, [ntid]: { ...type, bothWays: on } } } }));
+  else setDeck(id, withOptions(deck, { ...deck.options, bothWays: on }));
+  save({ deck: id });
 }
 
 /** Copy a deck's options (not its lesson size) to every other deck. */
 export function copyOptionsToAll(id: string): number {
-  const options = snap(data.decks[id].options);
+  const options = data.decks[id].options;
   let n = 0;
   for (const deck of Object.values(data.decks)) {
     if (deck.id === id) continue;
-    deck.options = structuredClone(options);
+    setDeck(deck.id, withOptions(deck, structuredClone(options)));
+    pending.decks.add(deck.id);
     n++;
   }
-  save();
+  save({});
   return n;
 }
 
 // ---------- editing and backups ----------
 
 export function makeBackup(deckId: string, label: string): void {
-  // Read back through the state proxy: `??=` hands back the plain array.
-  data.backups[deckId] ??= [];
-  const list = data.backups[deckId];
-  list.unshift({
-    id: `b${Date.now().toString(36)}`,
-    t: Date.now(),
-    label,
-    deck: snap(data.decks[deckId]),
-    progress: snap(data.progress[deckId] ?? {}),
-  });
-  list.splice(MAX_BACKUPS);
-  save();
+  // Decks are never changed in place, so a backup can hold the deck itself;
+  // progress is, so it holds a copy (its cards are replaced, not changed).
+  const list = [
+    { id: `b${Date.now().toString(36)}`, t: Date.now(), label, deck: data.decks[deckId], progress: { ...(data.progress[deckId] ?? {}) } },
+    ...(data.backups[deckId] ?? []),
+  ].slice(0, MAX_BACKUPS);
+  setBackups(deckId, list);
+  save({ deck: deckId });
 }
 
 /**
@@ -679,21 +780,21 @@ export function makeBackup(deckId: string, label: string): void {
  * type's cards start again from the beginning. Returns an error to show, or null.
  */
 export async function remapFields(deckId: string, ntid: string, next: FieldMap): Promise<string | null> {
-  const names = mediaNamed(snap(data.decks[deckId]), ntid);
+  const names = mediaNamed(data.decks[deckId], ntid);
   const have = new Set<string>();
   await Promise.all(names.map(async (m) => (await hasMedia(deckId, m)) && have.add(m)));
-  const deck = structuredClone(snap(data.decks[deckId])) as Deck;
-  const progress = structuredClone(snap(data.progress[deckId] ?? {})) as Progress;
+  const deck = structuredClone(data.decks[deckId]) as Deck;
+  const progress = structuredClone(data.progress[deckId] ?? {}) as Progress;
   const type = deck.anki?.notetypes[ntid];
   const r = applyRemap(deck, progress, ntid, next, (m) => have.has(m));
   if ('error' in r) return r.error;
   makeBackup(deckId, `Before changing the fields of ${type?.name ?? 'a note type'}`);
   for (const id of r.reset) delete progress[id];
-  data.decks[deckId] = deck;
-  data.progress[deckId] = progress;
+  setDeck(deckId, deck);
+  setProgress(deckId, progress);
   // A lesson left part way holds the cards as they were.
   if (data.paused?.deckId === deckId) data.paused = null;
-  save();
+  save({ deck: deckId, progress: deckId });
   return null;
 }
 
@@ -702,43 +803,44 @@ export function restoreBackup(deckId: string, backupId: string): boolean {
   if (!backup) return false;
   // The deck as it is now becomes a backup itself, so a restore can be undone.
   makeBackup(deckId, 'Before restoring an earlier copy');
-  data.decks[deckId] = structuredClone(snap(backup.deck));
-  data.progress[deckId] = structuredClone(snap(backup.progress));
-  save();
+  setDeck(deckId, backup.deck);
+  setProgress(deckId, { ...backup.progress });
+  save({ deck: deckId, progress: deckId });
   return true;
 }
 
 export function deleteBackup(deckId: string, backupId: string): void {
-  data.backups[deckId] = (data.backups[deckId] ?? []).filter((b) => b.id !== backupId);
-  save();
+  setBackups(deckId, (data.backups[deckId] ?? []).filter((b) => b.id !== backupId));
+  save({ deck: deckId });
 }
 
 /** Apply changes to a deck's contents. Progress of removed notes goes with them. */
 export function editDeck(deckId: string, edits: Edit[], ai = false, backupLabel = ''): { added: string[]; skipped: number } {
   if (backupLabel) makeBackup(deckId, backupLabel);
-  const result = applyEdits(snap(data.decks[deckId]), edits, ai);
-  data.decks[deckId] = result.deck;
-  const progress = data.progress[deckId] ?? {};
-  for (const id of Object.keys(progress)) {
-    if (result.removed.includes(id.split(':')[0])) delete progress[id];
+  const result = applyEdits(data.decks[deckId], edits, ai);
+  setDeck(deckId, result.deck);
+  const removed = new Set(result.removed);
+  const before = data.progress[deckId] ?? {};
+  if (Object.keys(before).some((id) => removed.has(id.split(':')[0]))) {
+    setProgress(deckId, Object.fromEntries(Object.entries(before).filter(([id]) => !removed.has(id.split(':')[0]))));
   }
-  save();
+  save({ deck: deckId, progress: deckId });
   return { added: result.added, skipped: result.skipped };
 }
 
 /** "Skip for today" and "Stop asking this one", outside a session. */
 export function flagCard(deckId: string, cardId: string, flag: 'skip' | 'stop' | 'resume'): void {
-  data.progress[deckId] ??= {};
-  const progress = data.progress[deckId];
-  progress[cardId] ??= introduce();
-  const card = progress[cardId];
+  const progress = progressOf(deckId);
+  const card = { ...(progress[cardId] ?? introduce()) };
   if (flag === 'skip') card.buried = today();
   else if (flag === 'stop') card.suspended = true;
   else {
     card.suspended = false;
     card.buried = null;
   }
-  save();
+  progress[cardId] = card;
+  touchProgress(deckId, [cardId]);
+  save({ cards: { deck: deckId, ids: [cardId] } });
 }
 
 export function openDeck(id: string): void {
@@ -784,16 +886,16 @@ function begin(kind: SessionKind, deckId: string, lessonId: string | null, queue
 }
 
 export function startLesson(deckId: string, lessonId: string): void {
-  begin('lesson', deckId, lessonId, lessonQueue(snap(data.decks[deckId]), snap(data.progress[deckId] ?? {}), lessonId));
+  begin('lesson', deckId, lessonId, lessonQueue(data.decks[deckId], data.progress[deckId] ?? {}, lessonId));
 }
 
 export function startReview(deckId: string): void {
-  begin('review', deckId, null, reviewQueue(snap(data.decks[deckId]), snap(data.progress[deckId] ?? {})));
+  begin('review', deckId, null, reviewQueue(data.decks[deckId], data.progress[deckId] ?? {}));
 }
 
 /** Returns false when there was nothing to practise. */
 export function startPractice(deckId: string, mode: 'tricky' | 'unit' | 'cram', unitId = ''): boolean {
-  const queue = practiceQueue(snap(data.decks[deckId]), snap(data.progress[deckId] ?? {}), mode, unitId);
+  const queue = practiceQueue(data.decks[deckId], data.progress[deckId] ?? {}, mode, unitId);
   begin('practice', deckId, null, queue);
   return queue.length > 0;
 }
@@ -801,7 +903,7 @@ export function startPractice(deckId: string, mode: 'tricky' | 'unit' | 'cram', 
 /** Reviews due in every deck, as one session that takes a deck at a time in turn. */
 export function allDue(): { deckId: string; queue: QueueItem[] }[] {
   return Object.values(data.decks)
-    .map((d) => ({ deckId: d.id, queue: reviewQueue(snap(d), snap(data.progress[d.id] ?? {})) }))
+    .map((d) => ({ deckId: d.id, queue: reviewQueue(d, data.progress[d.id] ?? {}) }))
     .filter((d) => d.queue.length);
 }
 
@@ -826,7 +928,7 @@ export function testOutTried(deckId: string, unitId: string): boolean {
 
 /** Test out of a unit: a short quiz without help. Returns false when there is nothing to ask. */
 export function startTestOut(deckId: string, unitId: string): boolean {
-  const questions = testOutQuestions(snap(data.decks[deckId]), unitId);
+  const questions = testOutQuestions(data.decks[deckId], unitId);
   if (!questions.length) return false;
   begin(
     'testout',
@@ -858,7 +960,7 @@ function present(): void {
   }
   s.deckId = deckId;
   if (s.kind === 'all') ui.deckId = deckId;
-  const ex = exercise(snap(data.decks[deckId]), snap(data.progress[deckId] ?? {}), item.cardId, s.lastMet === item.cardId);
+  const ex = exercise(data.decks[deckId], data.progress[deckId] ?? {}, item.cardId, s.lastMet === item.cardId);
   if (!ex) {
     // The card was deleted or switched off since the session started.
     s.index++;
@@ -911,11 +1013,12 @@ export function pausedSummary(): { deck: string; what: string; done: number; tot
 export function met(): void {
   const s = ui.session;
   if (!s?.exercise) return;
-  data.progress[s.deckId] ??= {};
-  data.progress[s.deckId][s.exercise.cardId] = introduce();
-  s.lastMet = s.exercise.cardId;
+  const id = s.exercise.cardId;
+  progressOf(s.deckId)[id] = introduce();
+  touchProgress(s.deckId, [id]);
+  s.lastMet = id;
   s.introduced++;
-  save({ progress: s.deckId });
+  save({ cards: { deck: s.deckId, ids: [id] } });
   s.index++;
   present();
 }
@@ -940,19 +1043,21 @@ export function grade(outcome: Outcome): { promoted: boolean } {
     if (outcome.correct) s.correct++;
     return { promoted: false };
   }
-  data.progress[s.deckId] ??= {};
-  const progress = data.progress[s.deckId];
-  const card = progress[ex.cardId] ? (snap(progress[ex.cardId]) as CardState) : null;
-  const applied = gradeCard(card, outcome, ex.answer.length, snap(data.decks[s.deckId].options));
+  const progress = progressOf(s.deckId);
+  const card = progress[ex.cardId] ?? null;
+  const applied = gradeCard(card, outcome, ex.answer.length, data.decks[s.deckId].options);
   // Practice never changes the schedule.
-  if (!s.practice) progress[ex.cardId] = applied.card;
+  if (!s.practice) {
+    progress[ex.cardId] = applied.card;
+    touchProgress(s.deckId, [ex.cardId]);
+  }
   s.graded++;
   if (outcome.correct) s.correct++;
   else if (s.kind === 'all') s.queue = requeueItem(snap(s.queue), s.index, s.queue[s.index]);
   else s.queue = requeue(snap(s.queue), s.index, ex.cardId);
   if (applied.promoted && !s.practice) s.promoted++;
   if (!s.practice) markStudied();
-  save({ progress: s.deckId });
+  save({ cards: { deck: s.deckId, ids: [ex.cardId] } });
   return { promoted: applied.promoted && !s.practice };
 }
 
@@ -971,10 +1076,10 @@ function finish(): void {
   s.exercise = null;
   if (s.testOut) {
     const t = s.testOut;
-    const result = testOutApply(snap(data.decks[s.deckId]), snap(data.progress[s.deckId] ?? {}), t.unitId, snap(t.answers));
+    const result = testOutApply(data.decks[s.deckId], data.progress[s.deckId] ?? {}, t.unitId, snap(t.answers));
     t.result = result;
     if (result.passed) {
-      data.progress[s.deckId] = result.progress;
+      setProgress(s.deckId, result.progress);
       // A lesson of this unit left part way is now done with.
       const unit = data.decks[s.deckId].units.find((u) => u.id === t.unitId);
       if (data.paused?.deckId === s.deckId && data.paused.lessonId && unit?.lessonIds.includes(data.paused.lessonId)) data.paused = null;
@@ -984,7 +1089,9 @@ function finish(): void {
   }
   if (s.graded > 0) data.streak = streakAfter(snap(data.streak));
   keepPaused();
-  save();
+  // The end of a session writes its decks' progress in full and empties their journals.
+  for (const id of s.decks ?? [s.deckId]) pending.progress.add(id);
+  save({});
 }
 
 export function closeSession(): void {
@@ -1038,8 +1145,9 @@ export function currentStreak(): number {
   return currentStreakOf(snap(data.streak));
 }
 
-/** A plain copy of reactive state, to hand to the core. */
+/** A plain copy of reactive state, to hand to the core. Decks and progress are plain already. */
 function snap<T>(value: T): T {
+  if (value && typeof value === 'object' && PLAIN.has(value as object)) return value;
   return $state.snapshot(value) as T;
 }
 export { snap };

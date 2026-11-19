@@ -50,10 +50,12 @@
     const q = query.trim().toLowerCase();
     if (q && ![n.front, n.back, n.extra ?? '', ...(n.alts ?? []), ...(n.labels ?? [])].some((t) => t.toLowerCase().includes(q))) return false;
     if (label && !(n.labels ?? []).includes(label)) return false;
+    if (show === 'all') return true;
+    if (show === 'ai') return !!n.ai;
+    // Only these filters need the cards' progress, which is slower to look up for every note.
     const st = stateOf(n);
     if (show === 'stopped' && !st.stopped) return false;
     if (show === 'tricky' && st.lapses < 2) return false;
-    if (show === 'ai' && !n.ai) return false;
     if (show === 'new' && st.met) return false;
     return true;
   }

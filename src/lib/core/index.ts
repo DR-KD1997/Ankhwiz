@@ -62,8 +62,8 @@ export async function initCore(): Promise<void> {
   const instance = await WebAssembly.instantiate(module, {});
   wasm = instance.exports as unknown as Wasm;
   const seed = Math.floor(Math.random() * 2 ** 52);
-  call('seed', { seed });
-  Object.assign(limits, call('limits'));
+  send('seed', { seed });
+  Object.assign(limits, send('limits', {}));
 }
 
 /** The app's clock, which the testing aid in Settings can move forward. */
@@ -73,7 +73,7 @@ export function setClock(fn: () => number): void {
 
 export class CoreError extends Error {}
 
-export function call<T = unknown>(cmd: string, args: Record<string, unknown> = {}): T {
+function send<T>(cmd: string, args: Record<string, unknown>): T {
   if (!wasm) throw new CoreError('The Ankhwiz core has not been started.');
   const now = clock();
   const tz = -new Date(now).getTimezoneOffset();
@@ -88,6 +88,99 @@ export function call<T = unknown>(cmd: string, args: Record<string, unknown> = {
   const reply = JSON.parse(text) as { ok?: T; err?: string };
   if (reply.err !== undefined) throw new CoreError(reply.err);
   return reply.ok as T;
+}
+
+// ---------- decks kept in the core ----------
+//
+// A large deck is megabytes of text. Rather than send it with every call, the
+// core keeps each deck it was given in a slot named after the deck, and later
+// calls name the slot. A deck counts as the same only while it is the same
+// object: the store replaces a deck object whenever the deck changes, so a
+// changed deck is sent again. Progress is kept the same way, and when the
+// store changes cards in place it says which (`progressChanged`), and only
+// those cards are sent.
+
+const KEEP_DECKS = 4;
+const keptDecks = new Map<string, object>();
+const keptProgress = new Map<string, object>();
+const changedCards = new WeakMap<object, Set<string>>();
+
+/** The store changed these cards of a progress object in place. */
+export function progressChanged(progress: object, cardIds: Iterable<string>): void {
+  let set = changedCards.get(progress);
+  if (!set) changedCards.set(progress, (set = new Set()));
+  for (const id of cardIds) set.add(id);
+}
+
+/**
+ * A deck was replaced by a copy with only its settings changed (options,
+ * accents, Anki note types). If the core was keeping the old one, it changes
+ * those settings in place instead of reading the whole deck again.
+ */
+export function deckSettingsChanged(before: object, after: Deck, fields: Partial<Pick<Deck, 'options' | 'strictAccents' | 'anki'>>): void {
+  if (!wasm || keptDecks.get(after.id) !== before) return;
+  try {
+    send('patchDeck', { slot: after.id, ...fields });
+    keptDecks.set(after.id, after);
+  } catch {
+    keptDecks.delete(after.id);
+  }
+}
+
+/** Forget a deck the core was keeping (it was deleted). */
+export function forgetDeck(id: string): void {
+  keptDecks.delete(id);
+  keptProgress.delete(id);
+  if (wasm) send('dropSlot', { slot: id });
+}
+
+function withSlots(args: Record<string, unknown>): Record<string, unknown> {
+  const deck = args.deck as { id?: unknown } | undefined;
+  if (!deck || typeof deck !== 'object' || typeof deck.id !== 'string') return args;
+  const slot = deck.id;
+  const out: Record<string, unknown> = { ...args, deck: undefined, deckRef: slot };
+  if (keptDecks.get(slot) !== deck) {
+    send('loadDeck', { slot, deck });
+    // A changed deck may number its cards differently: send its progress again too.
+    keptProgress.delete(slot);
+  }
+  // Most recently used last; the oldest slot goes when there are too many.
+  keptDecks.delete(slot);
+  keptDecks.set(slot, deck);
+  if (keptDecks.size > KEEP_DECKS) forgetDeck(keptDecks.keys().next().value as string);
+  const progress = args.progress as Record<string, unknown> | undefined;
+  if (progress && typeof progress === 'object') {
+    if (keptProgress.get(slot) !== progress) {
+      send('loadProgress', { slot, progress });
+      keptProgress.set(slot, progress);
+      changedCards.delete(progress);
+    } else {
+      const changed = changedCards.get(progress);
+      if (changed?.size) {
+        const cards: Record<string, unknown> = {};
+        for (const id of changed) cards[id] = progress[id] ?? null;
+        send('patchProgress', { slot, cards });
+        changed.clear();
+      }
+    }
+    out.progress = undefined;
+    out.progressRef = slot;
+  }
+  return out;
+}
+
+export function call<T = unknown>(cmd: string, args: Record<string, unknown> = {}): T {
+  try {
+    return send<T>(cmd, withSlots(args));
+  } catch (e) {
+    // The core lost a slot (it started again, for example): send everything once more.
+    if (e instanceof CoreError && e.message.startsWith('not-loaded:')) {
+      keptDecks.clear();
+      keptProgress.clear();
+      return send<T>(cmd, withSlots(args));
+    }
+    throw e;
+  }
 }
 
 // ---------- answers ----------
@@ -116,6 +209,8 @@ export const addNotes = (deck: Deck, unit: string, rows: RawNote[], ai: boolean)
   call<{ deck: Deck; noteIds: string[] }>('addNotes', { deck, unit, rows, ai });
 export const lessonTags = (deck: Deck) => call<Record<string, string>>('lessonTags', { deck });
 export const deckView = (deck: Deck, progress: Progress) => call<DeckView>('deckView', { deck, progress });
+export const pathView = (deck: Deck, progress: Progress) =>
+  call<{ view: DeckView; testable: string[] }>('pathView', { deck, progress });
 export const noteLessons = (deck: Deck) => call<Record<string, string>>('noteLessons', { deck });
 export const deckStats = (deck: Deck, progress: Progress) => call<DeckStats>('deckStats', { deck, progress });
 export const defaultOptions = () => call<DeckOptions>('defaultOptions');

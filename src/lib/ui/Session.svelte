@@ -324,6 +324,13 @@
     else if (k === 's' && ex && !done && !testing && s.kind !== 'practice') setAsideCurrent('skip');
   }
 
+  // Which lesson each note is in, worked out once per deck rather than for every review card.
+  const lessonMaps = new WeakMap<object, Record<string, string>>();
+  function lessonsOf(d: typeof deck): Record<string, string> {
+    let m = lessonMaps.get(d);
+    if (!m) lessonMaps.set(d, (m = noteLessons(d)));
+    return m;
+  }
   const where = $derived.by(() => {
     if (testing) return `Test out · ${deck.units.find((u) => u.id === s.testOut!.unitId)?.name ?? ''}`;
     if (s.kind === 'all') return s.finished ? 'All decks' : `All decks · ${deck.name}`;
@@ -335,7 +342,7 @@
   });
   const fromLesson = $derived.by(() => {
     if (!ex || s.lessonId) return '';
-    const id = noteLessons(snap(deck))[ex.noteId];
+    const id = lessonsOf(deck)[ex.noteId];
     return id ? deck.lessons[id].name : '';
   });
   const stageWord = $derived(
@@ -369,7 +376,7 @@
     const t = s.testOut;
     if (!t?.result) return [];
     const unit = deck.units.find((u) => u.id === t.unitId);
-    const lessonOf = noteLessons(snap(deck));
+    const lessonOf = lessonsOf(deck);
     return (unit?.lessonIds ?? []).map((id) => {
       const mine = t.answers.filter((a) => lessonOf[a.cardId.split(':')[0]] === id);
       return { id, name: deck.lessons[id]?.name ?? '', right: mine.filter((a) => a.correct).length, total: mine.length, relearn: mine.filter((a) => !a.correct).length };
@@ -388,7 +395,7 @@
   {#if s.finished}
     <div class="summary">
       {#if mode !== 'hidden'}
-        <div class="thoth-big plain"><Thoth size={176} cue={finishCue} /></div>
+        <div class="thoth-big plain"><Thoth size={176} cue={finishCue} room /></div>
       {/if}
       {#if testing && s.testOut?.result}
         {@const r = s.testOut.result}

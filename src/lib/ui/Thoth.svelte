@@ -29,6 +29,7 @@
     cue = null,
     nodOn = undefined,
     look = undefined,
+    room = false,
   }: {
     size?: number;
     portrait?: boolean;
@@ -40,6 +41,8 @@
     nodOn?: unknown;
     /** A portrait style to show instead of the one chosen in Settings (for the chooser). */
     look?: 'classic' | 'bright';
+    /** The whole figure with a margin round it, so Bright Scribe's raised disc stays inside a frame. */
+    room?: boolean;
   } = $props();
 
   // Two portrait styles share every movement: each drawing has the same named
@@ -224,7 +227,7 @@
 </script>
 
 <svg
-  viewBox={portrait ? (bright ? '28.3 0 274.5 274.5' : '28.3 14.3 274.5 274.5') : '0 0 320 400'}
+  viewBox={portrait ? (bright ? '28.3 0 274.5 274.5' : '28.3 14.3 274.5 274.5') : room && bright ? '-14 -35 348 435' : '0 0 320 400'}
   width={size}
   height={portrait ? size : size * 1.25}
   role="img"
@@ -277,8 +280,9 @@
       <g class="bob">
         <g bind:this={ponder} class="ponder">
           <g bind:this={head} class="move">
+            <!-- The beak sits behind the head, so it grows out of it without a seam. -->
+            <path d="M200 98 C266 100 304 154 300 222 C299 236 284 240 278 228 C266 188 246 168 200 168 Z" fill="#1F1A14" stroke="var(--thoth-outline)" stroke-width="1.5" />
             <circle cx="170" cy="140" r="68" fill="#1F1A14" />
-            <path d="M214 100 C266 104 304 154 300 222 C299 236 284 240 278 228 C266 188 246 168 210 166 Z" fill="#1F1A14" stroke="var(--thoth-outline)" stroke-width="1.5" />
             <path d="M224 110 C258 118 280 142 290 176" fill="none" stroke="#3A3127" stroke-width="5" stroke-linecap="round" />
             <ellipse cx={ex - 6} cy={ey + 32} rx="11" ry="6" fill="#B5532E" opacity=".75" />
             <g bind:this={lid} class="move">

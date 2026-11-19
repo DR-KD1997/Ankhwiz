@@ -41,7 +41,15 @@ struct Kept<T> {
 thread_local! {
     static DECKS: RefCell<Vec<Kept<Deck>>> = const { RefCell::new(Vec::new()) };
     static PROGRESS: RefCell<Vec<Kept<Progress>>> = const { RefCell::new(Vec::new()) };
+    /// Decks and progress the interface loaded once and now names by slot
+    /// (`deckRef`, `progressRef`), so big decks are not sent with every call.
+    /// Progress is then kept up to date one card at a time (`patchProgress`).
+    static RESIDENT_DECKS: RefCell<std::collections::HashMap<String, Rc<Deck>>> = RefCell::new(std::collections::HashMap::new());
+    static RESIDENT_PROGRESS: RefCell<std::collections::HashMap<String, Rc<Progress>>> = RefCell::new(std::collections::HashMap::new());
 }
+
+/// The interface checks for this at the start of an error to load the slot again.
+const NOT_LOADED: &str = "not-loaded:";
 
 fn kept<T: DeserializeOwned>(store: &'static std::thread::LocalKey<RefCell<Vec<Kept<T>>>>, text: &str) -> Result<Rc<T>, serde_json::Error> {
     if let Some(hit) = store.with(|s| {
@@ -72,15 +80,31 @@ struct Call<'a> {
 }
 
 impl Call<'_> {
+    fn slot(&self, name: &str) -> Option<&str> {
+        self.raw.get(name).and_then(Value::as_str)
+    }
     fn deck(&self) -> Result<Rc<Deck>, String> {
+        if let Some(slot) = self.slot("deckRef") {
+            return RESIDENT_DECKS.with(|d| d.borrow().get(slot).cloned()).ok_or_else(|| format!("{NOT_LOADED}deck:{slot}"));
+        }
         let text = self.deck.map(RawValue::get).unwrap_or("null");
         kept(&DECKS, text).map_err(|e| format!("bad `deck`: {e}"))
     }
     /// Missing or unreadable progress counts as none, as before.
     fn progress(&self) -> Rc<Progress> {
+        if let Some(slot) = self.slot("progressRef") {
+            return RESIDENT_PROGRESS.with(|p| p.borrow().get(slot).cloned()).unwrap_or_default();
+        }
         match self.progress {
             Some(raw) => kept(&PROGRESS, raw.get()).unwrap_or_default(),
             None => Rc::default(),
+        }
+    }
+    /// Like `progress`, but says when a named slot was never loaded.
+    fn checked_progress(&self) -> Result<(), String> {
+        match self.slot("progressRef") {
+            Some(slot) if !RESIDENT_PROGRESS.with(|p| p.borrow().contains_key(slot)) => Err(format!("{NOT_LOADED}progress:{slot}")),
+            _ => Ok(()),
         }
     }
     fn owned_deck(&self) -> Result<Deck, String> {
@@ -93,11 +117,76 @@ fn out<T: serde::Serialize>(value: T) -> Result<Value, String> {
 }
 
 fn run(c: &Call) -> Result<Value, String> {
+    c.checked_progress()?;
     let v = &Value::Object(c.raw.clone());
     let cmd = v.get("cmd").and_then(Value::as_str).ok_or("missing `cmd`")?;
     let clock = Clock::new(opt::<f64>(v, "now"), opt::<f64>(v, "tz"));
     match cmd {
         "version" => out(VERSION),
+
+        // ----- decks kept in the core -----
+        "loadDeck" => {
+            let deck: Deck = serde_json::from_str(c.deck.map(RawValue::get).unwrap_or("null")).map_err(|e| format!("bad `deck`: {e}"))?;
+            let slot: String = arg(v, "slot")?;
+            RESIDENT_DECKS.with(|d| d.borrow_mut().insert(slot, Rc::new(deck)));
+            out(true)
+        }
+        "loadProgress" => {
+            let progress: Progress = match c.progress {
+                Some(raw) => serde_json::from_str(raw.get()).map_err(|e| format!("bad `progress`: {e}"))?,
+                None => Progress::default(),
+            };
+            let slot: String = arg(v, "slot")?;
+            RESIDENT_PROGRESS.with(|p| p.borrow_mut().insert(slot, Rc::new(progress)));
+            out(true)
+        }
+        "patchProgress" => {
+            let slot: String = arg(v, "slot")?;
+            let cards: std::collections::HashMap<String, Option<CardState>> = arg(v, "cards")?;
+            RESIDENT_PROGRESS.with(|p| {
+                let mut p = p.borrow_mut();
+                let Some(entry) = p.get_mut(&slot) else { return Err(format!("{NOT_LOADED}progress:{slot}")) };
+                let progress = Rc::make_mut(entry);
+                for (id, card) in cards {
+                    match card {
+                        Some(card) => {
+                            progress.insert(id, card);
+                        }
+                        None => {
+                            progress.remove(&id);
+                        }
+                    }
+                }
+                Ok(())
+            })?;
+            out(true)
+        }
+        // A kept deck whose settings changed, without sending all its cards again.
+        "patchDeck" => {
+            let slot: String = arg(v, "slot")?;
+            RESIDENT_DECKS.with(|d| {
+                let mut d = d.borrow_mut();
+                let Some(entry) = d.get_mut(&slot) else { return Err(format!("{NOT_LOADED}deck:{slot}")) };
+                let deck = Rc::make_mut(entry);
+                if v.get("options").is_some() {
+                    deck.options = arg(v, "options")?;
+                }
+                if v.get("strictAccents").is_some() {
+                    deck.strict_accents = arg(v, "strictAccents")?;
+                }
+                if v.get("anki").is_some() {
+                    deck.anki = arg(v, "anki")?;
+                }
+                Ok(())
+            })?;
+            out(true)
+        }
+        "dropSlot" => {
+            let slot: String = arg(v, "slot")?;
+            RESIDENT_DECKS.with(|d| d.borrow_mut().remove(&slot));
+            RESIDENT_PROGRESS.with(|p| p.borrow_mut().remove(&slot));
+            out(true)
+        }
         "seed" => {
             rng::seed(opt::<f64>(v, "seed") as u64 ^ (clock.now as u64).rotate_left(21));
             out(true)
@@ -151,6 +240,12 @@ fn run(c: &Call) -> Result<Value, String> {
         }
         "parseOcclusion" => out(occlusion::parse(&opt::<String>(v, "field"), &opt::<String>(v, "image"))),
         "testOutQuestions" => out(testout::questions(&*c.deck()?, &arg::<String>(v, "unitId")?)),
+        // Everything the lesson path shows, in one call: the deck view and the units that can be tested out of.
+        "pathView" => {
+            let (deck, progress) = (c.deck()?, c.progress());
+            let testable: Vec<&String> = deck.units.iter().filter(|u| testout::can_test_out(&deck, &progress, &u.id)).map(|u| &u.id).collect();
+            out(json!({ "view": session::deck_view(&deck, &progress, clock), "testable": testable }))
+        }
         "canTestOut" => out(testout::can_test_out(&*c.deck()?, &*c.progress(), &arg::<String>(v, "unitId")?)),
         "testOutApply" => out(testout::apply(&*c.deck()?, &*c.progress(), &arg::<String>(v, "unitId")?, &arg::<Vec<testout::Answer>>(v, "answers")?, clock)),
         "ankiExport" => out(anki::export(&*c.deck()?, &*c.progress(), opt(v, "withProgress"), clock)),
@@ -243,6 +338,38 @@ mod tests {
         let reply: Value = serde_json::from_str(&call(&input.to_string())).unwrap();
         assert!(reply.get("err").is_none(), "{reply}");
         reply["ok"].clone()
+    }
+
+    #[test]
+    fn a_resident_deck_answers_like_one_sent_in_full() {
+        let now = 1_794_300_000_000.0f64;
+        let deck = ok(json!({"cmd":"sampleDeck","now":now}));
+        let lesson = deck["units"][0]["lessonIds"][0].clone();
+        let card = deck["lessons"][lesson.as_str().unwrap()]["noteIds"][0].as_str().unwrap().to_string();
+        let state = ok(json!({"cmd":"introduce","now":now}));
+        let progress = json!({ card.clone(): state });
+        let full = ok(json!({"cmd":"deckView","deck":deck,"progress":progress,"now":now,"tz":120}));
+        // Named slots that were never loaded say so, so the interface can load them.
+        let reply: Value = serde_json::from_str(&call(&json!({"cmd":"deckView","deckRef":"t1","progressRef":"t1","now":now}).to_string())).unwrap();
+        assert!(reply["err"].as_str().unwrap().starts_with(NOT_LOADED));
+        ok(json!({"cmd":"loadDeck","slot":"t1","deck":deck,"now":now}));
+        ok(json!({"cmd":"loadProgress","slot":"t1","progress":{},"now":now}));
+        ok(json!({"cmd":"patchProgress","slot":"t1","cards":{ card.clone(): state },"now":now}));
+        let resident = ok(json!({"cmd":"deckView","deckRef":"t1","progressRef":"t1","now":now,"tz":120}));
+        assert_eq!(full, resident);
+        // Removing the card again matches no progress at all.
+        ok(json!({"cmd":"patchProgress","slot":"t1","cards":{ card: null },"now":now}));
+        let none = ok(json!({"cmd":"deckView","deck":deck,"progress":{},"now":now,"tz":120}));
+        assert_eq!(none, ok(json!({"cmd":"deckView","deckRef":"t1","progressRef":"t1","now":now,"tz":120})));
+        // Settings change in place, and the kept deck then answers like the changed one sent in full.
+        let mut changed = deck.clone();
+        changed["options"]["buildSentences"] = json!(false);
+        changed["strictAccents"] = json!(true);
+        ok(json!({"cmd":"patchDeck","slot":"t1","options":changed["options"],"strictAccents":true,"now":now}));
+        let ex_full = ok(json!({"cmd":"lessonQueue","deck":changed,"progress":{},"lessonId":lesson,"now":now,"tz":120}));
+        let ex_kept = ok(json!({"cmd":"lessonQueue","deckRef":"t1","progressRef":"t1","lessonId":lesson,"now":now,"tz":120}));
+        assert_eq!(ex_full.as_array().unwrap().len(), ex_kept.as_array().unwrap().len());
+        ok(json!({"cmd":"dropSlot","slot":"t1","now":now}));
     }
 
     #[test]
