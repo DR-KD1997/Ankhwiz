@@ -311,7 +311,14 @@ async function flush(): Promise<void> {
   }
   for (const id of journalIds) entries.push([part('journal', id), journals.get(id)]);
   try {
-    await setMany(entries);
+    try {
+      await setMany(entries);
+    } catch (err) {
+      // Storage refuses to copy values the app keeps live (a value from an
+      // open screen, say). Written as plain copies instead, nothing is lost.
+      if (!(err instanceof Error && err.name === 'DataCloneError')) throw err;
+      await setMany(entries.map(([k, v]) => [k, JSON.parse(JSON.stringify(v))]));
+    }
     if (p.all) {
       // Parts of decks no longer in the library, and the pre-0.5 single entry.
       const written = new Set(entries.map(([k]) => k));

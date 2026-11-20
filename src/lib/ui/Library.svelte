@@ -44,7 +44,8 @@
   let readingName = $state('');
   let message = $state<{ ok: boolean; text: string } | null>(null);
   let picker = $state<HTMLInputElement>();
-  let pending = $state<AnkiPackage | null>(null);
+  // Raw: a package holds every note of the deck, which must not be made reactive.
+  let pending = $state.raw<AnkiPackage | null>(null);
   const welcome = line('welcome');
   const paused = $derived(pausedSummary());
   // Recomputed with the deck list: reviews due in every deck, for "Study all decks".

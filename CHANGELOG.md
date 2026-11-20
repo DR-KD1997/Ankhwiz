@@ -3,6 +3,24 @@
 What changed in each version of Ankhwiz. Downloads are on the
 [Releases page](https://github.com/DR-KD1997/Ankhwiz/releases).
 
+## 0.5.1.1 · 2026-11-20
+
+[Every change to the code since 0.5.1](https://github.com/DR-KD1997/Ankhwiz/compare/v0.5.1...v0.5.1.1)
+
+A fix for decks imported from Anki in 0.5.1.
+
+### Fixed
+- **Decks imported from .apkg files were not saved,** and once one had been
+  imported, nothing else in that session was saved either: closing Ankhwiz
+  lost the deck and the session's progress, and the app said "This device
+  is not letting the app save". The import screen left part of the deck in
+  a form the device's storage cannot copy. Imports are saved again, and if
+  anything like it happens again, Ankhwiz now saves a plain copy instead of
+  failing.
+
+A deck imported in 0.5.1 and lost when the app closed cannot be brought
+back: import it again in 0.5.1.1.
+
 ## 0.5.1 · 2026-11-19
 
 [Every change to the code since 0.5.0](https://github.com/DR-KD1997/Ankhwiz/compare/v0.5.0...v0.5.1)

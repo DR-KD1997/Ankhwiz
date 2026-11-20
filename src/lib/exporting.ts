@@ -11,7 +11,7 @@ import { mediaBytes } from './media';
 import { saveBytes } from './platform';
 import { addImported, data, markBackedUp, restoreLibrary, snap } from './store.svelte';
 
-export const APP = 'Ankhwiz 0.5.1';
+export const APP = 'Ankhwiz 0.5.1.1';
 
 const fileName = (name: string, ext: string) =>
   `${name.replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80) || 'deck'}.${ext}`;
@@ -88,7 +88,8 @@ export async function importPackage(
   await step({ stage: 'lessons', done: 0, total: rows.length });
   const build = { lessonSize: data.settings.lessonSize };
   const { deck, progress } = ankiImport(options.name || pkg.name, rows as RawNote[], build, pkg.crt);
-  deck.anki = { notetypes };
+  // A plain copy: the mappings come from the import screen and must not be kept as they are.
+  deck.anki = { notetypes: JSON.parse(JSON.stringify(notetypes)) as typeof notetypes };
   deck.options = { ...deck.options, bothWays: Object.values(notetypes).some((t) => t.bothWays) };
   if (options.read) deck.options.look = { ...deck.options.look, speak: 'on', lang: options.read.lang, langBack: options.read.langBack };
   const files: Record<string, Uint8Array> = {};
