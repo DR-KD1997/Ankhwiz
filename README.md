@@ -16,14 +16,14 @@ account, no server, no tracking: your decks stay on your device.
 
 <table>
   <tr>
-    <td><img src="docs/screenshots/path.png" alt="A deck's lesson path with Thoth's suggestion, Study with Thoth, Deck options, and units of lessons" width="240"></td>
+    <td><img src="docs/screenshots/path.png" alt="A deck's lesson path with Thoth's suggestion, Study with Thoth, Deck options, the deck's tools, and units of lessons" width="240"></td>
     <td><img src="docs/screenshots/correct.png" alt="A multiple-choice question answered correctly; the card moves up a stage" width="240"></td>
     <td><img src="docs/screenshots/picture.png" alt="A picture card: one bone of the arm is hidden and two names are offered" width="240"></td>
   </tr>
   <tr>
     <td><img src="docs/screenshots/import.png" alt="Importing an Anki deck: fields matched from the card layout, with + to add more question and extra fields" width="240"></td>
     <td><img src="docs/screenshots/editor.png" alt="Drawing and naming the hidden parts of a picture card" width="240"></td>
-    <td><img src="docs/screenshots/testout.png" alt="Testing out of a unit: 12 of 12, unit passed" width="240"></td>
+    <td><img src="docs/screenshots/testout.png" alt="Testing out of a unit: 6 of 6, unit passed" width="240"></td>
   </tr>
 </table>
 
