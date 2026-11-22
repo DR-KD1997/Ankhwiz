@@ -12,14 +12,15 @@ import { mediaBytes } from './media';
 import { dropUnused } from './fields';
 import { saveBytes } from './platform';
 import { addDeck, addImported, data, ensureAll, ensureDeck, markBackedUp, restoreLibrary, snap } from './store.svelte';
+import { plural, t } from './i18n';
 
-export const APP = 'Ankhwiz 0.6.0';
+export const APP = 'Ankhwiz 0.7.0';
 
 const fileName = (name: string, ext: string) =>
   `${name.replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80) || 'deck'}.${ext}`;
 
 function missingNote(missing: string[]): string {
-  return missing.length ? ` ${missing.length} media ${missing.length === 1 ? 'file was' : 'files were'} not on this device and were left out.` : '';
+  return missing.length ? plural(' {n} media file was not on this device and were left out.', ' {n} media files were not on this device and were left out.', missing.length) : '';
 }
 
 export async function exportApkg(deckId: string, withProgress: boolean): Promise<string> {
@@ -27,7 +28,7 @@ export async function exportApkg(deckId: string, withProgress: boolean): Promise
   const deck = snap(data.decks[deckId]);
   const result = await buildApkg(deck, snap(data.progress[deckId] ?? {}), withProgress, (n) => mediaBytes(deckId, n));
   const where = await saveBytes(fileName(deck.name, 'apkg'), result.bytes);
-  return `${result.notes} notes and ${result.cards} cards exported for Anki${withProgress ? ', with progress' : ''}. ${where}${missingNote(result.missing)}`;
+  return t('{notes} notes and {cards} cards exported for Anki{x}. {where}{missing}', { notes: result.notes, cards: result.cards, x: withProgress ? t(', with progress') : '', where, missing: missingNote(result.missing) });
 }
 
 export async function exportAnkh(deckId: string, withProgress: boolean): Promise<string> {
@@ -35,7 +36,7 @@ export async function exportAnkh(deckId: string, withProgress: boolean): Promise
   const deck = snap(data.decks[deckId]);
   const result = await buildAnkh(deck, withProgress ? snap(data.progress[deckId] ?? {}) : null, (n) => mediaBytes(deckId, n), APP);
   const where = await saveBytes(fileName(deck.name, 'ankh'), result.bytes);
-  return `Deck saved as an Ankhwiz file${withProgress ? ', with progress' : ''}. ${where}${missingNote(result.missing)}`;
+  return t('Deck saved as an Ankhwiz file{x}. {where}{missing}', { x: withProgress ? t(', with progress') : '', where, missing: missingNote(result.missing) });
 }
 
 /** An .ankh goes straight in; returns the new deck's id. */
@@ -52,15 +53,15 @@ export async function backupLibrary(): Promise<string> {
   const r = await buildLibrary(snap(data), mediaBytes, APP);
   const where = await saveBytes(`ankhwiz-library-${day}.ankhlib`, r.bytes);
   if (!where.startsWith('The file could not')) markBackedUp();
-  return `${r.decks} ${r.decks === 1 ? 'deck' : 'decks'} backed up with progress and settings. ${where}${r.missing ? ` ${r.missing} media files were not on this device and were left out.` : ''}`;
+  return plural('{n} deck backed up with progress and settings. {where}{x2}', '{n} decks backed up with progress and settings. {where}{x2}', r.decks, { where, x2: r.missing ? ` ${r.missing} media files were not on this device and were left out.` : '' });
 }
 
 /** Restore from an .ankhlib file: replace everything, or add the decks not already here. */
 export async function restoreLibraryFile(bytes: Uint8Array, replace: boolean): Promise<string> {
   const lib = readLibrary(bytes);
   const r = await restoreLibrary(lib, replace);
-  if (replace) return `Library restored: ${r.added} ${r.added === 1 ? 'deck' : 'decks'}, with progress and settings.`;
-  return `${r.added} ${r.added === 1 ? 'deck' : 'decks'} added${r.skipped ? `; ${r.skipped} already here ${r.skipped === 1 ? 'was' : 'were'} left as they are` : ''}.`;
+  if (replace) return plural('Library restored: {n} deck, with progress and settings.', 'Library restored: {n} decks, with progress and settings.', r.added);
+  return `${r.added} ${r.added === 1 ? 'deck' : 'decks'} added${r.skipped ? plural('; {n} already here was left as they are', '; {n} already here were left as they are', r.skipped) : ''}.`;
 }
 
 export { readLibrary };

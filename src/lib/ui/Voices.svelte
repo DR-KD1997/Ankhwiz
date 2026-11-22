@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '../i18n';
   // Settings › Voices: for each language the learner's decks read aloud, the
   // device's own voice or a downloaded Piper voice; on Android, which of the
   // phone's speech engines reads.
@@ -47,7 +48,7 @@
   const shown = (lang: string) => picking[lang] ?? (chosen(lang) || 'device');
   const sample = (lang: string) => {
     const base = lang.split('-')[0];
-    return { es: 'Hola, ¿qué tal?', fr: 'Bonjour, comment ça va ?', de: 'Hallo, wie geht es dir?', it: 'Ciao, come stai?', pt: 'Olá, tudo bem?', nl: 'Hallo, hoe gaat het?', ru: 'Привет, как дела?', zh: '你好，你好吗？', ja: 'こんにちは', tr: 'Merhaba, nasılsın?', pl: 'Cześć, jak się masz?' }[base] ?? 'Hello, how are you?';
+    return { es: t('Hola, ¿qué tal?'), fr: t('Bonjour, comment ça va ?'), de: t('Hallo, wie geht es dir?'), it: t('Ciao, come stai?'), pt: t('Olá, tudo bem?'), nl: t('Hallo, hoe gaat het?'), ru: t('Привет, как дела?'), zh: '你好，你好吗？', ja: 'こんにちは', tr: t('Merhaba, nasılsın?'), pl: t('Cześć, jak się masz?') }[base] ?? t('Hello, how are you?');
   };
 
   function pick(lang: string, value: string) {
@@ -69,7 +70,7 @@
       have = await downloadedVoices();
       setPiperVoice(lang, id);
     } catch (e) {
-      error = `${e instanceof Error ? e.message : 'The voice could not be downloaded.'} Check the connection and try again.`;
+      error = t('{x} Check the connection and try again.', { x: e instanceof Error ? t(e.message) : t('The voice could not be downloaded.') });
     } finally {
       busy = null;
     }
@@ -93,19 +94,19 @@
 <div class="voices">
   {#if engines && engines.engines.length > 1}
     <label class="row">
-      <span><strong>Speech engine</strong><small>Which of the phone's engines reads, such as Google's or one with downloadable voices</small></span>
-      <select aria-label="Speech engine" value={engines.chosen} onchange={(e) => chooseEngine(e.currentTarget.value)}>
-        <option value="">Phone's default</option>
+      <span><strong>{t('Speech engine')}</strong><small>{t('Which of the phone\'s engines reads, such as Google\'s or one with downloadable voices')}</small></span>
+      <select aria-label={t('Speech engine')} value={engines.chosen} onchange={(e) => chooseEngine(e.currentTarget.value)}>
+        <option value="">{t('Phone\'s default')}</option>
         {#each engines.engines as e (e.name)}<option value={e.name}>{e.label}</option>{/each}
       </select>
     </label>
   {/if}
   {#if engines}
-    <button class="quiet" onclick={() => openSpeechSettings()}><Icon name="gear" size={18} /> Add voices in the phone's settings</button>
+    <button class="quiet" onclick={() => openSpeechSettings()}><Icon name="gear" size={18} /> {t('Add voices in the phone\'s settings')}</button>
   {/if}
 
   {#if !langs.length}
-    <p class="hint">Turn on Read aloud in a deck's options and give its languages; then a voice can be chosen for each here.</p>
+    <p class="hint">{t('Turn on Read aloud in a deck\'s options and give its languages; then a voice can be chosen for each here.')}</p>
   {:else}
     {#each langs as lang (lang)}
       {@const options = piperVoicesFor(lang)}
@@ -115,40 +116,40 @@
         <label class="row">
           <span class="who">
             <span class="flag big" aria-hidden="true">{flagOf(lang) || '🌐'}</span>
-            <span><strong>{langName(lang)}</strong><small>{nativeName(lang) ? `${nativeName(lang)} · ` : ''}{lang} · {chosen(lang) ? 'a downloaded voice' : "this device's own voice"}</small></span>
+            <span><strong>{langName(lang)}</strong><small>{nativeName(lang) ? `${nativeName(lang)} · ` : ''}{lang} · {chosen(lang) ? t('a downloaded voice') : t("this device's own voice")}</small></span>
           </span>
-          <select aria-label="Voice for {langName(lang)}" {value} disabled={!!busy} onchange={(e) => pick(lang, e.currentTarget.value)}>
-            <option value="device">Device voice</option>
-            {#each options as o (o.id)}<option value={o.id}>{o.name}{o.lang.toLowerCase() !== lang.toLowerCase() ? ` (${o.lang})` : ''}{have.includes(o.id) ? ' · downloaded' : ` · ${o.mb} MB`}</option>{/each}
+          <select aria-label={t('Voice for {lang}', { lang: langName(lang) })} {value} disabled={!!busy} onchange={(e) => pick(lang, e.currentTarget.value)}>
+            <option value="device">{t('Device voice')}</option>
+            {#each options as o (o.id)}<option value={o.id}>{o.name}{o.lang.toLowerCase() !== lang.toLowerCase() ? ` (${o.lang})` : ''}{have.includes(o.id) ? t(' · downloaded') : ` · ${o.mb} MB`}</option>{/each}
           </select>
         </label>
         {#if busy?.lang === lang}
           <ProgressBar label={`Downloading ${Math.round(busy.done)} of about ${busy.total} MB`} value={busy.done / busy.total} />
         {:else if v && !have.includes(v.id)}
-          <button class="quiet strong" onclick={() => download(lang, v.id)}><Icon name="download" size={18} /> Download {v.name} (about {v.mb + (have.length ? 0 : 30)} MB)</button>
-          {#if !have.length}<p class="hint">The first voice also brings the voice engine, about 30 MB, used by every downloaded voice.</p>{/if}
+          <button class="quiet strong" onclick={() => download(lang, v.id)}><Icon name="download" size={18} /> {t('Download {name} (about {x} MB)', { name: v.name, x: v.mb + (have.length ? 0 : 30) })}</button>
+          {#if !have.length}<p class="hint">{t('The first voice also brings the voice engine, about 30 MB, used by every downloaded voice.')}</p>{/if}
         {:else if v}
           <div class="pair">
-            <button class="quiet" onclick={() => speak(sample(lang), lang)}><Icon name="sound" size={18} /> Try</button>
-            <button class="quiet" onclick={() => remove(lang, v.id)}>Remove download</button>
+            <button class="quiet" onclick={() => speak(sample(lang), lang)}><Icon name="sound" size={18} /> {t('Try')}</button>
+            <button class="quiet" onclick={() => remove(lang, v.id)}>{t('Remove download')}</button>
           </div>
         {:else}
-          <button class="quiet try" onclick={() => speak(sample(lang), lang)}><Icon name="sound" size={18} /> Try</button>
+          <button class="quiet try" onclick={() => speak(sample(lang), lang)}><Icon name="sound" size={18} /> {t('Try')}</button>
         {/if}
         {#if device[lang]?.names.length}
-          <p class="hint">On this device: {device[lang].names.join(', ')}</p>
+          <p class="hint">{t('On this device: {x}', { x: device[lang].names.join(', ') })}</p>
         {:else if device[lang] && device[lang].ready === false && !chosen(lang)}
-          <p class="hint warn">No voice for {langName(lang)} on this device yet. {options.length ? 'Download one above, or add one in the system: ' : ''}{voiceHelp()}</p>
+          <p class="hint warn">{t('No voice for {lang} on this device yet. {x}{x2}', { lang: langName(lang), x: options.length ? t('Download one above, or add one in the system: ') : '', x2: voiceHelp() })}</p>
         {/if}
-        {#if !options.length}<p class="hint">Ankhwiz has no downloadable voice for {langName(lang)} yet.</p>{/if}
+        {#if !options.length}<p class="hint">{t('Ankhwiz has no downloadable voice for {lang} yet.', { lang: langName(lang) })}</p>{/if}
       </div>
     {/each}
     {#if error}<p class="hint bad" role="alert">{error}</p>{/if}
-    <p class="hint">Downloaded voices are Piper voices: they sound more natural than many built-in ones, run on this device and work offline once downloaded. They come from the Piper project on Hugging Face.</p>
+    <p class="hint">{t('Downloaded voices are Piper voices: they sound more natural than many built-in ones, run on this device and work offline once downloaded. They come from the Piper project on Hugging Face.')}</p>
   {/if}
   <div class="add">
-    <strong>Find a voice for another language</strong>
-    <LangPicker label="Find a voice for a language" value="" emptyLabel="Search for a language" onPick={(c) => c && !langs.some((l) => sameLang(l, c)) && (added = [...added, c])} />
+    <strong>{t('Find a voice for another language')}</strong>
+    <LangPicker label={t('Find a voice for a language')} value="" emptyLabel={t('Search for a language')} onPick={(c) => c && !langs.some((l) => sameLang(l, c)) && (added = [...added, c])} />
   </div>
 </div>
 

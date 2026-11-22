@@ -3,6 +3,75 @@
 What changed in each version of Ankhwiz. Downloads are on the
 [Releases page](https://github.com/DR-KD1997/Ankhwiz/releases).
 
+## 0.7.0 · 2026-11-22
+
+[Every change to the code since 0.6.0](https://github.com/DR-KD1997/Ankhwiz/compare/v0.6.0...v0.7.0)
+
+Ankhwiz now speaks ten languages, gets imported decks ready in one go, counts answers that mean the same, and arranges your library by subject. It also has a new icon.
+
+### Added
+- **Prepare for Ankhwiz** (Deck options, and offered by Thoth on a newly
+  imported deck's lessons): one screen that gets a deck ready for Ankhwiz's own features.
+  - **On this device, in under a minute, with nothing sent anywhere:** finds
+    the deck's languages and turns on reading aloud, places it under a
+    subject and topic from its Anki name or its languages, links answers that
+    mean the same, and offers to clear the text of fields no card shows.
+  - **Full, with Thoth** (needs your AI connection): adds wrong options and
+    extra right answers, flags cards that look doubtful (they keep the label
+    "thoth-check" so you can find them in Cards), names lessons by theme,
+    writes notes on answers that are easy to mix up, and writes stories for
+    reading rounds.
+  - You see what each step found, with examples, and choose what to keep.
+    A backup is made first, so Deck options › Backups can undo all of it.
+    Nothing in the cards' own text changes, and preparing carries on in the
+    background while you study. A deck prepared before shows "Nothing has
+    changed since" until it does.
+- **Answers that mean the same:** when two cards share an answer, or one
+  answer has two meanings, a lesson no longer marks a fair answer wrong.
+  - **Same** links count either answer as right on both cards; **Close**
+    links are never offered against each other as choices. Links are found on
+    this device (the same answer with another question, or the same question
+    with another answer), can be suggested by Thoth, and are saved straight
+    away. Each card's editor has **Answers like this, on other cards**.
+  - **Pick all that fit:** when a lesson has few cards and many shared
+    meanings, the question asks you to select every option that fits.
+  - **Side by side:** two cards that are easy to mix up are shown together
+    after a slip, with each one's meaning.
+  - **Quick check:** a new card that is close to one you know asks which of
+    the two means what, before it moves on.
+  - **Check typed answers that don't match** (Settings › AI connection): when
+    a typed answer matches none of a card's answers, Thoth decides whether it
+    is fair all the same; if it is, it counts and is accepted from then on.
+- **Decks arranged by subject:** Your decks can be shown **By subject**
+  (shelves such as Languages › Turkish › Conversational Turkish, or Math ›
+  Trigonometry › Trigonometric Ratios) or as **Lists**, most due first with
+  each deck's place under its name. A subject's page shows how much of it is
+  learned, and **Mix the decks** studies every deck in it in one shuffled
+  session, each card keeping its own deck's schedule. **Arrange your
+  library** suggests places on this device from deck names and languages,
+  and Thoth can suggest the rest from what the cards are about. Moving a deck
+  never changes its cards or progress, and a deck can stay unsorted.
+- **Ankhwiz in ten languages** (Settings › Language): English, Türkçe,
+  Español, Português (Brasil), Français, Deutsch, Italiano, Русский, 日本語
+  and 简体中文, or **System default**, which follows the language the device
+  runs in. Lesson and unit names, Thoth's lines, plurals, numbers and dates
+  follow the chosen language. **Thoth replies in** sets the language of
+  Thoth's AI replies: the app's, or another of your choice.
+
+### Changed
+- **Read aloud the question, the answer or both** for each deck: Deck
+  options has a Read aloud checkbox beside the Question language and the
+  Answer language.
+- **New app icon:** a cream ankh under a gold arch, on Windows, Linux and
+  Android.
+
+### Notes
+- Decks keep the same data version (5); links and places are new fields that
+  0.6.0 simply ignores.
+- The translations are a first draft. Corrections from native speakers are
+  welcome as issues on GitHub.
+- Android build number 11.
+
 ## 0.6.0 · 2026-11-20
 
 [Every change to the code since 0.5.1](https://github.com/DR-KD1997/Ankhwiz/compare/v0.5.1...v0.6.0)

@@ -35,6 +35,17 @@
   import Icon from './Icon.svelte';
   import Logo from './Logo.svelte';
   import Thoth from './Thoth.svelte';
+  import DeckShelves from './DeckShelves.svelte';
+  import MoveDeck from './MoveDeck.svelte';
+  import TopicPage from './TopicPage.svelte';
+  import ArrangePanel from './ArrangePanel.svelte';
+  import { groupDecks, pathKey } from '../places';
+  import { plural, t } from '../i18n';
+
+  let width = $state(window.innerWidth);
+  const wide = $derived(width >= 960);
+  let moving = $state<string | null>(null);
+  let arranging = $state(false);
 
   const decks = $derived(
     Object.values(data.decks)
@@ -52,7 +63,7 @@
   let buildLangBack = $state('en-GB');
   function createBuilt() {
     if (buildKind === 'sources') {
-      const id = addEmptyDeck(buildName || 'New deck', { by: 'sources' });
+      const id = addEmptyDeck(buildName || t('New deck'), { by: 'sources' });
       openDeck(id);
       openPanel('sources');
     } else {
@@ -82,17 +93,17 @@
   const reminderText = $derived.by(() => {
     const r = data.reminder;
     if (!r.on) return '';
-    const days = r.days.length === 7 ? '' : r.days.length === 5 && !r.days.includes(0) && !r.days.includes(6) ? ' on weekdays' : ' on chosen days';
-    return `Daily reminder at ${r.time}${days}, on days you haven’t studied`;
+    const days = r.days.length === 7 ? '' : r.days.length === 5 && !r.days.includes(0) && !r.days.includes(6) ? ' on weekdays' : t(' on chosen days');
+    return t('Daily reminder at {time}{days}, on days you haven’t studied', { time: r.time, days });
   });
 
   function report(name: string, count: number, skipped: number, id: string) {
     const units = data.decks[id].units.length;
     const lessons = Object.keys(data.decks[id].lessons).length;
-    const left = skipped ? ` ${skipped} left out because a side had no text.` : '';
+    const left = skipped ? t(' {skipped} left out because a side had no text.', { skipped }) : '';
     message = {
       ok: true,
-      text: `Added “${name}”: ${count} notes in ${lessons} ${lessons === 1 ? 'lesson' : 'lessons'}${units > 1 ? ` across ${units} units` : ''}.${left}`,
+      text: plural('Added “{name}”: {count} notes in {n} lesson{x2}.{left}', 'Added “{name}”: {count} notes in {n} lessons{x2}.{left}', lessons, { name, count, x2: units > 1 ? ` across ${units} units` : '', left }),
     };
   }
 
@@ -115,7 +126,7 @@
         pending = await readPackage(bytes, file.name);
       }
     } catch (err) {
-      message = { ok: false, text: err instanceof Error ? err.message : 'That file could not be read.' };
+      message = { ok: false, text: err instanceof Error ? t(err.message) : t('That file could not be read.') };
     } finally {
       busy = false;
       readingName = '';
@@ -125,10 +136,10 @@
   function createFromList() {
     const { rows, skipped } = parseList(listText);
     if (!rows.length) {
-      message = { ok: false, text: 'No notes found. Put one per line, with a tab, “ = ”, semicolon or comma between question and answer.' };
+      message = { ok: false, text: t('No notes found. Put one per line, with a tab, “ = ”, semicolon or comma between question and answer.') };
       return;
     }
-    const name = listName.trim() || 'My deck';
+    const name = listName.trim() || t('My deck');
     const id = addFromRows(name, rows);
     report(name, rows.length, skipped, id);
     pasting = false;
@@ -137,15 +148,47 @@
   }
 </script>
 
+<svelte:window bind:innerWidth={width} />
+
+{#snippet tree()}
+  {@const groups = groupDecks(decks)}
+  <nav class="tree" aria-label={t('Subjects')}>
+    <button class="node top" aria-current={!ui.topic && !arranging ? 'page' : undefined} onclick={() => ((ui.topic = null), (arranging = false))}>
+      <span class="grow">{t('All decks')}</span>{#if dueTotal}<b>{dueTotal}</b>{/if}
+    </button>
+    {#each groups as g (g.name)}
+      {#if g.name}
+        <button class="node top" aria-current={ui.topic === g.name ? 'page' : undefined} onclick={() => ((ui.topic = pathKey(g.name)), (arranging = false))}>
+          <span class="grow">{g.name}</span>{#if g.due}<b>{g.due}</b>{/if}
+        </button>
+        {#each g.topics.filter((x) => x.name) as tp (tp.name)}
+          <button class="node sub" aria-current={ui.topic === pathKey(g.name, tp.name) ? 'page' : undefined} onclick={() => ((ui.topic = pathKey(g.name, tp.name)), (arranging = false))}>
+            <span class="grow">{tp.name}</span>{#if tp.due}<b>{tp.due}</b>{/if}
+          </button>
+        {/each}
+      {/if}
+    {/each}
+    <button class="node arrange" onclick={() => (arranging = true)}><Icon name="edit" size={16} /> {t('Arrange')}</button>
+  </nav>
+{/snippet}
+
+<div class="lib-wrap" class:wide={wide && decks.length > 0}>
+{#if wide && decks.length}{@render tree()}{/if}
 <section class="library">
   <header>
     <Logo size={44} wordmark />
     <span class="grow"></span>
-    <button class="icon-btn" aria-label="Settings" onclick={() => (ui.screen = 'settings')}><Icon name="gear" /></button>
+    <button class="icon-btn" aria-label={t('Settings')} onclick={() => (ui.screen = 'settings')}><Icon name="gear" /></button>
   </header>
 
+  {#if arranging}
+    <ArrangePanel onMove={(id) => (moving = id)} onClose={() => (arranging = false)} />
+  {:else if ui.topic}
+    <TopicPage rows={decks} onMove={(id) => (moving = id)} />
+  {:else}
+
   {#if !ui.persistent}
-    <p class="note off" role="alert">This device is not letting the app save. Progress will last only until you close it.</p>
+    <p class="note off" role="alert">{t('This device is not letting the app save. Progress will last only until you close it.')}</p>
   {/if}
 
   {#if decks.length === 0 && data.settings.thoth === 'full'}
@@ -157,71 +200,61 @@
 
   {#if paused}
     <div class="resume card">
-      <p class="label">Pick up where you left off</p>
+      <p class="label">{t('Pick up where you left off')}</p>
       <div class="resume-row">
         <span class="grow">
           <strong>{paused.what}</strong>
-          <small>{paused.done} of {paused.total} done</small>
+          <small>{t('{done} of {total} done', { done: paused.done, total: paused.total })}</small>
         </span>
-        <button class="small-primary" onclick={resumePaused}><Icon name="resume" size={18} /> Resume</button>
+        <button class="small-primary" onclick={resumePaused}><Icon name="resume" size={18} /> {t('Resume')}</button>
       </div>
       <span class="meter strong" aria-hidden="true"><i style="width: {(paused.done / Math.max(1, paused.total)) * 100}%"></i></span>
-      <button class="link" onclick={dropPaused}>Not now: start fresh next time</button>
+      <button class="link" onclick={dropPaused}>{t('Not now: start fresh next time')}</button>
     </div>
   {/if}
 
   {#if due.length > 1}
     <button class="all card" onclick={() => startAll()}>
       <span class="grow">
-        <strong>Study all decks</strong>
-        <small>{dueTotal} {dueTotal === 1 ? 'review' : 'reviews'} due · about {Math.max(1, Math.round(dueTotal / 3))} {Math.round(dueTotal / 3) <= 1 ? 'minute' : 'minutes'}</small>
+        <strong>{t('Study all decks')}</strong>
+        <small>{plural('{n} review due · about {x2} {x3}', '{n} reviews due · about {x2} {x3}', dueTotal, { x2: Math.max(1, Math.round(dueTotal / 3)), x3: Math.round(dueTotal / 3) <= 1 ? t('minute') : t('minutes') })}</small>
         <span class="chips">{#each due as d (d.deck.id)}<span class="chip">{d.deck.name} {d.n}</span>{/each}</span>
-        <small>One mixed session. Each card still counts toward its own deck.</small>
+        <small>{t('One mixed session. Each card still counts toward its own deck.')}</small>
       </span>
       <Icon name="play" size={18} />
     </button>
     {#if tipDue('all-decks')}
       <div class="tip plain" role="note">
-        <p class="label tip-label"><Icon name="bulb" size={16} /> New: Study all decks</p>
-        <p>When several decks have reviews due, do them all in one go from here.</p>
-        <button class="quiet" onclick={() => tipSeen('all-decks')}>Got it</button>
+        <p class="label tip-label"><Icon name="bulb" size={16} /> {t('New: Study all decks')}</p>
+        <p>{t('When several decks have reviews due, do them all in one go from here.')}</p>
+        <button class="quiet" onclick={() => tipSeen('all-decks')}>{t('Got it')}</button>
       </div>
     {/if}
   {/if}
 
   {#if decks.length}
     <div class="group">
-      <p class="label">Your decks</p>
-      <ul>
-        {#each decks as d (d.deck.id)}
-          <li>
-            <button class="deck card" onclick={() => openDeck(d.deck.id)}>
-              <span class="grow">
-                <strong>{d.deck.name}</strong>
-                <small>{d.sum.introduced} of {d.sum.total} learned{d.sum.due ? ` · ${d.sum.due} due` : ''}</small>
-                <span class="meter" aria-hidden="true"><i style="width: {(d.sum.introduced / Math.max(1, d.sum.total)) * 100}%"></i></span>
-              </span>
-              <Icon name="play" size={18} />
-            </button>
-          </li>
-        {/each}
-      </ul>
+      <div class="group-head">
+        <p class="label">{t('Your decks')}</p>
+        {#if !wide}<button class="link-btn" onclick={() => (arranging = true)}><Icon name="edit" size={16} /> {t('Arrange')}</button>{/if}
+      </div>
+      <DeckShelves rows={decks} onMove={(id) => (moving = id)} />
     </div>
   {/if}
 
   <div class="group">
     {#if reminderText}<p class="reminder"><Icon name="bell" size={16} /> {reminderText}</p>{/if}
-    <p class="label">Add a deck</p>
+    <p class="label">{t('Add a deck')}</p>
     <input bind:this={picker} type="file" accept=".apkg,.ankh" hidden onchange={onFile} />
     <div class="adds">
       <button class="quiet" disabled={busy} onclick={() => picker?.click()}>
-        <Icon name="plus" size={18} /> {busy ? 'Reading…' : 'Import a deck (.apkg or .ankh)'}
+        <Icon name="plus" size={18} /> {busy ? t('Reading…') : t('Import a deck (.apkg or .ankh)')}
       </button>
       {#if busy && readingName}<ProgressBar label={`Reading ${readingName}…`} />{/if}
-      <button class="quiet" aria-expanded={building} onclick={() => (building = !building)}><Icon name="plus" size={18} /> Build a deck</button>
-      <button class="quiet" aria-expanded={pasting} onclick={() => (pasting = !pasting)}><Icon name="plus" size={18} /> Paste a list</button>
+      <button class="quiet" aria-expanded={building} onclick={() => (building = !building)}><Icon name="plus" size={18} /> {t('Build a deck')}</button>
+      <button class="quiet" aria-expanded={pasting} onclick={() => (pasting = !pasting)}><Icon name="plus" size={18} /> {t('Paste a list')}</button>
       {#if !hasSample}
-        <button class="quiet" data-tour="sample" onclick={() => (openDeck(addSample()), signal('sample'))}><Icon name="plus" size={18} /> Add the sample deck</button>
+        <button class="quiet" data-tour="sample" onclick={() => (openDeck(addSample()), signal('sample'))}><Icon name="plus" size={18} /> {t('Add the sample deck')}</button>
       {/if}
     </div>
 
@@ -249,38 +282,38 @@
     {#if building}
       <div class="paste plain build">
         <label>
-          <span class="label">Deck name</span>
-          <input type="text" bind:value={buildName} placeholder="My deck" />
+          <span class="label">{t('Deck name')}</span>
+          <input type="text" bind:value={buildName} placeholder={t('My deck')} />
         </label>
-        <span class="label">What are you learning?</span>
+        <span class="label">{t('What are you learning?')}</span>
         <div class="kinds">
           {#each KINDS as k (k.id)}
-            <button class="kind" aria-pressed={buildKind === k.id} onclick={() => (buildKind = k.id)}><strong>{k.name}</strong><small>{k.blurb}</small></button>
+            <button class="kind" aria-pressed={buildKind === k.id} onclick={() => (buildKind = k.id)}><strong>{t(k.name)}</strong><small>{t(k.blurb)}</small></button>
           {/each}
-          <button class="kind" aria-pressed={buildKind === 'sources'} onclick={() => (buildKind = 'sources')}><strong>From files or pages</strong><small>Thoth plans lessons and writes cards from your PDFs, documents and web pages</small></button>
+          <button class="kind" aria-pressed={buildKind === 'sources'} onclick={() => (buildKind = 'sources')}><strong>{t('From files or pages')}</strong><small>{t('Thoth plans lessons and writes cards from your PDFs, documents and web pages')}</small></button>
         </div>
         {#if buildKind === 'words'}
           <div class="langs2">
-            <div><span class="label">Words in</span><LangPicker label="Language of the words" value={buildLang} emptyLabel="Not a language deck" onPick={(c) => (buildLang = c)} /></div>
-            <div><span class="label">Meanings in</span><LangPicker label="Language of the meanings" value={buildLangBack} emptyLabel="Same" onPick={(c) => (buildLangBack = c)} /></div>
+            <div><span class="label">{t('Words in')}</span><LangPicker label={t('Language of the words')} value={buildLang} emptyLabel={t('Not a language deck')} onPick={(c) => (buildLang = c)} /></div>
+            <div><span class="label">{t('Meanings in')}</span><LangPicker label={t('Language of the meanings')} value={buildLangBack} emptyLabel={t('Same')} onPick={(c) => (buildLangBack = c)} /></div>
           </div>
         {/if}
-        <button class="primary" onclick={createBuilt}>Create deck</button>
+        <button class="primary" onclick={createBuilt}>{t('Create deck')}</button>
       </div>
     {/if}
 
     {#if pasting}
       <div class="paste plain">
         <label>
-          <span class="label">Deck name</span>
-          <input type="text" bind:value={listName} placeholder="My deck" />
+          <span class="label">{t('Deck name')}</span>
+          <input type="text" bind:value={listName} placeholder={t('My deck')} />
         </label>
         <label>
-          <span class="label">One note per line</span>
+          <span class="label">{t('One note per line')}</span>
           <textarea bind:value={listText} rows="7" placeholder={'la casa = the house\nel perro = the dog\nel gato = the cat'}></textarea>
         </label>
-        <p class="hint">Separate question and answer with a tab, “ = ”, a semicolon or a comma. A third column names the unit.</p>
-        <button class="primary" disabled={!listText.trim()} onclick={createFromList}>Create deck</button>
+        <p class="hint">{t('Separate question and answer with a tab, “ = ”, a semicolon or a comma. A third column names the unit.')}</p>
+        <button class="primary" disabled={!listText.trim()} onclick={createFromList}>{t('Create deck')}</button>
       </div>
     {/if}
 
@@ -288,9 +321,95 @@
       <p class="note {message.ok ? 'ok' : 'off'}" role="status">{message.text}</p>
     {/if}
   </div>
+  {/if}
 </section>
+</div>
+{#if moving}<MoveDeck deckId={moving} onClose={() => (moving = null)} />{/if}
 
 <style>
+  .lib-wrap {
+    flex: 1;
+    width: 100%;
+    display: flex;
+  }
+  .lib-wrap.wide {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+  }
+  .lib-wrap.wide .library {
+    max-width: 760px;
+  }
+  .tree {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 24px 12px;
+    border-right: 2px solid var(--line);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    align-self: start;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    overflow-y: auto;
+  }
+  .node {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 10px;
+    border: 0;
+    border-left: 4px solid transparent;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .node.top {
+    font-weight: 700;
+  }
+  .node.sub {
+    padding-left: 30px;
+    font-size: 15px;
+  }
+  .node[aria-current='page'] {
+    background: var(--bg);
+    border-left-color: var(--emerald);
+  }
+  .node b {
+    font-size: 13px;
+    color: var(--brass);
+  }
+  .node.arrange {
+    margin-top: 12px;
+    border: 2px dashed var(--line);
+    justify-content: center;
+    font-weight: 700;
+  }
+  .group-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .group-head .label {
+    margin: 0;
+  }
+  .link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 40px;
+    background: none;
+    border: 0;
+    color: var(--emerald);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+  }
   .library {
     width: 100%;
     max-width: 560px;
@@ -317,23 +436,6 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-  }
-  ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .deck {
-    width: 100%;
-    min-height: 84px;
-    padding: 14px 18px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    text-align: left;
   }
   strong {
     font-family: var(--display);

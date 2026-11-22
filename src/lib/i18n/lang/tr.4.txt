@@ -1,0 +1,114 @@
+1334|Taslaklar yazılıyor…
+1335|Kart taslağı hazırla
+1336|Thoth çalışıyor…
+1337|Değişiklikleri önizle
+1338|Kartlar okunuyor…
+1339|Bu dersi gözden geçir
+1340|Sorular hazırlanıyor…
+1341|Meydan okumaya başla
+1342|Sorular yazılıyor…
+1343|Bunun yerine soruları Thoth yazsın
+1344|Yazılıyor…
+1345|Sorularıyla bir metin yaz
+1346|Kaynağın o bölümü artık yok.
+1347|Kaynak bu desteden kaldırıldı.
+1348| · soru
+1349| · cevap
+1350|Teker teker yaz
+1351|Bir elektronik tablodan satır yapıştır
+1352|Listedeki son kart
+1353|Bir kart nasıl görünecek
+1354|Önce “Gösterilmez”i seç
+1355|Bu alanı kaldır
+1356|Ön yüz şablonu
+1357|Arka yüz şablonu
+1358|Kartlara dön
+1359|Yeni kart
+1360|Kartı düzenle
+1361|Başlık
+1362|İsteğe bağlı: resmin üstünde gösterilir
+1363|Soruda ya da cevapta kelimeleri seç
+1364|ilk tanışma {date}
+1365|Kart ekle
+1366|Kaydet
+1367|Şimdi tekrar et
+1368|{cards} ve ekleyeceklerin
+1369|Burada ekleyeceğin kartlar
+1370|Bu cihazın kendi sesleriyle, soru ve cevabın yanında bir hoparlör düğmesi
+1371|Bu cihaz burada ses sunmuyor
+1372|Dışa aktarılıyor…
+1373|Anki için (.apkg)
+1374|Ankhwiz için (.ankh)
+1375|Deste geri yüklendi. Elindeki sürüm artık bir yedek.
+1376|Bu yedek okunamadı, bu yüzden hiçbir şey değiştirilmedi.
+1377|Henüz yazılacak bir şey yok
+1378|{n} kart duyularak yazıldı.
+1379|Dikte, tanıştığın ve duyulabilen kartları kullanır: kendi sesi olan ya da destenin dili için bir ses bulunan kartlar. Önce bir derste bazı kartlarla tanış ya da Deste seçeneklerinden Sesli okuma'yı aç.
+1380|Her kelime doğru.
+1381|Az kaldı: altı çizili kelimeler yakındı.
+1382|0,7× hızda yeniden dinle ve karşılaştır.
+1383|Sonraki
+1384|Bitir
+1385|İlk harfleri gizle
+1386|İlk harfleri göster
+1387|Boşluklu metin
+1388|İki yönlü sorulduğunda ilk alan cevapla yer değiştirir; diğerleri onunla birlikte, daha küçük gösterilir.
+1389|İlk alan ana sorudur; diğerleri altında, daha küçük gösterilir.
+1390|Daha az göster
+1391|{n} tane daha: {what}
+1392|Anki düzenleri Ankhwiz'in kopyalayamadığı betikler ya da çizimler kullanıyor, bu yüzden cevabı görür ve ne kadar yakın olduğunu söylersin.
+1393|Puanlanmak yerine cevabı gör ve ne kadar yakın olduğunu söyle.
+1394|{n} resim ve ses de onunla birlikte gelir.
+1395|Kullanmadığın alanlar saklanır ve desteyi dışa aktarırsan Anki'ye değişmeden döner. Onları daha sonra Deste seçeneklerinden silebilirsin.
+1396|İçe aktarılıyor…
+1397|ayarlanmadı
+1398|Bir dil seç
+1399|listede olmayan bir kod
+1400|Okunuyor…
+1401|Deste içe aktar (.apkg ya da .ankh)
+1402|Günde bir deneme: yarın gel
+1403|İpuçsuz kısa bir sınav. Geçersen ileri atlarsın.
+1404|Sınavla geç yarın
+1405|Sınavla geç
+1406|Kilitli
+1407|{n} kartı iki ya da daha fazla kez kaçırdın
+1408|Henüz yok
+1409|Henüz kartlarında yok.
+1410|Dersleri açık ve kartları 1. yerine 3. aşamadan başlıyor.
+1411|Kaçırılan {n} kart yeniden öğrenmek için 1. aşamaya döner.
+1412|Hiçbir şey değişmedi. Dersleri her zamanki gibi yapabilir ya da yarın yeniden deneyebilirsin.
+1413|Desteler
+1414|Thoth ile kontrol et
+1415|İngilizce
+1416|Thoth hareketsiz kalır.
+1417|Thoth göz kırpar, nefes alır ve cevaplarına tepki verir. Sistemin daha az hareket isterse yine hareketsiz kalır.
+1418|Bu, seçeneklerinde Sesli okuma açık olan destelere uygulanır.
+1419|Bu cihaz burada ses sunmuyor.
+1420|Bağlanıyor…
+1421|Bağlan ve modelleri listele
+1422|Hatırlatma, Ankhwiz kapalıyken bile gelir. Android pil tasarrufu için birkaç dakika geç iletebilir.
+1423|Hatırlatma Ankhwiz açıkken gelir; uygulama simge durumuna küçültülebilir.
+1424|Bir tarayıcıda hatırlatma yalnızca bu sayfa açıkken gelir.
+1425|Çalışıyor…
+1426|Hepsini yedekle
+1427|Ankhwiz açılırken de günde bir kez kontrol edilir
+1428|Yalnızca Şimdi kontrol et'e dokunduğunda kontrol edilir
+1429|Kontrol ediliyor…
+1430|Şimdi kontrol et
+1431|Kaynak bölümü belirtilmedi
+1432|Kaynaklarında bulunamadı: bu kart kapatılırdı
+1433|Örneği yeniden yaz
+1434|Bir örnek yaz
+1435|Başlıyor…
+1436|Bunlar farklı kartlar olur, bu yüzden bu türdeki çalışılmış {n} kartın ilerlemesi başa döner. İlerlemeni korumak için yalnızca diğer alanları değiştir.
+1437|Bu kartların hiçbiri henüz çalışılmadı, bu yüzden hiçbir ilerleme kaybolmaz.
+1438|Alanları olduğu gibi bırak
+1439|Kaydediliyor…
+1440|Değiştir ve baştan başla
+1441|Süre doldu
+1442|{n} tanesi neredeyse doğru.
+1443|Kaçırılan {n} kart yarın geri gelir.
+1444| · henüz tanışılmadı
+1445|indirilmiş bir ses
+1446|bu cihazın kendi sesi
+1447| · indirildi

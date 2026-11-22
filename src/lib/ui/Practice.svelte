@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { plural, t } from '../i18n';
   // Practice: extra rounds that never change when cards come back.
   // (Anki: custom study and filtered decks.)
   import { deckView } from '../core';
@@ -14,65 +15,65 @@
   const unit = $derived(unitId || deck.units[0]?.id || '');
 
   function go(mode: 'tricky' | 'unit' | 'cram') {
-    message = startPractice(deck.id, mode, unit) ? '' : 'Nothing to practise there yet: meet some cards in a lesson first.';
+    message = startPractice(deck.id, mode, unit) ? '' : t('Nothing to practise there yet: meet some cards in a lesson first.');
   }
 </script>
 
 <section class="prac">
   <header>
-    <button class="icon-btn" aria-label="Back to lessons" onclick={() => openPanel('path')}><Icon name="back" /></button>
-    <h1 class="display">Practice</h1>
+    <button class="icon-btn" aria-label={t('Back to lessons')} onclick={() => openPanel('path')}><Icon name="back" /></button>
+    <h1 class="display">{t('Practice')}</h1>
   </header>
-  <p class="hint">Practice rounds are extra. They mark your answers but never change your stages or when cards come back.</p>
+  <p class="hint">{t('Practice rounds are extra. They mark your answers but never change your stages or when cards come back.')}</p>
 
   <button class="choice card" disabled={!view.tricky} onclick={() => go('tricky')}>
     <span class="grow">
-      <strong>Tricky cards</strong>
-      <small>{view.tricky ? `${view.tricky} ${view.tricky === 1 ? 'card' : 'cards'} you have missed twice or more` : 'None yet'}</small>
+      <strong>{t('Tricky cards')}</strong>
+      <small>{view.tricky ? plural('{n} card you have missed twice or more', '{n} cards you have missed twice or more', view.tricky) : t('None yet')}</small>
     </span>
     <Icon name="play" size={18} />
   </button>
 
   <div class="choice card">
     <span class="grow">
-      <strong>One unit</strong>
-      <small>Up to 20 cards you have met, in a shuffled order</small>
+      <strong>{t('One unit')}</strong>
+      <small>{t('Up to 20 cards you have met, in a shuffled order')}</small>
       {#if deck.units.length > 1}
-        <select bind:value={unitId} aria-label="Unit">
+        <select bind:value={unitId} aria-label={t('Unit')}>
           {#each deck.units as u (u.id)}<option value={u.id}>{u.name}</option>{/each}
         </select>
       {/if}
     </span>
-    <button class="quiet go" onclick={() => go('unit')}>Start</button>
+    <button class="quiet go" onclick={() => go('unit')}>{t('Start')}</button>
   </div>
 
   <button class="choice card" disabled={!view.introduced} onclick={() => go('cram')}>
     <span class="grow">
-      <strong>Cram for a test</strong>
-      <small>Your 20 weakest cards from the whole deck</small>
+      <strong>{t('Cram for a test')}</strong>
+      <small>{t('Your 20 weakest cards from the whole deck')}</small>
     </span>
     <Icon name="play" size={18} />
   </button>
 
-  <p class="label">Other ways to practise</p>
+  <p class="label">{t('Other ways to practise')}</p>
   <button class="choice card" disabled={!view.introduced} onclick={() => openPanel('dictation')}>
     <span class="grow">
-      <strong>Dictation</strong>
-      <small>Hear a card and write it, checked word by word</small>
+      <strong>{t('Dictation')}</strong>
+      <small>{t('Hear a card and write it, checked word by word')}</small>
     </span>
     <Icon name="sound" size={18} />
   </button>
   <button class="choice card" disabled={!view.introduced} onclick={() => openPanel('recall')}>
     <span class="grow">
-      <strong>Unit recall</strong>
-      <small>Write everything you remember from a unit; what you miss comes back tomorrow</small>
+      <strong>{t('Unit recall')}</strong>
+      <small>{t('Write everything you remember from a unit; what you miss comes back tomorrow')}</small>
     </span>
     <Icon name="edit" size={18} />
   </button>
   <button class="choice card" disabled={!view.introduced} onclick={() => openPanel('reading')}>
     <span class="grow">
-      <strong>Reading round</strong>
-      <small>A short text made of words you know, then a few questions{aiReady() ? '; Thoth can write stories' : ''}</small>
+      <strong>{t('Reading round')}</strong>
+      <small>{t('A short text made of words you know, then a few questions{x}', { x: aiReady() ? t('; Thoth can write stories') : '' })}</small>
     </span>
     <Icon name="layers" size={18} />
   </button>

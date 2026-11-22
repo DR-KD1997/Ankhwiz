@@ -92,6 +92,10 @@ pub fn pick_options(deck: &Deck, card_id: &str, count: usize, hard: bool) -> Vec
     let kind = answer_kind(&f.answer);
     let mut taken: BTreeSet<String> = f.accepted.iter().map(|a| normalize(a, strict)).collect();
     taken.insert(normalize(&f.answer, strict));
+    // Answers close in meaning are never offered against each other.
+    if !f.cloze && f.picture.is_none() {
+        taken.extend(crate::links::close_answers(deck, note_id, f.reverse).iter().map(|a| normalize(a, strict)));
+    }
     let mut wrong: Vec<String> = Vec::new();
     let want = count.saturating_sub(1);
 

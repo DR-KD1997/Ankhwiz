@@ -1,0 +1,449 @@
+450|Gegenrichtung
+451|Lücke {x}
+452|Teil {x}
+453|Zu beantwortende Frage
+454|Kartenart
+455|Frage und Antwort
+456|Bild mit verdeckten Teilen
+457|Fragefeld 1 verschieben: gedrückt halten und ziehen oder die Pfeiltasten nutzen
+458|Weiteres Fragefeld hinzufügen
+459|Fragefeld {x} verschieben: gedrückt halten und ziehen oder die Pfeiltasten nutzen
+460|Fragefeld {x}
+461|Fragefeld {x} entfernen
+462|Das erste Feld ist die Hauptfrage (die in Gegenrichtung gefragt wird, wenn diese Kartenart in beide Richtungen gefragt wird); die anderen erscheinen darunter, kleiner{x}.
+463|, und ab dem dritten hinter einem Pfeil
+464|{"one":"Lückentextkarte mit {n} Lücke: Jede Lücke wird einzeln gefragt.","other":"Lückentextkarte mit {n} Lücken: Jede Lücke wird einzeln gefragt."}
+465|In einer anderen Sprache vorlesen
+466|Sprache der ausgewählten Wörter
+467|Markieren
+468|Markierung von {text} entfernen
+469|Markierte Wörter werden überall in ihrer eigenen Sprache gelesen, etwa das Spanische in „What does la manzana mean?“.
+470|Bilder und Töne der Frage
+471|Bilder und Töne der Antwort
+472|Extra
+473|Ein Beispiel oder Hinweis, nach der Antwort angezeigt
+474|Extrafeld 1 verschieben: gedrückt halten und ziehen oder die Pfeiltasten nutzen
+475|Weiteres Extrafeld hinzufügen
+476|Extrafeld {x} verschieben: gedrückt halten und ziehen oder die Pfeiltasten nutzen
+477|Extrafeld {x}
+478|Extrafeld {x} entfernen
+479|Diese Karte bewertest du selbst
+480|Sieh die Antwort und sag, wie nah du dran warst, statt bewertet zu werden
+481|Antwort aus Wörtern bauen
+482|In den ersten beiden Stufen werden Antworten ab drei Wörtern aus Wortkacheln zusammengesetzt
+483|Auch akzeptiert
+484|Weitere richtige Antworten, durch Kommas getrennt
+485|Falsche Optionen
+486|Bei Auswahlfragen zuerst gezeigt, durch Kommas getrennt
+487|Schlagwörter
+488|Deine eigenen Schlagwörter, durch Kommas getrennt
+489|Verlauf
+490|{"one":"Stufe {stage} · {x} · {c} · {n} Antwort, {lapses} falsch{x3}","other":"Stufe {stage} · {x} · {c} · {n} Antworten, {lapses} falsch{x3}"}
+491|Letzte Antworten
+492|Noch nicht kennengelernt
+493|Fortsetzen
+494|Anki: aussetzen
+495|Nicht mehr fragen
+496|Endgültig entfernen
+497|Karte entfernen
+498|Karten durchsuchen
+499|Anzeigen
+500|Alle Karten
+501|Knifflig
+502|Von KI geschrieben
+503|Nicht in den Quellen gefunden
+504|Schlagwort
+505|Beliebiges Schlagwort
+506|Eine Karte hinzufügen
+507|Name der Einheit
+508|Umbenennen
+509|Name der Lektion
+510|{name} umbenennen
+511|Eine Karte zu {name} hinzufügen
+512|Mit Medien
+513|Lückentext
+514|+ Neue Lektion in {name}
+515|Keine passenden Karten.
+516|{limit} weitere Karten zeigen ({limit2} noch nicht gezeigt)
+517|Gelernt
+518|{introduced} von {total}
+519|Heute fällig
+520|Serie
+521|Später in derselben Lektion gefragt, nie direkt danach. Pro Tag kommt nur eine Richtung einer Notiz zur Wiederholung (Anki: Geschwister zurückstellen).
+522|Am nächsten Tag unter den Wiederholungen. Pro Tag kommt nur eine Richtung einer Notiz zur Wiederholung (Anki: Geschwister zurückstellen).
+523|Direkt nach der ersten Richtung gefragt, und beide können am selben Tag zur Wiederholung kommen.
+524|Der Stapel konnte nicht exportiert werden.
+525|{"one":"Text ungenutzter Felder in {n} Notiz gelöscht. Vorher wurde eine Sicherung angelegt.","other":"Text ungenutzter Felder in {n} Notizen gelöscht. Vorher wurde eine Sicherung angelegt."}
+526|Es gab nichts zu löschen.
+527|Für Ankhwiz vorbereiten
+528|Wird vorbereitet…
+529|Ergebnisse zum Prüfen
+530|Erneut vorbereiten
+531|Diesen Stapel vorbereiten
+532|Zuletzt vorbereitet am {date}. Nur seitdem hinzugefügte oder geänderte Karten werden erneut angesehen.
+533|Stimmen, faire Antworten, Lektionsnamen und mehr auf einmal eingerichtet: auf diesem Gerät, und mit Thoth, wenn die KI-Verbindung eingerichtet ist.
+534|Tagesziel
+535|Neue Lektionen pro Tag
+536|{x} (Anki: neue Karten/Tag)
+537|Thoth sagt Bescheid, wenn das Ziel erreicht ist; du kannst immer weitermachen
+538|Kein Ziel
+539|Weniger neue Lektionen
+540|Mehr neue Lektionen
+541|Wiederholungen pro Tag
+542|Der Rest wartet bis morgen (Anki: maximale Wiederholungen/Tag)
+543|Weniger Wiederholungen
+544|Mehr Wiederholungen
+545|Behalten
+546|Mehr behalten oder weniger wiederholen
+547|Weniger wiederholen
+548|Mehr behalten
+549|Karten kommen wieder, wenn du dich wahrscheinlich noch an {pct} % von ihnen erinnerst. Höher heißt mehr Wiederholungen. (Anki: gewünschte Behaltensrate)
+550|Kartenarten
+551|Auch die Antwort zeigen und nach der Frage fragen, für jede Kartenart (Anki: umgekehrte Karte)
+552|In Ankhwiz erstellte Karten
+553|Auch die Antwort zeigen und nach der Frage fragen (Anki: umgekehrte Karte)
+554|Wann die Gegenrichtung gefragt wird
+555|Verteilt
+556|Am nächsten Tag
+557|Direkt danach
+558|Sätze bauen
+559|In den ersten beiden Stufen werden Antworten ab drei Wörtern aus Wortkacheln zusammengesetzt, mit ein paar zusätzlichen Wörtern dazwischen. Jede Karte kann das in Karten abschalten.
+560|Akzente verlangen
+561|Wenn aus, zählt „melocoton“ für „melocotón“
+562|Lückentextkarten: Schreib in Karten eine Frage mit Lücken wie
+563|(Anki: Lückentext).
+564|Welche Anki-Felder zu Frage, Antwort und Extra werden. Wenn du die Extrafelder oder die Fragefelder unter der Hauptfrage änderst, bleibt dein Fortschritt erhalten; wenn du die Hauptfrage oder die Antwort änderst, fangen diese Karten von vorn an.
+565|Ungenutzte Felder
+566|Diese Anki-Felder enthalten Text, den keine Karte zeigt. Er wird behalten, damit der Stapel so zu Anki zurückkann, wie er kam; löschen macht den Stapel kleiner und schneller zu öffnen.
+567|{"one":"{type} · Text in {n} Notiz · etwa {rCount}","other":"{type} · Text in {n} Notizen · etwa {rCount}"}
+568|Den Text dieser Felder in jeder Notiz löschen? Vorher wird eine Sicherung des Stapels angelegt. Wenn du später eines dieser Felder für Frage, Antwort oder Extra wählst, ist es leer.
+569|Ihren Text löschen
+570|Text ungenutzter Felder löschen ({unusedSize})
+571|Lektionen
+572|Lektionsgröße
+573|Gilt für noch nicht begonnene Lektionen. Lektionen umbenennen und umsortieren kannst du in Karten.
+574|Kleinere Lektionen
+575|Größere Lektionen
+576|Aussehen
+577|Textgröße
+578|Schrift für Karten
+579|Standard
+580|Serifen
+581|Abgerundet
+582|Festbreite
+583|Text von rechts nach links
+584|Sonst wählt der Text jeder Karte seine Richtung selbst
+585|Extra als Hinweis zeigen
+586|Vor der Antwort statt danach
+587|Vorlesen
+588|Sprache der Frage
+589|In welcher Sprache die Frage gelesen wird
+590|Die Sprache des Geräts
+591|Stimme der Frage ausprobieren
+592|Sprache der Antwort
+593|In welcher Sprache die Antwort gelesen wird
+594|Wie die Frage
+595|Stimme der Antwort ausprobieren
+596|Zitate in einer anderen Sprache lesen
+597|Wörter in Anführungszeichen, wie 'la manzana', werden in dieser Sprache gelesen und der Rest in der des Felds. In Karten markierte Wörter behalten ihre eigene Sprache.
+598|Sprache für Wörter in Anführungszeichen
+599|Aus
+600|Noch keine Stimme für {x} auf diesem Gerät. {x2} Einstellungen › Stimmen kann für viele Sprachen eine herunterladen.
+601|Damit Karten beim Lernen von selbst vorgelesen werden, wähle in den Einstellungen, was gelesen wird.
+602|Exportieren
+603|Fortschritt einschließen
+604|Stufen, Fälligkeitsdaten und letzte Antworten
+605|Einheiten als Unterstapel, Lektionen als Schlagwörter
+606|Alles, genau wie hier
+607|Sicherungen
+608|Kopien dieses Stapels auf diesem Gerät, die neueste {x}. Thoths Änderungen können vorher eine anlegen.
+609|zuerst
+610|hier gespeichert
+611|{t} · {orderCount} Notizen
+612|Wiederherstellen
+613|Diese Sicherung löschen
+614|Jetzt sichern
+615|Erweitert
+616|Längster Abstand
+617|Höchstens so viele Tage zwischen Wiederholungen (Anki: maximales Intervall)
+618|Tage bis zum Verlassen von Stufe {x}
+619|{x}: verschiedene Tage mit richtiger Antwort
+620|Weniger Tage
+621|Mehr Tage
+622|Diese Optionen überall verwenden
+623|{"one":"Kopiert sie in deinen anderen Stapel (Anki: Voreinstellungen)","other":"Kopiert sie in deine {n} anderen Stapel (Anki: Voreinstellungen)"}
+624|Kopieren
+625|Für den Export behaltener Anki-Notiztyp: {name}
+626|Felder: {x}. Frage aus „{question}“, Antwort aus „{answer}“.
+627|Stapel entfernen
+628|Löscht den Stapel, seinen Fortschritt und seine Medien von diesem Gerät
+629|Behalten
+630|{n} von {total} gelernt
+631|{"one":"{n} fällig","other":"{n} fällig"}
+632|„{name}“ verschieben
+633|Wie Stapel angezeigt werden
+634|Nach Fach
+635|Listen
+636|{"one":"{n} Thema","other":"{n} Themen"}
+637|{"one":"{n} Stapel","other":"{n} Stapel"}
+638|Alles in {subject}
+639|Öffnen
+640|Nicht eingeordnet
+641|Die mit den meisten fälligen Karten zuerst. Der Pfad unter jedem Namen zeigt, wo er liegt.
+642|Zurück zum Üben
+643|Diktat
+644|Hör eine Karte und schreib, was du hörst. Spiel sie so oft ab, wie du willst. Wörter werden einzeln geprüft, damit ein Ausrutscher nicht den ganzen Satz kostet, und ein fehlender Akzent gilt als fast richtig. Nur Übung: Wann deine Karten wiederkommen, ändert sich nicht.
+645|Karten aus
+646|Auf diesem Gerät gibt es keine Stimme für {heard}, daher sind nur Karten mit eigenem Ton nutzbar. {x}
+647|Starten
+648|Fertig
+649|Nochmal
+650|Karte {x} von {itemsCount}
+651|Abspielen
+652|Langsam abspielen
+653|Anfangsbuchstaben
+654|Was du hörst
+655|Buchstaben
+656|Du hast geschrieben: {x}
+657|Nicht im Satz: {x}
+658|{what}-Feld {n} verschieben: gedrückt halten und ziehen oder die Pfeiltasten nutzen
+659|nach der Antwort angezeigt
+660|{name} erklären
+661|Erklär mir das
+662|Notizen werden gelesen
+663|Lektionen werden erstellt
+664|Bilder und Töne werden gespeichert
+665|Stapel wird gespeichert
+666|Erkannt: ein Ankhwiz-Stapel
+667|Erkannt: Bilder mit verdeckten Teilen
+668|Erkannt: Lückentext
+669|Am Kartenlayout erkannt
+670|An den Feldnamen erkannt
+671|Der Stapel konnte nicht importiert werden.
+672|Aus Anki importieren
+673|Name des Stapels
+674|{"one":"{n} Notiz · Felder: {x2}","other":"{n} Notizen · Felder: {x2}"}
+675|Jede Notiz ist ein Bild mit verdeckten Teilen; jeder Teil wird zu einer Karte. Teile mit Namen werden als Fragen gestellt; den Rest prüfst du selbst.
+676|{x}Frage zur Antwort, und Antwort zum Hauptfragefeld.
+677|Anki fragt diesen Typ auch in beide Richtungen.
+678|Diese Karten prüfst du selbst
+679|Einheiten
+680|Karten in Einheiten gruppieren nach
+681|Eine Einheit pro Unterstapel
+682|Eine Einheit pro Schlagwort
+683|Eine Einheit, in Lektionen geteilt
+684|{"one":"{n} Einheit, in Lektionen zu etwa {lessonSize} Karten geteilt.","other":"{n} Einheiten, jede in Lektionen zu etwa {lessonSize} Karten geteilt."}
+685|{"one":"{n} Karte wird selbst bewertet.","other":"{n} Karten werden selbst bewertet."}
+686|Du siehst die Antwort und sagst, wie nah du dran warst.
+687|Meinen Anki-Fortschritt übernehmen
+688|Karten, die du gut kennst, starten auf einer höheren Stufe.
+689|Eine Lautsprechertaste bei Frage und Antwort, mit den Stimmen dieses Geräts.
+690|Lektionsnamen und falsche Optionen vorschlagen
+691|Öffnet nach dem Import Thoths Vorschläge. Nutzt deine KI-Verbindung; du gibst jeden einzeln frei.
+692|Felder weglassen, die keine Karte zeigt
+693|{x}. Der Stapel ist kleiner und schneller zu öffnen, geht aber ohne sie zu Anki zurück.
+694|Auf diesem Gerät bereit
+695|Ankhwiz kann eine Stimme herunterladen
+696|Füge in den Systemeinstellungen eine Stimme hinzu
+697|Suchen: eine Sprache, ein Land oder ein Code
+698|Sprachen suchen
+699|{typed} verwenden
+700|Keine Sprache passt zu „{query}“. Ein vollständiger Code wie es-ES kann auch eingegeben werden.
+701| an ausgewählten Tagen
+702|Tägliche Erinnerung um {time}{days}, an Tagen, an denen du nicht gelernt hast
+703| {skipped} weggelassen, weil eine Seite keinen Text hatte.
+704|{"one":"„{name}“ hinzugefügt: {count} Notizen in {n} Lektion{x2}.{left}","other":"„{name}“ hinzugefügt: {count} Notizen in {n} Lektionen{x2}.{left}"}
+705|Diese Datei konnte nicht gelesen werden.
+706|Keine Notizen gefunden. Schreib eine pro Zeile, mit Tab, „ = “, Semikolon oder Komma zwischen Frage und Antwort.
+707|Mein Stapel
+708|Fächer
+709|Ordnen
+710|Einstellungen
+711|Dieses Gerät lässt die App nicht speichern. Der Fortschritt bleibt nur, bis du sie schließt.
+712|Mach dort weiter, wo du aufgehört hast
+713|{done} von {total} erledigt
+714|Jetzt nicht: nächstes Mal neu beginnen
+715|Alle Stapel lernen
+716|{"one":"{n} Wiederholung fällig · etwa {x2} {x3}","other":"{n} Wiederholungen fällig · etwa {x2} {x3}"}
+717|Minute
+718|Minuten
+719|Eine gemischte Sitzung. Jede Karte zählt weiter für ihren eigenen Stapel.
+720|Neu: Alle Stapel lernen
+721|Wenn mehrere Stapel fällige Wiederholungen haben, erledige sie hier alle auf einmal.
+722|Deine Stapel
+723|Stapel hinzufügen
+724|Stapel erstellen
+725|Liste einfügen
+726|Beispielstapel hinzufügen
+727|Was lernst du?
+728|Aus Dateien oder Seiten
+729|Thoth plant Lektionen und schreibt Karten aus deinen PDFs, Dokumenten und Webseiten
+730|Wörter auf
+731|Sprache der Wörter
+732|Kein Sprachstapel
+733|Bedeutungen auf
+734|Sprache der Bedeutungen
+735|Stapel erstellen
+736|Eine Notiz pro Zeile
+737|Trenne Frage und Antwort mit Tab, „ = “, Semikolon oder Komma. Eine dritte Spalte benennt die Einheit.
+738|Ton {name} abspielen
+739|Bild {name} ist nicht auf diesem Gerät
+740|Fach
+741|+ Neues Fach
+742|Sprachen, Mathe, Geschichte…
+743|Neues Fach
+744|+ Neues Thema
+745|Kein Thema
+746|Türkisch, Trigonometrie…
+747|Neues Thema
+748|Das Verschieben eines Stapels ändert nie seine Karten oder seinen Fortschritt.
+749|Hierher verschieben
+750|Ein Bild wählen
+751|Zieh über das Bild, um einen Teil zu verdecken. Gib jedem Teil einen Namen, damit er als Frage gestellt wird; unbenannte Teile prüfst du selbst.
+752|Bild: ziehen, um einen verdeckten Teil hinzuzufügen
+753|Teilnummer
+754|Name (optional)
+755|Name von Teil {x}
+756|Teil {x} entfernen
+757|Beim Fragen nach einem Teil alle verdecken
+758|Bild ändern
+759|Der Browser konnte nicht geöffnet werden. Die Adresse lautet
+760|{introduced} von {total} eingeführt
+761|Abgeschlossen
+762|Zurück zur Bibliothek
+763|Tage in Folge
+764|Lektion läuft.
+765|Vorbereitung pausiert
+766|Wird für Ankhwiz vorbereitet…
+767|{done} von {total} Schritten erledigt · du kannst weiterlernen
+768|Vorbereitet: Ergebnisse zum Prüfen
+769|Thoths Vorschläge warten auf dein OK.
+770|Dieser Stapel wurde nicht für Ankhwiz gemacht.
+771|Soll ich ihn vorbereiten? Ich richte Stimmen, faire Antworten und Lektionen ein. Am Text der Karten ändert sich nichts.
+772|Jetzt nicht
+773|Vorbereiten…
+774|{x} · {done} von {total} erledigt
+775|Wiederholen
+776|{"one":"Heute {n} Karte fällig","other":"Heute {n} Karten fällig"}
+777|Fragen stellen, Karten hinzufügen oder ändern, Herausforderungen, Lesen
+778|Tagesziel, Kartenarten, Aussehen, Export
+779|Karten
+780|Fortschritt
+781|Üben{x}
+782|Aus Quellen
+783|{"one":"Das heutige Ziel von {n} neuen Lektion ist erreicht. Du kannst weitermachen.","other":"Das heutige Ziel von {n} neuen Lektionen ist erreicht. Du kannst weitermachen."}
+784|Einheit {number}{x}
+785|{from} frühere Lektionen zeigen
+786|Stärke {strength} von 5
+787|Mehr Lektionen zeigen (noch {to})
+788|Die eigene Antwort der Karte.
+789|Als gleiche Bedeutung verknüpft.
+790|Verpasst: als gleiche Bedeutung verknüpft.
+791|Das ist „{front}“.
+792|Wähle alle passenden
+793|Welche davon können „{text}“ bedeuten?
+794|Wähle alle, die passen. Es kann mehr als eine sein.
+795|Antworten
+796|Alle gefunden, nichts zu viel.
+797|{found} von {total} gefunden
+798|{"one":"{n}, die nicht passt","other":"{n}, die nicht passen"}
+800|Das Bild {image} ist nicht auf diesem Gerät.
+801|Dort gibt es noch nichts zu üben: Lerne zuerst ein paar Karten in einer Lektion kennen.
+802|Üben
+803|Übungsrunden sind zusätzlich. Sie bewerten deine Antworten, ändern aber nie deine Stufen oder wann Karten wiederkommen.
+804|Eine Einheit
+805|Bis zu 20 Karten, die du kennengelernt hast, in gemischter Reihenfolge
+806|Für einen Test pauken
+807|Deine 20 schwächsten Karten aus dem ganzen Stapel
+808|Weitere Übungsarten
+809|Hör eine Karte und schreib sie, Wort für Wort geprüft
+810|Einheit abrufen
+811|Schreib alles auf, woran du dich aus einer Einheit erinnerst; was fehlt, kommt morgen wieder
+812|Leserunde
+813|Ein kurzer Text aus Wörtern, die du kennst, dann ein paar Fragen{x}
+814|; Thoth kann Geschichten schreiben
+815|Wartet
+816|Läuft
+817|Übersprungen
+818|Nicht beendet
+819|Pausiert
+820|Wird angehalten…
+821|Fertig
+822|Während der Pause wird nichts gesendet. Setze fort, wann du willst.
+823|Du kannst diesen Bildschirm verlassen und weiterlernen: Es läuft im Hintergrund weiter.
+824|Pausieren
+825|Anhalten
+826|Thoth · {done} von {of}
+827|Sehen, was sich geändert hat
+828|Vorher wurde eine Sicherung angelegt: Stapeloptionen › Sicherungen kann all das auch später rückgängig machen.
+829|Angewendet · auf diesem Gerät
+830|Wiederholen
+831|Rückgängig
+832|Vor dem Behalten prüfen
+833|Thoth
+834|Dieses Gerät
+835|Gleiche Bedeutung
+836|Und {n} weitere.
+837|Verwerfen
+838|Liste schließen
+839|Alle anzeigen
+840|Nicht fertig: {steps}. Bereite erneut vor, um den Rest zu erledigen.
+841|Alle verwerfen
+842|Alle behalten
+843|Vorbereitet am {date}.
+844|{"one":"{n} Karte ist seitdem neu oder geändert: Erneutes Vorbereiten sieht nur sie an.","other":"{n} Karten sind seitdem neu oder geändert: Erneutes Vorbereiten sieht nur sie an."}
+845|Seitdem hat sich nichts geändert.
+846|Ankhwiz richtet diesen Stapel für seine eigenen Funktionen ein: Stimmen, faire Antworten, Lektionsnamen und mehr. Am Text der Karten ändert sich nichts.
+847|Was vorbereitet wird
+848|Vollständig, mit Thoth
+849|Benutzerdefiniert
+850|Nur auf diesem Gerät
+851|{"one":"Thoth · ~{n} Anfrage","other":"Thoth · ~{n} Anfragen"}
+852|fügt KI-geschriebenen Text hinzu
+853|{"one":"Etwa {n} Minute","other":"Etwa {n} Minuten"}
+854|{"one":"etwa {n} Anfrage","other":"etwa {n} Anfragen"}
+855|Unter einer Minute · nichts verlässt dieses Gerät
+856|Für die Thoth-Schritte wird Kartentext an deinen KI-Anbieter gesendet. Der Rest läuft auf diesem Gerät.
+857|Thoth-Schritte sind aus.
+858|Die KI-Verbindung ist nicht eingerichtet, daher laufen nur die Schritte auf diesem Gerät. Richte sie in den Einstellungen ein.
+859|Ein anderer Stapel wird gerade vorbereitet
+860|Vorbereiten
+861|Heute
+862|Morgen
+863|Kennengelernt
+864|von {total} Karten
+865|Behalten
+866|letzte 30 Tage, {answers30} Antworten
+867|Bestwert {best}
+868|Karten nach Stufe
+869|{stopped} angehalten (werden nicht gefragt, bis sie in Karten fortgesetzt werden).
+870|Die kommende Woche
+871|Fällige Wiederholungen in den nächsten sieben Tagen: {x}
+872|Lerntage · letzte 12 Wochen
+873|{length} Lerntage in den letzten 12 Wochen
+874|Zweimal oder öfter verpasst (Anki: Lernblockaden). Übe sie oder lass Thoth bessere Antworten und falsche Optionen vorschlagen.
+875|{lapses} falsch
+876|Sie üben
+877|Thoth bitten, sie zu verbessern
+878|Bisher keine.
+879|Frage {x} von {questionsCount}
+880|Thoth schreibt eine Geschichte aus den Wörtern, die du kennst…
+881|Die Geschichte konnte nicht geschrieben werden.
+882|Drei Geschichten für später werden vorbereitet…
+883|Die Geschichten konnten nicht geschrieben werden.
+884|Es gibt noch nicht genug Sätze aus Wörtern, die du gelernt hast. Lerne mehr Karten kennen oder lass Thoth eine Geschichte schreiben.
+885|Ein kurzer Text zum Lesen, dann ein paar Fragen. Tippe auf ein Wort, um zu sehen, was es auf deinen Karten bedeutet. Nur Übung: Wann deine Karten wiederkommen, ändert sich nicht.
+886|Eine neue Geschichte von Thoth
+887|Geschrieben aus den {knownCount} Wörtern, die du gelernt hast, mit zwei oder drei neuen. Sie wird aufbewahrt, damit du sie noch einmal lesen kannst.
+888|Schreiben
+889|Lesebereit{x}
+890| ohne Verbindung
+891|Eine Geschichte von Thoth · du kennst {passage} % der Wörter
+892|Aus deinen Karten
+893|Sätze aus deinen Karten und ihren Beispielen, überwiegend aus Wörtern, die du gelernt hast, die leichtesten zuerst. Funktioniert ohne Verbindung.
+894|Drei Geschichten für später vorbereiten
+895|Richte in den Einstellungen die KI-Verbindung ein, dann kann Thoth Geschichten aus den Wörtern schreiben, die du kennst, und einige für Zeiten ohne Verbindung vorbereiten.
+896|Lies es mir vor
+897|Unterstrichene Wörter stehen noch nicht auf den Karten, die du gelernt hast.
+898|Übersetzung zeigen
+899|{score} von {questionsCount} richtig.

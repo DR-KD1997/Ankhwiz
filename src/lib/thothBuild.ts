@@ -9,6 +9,7 @@ import { addNotes, applyEdits } from './core';
 import type { Deck, DeckSource, NoteSource, OutlineLesson, OutlineUnit, RawNote, SourceCard } from './core/types';
 import { briefs, passagesFor, putSourceText, quoteFound, removeSourceText, sourceText, type ReadSource, type Section } from './sources';
 import { cardIds } from './ui/cardIds';
+import { t } from './i18n';
 
 export interface Goal {
   goal: string;
@@ -86,7 +87,7 @@ export function toRow(c: SourceCard, lesson: OutlineLesson, unit: string, texts:
 /** Thoth's cards for one lesson, from the passages it draws on. */
 export async function draftLesson(deck: Deck, lesson: OutlineLesson, unit: string, texts: Map<string, Section[]>, style: Style, count?: number): Promise<RawNote[]> {
   const passages = passagesFor(lesson, texts);
-  if (!passages.trim()) throw new Error(`The sections “${lesson.name}” draws on were not found in the sources.`);
+  if (!passages.trim()) throw new Error(t('The sections “{name}” draws on were not found in the sources.', { name: lesson.name }));
   const cards = await ask<SourceCard[]>('sourceCards', deck, { lesson: lesson.name, kind: lesson.kind, count: count ?? lesson.cards, passages, style });
   return cards.map((c) => toRow(c, lesson, unit, texts));
 }

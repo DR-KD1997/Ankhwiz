@@ -8,6 +8,7 @@
 // control itself. What has been seen is kept with the settings (in `tips`).
 
 import { data, save } from './store.svelte';
+import { t } from './i18n';
 
 export type Part = 'basics' | 'options' | 'import' | 'editor' | 'testout' | 'thoth';
 export type Mood = 'nod' | 'happy' | 'cheer' | 'encourage';
@@ -27,58 +28,58 @@ export interface Step {
 
 export const PARTS: Record<Part, { name: string; steps: Step[] }> = {
   basics: {
-    name: 'Welcome',
+    name: t('Welcome'),
     steps: [
-      { text: "Welcome. I'm Thoth, scribe of the gods and keeper of your cards. Shall I show you the basics? It takes about a minute.", mood: 'happy' },
-      { at: 'sample', text: "Let's begin with a sample deck of everyday Spanish. Tap Add the sample deck.", wait: 'sample' },
-      { at: 'lesson1', text: 'Every deck is split into units, and units into short lessons that open one after another. Start Lesson 1.', wait: 'lesson', mood: 'happy' },
-      { at: 'act', text: 'First you meet each new card: the question with its answer. No pressure yet. Tap Continue when you have read it.', wait: 'met' },
-      { at: 'answers', text: 'Now I ask it. Tap the answer you think is right.', wait: 'pick' },
-      { at: 'act', text: 'Then tap Check. Once you check, your answer counts, so take your time before.', wait: 'check' },
-      { at: 'stage', text: 'Each card climbs five stages. My help fades as it climbs: choices first, then typing with hints, then plain typing.', mood: 'happy' },
-      { text: 'Carry on to the end of the lesson. I will be back then.', wait: 'finished', hidden: true },
-      { at: 'result', text: 'Lesson done. Reviews bring each card back just before you would forget it, starting tomorrow.', mood: 'cheer' },
-      { at: 'act', text: 'Tap Continue to go back to the deck.', wait: 'closed' },
-      { at: 'streak', text: 'Your streak of days in a row lives here, and reviews appear at the top when cards are due. A few minutes a day is plenty.' },
-      { at: 'options', text: 'Deck options, the card editor, Test out and studying with me can wait. I will explain each one the first time you open it, and the ? beside it explains it again.', mood: 'happy' },
+      { text: t('Welcome. I\'m Thoth, scribe of the gods and keeper of your cards. Shall I show you the basics? It takes about a minute.'), mood: 'happy' },
+      { at: 'sample', text: t('Let\'s begin with a sample deck of everyday Spanish. Tap Add the sample deck.'), wait: 'sample' },
+      { at: 'lesson1', text: t('Every deck is split into units, and units into short lessons that open one after another. Start Lesson 1.'), wait: 'lesson', mood: 'happy' },
+      { at: 'act', text: t('First you meet each new card: the question with its answer. No pressure yet. Tap Continue when you have read it.'), wait: 'met' },
+      { at: 'answers', text: t('Now I ask it. Tap the answer you think is right.'), wait: 'pick' },
+      { at: 'act', text: t('Then tap Check. Once you check, your answer counts, so take your time before.'), wait: 'check' },
+      { at: 'stage', text: t('Each card climbs five stages. My help fades as it climbs: choices first, then typing with hints, then plain typing.'), mood: 'happy' },
+      { text: t('Carry on to the end of the lesson. I will be back then.'), wait: 'finished', hidden: true },
+      { at: 'result', text: t('Lesson done. Reviews bring each card back just before you would forget it, starting tomorrow.'), mood: 'cheer' },
+      { at: 'act', text: t('Tap Continue to go back to the deck.'), wait: 'closed' },
+      { at: 'streak', text: t('Your streak of days in a row lives here, and reviews appear at the top when cards are due. A few minutes a day is plenty.') },
+      { at: 'options', text: t('Deck options, the card editor, Test out and studying with me can wait. I will explain each one the first time you open it, and the ? beside it explains it again.'), mood: 'happy' },
     ],
   },
   options: {
-    name: 'Deck options',
+    name: t('Deck options'),
     steps: [
-      { at: 'o-daily', text: 'How much to study: new lessons for your daily goal, and how many reviews a day at most.' },
-      { at: 'o-kinds', text: 'Ask both ways also asks the answer back to you. The other way round is spread out, so one never gives the other away. Long answers can be built from word tiles.' },
-      { at: 'o-look', text: 'How cards look, and Read aloud: a speaker button by each question and answer, in the languages you set.' },
+      { at: 'o-daily', text: t('How much to study: new lessons for your daily goal, and how many reviews a day at most.') },
+      { at: 'o-kinds', text: t('Ask both ways also asks the answer back to you. The other way round is spread out, so one never gives the other away. Long answers can be built from word tiles.') },
+      { at: 'o-look', text: t('How cards look, and Read aloud: a speaker button by each question and answer, in the languages you set.') },
     ],
   },
   import: {
-    name: 'Importing from Anki',
+    name: t('Importing from Anki'),
     steps: [
-      { at: 'i-fields', text: 'Anki notes have fields. Choose which become the question, the answer and the extra; drag them into order. You can change this later in Deck options.' },
-      { at: 'i-progress', text: 'Your progress from Anki can come with the deck, so you carry on where you left off.', mood: 'happy' },
-      { at: 'i-go', text: 'When the fields look right, import. Big decks show how far they have got.' },
+      { at: 'i-fields', text: t('Anki notes have fields. Choose which become the question, the answer and the extra; drag them into order. You can change this later in Deck options.') },
+      { at: 'i-progress', text: t('Your progress from Anki can come with the deck, so you carry on where you left off.'), mood: 'happy' },
+      { at: 'i-go', text: t('When the fields look right, import. Big decks show how far they have got.') },
     ],
   },
   editor: {
-    name: 'The card editor',
+    name: t('The card editor'),
     steps: [
-      { at: 'e-fields', text: 'The question and the answer. More fields can show with the question; drag them into order.' },
-      { at: 'e-more', text: 'Other answers you will accept, such as "apple" without "the", and wrong options I may show beside the answer. Leave them empty and I pick some from your deck.' },
-      { at: 'e-media', text: 'Add pictures and sounds, or make a picture card with hidden parts for me to ask about.', mood: 'happy' },
+      { at: 'e-fields', text: t('The question and the answer. More fields can show with the question; drag them into order.') },
+      { at: 'e-more', text: t('Other answers you will accept, such as "apple" without "the", and wrong options I may show beside the answer. Leave them empty and I pick some from your deck.') },
+      { at: 'e-media', text: t('Add pictures and sounds, or make a picture card with hidden parts for me to ask about.'), mood: 'happy' },
     ],
   },
   testout: {
-    name: 'Testing out of a unit',
+    name: t('Testing out of a unit'),
     steps: [
-      { text: 'Already know this unit? A short quiz with no help. Pass it and the unit opens.' },
-      { text: 'Its cards then start at stage 3, and any you miss go back to the beginning. One try a day.', mood: 'encourage' },
+      { text: t('Already know this unit? A short quiz with no help. Pass it and the unit opens.') },
+      { text: t('Its cards then start at stage 3, and any you miss go back to the beginning. One try a day.'), mood: 'encourage' },
     ],
   },
   thoth: {
-    name: 'Studying with Thoth',
+    name: t('Studying with Thoth'),
     steps: [
-      { text: 'For this I need an AI service of your own, set up in Settings. Nothing is sent anywhere until you do.' },
-      { text: 'Then ask me anything about your cards, and I explain. I can also add cards, improve them, set a challenge round, or write a short reading passage.', mood: 'happy' },
+      { text: t('For this I need an AI service of your own, set up in Settings. Nothing is sent anywhere until you do.') },
+      { text: t('Then ask me anything about your cards, and I explain. I can also add cards, improve them, set a challenge round, or write a short reading passage.'), mood: 'happy' },
     ],
   },
 };

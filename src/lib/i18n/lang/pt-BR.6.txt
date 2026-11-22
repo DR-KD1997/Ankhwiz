@@ -1,0 +1,12 @@
+1453|Conhecer
+1454|Reconhecer
+1455|Lembrança assistida
+1456|Lembrança firme
+1457|Dominado
+1458|Ollama (este computador)
+1459|LM Studio (este computador)
+1460|Outro endereço
+1461|Usa o endereço do Gemini compatível com a OpenAI.
+1462|Uma chave para modelos de muitos provedores.
+1463|Roda na sua própria máquina; nada sai dela.
+1464|Qualquer endereço que use o formato de chat da OpenAI.

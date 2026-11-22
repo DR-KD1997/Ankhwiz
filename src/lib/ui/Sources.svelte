@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { plural, t } from '../i18n';
   // Build with Thoth: a deck's sources (files and web pages) on one shelf,
   // three quick questions, an outline to change before any cards are made, a
   // few sample cards, then every lesson's cards, each linked to the passage
@@ -32,10 +33,10 @@
   let pasteText = $state('');
 
   async function addRead(read: Awaited<ReturnType<typeof readWebPage>>) {
-    if (!read.sections.length) throw new Error('No text was found to read.');
+    if (!read.sections.length) throw new Error(t('No text was found to read.'));
     const entry = await storeSource(deck.id, read);
     setDeckExtras(deck.id, { sources: [...(data.decks[deck.id].sources ?? []), entry] });
-    note = `Added “${entry.title}”: ${entry.sections} ${entry.sections === 1 ? 'part' : 'parts'}, about ${words(entry.chars)} words.`;
+    note = plural('Added “{title}”: {n} part, about {chars} words.', 'Added “{title}”: {n} parts, about {chars} words.', entry.sections, { title: entry.title, chars: words(entry.chars) });
   }
   async function onFiles(e: Event) {
     const input = e.currentTarget as HTMLInputElement;
@@ -48,7 +49,7 @@
       try {
         await addRead(await readSourceFile(f.name, new Uint8Array(await f.arrayBuffer())));
       } catch (err) {
-        error = `${f.name}: ${err instanceof Error ? err.message : 'it could not be read.'}`;
+        error = `${f.name}: ${err instanceof Error ? t(err.message) : t('it could not be read.')}`;
       }
     }
     busy = '';
@@ -58,15 +59,15 @@
     error = '';
     note = '';
     if (!url) {
-      error = 'That does not look like a web address.';
+      error = t('That does not look like a web address.');
       return;
     }
-    busy = 'Reading the page…';
+    busy = t('Reading the page…');
     try {
       await addRead(await readWebPage(url));
       link = '';
     } catch (err) {
-      error = err instanceof Error ? err.message : 'The page could not be read.';
+      error = err instanceof Error ? t(err.message) : t('The page could not be read.');
     } finally {
       busy = '';
     }
@@ -89,29 +90,29 @@
     confirmRemove = '';
   }
   const words = (chars: number) => Math.max(1, Math.round(chars / 6)).toLocaleString();
-  const KIND: Record<DeckSource['kind'], string> = { pdf: 'PDF', web: 'Web', text: 'Text', markdown: 'Text', word: 'Word', html: 'Page' };
+  const KIND: Record<DeckSource['kind'], string> = { pdf: 'PDF', web: t('Web'), text: t('Text'), markdown: t('Text'), word: t('Word'), html: t('Page') };
 
   // ---------- Thoth's questions ----------
   let goal = $state<Goal>({ goal: 'exam', level: 'some', days: 28, notes: '' });
   const GOALS = [
-    ['exam', 'An exam'],
-    ['course', 'Following a course'],
-    ['interest', 'Interest'],
+    ['exam', t('An exam')],
+    ['course', t('Following a course')],
+    ['interest', t('Interest')],
   ] as const;
   const LEVELS = [
-    ['new', 'New to it'],
-    ['some', 'Some'],
-    ['revise', 'Revising'],
+    ['new', t('New to it')],
+    ['some', t('Some')],
+    ['revise', t('Revising')],
   ] as const;
   const WHEN = [
     [7, '1 week'],
     [28, '4 weeks'],
     [90, '3 months'],
-    [0, 'No rush'],
+    [0, t('No rush')],
   ] as const;
   const goalText = $derived<Goal>({
-    goal: { exam: 'an exam: definitions, processes and exam-style questions', course: 'following a course, in the order of the notes', interest: 'interest: big ideas first' }[goal.goal] ?? goal.goal,
-    level: { new: 'new to it: explain the basics first', some: 'knows some: skip the very basics', revise: 'revising: key facts only' }[goal.level] ?? goal.level,
+    goal: { exam: t('an exam: definitions, processes and exam-style questions'), course: t('following a course, in the order of the notes'), interest: t('interest: big ideas first') }[goal.goal] ?? goal.goal,
+    level: { new: t('new to it: explain the basics first'), some: t('knows some: skip the very basics'), revise: t('revising: key facts only') }[goal.level] ?? goal.level,
     days: goal.days,
     notes: goal.notes,
   });
@@ -132,7 +133,7 @@
   async function suggest() {
     error = '';
     note = '';
-    busy = 'Thoth is reading the shape of your sources…';
+    busy = t('Thoth is reading the shape of your sources…');
     try {
       texts = await textsOf(deck);
       const units: OutlineUnit[] = await planOutline(snap(deck), texts, goalText);
@@ -140,7 +141,7 @@
       sample = [];
       step = 'outline';
     } catch (err) {
-      error = err instanceof Error ? err.message : 'The outline could not be made.';
+      error = err instanceof Error ? t(err.message) : t('The outline could not be made.');
     } finally {
       busy = '';
     }
@@ -151,7 +152,7 @@
     if (j < 0 || j >= list.length) return;
     [list[li], list[j]] = [list[j], list[li]];
   }
-  const KINDS: Record<OutlineLesson['kind'], string> = { qa: 'Questions', words: 'Terms', dates: 'Dates', formula: 'Formulas', order: 'Steps' };
+  const KINDS: Record<OutlineLesson['kind'], string> = { qa: t('Questions'), words: t('Terms'), dates: t('Dates'), formula: t('Formulas'), order: t('Steps') };
 
   // ---------- the sample ----------
   let style = $state<Style>({ short: false, exam: true, keepTerms: false, notes: '' });
@@ -160,11 +161,11 @@
     const first = kept[0];
     if (!first) return;
     error = '';
-    busy = `Thoth is writing five cards from “${first.lesson.name}”…`;
+    busy = t('Thoth is writing five cards from “{name}”…', { name: first.lesson.name });
     try {
       sample = await draftLesson(snap(deck), $state.snapshot(first.lesson), first.unit, texts, $state.snapshot(style), 5);
     } catch (err) {
-      error = err instanceof Error ? err.message : 'The sample could not be written.';
+      error = err instanceof Error ? t(err.message) : t('The sample could not be written.');
     } finally {
       busy = '';
     }
@@ -184,7 +185,7 @@
     const st = $state.snapshot(style);
     for (const { unit, lesson } of list) {
       if (stop) break;
-      busy = `Writing “${lesson.name}” (${made.lessons + 1} of ${list.length})…`;
+      busy = t('Writing “{name}” ({x} of {listCount})…', { name: lesson.name, x: made.lessons + 1, listCount: list.length });
       try {
         const current = data.decks[deck.id];
         const rows = await draftLesson(snap(current), lesson, unit, texts, st);
@@ -193,7 +194,7 @@
         newNotes = [...newNotes, ...r.noteIds];
         made = { ...made, lessons: made.lessons + 1, cards: made.cards + r.noteIds.length, off: made.off + r.noteIds.filter((id) => r.deck.notes[id]?.source?.found === false).length };
       } catch (err) {
-        made = { ...made, lessons: made.lessons + 1, failed: [...made.failed, `${lesson.name}: ${err instanceof Error ? err.message : 'failed'}`] };
+        made = { ...made, lessons: made.lessons + 1, failed: [...made.failed, `${lesson.name}: ${err instanceof Error ? t(err.message) : 'failed'}`] };
       }
     }
     busy = '';
@@ -217,95 +218,95 @@
 
 <section class="src">
   <header>
-    <button class="icon-btn" aria-label="Back to lessons" onclick={() => openPanel('path')}><Icon name="back" /></button>
-    <h1 class="display">Build with Thoth</h1>
+    <button class="icon-btn" aria-label={t('Back to lessons')} onclick={() => openPanel('path')}><Icon name="back" /></button>
+    <h1 class="display">{t('Build with Thoth')}</h1>
   </header>
-  <ol class="steps" aria-label="Steps">
+  <ol class="steps" aria-label={t('Steps')}>
     {#each [['shelf', 'Sources'], ['outline', 'Outline'], ['making', 'Cards'], ['review', 'Check']] as [id, name], i (id)}
       <li class:now={step === id}>{i + 1} {name}</li>
     {/each}
   </ol>
 
   {#if step === 'shelf'}
-    <p class="hint">Add the files and pages this deck is about. They are kept with the deck on this device, so you never add them twice. Ankhwiz reads only what you can open yourself, and nothing is sent anywhere until you ask Thoth to plan cards.</p>
+    <p class="hint">{t('Add the files and pages this deck is about. They are kept with the deck on this device, so you never add them twice. Ankhwiz reads only what you can open yourself, and nothing is sent anywhere until you ask Thoth to plan cards.')}</p>
     {#each sources as s (s.id)}
       <div class="source card" class:off={s.off}>
-        <label class="tick"><input type="checkbox" checked={!s.off} onchange={() => toggle(s)} aria-label="Use {s.title}" /></label>
+        <label class="tick"><input type="checkbox" checked={!s.off} onchange={() => toggle(s)} aria-label={t('Use {title}', { title: s.title })} /></label>
         <span class="kind">{KIND[s.kind]}</span>
-        <span class="grow"><strong>{s.title}</strong><small>{s.sections} {s.sections === 1 ? 'part' : 'parts'} · about {words(s.chars)} words{s.url ? ` · ${new URL(s.url).hostname}` : ''}</small></span>
+        <span class="grow"><strong>{s.title}</strong><small>{plural('{n} part · about {chars} words{x2}', '{n} parts · about {chars} words{x2}', s.sections, { chars: words(s.chars), x2: s.url ? ` · ${new URL(s.url).hostname}` : '' })}</small></span>
         {#if confirmRemove === s.id}
-          <button class="quiet danger" onclick={() => remove(s)}>Remove</button>
+          <button class="quiet danger" onclick={() => remove(s)}>{t('Remove')}</button>
         {:else}
-          <button class="icon-btn" aria-label="Remove {s.title}" onclick={() => (confirmRemove = s.id)}><Icon name="trash" size={18} /></button>
+          <button class="icon-btn" aria-label={t('Remove {title}', { title: s.title })} onclick={() => (confirmRemove = s.id)}><Icon name="trash" size={18} /></button>
         {/if}
       </div>
     {/each}
     <div class="add card">
-      <button class="quiet" disabled={!!busy} onclick={() => picker?.click()}><Icon name="upload" size={18} /> Add files</button>
+      <button class="quiet" disabled={!!busy} onclick={() => picker?.click()}><Icon name="upload" size={18} /> {t('Add files')}</button>
       <input bind:this={picker} type="file" multiple accept=".pdf,.docx,.txt,.md,.markdown,.html,.htm,text/plain,application/pdf" hidden onchange={onFiles} />
       <div class="link">
-        <input class="input" type="url" bind:value={link} placeholder="Paste a web address" aria-label="Web address" onkeydown={(e) => e.key === 'Enter' && addLink()} />
-        <button class="quiet" disabled={!!busy || !link.trim()} onclick={addLink}>Add page</button>
+        <input class="input" type="url" bind:value={link} placeholder={t('Paste a web address')} aria-label={t('Web address')} onkeydown={(e) => e.key === 'Enter' && addLink()} />
+        <button class="quiet" disabled={!!busy || !link.trim()} onclick={addLink}>{t('Add page')}</button>
       </div>
       {#if pasting}
-        <input class="input" bind:value={pasteTitle} placeholder="A name for it (optional)" aria-label="Name" />
-        <textarea class="input" rows="6" bind:value={pasteText} placeholder="Paste text here" aria-label="Text"></textarea>
+        <input class="input" bind:value={pasteTitle} placeholder={t('A name for it (optional)')} aria-label={t('Name')} />
+        <textarea class="input" rows="6" bind:value={pasteText} placeholder={t('Paste text here')} aria-label={t('Text')}></textarea>
         <div class="pair">
-          <button class="quiet" onclick={() => (pasting = false)}>Cancel</button>
-          <button class="quiet" disabled={!pasteText.trim()} onclick={addPasted}>Add text</button>
+          <button class="quiet" onclick={() => (pasting = false)}>{t('Cancel')}</button>
+          <button class="quiet" disabled={!pasteText.trim()} onclick={addPasted}>{t('Add text')}</button>
         </div>
       {:else}
-        <button class="link-btn" onclick={() => (pasting = true)}>Or paste some text</button>
+        <button class="link-btn" onclick={() => (pasting = true)}>{t('Or paste some text')}</button>
       {/if}
-      <small>PDF, Word (.docx), text, Markdown and web pages. Pages that need a sign-in, and PDFs that are only scanned pictures, cannot be read.</small>
+      <small>{t('PDF, Word (.docx), text, Markdown and web pages. Pages that need a sign-in, and PDFs that are only scanned pictures, cannot be read.')}</small>
     </div>
 
     {#if on.length}
       <div class="ask card">
-        <p class="label">Three quick questions</p>
+        <p class="label">{t('Three quick questions')}</p>
         <div class="q">
-          <strong>What is it for?</strong>
+          <strong>{t('What is it for?')}</strong>
           <div class="chips">{#each GOALS as [id, name] (id)}<button aria-pressed={goal.goal === id} onclick={() => (goal.goal = id)}>{name}</button>{/each}</div>
         </div>
         <div class="q">
-          <strong>How much do you know already?</strong>
+          <strong>{t('How much do you know already?')}</strong>
           <div class="chips">{#each LEVELS as [id, name] (id)}<button aria-pressed={goal.level === id} onclick={() => (goal.level = id)}>{name}</button>{/each}</div>
         </div>
         <div class="q">
-          <strong>By when?</strong>
+          <strong>{t('By when?')}</strong>
           <div class="chips">{#each WHEN as [days, name] (days)}<button aria-pressed={goal.days === days} onclick={() => (goal.days = days)}>{name}</button>{/each}</div>
         </div>
-        <input class="input" bind:value={goal.notes} placeholder="Anything else? (optional: “only chapters 2 to 4”)" aria-label="Anything else" />
+        <input class="input" bind:value={goal.notes} placeholder={t('Anything else? (optional: “only chapters 2 to 4”)')} aria-label={t('Anything else')} />
         {#if !ready}
-          <p class="hint">Planning and writing cards needs the AI connection: set it up in Settings › Study with Thoth. Your sources stay here meanwhile.</p>
+          <p class="hint">{t('Planning and writing cards needs the AI connection: set it up in Settings › Study with Thoth. Your sources stay here meanwhile.')}</p>
         {:else if !data.ai.noticeSeen}
-          <p class="hint">Thoth sends the openings of each part of your sources (not the whole text) to your AI service to plan the outline, and later the parts each lesson uses. Nothing else about you is sent.</p>
-          <button class="quiet" onclick={acceptNotice}>I understand</button>
+          <p class="hint">{t('Thoth sends the openings of each part of your sources (not the whole text) to your AI service to plan the outline, and later the parts each lesson uses. Nothing else about you is sent.')}</p>
+          <button class="quiet" onclick={acceptNotice}>{t('I understand')}</button>
         {:else}
-          <p class="hint">About {tokens(Math.round(on.reduce((t, s) => t + Math.min(s.chars, s.sections * 300), 0) / 4) + outlineCost)} tokens will go to your AI service to plan the outline.</p>
-          <button class="primary" disabled={!!busy} onclick={suggest}>Suggest an outline</button>
+          <p class="hint">{t('About {outlineCost} tokens will go to your AI service to plan the outline.', { outlineCost: tokens(Math.round(on.reduce((t, s) => t + Math.min(s.chars, s.sections * 300), 0) / 4) + outlineCost) })}</p>
+          <button class="primary" disabled={!!busy} onclick={suggest}>{t('Suggest an outline')}</button>
         {/if}
       </div>
     {/if}
   {:else if step === 'outline'}
-    <p class="hint">Rename, reorder or drop lessons before any cards are made. Each lesson shows where it comes from.</p>
+    <p class="hint">{t('Rename, reorder or drop lessons before any cards are made. Each lesson shows where it comes from.')}</p>
     {#each outline as u, ui_ (ui_)}
       <div class="unit">
-        <input class="input unit-name" bind:value={u.name} aria-label="Unit name" />
+        <input class="input unit-name" bind:value={u.name} aria-label={t('Unit name')} />
         {#each u.lessons as l, li (li)}
           <div class="lesson card" class:dropped={!l.keep}>
             <div class="row">
-              <input class="input" bind:value={l.name} aria-label="Lesson name" disabled={!l.keep} />
-              <select class="input" bind:value={l.kind} aria-label="Kind of cards" disabled={!l.keep}>
+              <input class="input" bind:value={l.name} aria-label={t('Lesson name')} disabled={!l.keep} />
+              <select class="input" bind:value={l.kind} aria-label={t('Kind of cards')} disabled={!l.keep}>
                 {#each Object.entries(KINDS) as [k, name] (k)}<option value={k}>{name}</option>{/each}
               </select>
-              <input class="input num" type="number" min="1" max="60" bind:value={l.cards} aria-label="About how many cards" disabled={!l.keep} />
+              <input class="input num" type="number" min="1" max="60" bind:value={l.cards} aria-label={t('About how many cards')} disabled={!l.keep} />
             </div>
             <div class="row small">
-              <span class="from">{l.from.map(([id, at]) => `${sources.find((s) => s.id === id)?.title ?? id} · ${at}`).join('; ') || 'No source part named'}</span>
-              <button class="icon-btn" aria-label="Move up" onclick={() => moveLesson(ui_, li, -1)}><Icon name="up" size={16} /></button>
-              <button class="icon-btn" aria-label="Move down" onclick={() => moveLesson(ui_, li, 1)}><Icon name="down" size={16} /></button>
-              <button class="quiet" onclick={() => (l.keep = !l.keep)}>{l.keep ? 'Drop' : 'Keep'}</button>
+              <span class="from">{l.from.map(([id, at]) => `${sources.find((s) => s.id === id)?.title ?? id} · ${at}`).join('; ') || t('No source part named')}</span>
+              <button class="icon-btn" aria-label={t('Move up')} onclick={() => moveLesson(ui_, li, -1)}><Icon name="up" size={16} /></button>
+              <button class="icon-btn" aria-label={t('Move down')} onclick={() => moveLesson(ui_, li, 1)}><Icon name="down" size={16} /></button>
+              <button class="quiet" onclick={() => (l.keep = !l.keep)}>{l.keep ? t('Drop') : t('Keep')}</button>
             </div>
           </div>
         {/each}
@@ -313,55 +314,55 @@
     {/each}
 
     <div class="sample card">
-      <p class="label">Sample · up to five cards from the first lesson</p>
+      <p class="label">{t('Sample · up to five cards from the first lesson')}</p>
       {#each sample as c, i (i)}
         <div class="sc" class:nosrc={c.source && !c.source.found}>
           <strong>{c.front}</strong>
           <span>{c.back}</span>
-          <small>{c.source?.found ? `From: ${sources.find((s) => s.id === c.source?.id)?.title ?? ''} · ${c.source.at}` : 'Not found in your sources: this card would be switched off'}</small>
+          <small>{c.source?.found ? `From: ${sources.find((s) => s.id === c.source?.id)?.title ?? ''} · ${c.source.at}` : t('Not found in your sources: this card would be switched off')}</small>
         </div>
       {/each}
-      <p class="small"><strong>Tell Thoth what to change</strong> (for every card)</p>
+      <p class="small"><strong>{t('Tell Thoth what to change')}</strong> {t('(for every card)')}</p>
       <div class="chips">
-        <button aria-pressed={style.short} onclick={() => (style.short = !style.short)}>Shorter answers</button>
-        <button aria-pressed={style.exam} onclick={() => (style.exam = !style.exam)}>Exam-style questions</button>
-        <button aria-pressed={style.keepTerms} onclick={() => (style.keepTerms = !style.keepTerms)}>Keep technical terms</button>
+        <button aria-pressed={style.short} onclick={() => (style.short = !style.short)}>{t('Shorter answers')}</button>
+        <button aria-pressed={style.exam} onclick={() => (style.exam = !style.exam)}>{t('Exam-style questions')}</button>
+        <button aria-pressed={style.keepTerms} onclick={() => (style.keepTerms = !style.keepTerms)}>{t('Keep technical terms')}</button>
       </div>
-      <input class="input" bind:value={style.notes} placeholder="Anything else? (“add a one-line example”)" aria-label="Other wishes" />
-      <button class="quiet" disabled={!!busy || !kept.length} onclick={writeSample}>{sample.length ? 'Write the sample again' : 'Write a sample'}</button>
+      <input class="input" bind:value={style.notes} placeholder={t('Anything else? (“add a one-line example”)')} aria-label={t('Other wishes')} />
+      <button class="quiet" disabled={!!busy || !kept.length} onclick={writeSample}>{sample.length ? t('Write the sample again') : t('Write a sample')}</button>
     </div>
     <div class="pair">
-      <button class="quiet" onclick={() => (step = 'shelf')}>Back to sources</button>
-      <button class="primary" disabled={!!busy || !kept.length} onclick={makeAll}>Make about {total} cards</button>
+      <button class="quiet" onclick={() => (step = 'shelf')}>{t('Back to sources')}</button>
+      <button class="primary" disabled={!!busy || !kept.length} onclick={makeAll}>{t('Make about {total} cards', { total })}</button>
     </div>
   {:else if step === 'making'}
-    <ProgressBar label={busy || 'Starting…'} value={kept.length ? made.lessons / kept.length : 0} />
-    <p class="hint">{made.cards} cards so far. You can leave this screen open; each lesson is added as soon as it is written.</p>
-    <button class="quiet" onclick={() => (stop = true)}>Stop after this lesson</button>
+    <ProgressBar label={busy || t('Starting…')} value={kept.length ? made.lessons / kept.length : 0} />
+    <p class="hint">{t('{cards} cards so far. You can leave this screen open; each lesson is added as soon as it is written.', { cards: made.cards })}</p>
+    <button class="quiet" onclick={() => (stop = true)}>{t('Stop after this lesson')}</button>
   {:else}
     <div class="done card" role="status">
-      <h2 class="display">{made.cards} cards in {made.lessons - made.failed.length} {made.lessons - made.failed.length === 1 ? 'lesson' : 'lessons'}</h2>
-      <p class="small">Every card links to the passage it comes from: tap “From” on its answer to read it.</p>
+      <h2 class="display">{plural('{cards} cards in {n} lesson', '{cards} cards in {n} lessons', made.lessons - made.failed.length, { cards: made.cards })}</h2>
+      <p class="small">{t('Every card links to the passage it comes from: tap “From” on its answer to read it.')}</p>
       {#each made.failed as f (f)}<p class="small bad">{f}</p>{/each}
     </div>
     {#if unsourced.length}
-      <p class="label">Not found in your sources · switched off</p>
-      <p class="hint">Thoth could not point to a sentence for these, so they will not come up until you decide.</p>
+      <p class="label">{t('Not found in your sources · switched off')}</p>
+      <p class="hint">{t('Thoth could not point to a sentence for these, so they will not come up until you decide.')}</p>
       {#each unsourced as n (n.id)}
         <div class="sc nosrc card">
           <strong>{n.front}</strong>
           <span>{n.back}</span>
-          {#if n.source?.quote}<small>Thoth quoted: “{n.source.quote}”</small>{/if}
+          {#if n.source?.quote}<small>{t('Thoth quoted: “{quote}”', { quote: n.source.quote })}</small>{/if}
           <div class="pair">
-            <button class="quiet" onclick={() => keep(n.id)}>Keep it anyway</button>
-            <button class="quiet danger" onclick={() => drop(n.id)}>Delete it</button>
+            <button class="quiet" onclick={() => keep(n.id)}>{t('Keep it anyway')}</button>
+            <button class="quiet danger" onclick={() => drop(n.id)}>{t('Delete it')}</button>
           </div>
         </div>
       {/each}
     {/if}
     <div class="pair">
-      <button class="quiet" onclick={() => (step = 'shelf')}>Add more sources</button>
-      <button class="primary" onclick={() => openPanel('path')}>To the lessons</button>
+      <button class="quiet" onclick={() => (step = 'shelf')}>{t('Add more sources')}</button>
+      <button class="primary" onclick={() => openPanel('path')}>{t('To the lessons')}</button>
     </div>
   {/if}
 

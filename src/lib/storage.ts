@@ -14,6 +14,7 @@
 // None of this is visible outside this file: notes come back exactly as they went in.
 
 import type { Deck, Note } from './core/types';
+import { t } from './i18n';
 
 /** A deck without its notes. */
 export type DeckHead = Omit<Deck, 'notes'>;
@@ -165,7 +166,7 @@ export function encodeNotes(notes: Record<string, Note>, prev?: Pick<Encoded, 'n
 export function decodeNotes(head: Pick<StoredHead, 'order' | 'chunks' | 'labels'>, texts: (string | undefined)[]): Record<string, Note> {
   const byId = new Map<string, Note>();
   texts.forEach((text, i) => {
-    if (text === undefined) throw new Error(`A part of this deck is missing (${head.chunks[i]}).`);
+    if (text === undefined) throw new Error(t('A part of this deck is missing ({i}).', { i: head.chunks[i] }));
     for (const p of JSON.parse(text) as Packed[]) {
       const n = unpackNote(p, head.labels);
       byId.set(n.id, n);

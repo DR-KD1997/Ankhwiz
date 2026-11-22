@@ -227,9 +227,24 @@ pub struct Face {
     /// The learner checks this card themselves.
     pub self_check: bool,
     pub picture: Option<Picture>,
+    /// Answers accepted because the deck links this note to others with the same meaning.
+    pub linked: Vec<String>,
 }
 
 pub fn face(deck: &Deck, card_id: &str) -> Option<Face> {
+    let mut f = face_alone(deck, card_id)?;
+    if !f.cloze && f.picture.is_none() && !deck.links.is_empty() {
+        for a in crate::links::same_answers(deck, &f.note_id, f.reverse) {
+            if !f.accepted.contains(&a) {
+                f.accepted.push(a.clone());
+                f.linked.push(a);
+            }
+        }
+    }
+    Some(f)
+}
+
+fn face_alone(deck: &Deck, card_id: &str) -> Option<Face> {
     let note = deck.notes.get(note_of(card_id))?;
     let suffix = card_id.split_once(':').map(|(_, s)| s).unwrap_or("");
     let base = |prompt: String, answer: String, accepted: Vec<String>| Face {
@@ -247,6 +262,7 @@ pub fn face(deck: &Deck, card_id: &str) -> Option<Face> {
         extra_more: filled(&note.extra_more),
         self_check: note.self_check,
         picture: None,
+        linked: vec![],
     };
     if let Some(o) = &note.occlusion {
         let numbers = part_numbers(o);

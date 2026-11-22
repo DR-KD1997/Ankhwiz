@@ -2,11 +2,10 @@
 // These work offline; nothing here needs AI. The words themselves live in
 // the translatable text (i18n/en.ts, keys thoth_*).
 
-import { variants } from '../i18n';
+import { number, plural, t, variants } from '../i18n';
 
 export type ThothMode = 'full' | 'quiet' | 'hidden';
 
-const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'];
 
 const KEYS = [
   'meet',
@@ -50,19 +49,18 @@ export function line(key: LineKey): string {
 export function choiceLine(count: number, justMet: boolean): string {
   if (justMet) return line('justMet');
   if (count < 4) return line('choiceFew');
-  return `${WORDS[count][0].toUpperCase()}${WORDS[count].slice(1)} choices this time. Take your time.`;
+  return t('{n} choices this time. Take your time.', { n: number(count) });
 }
 
 export function dueLine(count: number, reviewFirst: boolean): string {
-  const cards = count === 1 ? '1 card is' : `${count} cards are`;
   return reviewFirst
-    ? `${cards} due. I suggest a review before anything new.`
-    : `${cards} due for review today.`;
+    ? plural('{n} card is due. I suggest a review before anything new.', '{n} cards are due. I suggest a review before anything new.', count)
+    : plural('{n} card is due for review today.', '{n} cards are due for review today.', count);
 }
 
 export function streakLine(days: number): string {
-  if (days <= 1) return 'First day recorded.';
-  return `${days} days in a row.`;
+  if (days <= 1) return t('First day recorded.');
+  return plural('{n} day in a row.', '{n} days in a row.', days);
 }
 
 export function lessonEndLine(correct: number, total: number, review: boolean): string {

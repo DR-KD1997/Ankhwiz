@@ -1,0 +1,446 @@
+# Português (Brasil). Lines: index|text (index into scripts/i18n-strings.json).
+0|O Ankhwiz não conseguiu iniciar.
+1|O núcleo de aprendizado não carregou nesta visualização ({failed}). Experimente o app para desktop ou Android, ou um navegador atualizado.
+2|Não foi possível abrir este baralho.
+3|Voltar aos seus baralhos
+4|Abrindo {name}…
+5|Algo deu errado.
+6|Desta vez são {n} opções. Sem pressa.
+7|{"one":"{n} cartão está para revisão. Sugiro revisar antes de algo novo.","other":"{n} cartões estão para revisão. Sugiro revisar antes de algo novo."}
+8|{"one":"{n} cartão para revisar hoje.","other":"{n} cartões para revisar hoje."}
+9|Primeiro dia registrado.
+10|{"one":"{n} dia seguido.","other":"{n} dias seguidos."}
+11|Este arquivo não é um baralho .ankh legível.
+12|Uma parte deste arquivo .ankh ({name}) está danificada.
+13|Este arquivo não é um baralho do Ankhwiz.
+14|Este baralho foi salvo por um Ankhwiz mais novo. Atualize o Ankhwiz para abri-lo.
+15|Este arquivo .ankh não contém nenhum baralho.
+16|Este arquivo não é uma biblioteca do Ankhwiz legível.
+17|Uma parte deste arquivo de biblioteca ({name}) está danificada.
+18|Este arquivo não é uma biblioteca do Ankhwiz.
+19|Esta biblioteca foi salva por um Ankhwiz mais novo. Atualize o Ankhwiz para abri-la.
+20|{"one":" {n} arquivo de mídia não estava neste dispositivo e ficou de fora.","other":" {n} arquivos de mídia não estavam neste dispositivo e ficaram de fora."}
+21|{notes} notas e {cards} cartões exportados para o Anki{x}. {where}{missing}
+22|, com o progresso
+23|Baralho salvo como arquivo do Ankhwiz{x}. {where}{missing}
+24|{"one":"{n} baralho com backup, incluindo progresso e configurações. {where}{x2}","other":"{n} baralhos com backup, incluindo progresso e configurações. {where}{x2}"}
+25|{"one":"Biblioteca restaurada: {n} baralho, com progresso e configurações.","other":"Biblioteca restaurada: {n} baralhos, com progresso e configurações."}
+26|{"one":"; {n} que já estava aqui ficou como estava","other":"; {n} que já estavam aqui ficaram como estavam"}
+27|Algo novo. Leia uma vez; vou perguntar daqui a pouco.
+28|Um novo registro para o papiro. Dê uma olhada.
+29|Aqui está o próximo. Absorva antes de seguirmos.
+30|Duas opções para começar.
+31|Você acabou de ver. Qual é?
+32|Uma lista curta desta vez.
+33|Escolha com cuidado.
+34|Agora escreva você. As cores vão guiar você.
+35|Digite a resposta. Verde quer dizer que você está no caminho certo.
+36|Coloque as palavras em ordem. Algumas não fazem parte.
+37|Monte a resposta palavra por palavra. Deixe de fora as que sobram.
+38|Um escriba põe cada sinal no lugar. Toque as palavras em ordem.
+39|Agora sem cores. Confie no que você sabe.
+40|Escreva de memória. Eu confiro quando você terminar.
+41|Escreva sua resposta e depois compare com a minha. Responda com honestidade.
+42|Esta você mesmo avalia. Pense na resposta e depois olhe. Uma nota honesta é o que mais ajuda.
+43|Não consigo corrigir este cartão sozinho. Lembre, mostre a resposta e diga o quanto chegou perto.
+44|Sem dicas num teste. Responda o que souber.
+45|Sem pressa. Isto é só para ver o que você já sabe.
+46|Você já sabia isto. Abri a unidade para você.
+47|Muito bem sabido. O papiro avança.
+48|Ainda não. As lições vão construir isso direitinho.
+49|Parte disto ainda é nova para você. É para isso que servem as lições.
+50|Uma boa sequência de dias. O hábito é a melhor ferramenta do escriba.
+51|Dia após dia. É assim que se escrevem papiros.
+52|Um mês inteiro e mais. Até os escribas de Tebas tiravam folga.
+53|Uma constância notável. Anotei duas vezes.
+54|Escreva com suas palavras. Eu vou ler.
+55|Aqui não há uma redação fixa. Conte o que você sabe.
+56|Quase. Confira a ortografia e tente mais uma vez.
+57|Correto.
+58|Exatamente.
+59|Bem lembrado.
+60|Isso mesmo.
+61|Correto. Esse sobe uma etapa.
+62|Muito bem. Marquei como mais firme.
+63|Não foi desta vez. Esse cartão volta daqui a pouco.
+64|Quase. Anote a resposta; vamos voltar a ela.
+65|Uma lição impecável. O papiro está mais longo que hoje de manhã.
+66|Feito com cuidado. É assim que o conhecimento se conserva.
+67|Bom trabalho. Os que você errou vão voltar até ficarem.
+68|Uma lição razoável. O que escapou hoje será perguntado de novo.
+69|Foi difícil, e você terminou. Isso conta.
+70|Estes vão precisar de mais algumas passadas. É assim mesmo.
+71|Suas lições anteriores estão em ordem de novo.
+72|Revisado e registrado.
+73|Boas-vindas. Adicione um baralho e podemos começar.
+74|Sua próxima lição está pronta quando você estiver.
+75|Todas as lições daqui já foram apresentadas. As revisões vão mantê-las firmes.
+76|Nada para revisar. Volte amanhã ou comece a próxima lição.
+77|Verificar
+78|Continuar
+79|Correto
+80|Quase
+81|Resposta: {answer}
+82|Subiu uma etapa
+83|Prática: a programação não muda
+84|Mostrar a resposta
+85|Quanto você chegou perto?
+86|Errei
+87|Em parte
+88|Acertei
+89|Lição concluída
+90|Revisão concluída
+91|Prática concluída
+92|Todos os baralhos concluídos
+93|Unidade aprovada
+94|Não foi desta vez
+95|{n} dias seguidos
+96|{n} cartão
+97|{n} cartões
+98|{n} revisão
+99|{n} revisões
+100|Sua resposta
+102|A importação parou.
+103|Esta visualização não abre arquivos do Anki. Use o app para desktop ou Android, ou o arquivo HTML do Ankhwiz.
+105|o cofre de senhas do seu computador (o Gerenciador de Credenciais do Windows ou o chaveiro do Linux; um arquivo privado se não houver nenhum)
+106|o armazenamento privado deste app, criptografado com uma chave do Android Keystore
+107|o armazenamento deste navegador para esta página, que não é criptografado
+108|Salvo em {x}.
+109|Não foi possível salvar o arquivo.
+110|Enviado para seus downloads. Se nada chegou, esta visualização bloqueia downloads; use o app para desktop ou Android.
+111|O que significa “{text}”?
+112|Qual palavra completa a lacuna? “{gapped}”
+113|Verdadeiro ou falso: “{text}” significa “{shown}”.
+114|Verdadeiro
+115|Falso
+116|Idiomas e vozes
+117|O lugar dele na sua biblioteca
+118|Campos de cartão não usados
+119|Respostas que significam a mesma coisa
+120|Opções erradas mais justas
+121|Nomes das lições
+122|Notas sobre respostas parecidas
+123|Histórias para rodadas de leitura
+124|Verificar cartões duvidosos
+125|Idiomas
+126|Antes de preparar para o Ankhwiz
+127|Já configurado
+128|Não deu para saber; escolha em Opções do baralho
+129|Já organizado
+130|Não deu para saber; organize pela biblioteca
+131|Nenhum
+132|{"one":"{n} campo para verificar","other":"{n} campos para verificar"}
+133|{"one":"{n} vínculo neste dispositivo","other":"{n} vínculos neste dispositivo"}
+134|{"one":"{n} do Thoth para verificar","other":"{n} do Thoth para verificar"}
+135|Nada encontrado
+136|{"one":"Opções erradas para {n} cartão","other":"Opções erradas para {n} cartões"}
+137|{"one":"{n} cartão parece duvidoso","other":"{n} cartões parecem duvidosos"}
+138|Já têm nome
+139|{"one":"{n} lição para nomear","other":"{n} lições para nomear"}
+140|Nenhum par parecido
+141|{"one":"{n} nota escrita","other":"{n} notas escritas"}
+142|Ainda não há palavras suficientes
+143|{"one":"{n} história","other":"{n} histórias"}
+144|Não executado
+145|Precisa da conexão com IA
+146|Interrompido
+147|Idiomas: {q}{a}
+148|A leitura em voz alta está ativada.
+149|Colocado em {where}
+150|Pelo nome do baralho no Anki
+151|Pelos idiomas dele
+152|Sugerido pelo Thoth
+153|{"one":"Apagar o texto de {n} campo não usado","other":"Apagar o texto de {n} campos não usados"}
+154|{names}: em {count} cartões, nunca aparece.
+155|{"one":"{n} resposta vinculada neste dispositivo","other":"{n} respostas vinculadas neste dispositivo"}
+156|{"one":"{n} resposta vinculada","other":"{n} respostas vinculadas"}
+157|mesmo significado
+158|parecidas, nunca oferecidas uma contra a outra
+159|{"one":"Respostas certas extras para {n} cartão","other":"Respostas certas extras para {n} cartões"}
+160|Mantidos: recebem a etiqueta “thoth-check”, para encontrá-los em Cartões.
+161|{"one":"{n} lição nomeada por tema","other":"{n} lições nomeadas por tema"}
+162|{"one":"{n} nota sobre respostas parecidas","other":"{n} notas sobre respostas parecidas"}
+163|{"one":"{n} história para rodadas de leitura","other":"{n} histórias para rodadas de leitura"}
+164|Estes campos não podem ser alterados.
+165|{"one":"Com estes campos, {n} cartão ficaria sem pergunta ou sem resposta. Escolha outros campos.","other":"Com estes campos, {n} cartões ficariam sem pergunta ou sem resposta. Escolha outros campos."}
+166|{"one":"{n} cartão está para revisão. Alguns minutos o mantêm firme.","other":"{n} cartões estão para revisão. Alguns minutos os mantêm firmes."}
+167|Sua próxima lição está pronta: {deck}, {lesson}. Cerca de {x} minutos.
+168|Hora de alguns minutos de estudo.
+169|Marimba de bambu
+170|Quente e amadeirado
+171|Lira
+172|Uma corda dedilhada
+173|Sino de templo
+174|Um sino e um sistro
+175|Pop suave
+176|Bipes redondos e saltitantes
+177|Não foi possível acessar a página. Confira o endereço e a conexão.
+178|Essa página exige login ou não permite leitores como o Ankhwiz. Abra você mesmo e cole o texto dela.
+179|A página respondeu com um erro ({status}).
+180|Esse endereço é um PDF. Baixe e adicione como arquivo.
+181|Nenhum texto legível foi encontrado nessa página. Ela pode se montar com scripts; abra e cole o texto dela.
+182|Não foi possível abrir este arquivo do Word.
+183|Este arquivo não é um documento do Word (.docx).
+184|Este PDF está protegido por senha.
+185|Não foi possível ler este PDF.
+186|Este PDF não tem texto para ler: as páginas podem ser digitalizações ou imagens.
+187|O Ankhwiz ainda não lê arquivos .{ext}. Salve como PDF, Word (.docx) ou texto e adicione esse.
+188|Este arquivo não parece texto, PDF nem documento do Word.
+189|Adicione a voz do idioma nas configurações do celular, em Saída de conversão de texto em voz.
+190|Adicione a voz do idioma nas Configurações do Windows, em Hora e idioma › Fala.
+191|Instale uma voz do idioma para o speech-dispatcher, como espeak-ng ou RHVoice.
+192|Seu navegador ou sistema não tem voz para este idioma.
+193|Falta uma parte deste baralho ({i}).
+194|Novo baralho
+195|Antes de mudar os campos de {x}
+196|um tipo de nota
+197|Antes de restaurar uma cópia anterior
+198|um tipo de cartão
+199|Não foi possível mudar os campos.
+200|Antes de dar um tipo de cartão aos cartões
+201|Antes de apagar o texto dos campos não usados
+202|Todos os baralhos
+203|As seções em que “{name}” se baseia não foram encontradas nas fontes.
+204|Boas-vindas
+205|Boas-vindas. Eu sou Thoth, escriba dos deuses e guardião dos seus cartões. Quer que eu mostre o básico? Leva cerca de um minuto.
+206|Vamos começar com um baralho de exemplo de espanhol do dia a dia. Toque em Adicionar o baralho de exemplo.
+207|Cada baralho se divide em unidades, e as unidades em lições curtas que abrem uma depois da outra. Comece a Lição 1.
+208|Primeiro você conhece cada cartão novo: a pergunta com a resposta. Ainda sem pressão. Toque em Continuar quando tiver lido.
+209|Agora eu pergunto. Toque na resposta que você acha certa.
+210|Depois toque em Verificar. Ao verificar, sua resposta conta, então pense antes.
+211|Cada cartão sobe cinco etapas. Minha ajuda diminui conforme ele sobe: primeiro opções, depois digitação com dicas, depois digitação sem ajuda.
+212|Siga até o fim da lição. Eu volto lá.
+213|Lição concluída. As revisões trazem cada cartão de volta pouco antes de você esquecer, a partir de amanhã.
+214|Toque em Continuar para voltar ao baralho.
+215|Sua sequência de dias seguidos fica aqui, e as revisões aparecem no topo quando há cartões para revisar. Alguns minutos por dia bastam.
+216|Opções do baralho, o editor de cartões, o Teste de nivelamento e estudar comigo podem esperar. Vou explicar cada um na primeira vez que você abrir, e o ? ao lado explica de novo.
+217|Opções do baralho
+218|Quanto estudar: lições novas para sua meta diária e no máximo quantas revisões por dia.
+219|Perguntar nos dois sentidos também pergunta a resposta de volta. O sentido inverso fica espaçado, para um nunca entregar o outro. Respostas longas podem ser montadas com blocos de palavras.
+220|A aparência dos cartões, e Ler em voz alta: um botão de alto-falante junto a cada pergunta e resposta, nos idiomas que você definir.
+221|Importar do Anki
+222|As notas do Anki têm campos. Escolha quais viram a pergunta, a resposta e o extra; arraste para ordenar. Você pode mudar isso depois em Opções do baralho.
+223|Seu progresso no Anki pode vir com o baralho, para você continuar de onde parou.
+224|Quando os campos estiverem certos, importe. Baralhos grandes mostram quanto já foi.
+225|O editor de cartões
+226|A pergunta e a resposta. Mais campos podem aparecer com a pergunta; arraste para ordenar.
+227|Outras respostas que você aceita, como "apple" sem "the", e opções erradas que posso mostrar ao lado da resposta. Deixe em branco e eu escolho algumas do seu baralho.
+228|Adicione imagens e sons, ou crie um cartão de imagem com partes ocultas para eu perguntar.
+229|Passar de uma unidade com um teste
+230|Já conhece esta unidade? Um teste curto sem ajuda. Passe e a unidade abre.
+231|Os cartões dela começam então na etapa 3, e os que você errar voltam ao começo. Uma tentativa por dia.
+232|Estudar com Thoth
+233|Para isso preciso de um serviço de IA seu, configurado em Configurações. Nada é enviado a lugar nenhum até você fazer isso.
+234|Depois me pergunte qualquer coisa sobre seus cartões, e eu explico. Também posso adicionar cartões, melhorá-los, montar uma rodada de desafio ou escrever um texto curto de leitura.
+235|Perguntar
+236|Adicionar cartões
+237|Melhorar
+238|Desafio
+239|Leitura
+240|Cerca de {x} tokens serão enviados, usando o modelo {x2}.
+241|maior
+242|rápido
+243|Adicionados com Thoth
+244|{noteIdsCount} cartões adicionados como novas lições em “{unit}”. Eles estão marcados como IA na tela de lições.
+245|Cartões difíceis
+246|O Thoth não encontrou nada para adicionar a estes cartões.
+247|{changed} cartões atualizados.
+248|Nada foi selecionado.
+249|Os nomes das lições já combinam.
+250|Nomes das lições atualizados.
+251|Antes do Thoth: {x}{x2}
+252| O baralho como estava fica guardado em Opções do baralho › Backups.
+253|Adicione um texto e pelo menos uma pergunta com uma resposta certa e uma errada.
+254|Voltar às lições
+255|Estudar com Thoth
+256|Ainda não há conexão com IA.
+257|Conecte um serviço seu (OpenAI, Gemini, Grok, OpenRouter, um modelo neste computador ou qualquer endereço compatível) e eu posso responder perguntas, rascunhar cartões, montar rodadas de desafio e escrever textos de leitura.
+258|Abrir Configurações
+259|Antes da primeira solicitação
+260|Seu modelo de IA roda neste computador, então nada sai dele.
+261|Quando você usa um recurso aqui, os cartões deste baralho de que ele precisa e o que você digita são enviados para
+262|, com sua própria chave e nos termos desse serviço. Nada é enviado em outros momentos.
+263|A IA pode errar. Cartões novos e mudanças aparecem como rascunhos para você aprovar, e depois ficam marcados como “IA”.
+264|Entendi
+265|Recursos
+266|Pergunte sobre qualquer coisa que este baralho cobre. As respostas se baseiam primeiro nos cartões dele.
+267|Thoth está pensando…
+268|Sua pergunta
+269|Recomeçar
+270|Rascunhos. Edite, desmarque os que não quiser e adicione o resto.
+271|Manter este cartão
+272|Frente
+273|Resposta
+274|Também aceito: {x}
+275|Descartar
+276|Adicionar {length} cartões
+277|Tema
+278|o que os cartões novos devem cobrir
+279|ex.: legumes, a Revolução Francesa
+280|Texto de origem
+281|opcional: cole anotações ou um artigo e os cartões sairão só dele
+282|Quantos
+283|Mudanças propostas
+284|{x}. Desmarque as que não quiser.
+285|Fazer esta mudança
+286|Guardar um backup do baralho como está agora
+287|Fazer {length} mudanças
+288|Mude o baralho com suas palavras
+289|ex.: Adicione uma frase de exemplo ao Extra de cada cartão · Deixe as respostas em minúsculas · Adicione mais cinco frutas à lição de frutas
+290|Aplicar a
+291|O baralho inteiro
+292|Unidade: {name}
+293|Lição: {name}
+294|Só os primeiros 150 cartões são enviados; escolha uma unidade ou lição para chegar ao resto.
+295|{scopeArgs} Você vê cada mudança antes de qualquer coisa ser feita.
+296|Ou deixe o Thoth sugerir
+297|Sugestões. Desmarque o que você não concordar. Os alertas são para você agir; não mudam nada.
+298|Verifique este cartão: {flag}
+299|Aceitar também “{a}”
+300|Opção errada “{w}”
+301|Aplicar selecionados
+302|Nomes de lições propostos.
+303|Usar este nome
+304|Novo nome
+305|Renomear lições
+306|Lição
+307|O Thoth sugere outras respostas aceitas e opções erradas mais difíceis, e aponta cartões duvidosos
+308|Cartões difíceis ({sentNotesCount})
+309|Propor nomes para todas as lições
+310|IA
+311|Escrito para esta rodada. Não muda sua programação de revisões.
+312|Desafio concluído: {challengeScore} de {challengeCount}.
+313|Cinco perguntas novas sobre o que você conheceu até agora, feitas de outros jeitos. Uma rodada de desafio é prática extra: nunca muda a etapa nem a data de um cartão.
+314|Mostrar o texto
+315|Você acertou {readScore} de {questionsCount}.
+316|Voltar aos textos
+317|Remover
+318|Texto
+319|Pergunta {x}
+320|Pergunta
+321|Resposta certa
+322|Resposta errada{x}
+323| (opcional)
+324|Resposta errada
+325|Adicionar uma pergunta
+326|Cancelar
+327|Salvar texto
+328|Leia um texto e depois responda perguntas sobre ele. As perguntas podem ser suas ou do Thoth.
+329|{questionsCount} perguntas{x}{x2}
+330| · IA
+331|Tema para um texto novo
+332|opcional
+333|O Thoth escolhe se ficar em branco
+334|Usar meu próprio texto
+335|De: {x} · {at}
+336|uma fonte
+337|Não encontrado nas suas fontes
+338|Abrir a página
+339|Adicionado por você
+340|Encontrado neste dispositivo
+341|Encontrado neste dispositivo: a mesma pergunta, outra resposta
+342|Encontrado neste dispositivo: a mesma resposta, outra pergunta
+343|Sugerido pelo Thoth: mesmo significado
+344|Sugerido pelo Thoth: significado parecido
+345|Não foi possível perguntar ao Thoth.
+346|Respostas como esta, em outros cartões
+347|{text}: {kind}. Toque para mudar.
+348|Igual
+349|Parecida
+350|Nenhuma ainda.
+351|Sem relação
+352|Nada mais encontrado.
+353|Procurando…
+354|Encontrar respostas como esta
+355|Neste dispositivo + Thoth · 1 solicitação
+356|Neste dispositivo
+357|Thoth está lendo…
+358|Verificar este cartão
+359|Thoth · 1 solicitação
+360|O Thoth não encontrou nada para mudar.
+361|Thoth:
+362|Também certas: {list}
+363|Adicionar
+364|Opções erradas: {list}
+365|Igual: qualquer das duas respostas vale nos dois cartões. Parecida: nunca oferecidas uma contra a outra. Os vínculos são salvos na hora.
+366|Neste dispositivo · pelo nome do baralho no Anki
+367|Neste dispositivo · pelos idiomas dos cartões
+368|Thoth · pelo assunto dos cartões
+369|Voltar à biblioteca
+370|Organize sua biblioteca
+371|Sugestões
+372|Mover
+373|Não, obrigado
+374|Movido.
+375|Ficou onde estava.
+376|Perguntar ao Thoth sobre os outros {n}
+377|Thoth · 1 solicitação por baralho
+378|Mover um baralho
+379|Ainda não organizado
+380|Mover
+381|Mover um baralho nunca muda os cartões nem o progresso dele. Matérias e temas são só a organização da biblioteca; um baralho também pode ficar sem organização.
+382|{"one":"{n} linha adicionada à lista.","other":"{n} linhas adicionadas à lista."}
+383|{"one":"{n} cartão adicionado a {unitName}.","other":"{n} cartões adicionados a {unitName}."}
+384|Este baralho não tem um tipo de cartão para digitar cartões. Abra Tipos de cartão para dar um aos cartões dele, ou adicione cartões em Cartões.
+385|Tipos de cartão
+386|Tipo de cartão
+387|Unidade
+388|Adicionar à lista
+389|Linhas
+390|Adicionar estas linhas à lista
+391|Para adicionar · {draftsCount}
+392|Cartões para adicionar
+393|{c} do cartão {x}
+394|Remover o cartão {x}
+395|{"one":"Adicionar {n} cartão a {unitName}","other":"Adicionar {n} cartões a {unitName}"}
+396|Os cartões entram em lições de {lessonSize} na ordem em que você os adiciona. Mude qualquer cartão depois em Cartões, e os campos ou o layout em Tipos de cartão.
+397|Aparece com a pergunta
+398|Extra (depois de responder)
+399|Aparece depois de responder
+400|Não aparece
+401|Campo {n}
+402|Salvo. Antes foi feito um backup do baralho.
+403|Layout salvo.
+404|{"one":"{n} cartão feito no Ankhwiz","other":"{n} cartões feitos no Ankhwiz"}
+405|Eles usam o layout padrão. Dê a eles um tipo de cartão para nomear os campos e criar a aparência no Anki e aqui.
+406|Dar a eles um tipo de cartão
+407|Este baralho ainda não tem tipos de cartão.
+408|Nome
+409|Editor
+410|Simples
+411|Código do layout
+412|Campos
+413|Mover {name} para cima
+414|Mover {name} para baixo
+415|Nome do campo
+416|Parte do cartão para {name}
+417|Remover {name}
+418|Adicionar um campo
+419|{"one":"Mudar a pergunta ou a resposta transforma estes em cartões diferentes: {n} cartão estudado recomeça.","other":"Mudar a pergunta ou a resposta transforma estes em cartões diferentes: {n} cartões estudados recomeçam."}
+420|{"one":"{n} cartão ficaria sem pergunta ou resposta.","other":"{n} cartões ficariam sem pergunta ou resposta."}
+421|Desfazer mudanças
+422|Salvar campos
+423|Perguntar nos dois sentidos
+424|Também pergunta a resposta e pede a pergunta de volta.
+425|Mostrar o layout deste cartão com a resposta
+426|Além do próprio do Ankhwiz, depois de responder. Mude em Código do layout.
+427|Cartão
+428|Parte
+429|Verso
+430|Estilo
+431|Inserir
+432|A frente não cita nenhum campo, então a frente de todos os cartões seria igual.
+433|A linguagem de modelos do Anki: {x}, {x2} para campos que podem estar vazios, {x3} no verso. Scripts ficam de fora, para os baralhos compartilhados continuarem seguros. O Ankhwiz pergunta os cartões do jeito dele; este layout é o que o Anki mostra, e o que o Ankhwiz mostra com a resposta quando você ativa isso.
+437|Salvar layout
+438|Pré-visualização
+439|Nota anterior
+440|{x} de {notesCount}
+441|Próxima nota
+442|{"one":"{x}Imagem, {n} parte oculta","other":"{x}Imagem, {n} partes ocultas"}
+443|Algumas mudanças não puderam ser feitas.
+444|Cartão adicionado. Adicione outro ou volte à lista.
+445|Cartão removido.
+446|Este dispositivo não conseguiu guardar o arquivo.
+447|Para agora
+448|Para amanhã
+449|Para daqui a {days} dias

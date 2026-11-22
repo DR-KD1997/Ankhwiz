@@ -10,6 +10,7 @@
 import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate';
 import type { AppData } from '../store.svelte';
 import { buildAnkh, readAnkh, type AnkhContents } from './ankh';
+import { t } from '../i18n';
 
 export const LIB_VERSION = 1;
 
@@ -63,7 +64,7 @@ export function readLibrary(bytes: Uint8Array): LibContents {
   try {
     files = unzipSync(bytes);
   } catch {
-    throw new Error('This file is not a readable Ankhwiz library.');
+    throw new Error(t('This file is not a readable Ankhwiz library.'));
   }
   const json = <T>(name: string): T | null => {
     const f = files[name];
@@ -71,12 +72,12 @@ export function readLibrary(bytes: Uint8Array): LibContents {
     try {
       return JSON.parse(strFromU8(f)) as T;
     } catch {
-      throw new Error(`Part of this library file (${name}) is damaged.`);
+      throw new Error(t('Part of this library file ({name}) is damaged.', { name }));
     }
   };
   const manifest = json<LibManifest>('manifest.json');
-  if (manifest?.format !== 'ankhlib') throw new Error('This file is not an Ankhwiz library.');
-  if (manifest.version > LIB_VERSION) throw new Error('This library was saved by a newer Ankhwiz. Update Ankhwiz to open it.');
+  if (manifest?.format !== 'ankhlib') throw new Error(t('This file is not an Ankhwiz library.'));
+  if (manifest.version > LIB_VERSION) throw new Error(t('This library was saved by a newer Ankhwiz. Update Ankhwiz to open it.'));
   const decks = Object.entries(files)
     .filter(([name]) => name.startsWith('decks/') && name.endsWith('.ankh'))
     .map(([, b]) => readAnkh(b));

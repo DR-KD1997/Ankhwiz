@@ -13,6 +13,7 @@
 import type { AnkiNotetype, Deck, Note, Progress } from './core/types';
 import { fieldMedia, readFields, type FieldMap } from './import/apkg';
 import { cardIds } from './ui/cardIds';
+import { plural, t } from './i18n';
 
 /** Whether a new field choice keeps the type's progress: the main question and the answer stay put. */
 export function keepsProgress(type: AnkiNotetype, next: FieldMap): boolean {
@@ -86,14 +87,14 @@ export function planRemap(deck: Deck, progress: Progress, ntid: string, next: Fi
  */
 export function applyRemap(deck: Deck, progress: Progress, ntid: string, next: FieldMap, known: (m: string) => boolean): { reset: string[] } | { error: string } {
   const type = deck.anki?.notetypes[ntid];
-  if (!type || type.occlusion) return { error: 'These fields cannot be changed.' };
+  if (!type || type.occlusion) return { error: t('These fields cannot be changed.') };
   const notes = notesOf(deck, ntid);
   const read = notes.map((n) => {
     const fields = foldEdits(n, type);
     return { n, fields, r: readFields(type, fields, next, known) };
   });
   const empty = read.filter((x) => !x.r).length;
-  if (empty) return { error: `${empty} ${empty === 1 ? 'card' : 'cards'} would have no question or no answer with these fields. Choose other fields.` };
+  if (empty) return { error: plural('{n} card would have no question or no answer with these fields. Choose other fields.', '{n} cards would have no question or no answer with these fields. Choose other fields.', empty) };
 
   const keeps = keepsProgress(type, next);
   const reset = keeps ? [] : notes.flatMap((n) => cardIds(deck, n)).filter((id) => progress[id]);

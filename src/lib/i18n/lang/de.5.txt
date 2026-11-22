@@ -1,0 +1,5 @@
+1448|{name} starten
+1449|{n} neu
+1450|{n} neu zu lernen
+1451|Lektion {n}
+1452|Einheit {n}

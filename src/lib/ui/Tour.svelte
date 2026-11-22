@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '../i18n';
   // The tour's layer over the real app: the screen dims except for a cut-out
   // round the control Thoth is talking about, with his line beside it. When a
   // step waits for the learner, taps reach that control (and only that one).
@@ -96,19 +97,19 @@
       style:bottom={rect && !below ? `${Math.min(vh - 220, vh - rect.y + 12)}px` : null}
       role="dialog"
       aria-modal="false"
-      aria-label="Thoth: {part.name}, step {tour.i + 1} of {part.steps.length}"
+      aria-label={t('Thoth: {name}, step {x} of {stepsCount}', { name: t(part.name), x: tour.i + 1, stepsCount: part.steps.length })}
     >
       {#if data.settings.thoth !== 'hidden'}<div class="face"><Thoth size={56} portrait {cue} /></div>{/if}
       <div class="body">
-        <span class="count">{part.name} · {tour.i + 1} of {part.steps.length}</span>
-        <p bind:this={text} tabindex="-1" aria-live="polite">{step.text}</p>
+        <span class="count">{t('{name} · {x} of {stepsCount}', { name: t(part.name), x: tour.i + 1, stepsCount: part.steps.length })}</span>
+        <p bind:this={text} tabindex="-1" aria-live="polite">{t(step.text)}</p>
         <div class="acts">
           {#if first}
-            <button class="quiet" onclick={() => endPart(true)}>Skip the tour</button>
-            <button class="primary" onclick={nextStep}>Show me</button>
+            <button class="quiet" onclick={() => endPart(true)}>{t('Skip the tour')}</button>
+            <button class="primary" onclick={nextStep}>{t('Show me')}</button>
           {:else}
-            <button class="quiet" onclick={() => endPart()}>Skip</button>
-            {#if !waiting}<button class="primary" onclick={nextStep}>{last ? 'Done' : 'Next'}</button>{/if}
+            <button class="quiet" onclick={() => endPart()}>{t('Skip')}</button>
+            {#if !waiting}<button class="primary" onclick={nextStep}>{last ? t('Done') : t('Next')}</button>{/if}
           {/if}
         </div>
       </div>

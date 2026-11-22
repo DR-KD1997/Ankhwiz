@@ -1,0 +1,5 @@
+1448|{name} başla
+1449|{n} yeni
+1450|yeniden öğrenilecek {n}
+1451|Ders {n}
+1452|Ünite {n}

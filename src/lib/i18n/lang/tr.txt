@@ -1,0 +1,446 @@
+# Türkçe. Lines: index|text (index into scripts/i18n-strings.json).
+0|Ankhwiz başlatılamadı.
+1|Öğrenme çekirdeği bu görünümde yüklenmedi ({failed}). Masaüstü veya Android uygulamasını ya da güncel bir tarayıcıyı deneyin.
+2|Bu deste açılamadı.
+3|Destelerine dön
+4|{name} açılıyor…
+5|Bir şeyler ters gitti.
+6|Bu sefer {n} seçenek var. Acele etme.
+7|{"one":"{n} kartın tekrar zamanı geldi. Yeni bir şeyden önce tekrar etmeni öneririm.","other":"{n} kartın tekrar zamanı geldi. Yeni bir şeyden önce tekrar etmeni öneririm."}
+8|{"one":"Bugün {n} kartın tekrarı var.","other":"Bugün {n} kartın tekrarı var."}
+9|İlk gün kaydedildi.
+10|{"one":"Üst üste {n} gün.","other":"Üst üste {n} gün."}
+11|Bu dosya okunabilir bir .ankh destesi değil.
+12|Bu .ankh dosyasının bir bölümü ({name}) bozuk.
+13|Bu dosya bir Ankhwiz destesi değil.
+14|Bu deste daha yeni bir Ankhwiz ile kaydedilmiş. Açmak için Ankhwiz'i güncelleyin.
+15|Bu .ankh dosyasında deste yok.
+16|Bu dosya okunabilir bir Ankhwiz kütüphanesi değil.
+17|Bu kütüphane dosyasının bir bölümü ({name}) bozuk.
+18|Bu dosya bir Ankhwiz kütüphanesi değil.
+19|Bu kütüphane daha yeni bir Ankhwiz ile kaydedilmiş. Açmak için Ankhwiz'i güncelleyin.
+20|{"one":" {n} medya dosyası bu cihazda olmadığı için dışarıda bırakıldı.","other":" {n} medya dosyası bu cihazda olmadığı için dışarıda bırakıldı."}
+21|Anki için {notes} not ve {cards} kart dışa aktarıldı{x}. {where}{missing}
+22|, ilerlemeyle birlikte
+23|Deste Ankhwiz dosyası olarak kaydedildi{x}. {where}{missing}
+24|{"one":"{n} deste ilerleme ve ayarlarıyla yedeklendi. {where}{x2}","other":"{n} deste ilerleme ve ayarlarıyla yedeklendi. {where}{x2}"}
+25|{"one":"Kütüphane geri yüklendi: ilerleme ve ayarlarıyla {n} deste.","other":"Kütüphane geri yüklendi: ilerleme ve ayarlarıyla {n} deste."}
+26|{"one":"; zaten burada olan {n} deste olduğu gibi bırakıldı","other":"; zaten burada olan {n} deste olduğu gibi bırakıldı"}
+27|Yeni bir şey. Bir kez oku; birazdan soracağım.
+28|Parşömen için yeni bir kayıt. Bir göz at.
+29|İşte sıradaki. Devam etmeden önce iyice bak.
+30|Başlangıç için iki seçenek.
+31|Az önce gördün. Hangisiydi?
+32|Bu sefer kısa bir liste.
+33|Dikkatle seç.
+34|Şimdi kendin yaz. Renkler sana yol gösterecek.
+35|Yazarak cevapla. Yeşil, doğru yolda olduğun anlamına gelir.
+36|Kelimeleri sıraya koy. Bazıları buraya ait değil.
+37|Cevabı kelime kelime kur. Fazlalıkları dışarıda bırak.
+38|Bir kâtip her işareti yerine koyar. Kelimelere sırayla dokun.
+39|Artık renk yok. Bildiğine güven.
+40|Ezberden yaz. Bitirince kontrol edeceğim.
+41|Cevabını yaz, sonra benimkiyle karşılaştır. Dürüst cevap ver.
+42|Bunu sen değerlendir. Cevabı düşün, sonra bak. Dürüst bir not sana en çok yardımı sağlar.
+43|Bu kartı kendim değerlendiremem. Hatırla, cevabı göster ve ne kadar yakın olduğunu söyle.
+44|Sınavda ipucu yok. Bildiğini cevapla.
+45|Acele etme. Bu yalnızca neleri zaten bildiğini görmek için.
+46|Bunu zaten biliyordun. Üniteyi senin için açtım.
+47|İyi biliniyor. Parşömen ilerliyor.
+48|Henüz değil. Dersler bunu adım adım oturtacak.
+49|Bunun bir kısmı senin için hâlâ yeni. Dersler bunun için var.
+50|Güzel bir gün serisi. Alışkanlık kâtibin en iyi aletidir.
+51|Gün be gün. Parşömenler böyle yazılır.
+52|Bir aydan fazla. Thebai'nin kâtipleri bile izin günü yapardı.
+53|Dikkat çekici bir istikrar. İki kez not ettim.
+54|Kendi sözlerinle yaz. Okuyacağım.
+55|Burada sabit bir ifade yok. Bildiğini anlat.
+56|Neredeyse. Yazımını kontrol et ve bir kez daha dene.
+57|Doğru.
+58|Aynen öyle.
+59|İyi hatırladın.
+60|Bu doğru.
+61|Doğru. O kart bir aşama yükseliyor.
+62|Aferin. Onu daha güçlü olarak işaretledim.
+63|Bu sefer olmadı. Az sonra yine karşına çıkacak.
+64|Tam değil. Cevabı not et; ona döneceğiz.
+65|Kusursuz bir ders. Parşömen bu sabahkinden daha uzun.
+66|Özenle yapıldı. Bilgi böyle korunur.
+67|İyi iş. Kaçırdıkların yerine oturana kadar geri gelecek.
+68|Fena olmayan bir ders. Bugün kaçanlar yine sorulacak.
+69|Zor bir dersti ve bitirdin. Bu önemli.
+70|Bunlar birkaç tur daha alacak. İş böyle yürür.
+71|Önceki derslerin yine yolunda.
+72|Tekrar edildi ve kaydedildi.
+73|Hoş geldin. Bir deste ekle, başlayalım.
+74|Sıradaki dersin, sen hazır olduğunda hazır.
+75|Buradaki her ders tanıtıldı. Tekrarlar onları güçlü tutacak.
+76|Zamanı gelen bir şey yok. Yarın gel ya da sıradaki derse başla.
+77|Kontrol et
+78|Devam
+79|Doğru
+80|Tam değil
+81|Cevap: {answer}
+82|Bir aşama yükseldi
+83|Pratik: program değişmedi
+84|Cevabı göster
+85|Ne kadar yakındın?
+86|Bilemedim
+87|Kısmen
+88|Bildim
+89|Ders tamamlandı
+90|Tekrar tamamlandı
+91|Pratik tamamlandı
+92|Tüm desteler bitti
+93|Ünite geçildi
+94|Bu sefer olmadı
+95|Üst üste {n} gün
+96|{n} kart
+97|{n} kart
+98|{n} tekrar
+99|{n} tekrar
+100|Cevabın
+102|İçe aktarma durdu.
+103|Bu görünüm Anki dosyalarını açamaz. Masaüstü veya Android uygulamasını ya da Ankhwiz HTML dosyasını kullanın.
+105|bilgisayarınızın parola deposu (Windows Kimlik Bilgisi Yöneticisi veya Linux anahtarlığı; yoksa özel bir dosya)
+106|bu uygulamanın özel deposu, Android Keystore'dan gelen bir anahtarla şifrelenmiş
+107|bu tarayıcının bu sayfa için deposu (şifrelenmez)
+108|{x} konumuna kaydedildi.
+109|Dosya kaydedilemedi.
+110|İndirilenlere gönderildi. Hiçbir şey gelmediyse bu görünüm indirmeleri engelliyordur; masaüstü veya Android uygulamasını kullanın.
+111|“{text}” ne anlama geliyor?
+112|Boşluğu hangi kelime doldurur? “{gapped}”
+113|Doğru mu yanlış mı: “{text}”, “{shown}” anlamına gelir.
+114|Doğru
+115|Yanlış
+116|Diller ve sesler
+117|Kütüphanedeki yeri
+118|Kullanılmayan kart alanları
+119|Aynı anlama gelen cevaplar
+120|Daha adil yanlış seçenekler
+121|Ders adları
+122|Benzer cevaplar hakkında notlar
+123|Okuma turları için hikâyeler
+124|Şüpheli kartları kontrol et
+125|Diller
+126|Ankhwiz için hazırlamadan önce
+127|Zaten ayarlı
+128|Anlaşılamadı; Deste seçeneklerinden seçin
+129|Zaten yerleştirilmiş
+130|Anlaşılamadı; kütüphaneden yerleştirin
+131|Yok
+132|{"one":"Kontrol edilecek {n} alan","other":"Kontrol edilecek {n} alan"}
+133|{"one":"Bu cihazda {n} bağlantı","other":"Bu cihazda {n} bağlantı"}
+134|{"one":"Thoth'tan kontrol edilecek {n} öneri","other":"Thoth'tan kontrol edilecek {n} öneri"}
+135|Bulunamadı
+136|{"one":"{n} kart için yanlış seçenekler","other":"{n} kart için yanlış seçenekler"}
+137|{"one":"{n} kart şüpheli görünüyor","other":"{n} kart şüpheli görünüyor"}
+138|Zaten adlandırılmış
+139|{"one":"Adlandırılacak {n} ders","other":"Adlandırılacak {n} ders"}
+140|Yakın çift yok
+141|{"one":"{n} not yazıldı","other":"{n} not yazıldı"}
+142|Henüz yeterli kelime yok
+143|{"one":"{n} hikâye","other":"{n} hikâye"}
+144|Çalıştırılmadı
+145|Yapay zekâ bağlantısı gerekiyor
+146|Durduruldu
+147|Diller: {q}{a}
+148|Sesli okuma açık.
+149|{where} altına yerleştirildi
+150|Destenin Anki adından
+151|Dillerinden
+152|Thoth'un önerisi
+153|{"one":"Kullanılmayan {n} alanın metnini sil","other":"Kullanılmayan {n} alanın metnini sil"}
+154|{names}: {count} kartta var, hiç gösterilmiyor.
+155|{"one":"Bu cihazda {n} cevap bağlandı","other":"Bu cihazda {n} cevap bağlandı"}
+156|{"one":"{n} cevap bağlandı","other":"{n} cevap bağlandı"}
+157|aynı anlam
+158|yakın, asla birbirine karşı sunulmaz
+159|{"one":"{n} kart için ek doğru cevaplar","other":"{n} kart için ek doğru cevaplar"}
+160|Saklandı: Kartlar'da bulmak için “thoth-check” etiketini alırlar.
+161|{"one":"{n} ders temaya göre adlandırıldı","other":"{n} ders temaya göre adlandırıldı"}
+162|{"one":"Benzer cevaplar hakkında {n} not","other":"Benzer cevaplar hakkında {n} not"}
+163|{"one":"Okuma turları için {n} hikâye","other":"Okuma turları için {n} hikâye"}
+164|Bu alanlar değiştirilemez.
+165|{"one":"Bu alanlarla {n} kartın sorusu ya da cevabı olmaz. Başka alanlar seçin.","other":"Bu alanlarla {n} kartın sorusu ya da cevabı olmaz. Başka alanlar seçin."}
+166|{"one":"{n} kartın tekrar zamanı geldi. Birkaç dakika onları güçlü tutar.","other":"{n} kartın tekrar zamanı geldi. Birkaç dakika onları güçlü tutar."}
+167|Sıradaki dersin hazır: {deck}, {lesson}. Yaklaşık {x} dakika.
+168|Birkaç dakikalık çalışma zamanı.
+169|Kamış marimba
+170|Sıcak ve ahşap
+171|Lir
+172|Çekilen bir tel
+173|Tapınak çanı
+174|Bir çan ve bir sistrum
+175|Yumuşak pıt
+176|Yuvarlak, zıplayan bipler
+177|Sayfaya ulaşılamadı. Adresi ve bağlantıyı kontrol edin.
+178|Bu sayfa oturum açmayı gerektiriyor ya da Ankhwiz gibi okuyuculara izin vermiyor. Kendiniz açın ve metnini yapıştırın.
+179|Sayfa bir hatayla yanıt verdi ({status}).
+180|Bu adres bir PDF. İndirin ve dosya olarak ekleyin.
+181|Bu sayfada okunabilir metin bulunamadı. Kendini betiklerle oluşturuyor olabilir; açın ve metnini yapıştırın.
+182|Bu Word dosyası açılamadı.
+183|Bu dosya bir Word belgesi (.docx) değil.
+184|Bu PDF bir parolayla kilitli.
+185|Bu PDF okunamadı.
+186|Bu PDF'de okunacak metin yok: sayfaları tarama ya da resim olabilir.
+187|Ankhwiz henüz .{ext} dosyalarını okuyamıyor. PDF, Word (.docx) veya metin olarak kaydedip onu ekleyin.
+188|Bu dosya metin, PDF ya da Word belgesine benzemiyor.
+189|Dilin sesini telefonunuzun ayarlarında, Metin okuma çıkışı altında ekleyin.
+190|Dilin sesini Windows Ayarları'nda, Saat ve dil › Konuşma altında ekleyin.
+191|speech-dispatcher için o dile ait bir ses kurun, örneğin espeak-ng veya RHVoice.
+192|Tarayıcınızda ya da sisteminizde bu dil için ses yok.
+193|Bu destenin bir parçası eksik ({i}).
+194|Yeni deste
+195|{x} alanları değiştirilmeden önce
+196|bir not türünün
+197|Önceki bir kopya geri yüklenmeden önce
+198|bir kart türünün
+199|Alanlar değiştirilemedi.
+200|Kartlara kart türü verilmeden önce
+201|Kullanılmayan alanların metni silinmeden önce
+202|Tüm desteler
+203|“{name}” dersinin dayandığı bölümler kaynaklarda bulunamadı.
+204|Hoş geldin
+205|Hoş geldin. Ben Thoth, tanrıların kâtibi ve kartlarının bekçisi. Sana temelleri göstereyim mi? Yaklaşık bir dakika sürer.
+206|Gündelik İspanyolcadan oluşan örnek bir desteyle başlayalım. Örnek desteyi ekle'ye dokun.
+207|Her deste ünitelere, üniteler de birbiri ardına açılan kısa derslere bölünür. 1. Ders'e başla.
+208|Önce her yeni kartla tanışırsın: soru ve cevabı. Henüz baskı yok. Okuduğunda Devam'a dokun.
+209|Şimdi soruyorum. Doğru olduğunu düşündüğün cevaba dokun.
+210|Sonra Kontrol et'e dokun. Kontrol ettiğinde cevabın sayılır, o yüzden acele etme.
+211|Her kart beş aşama tırmanır. Tırmandıkça yardımım azalır: önce seçenekler, sonra ipuçlu yazma, sonra düz yazma.
+212|Dersin sonuna kadar devam et. O zaman yine geleceğim.
+213|Ders bitti. Tekrarlar, yarından itibaren her kartı unutmak üzereyken geri getirir.
+214|Desteye dönmek için Devam'a dokun.
+215|Üst üste gün serin burada durur; kartların zamanı geldiğinde tekrarlar en üstte görünür. Günde birkaç dakika yeterli.
+216|Deste seçenekleri, kart düzenleyici, Sınavla geç ve benimle çalışma bekleyebilir. Her birini ilk açtığında açıklayacağım; yanındaki ? da yeniden açıklar.
+217|Deste seçenekleri
+218|Ne kadar çalışılacağı: günlük hedefin için yeni dersler ve günde en fazla kaç tekrar.
+219|İki yönlü sor, cevabı da sana geri sorar. Ters yön araya yayılır, böylece biri diğerini ele vermez. Uzun cevaplar kelime kutucuklarından kurulabilir.
+220|Kartların görünümü ve Sesli okuma: belirlediğin dillerde her soru ve cevabın yanında bir hoparlör düğmesi.
+221|Anki'den içe aktarma
+222|Anki notlarının alanları vardır. Hangilerinin soru, cevap ve ek olacağını seç; sıraya sürükle. Bunu daha sonra Deste seçeneklerinde değiştirebilirsin.
+223|Anki'deki ilerlemen desteyle birlikte gelebilir; böylece kaldığın yerden devam edersin.
+224|Alanlar doğru görünüyorsa içe aktar. Büyük desteler ne kadar ilerlediğini gösterir.
+225|Kart düzenleyici
+226|Soru ve cevap. Soruyla birlikte başka alanlar da gösterilebilir; sıraya sürükle.
+227|Kabul edeceğin başka cevaplar, örneğin “the” olmadan “apple”, ve cevabın yanında gösterebileceğim yanlış seçenekler. Boş bırakırsan desteden ben seçerim.
+228|Resim ve ses ekle ya da sormam için gizli bölümleri olan bir resim kartı yap.
+229|Bir üniteyi sınavla geçmek
+230|Bu üniteyi zaten biliyor musun? Yardımsız kısa bir sınav. Geçersen ünite açılır.
+231|Kartları o zaman 3. aşamadan başlar; kaçırdıkların başa döner. Günde bir deneme.
+232|Thoth ile çalışmak
+233|Bunun için Ayarlar'da kuracağın kendi yapay zekâ hizmetine ihtiyacım var. Sen kurana kadar hiçbir yere bir şey gönderilmez.
+234|Sonra bana kartların hakkında her şeyi sor, açıklayayım. Kart ekleyebilir, onları iyileştirebilir, meydan okuma turu hazırlayabilir ya da kısa bir okuma metni yazabilirim.
+235|Sor
+236|Kart ekle
+237|İyileştir
+238|Meydan okuma
+239|Okuma
+240|{x2} modeliyle yaklaşık {x} token gönderilecek.
+241|daha büyük
+242|hızlı
+243|Thoth ile eklendi
+244|“{unit}” içine yeni dersler olarak {noteIdsCount} kart eklendi. Ders ekranında YZ olarak işaretlidirler.
+245|Zor kartlar
+246|Thoth bu kartlara eklenecek bir şey bulamadı.
+247|{changed} kart güncellendi.
+248|Hiçbir şey seçilmedi.
+249|Ders adları zaten uygun.
+250|Ders adları güncellendi.
+251|Thoth'tan önce: {x}{x2}
+252| Destenin önceki hâli Deste seçenekleri › Yedekler altında saklanıyor.
+253|Bir metin ve doğru ile yanlış cevabı olan en az bir soru ekleyin.
+254|Derslere dön
+255|Thoth ile çalış
+256|Henüz yapay zekâ bağlantısı yok.
+257|Kendi hizmetini bağla (OpenAI, Gemini, Grok, OpenRouter, bu bilgisayardaki bir model ya da uyumlu herhangi bir adres); soruları cevaplayabilir, kart taslakları hazırlayabilir, meydan okuma turları kurabilir ve okuma metinleri yazabilirim.
+258|Ayarlar'ı aç
+259|İlk istekten önce
+260|Yapay zekâ modelin bu bilgisayarda çalışıyor, yani hiçbir şey dışarı çıkmaz.
+261|Buradaki bir özelliği kullandığında, bu desteden gereken kartlar ve yazdıkların şuraya gönderilir:
+262|, kendi anahtarınla ve o hizmetin koşullarıyla. Başka zamanlarda hiçbir şey gönderilmez.
+263|Yapay zekâ yanılabilir. Yeni kartlar ve değişiklikler onayına taslak olarak sunulur ve sonrasında “YZ” olarak işaretlenir.
+264|Anlıyorum
+265|Özellikler
+266|Bu destenin kapsadığı her şeyi sor. Cevaplar önce onun kartlarına dayanır.
+267|Thoth düşünüyor…
+268|Sorun
+269|Baştan başla
+270|Taslaklar. Düzenle, istemediklerinin işaretini kaldır, sonra kalanları ekle.
+271|Bu kartı tut
+272|Ön yüz
+273|Cevap
+274|Ayrıca kabul edilir: {x}
+275|At
+276|{length} kart ekle
+277|Konu
+278|yeni kartların neyi kapsaması gerektiği
+279|örn. sebzeler, Fransız Devrimi
+280|Kaynak metin
+281|isteğe bağlı: not ya da makale yapıştırırsan kartlar yalnızca ondan çıkar
+282|Kaç tane
+283|Önerilen değişiklikler
+284|{x}. İstemediklerinin işaretini kaldır.
+285|Bu değişikliği yap
+286|Destenin şimdiki hâlinin yedeğini tut
+287|{length} değişikliği yap
+288|Desteyi kendi sözlerinle değiştir
+289|örn. Her kartın Ek alanına bir örnek cümle ekle · Cevapları küçük harf yap · Meyve dersine beş meyve daha ekle
+290|Uygulanacağı yer
+291|Tüm deste
+292|Ünite: {name}
+293|Ders: {name}
+294|Yalnızca ilk 150 kart gönderilir; geri kalanına ulaşmak için bir ünite veya ders seç.
+295|{scopeArgs} Bir şey yapılmadan önce her değişikliği görürsün.
+296|Ya da Thoth önersin
+297|Öneriler. Katılmadığın her şeyin işaretini kaldır. İşaretler senin ilgilenmen içindir; hiçbir şeyi değiştirmezler.
+298|Bu kartı kontrol et: {flag}
+299|“{a}” da kabul edilsin
+300|Yanlış seçenek “{w}”
+301|Seçilenleri uygula
+302|Önerilen ders adları.
+303|Bu adı kullan
+304|Yeni ad
+305|Dersleri yeniden adlandır
+306|Ders
+307|Thoth başka kabul edilecek cevaplar ve daha zor yanlış seçenekler önerir, şüpheli kartları işaretler
+308|Zor kartlar ({sentNotesCount})
+309|Tüm dersler için ad öner
+310|YZ
+311|Bu tur için yazıldı. Tekrar programını değiştirmez.
+312|Meydan okuma tamamlandı: {challengeCount} sorudan {challengeScore} doğru.
+313|Şimdiye kadar tanıştıklarınla ilgili, yeni biçimlerde sorulan beş taze soru. Meydan okuma turu ek pratiktir: bir kartın aşamasını ya da tarihini asla değiştirmez.
+314|Metni göster
+315|{questionsCount} sorudan {readScore} tanesini doğru cevapladın.
+316|Metinlere dön
+317|Kaldır
+318|Metin
+319|Soru {x}
+320|Soru
+321|Doğru cevap
+322|Yanlış cevap{x}
+323| (isteğe bağlı)
+324|Yanlış cevap
+325|Soru ekle
+326|İptal
+327|Metni kaydet
+328|Bir metin oku, sonra onunla ilgili soruları cevapla. Sorular senin ya da Thoth'un olabilir.
+329|{questionsCount} soru{x}{x2}
+330| · YZ
+331|Yeni metin için konu
+332|isteğe bağlı
+333|Boş bırakılırsa Thoth seçer
+334|Kendi metnimi kullan
+335|Kaynak: {x} · {at}
+336|bir kaynak
+337|Kaynaklarında bulunamadı
+338|Sayfayı aç
+339|Senin eklediğin
+340|Bu cihazda bulundu
+341|Bu cihazda bulundu: aynı soru, başka bir cevap
+342|Bu cihazda bulundu: aynı cevap, başka bir soru
+343|Thoth'un önerisi: aynı anlam
+344|Thoth'un önerisi: yakın anlam
+345|Thoth'a sorulamadı.
+346|Diğer kartlarda buna benzer cevaplar
+347|{text}: {kind}. Değiştirmek için dokun.
+348|Aynı
+349|Yakın
+350|Henüz yok.
+351|İlgisiz
+352|Başka bir şey bulunamadı.
+353|Aranıyor…
+354|Buna benzer cevapları bul
+355|Bu cihazda + Thoth · 1 istek
+356|Bu cihazda
+357|Thoth okuyor…
+358|Bu kartı kontrol et
+359|Thoth · 1 istek
+360|Thoth değiştirilecek bir şey bulamadı.
+361|Thoth:
+362|Bunlar da doğru: {list}
+363|Ekle
+364|Yanlış seçenekler: {list}
+365|Aynı: iki cevap da iki kartta sayılır. Yakın: asla birbirine karşı sunulmaz. Bağlantılar hemen kaydedilir.
+366|Bu cihazda · destenin Anki adından
+367|Bu cihazda · kartlarının dillerinden
+368|Thoth · kartların ne hakkında olduğundan
+369|Kütüphaneye dön
+370|Kütüphaneni düzenle
+371|Öneriler
+372|Taşı
+373|Hayır, teşekkürler
+374|Taşındı.
+375|Olduğu yerde bırakıldı.
+376|Diğer {n} deste için Thoth'a sor
+377|Thoth · deste başına 1 istek
+378|Bir desteyi taşı
+379|Henüz yerleştirilmedi
+380|Taşı
+381|Bir desteyi taşımak kartlarını ya da ilerlemesini asla değiştirmez. Alanlar ve konular yalnızca kütüphanenin düzenidir; bir deste yerleştirilmeden de kalabilir.
+382|{"one":"Listeye {n} satır eklendi.","other":"Listeye {n} satır eklendi."}
+383|{"one":"{unitName} içine {n} kart eklendi.","other":"{unitName} içine {n} kart eklendi."}
+384|Bu destede kart yazılabilecek bir kart türü yok. Kartlarına bir tür vermek için Kart türleri'ni açın ya da Kartlar'dan kart ekleyin.
+385|Kart türleri
+386|Kart türü
+387|Ünite
+388|Listeye ekle
+389|Satırlar
+390|Bu satırları listeye ekle
+391|Eklenecek · {draftsCount}
+392|Eklenecek kartlar
+393|Kart {x}: {c}
+394|Kart {x}'i kaldır
+395|{"one":"{unitName} içine {n} kart ekle","other":"{unitName} içine {n} kart ekle"}
+396|Kartlar, eklediğin sırayla {lessonSize} kartlık derslere girer. Herhangi bir kartı sonra Kartlar'dan, alanları ya da düzeni Kart türleri'nden değiştirebilirsin.
+397|Soruyla birlikte gösterilir
+398|Ek (cevapladıktan sonra)
+399|Cevapladıktan sonra gösterilir
+400|Gösterilmez
+401|Alan {n}
+402|Kaydedildi. Önce destenin bir yedeği alındı.
+403|Düzen kaydedildi.
+404|{"one":"Ankhwiz'de yapılmış {n} kart","other":"Ankhwiz'de yapılmış {n} kart"}
+405|Standart düzeni kullanıyorlar. Alanlarını adlandırmak ve Anki'de ve burada nasıl görüneceklerini tasarlamak için onlara bir kart türü ver.
+406|Onlara bir kart türü ver
+407|Bu destenin henüz kart türü yok.
+408|Ad
+409|Düzenleyici
+410|Basit
+411|Düzen kodu
+412|Alanlar
+413|{name} alanını yukarı taşı
+414|{name} alanını aşağı taşı
+415|Alan adı
+416|{name} için kartın bölümü
+417|{name} alanını kaldır
+418|Alan ekle
+419|{"one":"Soruyu ya da cevabı değiştirmek bunları farklı kartlar yapar: çalışılmış {n} kart baştan başlar.","other":"Soruyu ya da cevabı değiştirmek bunları farklı kartlar yapar: çalışılmış {n} kart baştan başlar."}
+420|{"one":"{n} kartın sorusu ya da cevabı olmaz.","other":"{n} kartın sorusu ya da cevabı olmaz."}
+421|Değişiklikleri geri al
+422|Alanları kaydet
+423|İki yönlü sor
+424|Cevabı da sorar ve soruyu geri ister.
+425|Bu kartın düzenini cevapla birlikte göster
+426|Cevapladıktan sonra, Ankhwiz'inkinin yanı sıra. Düzen kodu altında değiştir.
+427|Kart
+428|Bölüm
+429|Arka yüz
+430|Stil
+431|Ekle
+432|Ön yüzde hiçbir alan adı geçmiyor, yani her kartın ön yüzü aynı olurdu.
+433|Anki'nin şablon dili: alanlar için {x}, boş olabilecek alanlar için {x2}, arka yüzde {x3}. Betikler dışarıda bırakılır, böylece paylaşılan desteler güvende kalır. Ankhwiz kartları kendi yöntemiyle sorar; bu düzen Anki'nin gösterdiğidir ve bunu açtığında Ankhwiz'in cevapla birlikte gösterdiğidir.
+437|Düzeni kaydet
+438|Önizleme
+439|Önceki not
+440|{x} / {notesCount}
+441|Sonraki not
+442|{"one":"{x}Resim, {n} gizli bölüm","other":"{x}Resim, {n} gizli bölüm"}
+443|Bazı değişiklikler yapılamadı.
+444|Kart eklendi. Bir tane daha ekle ya da listeye dön.
+445|Kart kaldırıldı.
+446|Bu cihaz dosyayı saklayamadı.
+447|Şimdi zamanı geldi
+448|Yarın zamanı geliyor
+449|{days} gün sonra zamanı geliyor

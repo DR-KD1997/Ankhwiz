@@ -1,0 +1,403 @@
+900|Bir tur daha
+901|Okuduğunu kontrol et · {questionsCount} soru
+902|Bu cihazda {x} için ses yok{x2}. {x3}
+904|, bu yüzden o kelimeler atlandı
+905|Sesli okuma bu cihazda kullanılamıyor.
+906|Doğru yolda
+907|Yoldan çıktı
+908| Bir aşama yükseldi.
+909|Tam değil. Cevap: {x}.
+910|Haklısın. Bunu aklımda tutacağım.
+911|Doğru sayıldı.
+912|Herkesin kafasını karıştıracak kadar yakın. Not edildi.
+913|Kartın cevabı değil. Bunun da uyup uymadığını Thoth'a soruyorum…
+914|Yakında geri gelir
+915|Zor bir hatırlama olarak sayıldı
+916|Cevap değerlendirilemedi.
+917|Açıklama alınamadı.
+918|Uyan her cevap, uymayan hiçbiri.
+919|Sınavla geç · {x}
+920|İpucu yok
+921|Yeni
+922|Aşama {stage} · {name}
+923| · Ters yön
+924| · Boşluk doldurma
+927|geçme notu {passMark}
+928|{total} sorudan {right} doğru{x}
+929| · 3. aşama
+935|Pratik, kartlarının geri geliş zamanını değiştirmez.
+936|{graded} içinden {correct}
+937|Yükseldi
+938|Bonus: bir okuma turu
+939|Dersi kapat
+940|{position} / {queueCount}
+941|Bu kart için daha fazlası
+942|Bugünlük atla
+943|Yarın geri gelir (Anki: göm)
+944|Bunu sormayı bırak
+945|Kartlar'dan devam ettir (Anki: askıya al)
+946|Bu kart YZ tarafından yazıldı ya da değiştirildi
+947|Soruyu dinle
+948|soru alanları
+949|İpucu: {extra}
+950|Cevabı dinle
+951|alanlar
+952|ek alanlar
+953|{i}: geri al
+954|Kelimelere sırayla dokun
+955|Kelimeler
+956|Temizle
+957|Yazımını kontrol et
+958|(isteğe bağlı: içinden söyle ya da yaz)
+960|Senin yazdığın
+961|Cevap
+964|Tekrar · 1
+966|Zor · 2
+968|İyi · 3
+969|Cevabın, kendi sözlerinle
+970|Cevabın ve bu kart değerlendirme için yapay zekâ hizmetine gönderilir.
+971|Uzun cevaplar, Ayarlar'da bir bağlantı kurulduğunda yapay zekâ tarafından değerlendirilir. O zamana kadar kendin karşılaştır.
+972|Thoth'un notu: {x}
+974|henüz değil
+975|Kabul et
+976|İtiraz: bence {x}
+977|yanlıştı
+978|doğruydu
+979|Doğru sayıldı
+980|Bu da doğru
+982|“{given}” bundan sonra bu kartta kabul ediliyor.
+983|Bağlandı: bundan sonra iki cevap da sayılır.
+984|Yine bir hata, ama bu ikisi artık yan yana sunulmayacak.
+985|Thoth: bu da doğru.
+986|Sonuçta yanlış sayıldı.
+987|Thoth: tam değil.
+988|Bu kartın cevabı: “{answer}”
+989|“{given}” de uyuyor.
+993|Geri al: yanlış say
+994|Yeniden kabul et
+995|Ben de haklıydım
+996|Thoth açıklıyor
+997|“{given}”, “{answer}” cevabına ne kadar yakın?
+998|Şimdi doğru say ve bundan sonra iki cevabı da iki kartta kabul et.
+999|Yakın ama aynı değil
+1000|Hata olarak kalsın, ama bu ikisini asla yan yana sunma.
+1001|“{given}” doğru sayılsın mı?
+1002|Evet, bundan sonra da kabul et
+1003|Evet, bu seferlik say
+1004|Bu kartın kabul edilen cevaplarına eklenir. Kart düzenleyiciden kaldırabilirsin.
+1005|Ters yönde sorulan kartlar kendi cevaplarını korur.
+1006|Klavye kısayolları
+1007|Bir seçenek seç (öz değerlendirme: 1 bilemedim, 2 kısmen, 3 bildim)
+1008|Cümle kurarken: numaralı kelimeyi yerleştir; sonuncuyu geri al
+1009|Kontrol et, sonra devam et
+1010|Bunu açıkla (yapay zekâ bağlantısıyla)
+1011|Sesli oku (deste sesli okuyorsa)
+1012|Çık; yerin saklanır
+1013|Bu listeyi göster ya da gizle
+1014|Sistem varsayılanı
+1015|{language}, bu cihazdan
+1016|Sistem
+1017|Açık
+1018|Koyu
+1019|Klasik
+1020|Logodaki gibi altın ve mürekkep
+1021|Parlak Kâtip
+1022|Daha yuvarlak ve sevimli
+1023|Tam
+1024|Thoth dersler sırasında ve yolda sana rehberlik eder.
+1025|Sessiz
+1026|Thoth yalnızca bir ders bittiğinde görünür.
+1027|Gizli
+1028|Maskot yok. Tavsiyeleri sade bir Öneriler listesi olarak kalır.
+1029|Cevap verdiğinde ses yok.
+1030|{about}. Doğru, neredeyse doğru ve yanlış cevaplarda ve dersin sonunda çalar.
+1031|İkisi de
+1032|Kartlar yalnızca bir hoparlör düğmesine dokunduğunda okunur.
+1033|Her soru, kartı açılırken okunur.
+1034|Cevap, kontrol ettiğinde okunur.
+1035|Soru kartı açılırken, cevap kontrol ettiğinde.
+1036|Yedek alınamadı.
+1037|Pazar
+1038|Pazartesi
+1039|Salı
+1040|Çarşamba
+1041|Perşembe
+1042|Cuma
+1043|Cumartesi
+1044|Ankhwiz için bildirimler kapalı. Sistem ayarlarından izin verin, sonra yeniden deneyin.
+1045|Bağlandı. {modelsCount} model bulundu; aşağıdan birini seçin.
+1046|Bağlandı, ama hizmet hiç model listelemedi. Aşağıya bir model adı yazın.
+1047| Anahtar saklanamadı; bir dahaki sefere yeniden gerekecek.
+1048|Bağlantı kurulamadı.
+1049|Yedek geri yüklendi.
+1050|Bu dosya bir Ankhwiz yedeği değil.
+1051|Bu dosya geri yüklenemedi.
+1052|Bu cihazda daha yeni bir Ankhwiz'in verileri var. Dokunulmadan bırakıldı; açmak için Ankhwiz'i güncelleyin. Burada yaptığınız hiçbir şey kaydedilmez.
+1053|Dil
+1054|Uygulama dili
+1055|Sağdan sola yazılanlar da dahil daha fazla dil sonraki bir güncellemede planlanıyor.
+1056|Thoth'un yanıt dili
+1057|Uygulamayla aynı
+1058|Kartlar asla çevrilmez: yalnızca Ankhwiz'in kendi düğmeleri ve metinleri ile Thoth'un söyledikleri.
+1059|Görünüm
+1060|Tema
+1061|Portre stili
+1062|Thoth'un hareketi
+1063|Hareketli
+1064|Durağan
+1065|Sesler
+1066|Cevap sesleri
+1067|Ders sonunu duyur
+1068|Sesli okuma
+1069|Kendiliğinden oku
+1070|Sesler
+1071|Tur ve ipuçları
+1072|Özellik ipuçları
+1073|Thoth; Deste seçeneklerini, içe aktarmayı, kart düzenleyiciyi, Sınavla geç'i ve kendisiyle çalışmayı ilk açtığında açıklar. Her birinin yanındaki ? yeniden açıklar.
+1074|Hoş geldin turunu yeniden oynat
+1075|Tüm ipuçlarını yeniden göster
+1076|Her ipucu, uygulamanın ilgili bölümünü bir sonraki açışında yeniden görünür.
+1077|Yeni desteler
+1078|Ders başına yeni not, {minLesson} ile {maxLesson} arası. Her deste kendininkini de belirleyebilir.
+1079|Yapay zekâ bağlantısı
+1080|İsteğe bağlı. Kendi hizmetini bağlarsan Thoth soruları cevaplayabilir, kart taslakları hazırlayabilir, uzun cevapları değerlendirebilir ve okuma metinleri yazabilir. Onsuz da her şey eskisi gibi çalışır.
+1081|Hizmet
+1082|Bir hizmet seç…
+1083|Adres
+1085|Anahtar{x}
+1086| (hizmet gerektiriyorsa)
+1087|Anahtar şurada saklanır: {x}. Destelere ya da yedeklere asla yazılmaz ve her cihazın kendi anahtarı gerekir.
+1088|Bağlantıyı kaldır
+1089|Hızlı işler için model
+1090|açıklamalar, değerlendirme, Thoth'a sorular
+1091|Model adı
+1092|Büyük işler için model
+1093|kart ve metin yazma; aynısını kullanmak için boş bırak
+1094|Model adı (isteğe bağlı)
+1095|İstekler bu bilgisayardaki bir modele gider; hiçbir şey dışarı çıkmaz.
+1096|Bir yapay zekâ özelliğini kullandığında, gereken kartlar ve yazdıkların {x} hizmetine gönderilir. Bunun dışında hiçbir şey gönderilmez.
+1097|Uymayan yazılı cevapları kontrol et
+1098|Yazılı bir cevap kartın hiçbir cevabıyla eşleşmediğinde, Thoth yine de adil olup olmadığına karar verir. Adilse sayılır ve o andan itibaren kabul edilir.
+1099|Bir tarayıcıda bazı hizmetler web sayfalarından gelen çağrıları reddeder. Masaüstü ve Android uygulamalarında bu sınır yok.
+1100|Günlük hatırlatma
+1101|Çalışmamı hatırlat
+1102|Yalnızca henüz çalışmadığın günlerde
+1103|Saat
+1104|Günler
+1106|Kütüphanen
+1107|Her desteyi, resimlerini ve seslerini, ilerlemeni ve ayarlarını içeren tek bir dosya. Yapay zekâ anahtarın asla dahil edilmez.
+1108|Nasıl geri yüklensin
+1109|Bu yedek nasıl alınsın?
+1110|Bende olmayan desteleri ekle
+1111|Bu cihazdaki her şeyi değiştir
+1112|Son yedek: {lastBackup}
+1113|Güncellemeler
+1115|Ankhwiz açılırken kontrol et
+1116|Günde en fazla bir kez; yeni bir sürüm, içindeki yenilikleri gösterir
+1117|Ankhwiz açılırken güncellemeleri kontrol et
+1118|Ankhwiz {version} çıktı.
+1119|GitHub'dan indir
+1120|En son sürüme sahipsin.
+1121|Henüz hiç sürüm yayımlanmadı.
+1122|Sürümler sayfası
+1123|GitHub'a ulaşılamadı. Daha sonra yeniden deneyin ya da şurayı ziyaret edin:
+1124|sürümler sayfası
+1125|Ankhwiz GitHub'dan yalnızca son sürüm numarasını ister ve başka hiçbir şey göndermez.
+1126|Test
+1127|Daha sonraki bir günmüş gibi yap
+1128|Uygulamanın tarihi: {simulated}{x}
+1129|Sıfırla
+1130|+1 gün
+1131|Kartların yükselmesi için ayrı günlerde doğru cevap gerekir. Bu, beklemeden denemeni sağlar.
+1132|Veriler
+1133|Her şeyi sakla
+1134|Tüm desteleri ve ilerlemeyi sil
+1135|Bu cihazdaki her şeyi sil…
+1136|Ankhwiz {VERSION} ({x}). Desteler ve ilerleme bu cihazda kalır; hesap ya da eşitleme yoktur. Öğrenme kuralları ortak Rust çekirdeğinde çalışır. Zamanlama, Anki'nin motoru eklenene kadar FSRS formüllerini kullanır.
+1137|Okunamadı: çok büyük (25 MB üstü) olabilir ya da Ankhwiz'in tanıdığı bir dosya olmayabilir.
+1138|Okunacak bir şey yok.
+1139|Okunuyor…
+1140|Okunamadı.
+1141|Bir desteye ekle
+1142|Başka bir uygulamadan paylaşıldı
+1143|Deste
+1144|+ Yeni bir deste
+1145|Yeni destenin adı
+1146|{x} Thoth'tan kart planlamasını isteyene kadar hiçbir yere bir şey gönderilmez.
+1147|Ankhwiz sayfanın metnini, kendin görebileceğin gibi okur.
+1148|Bu cihazda desteyle birlikte saklanır.
+1149|Sadece sakla
+1150|Ekle ve kart planla
+1151|Yeni kart · bildiğin birine yakın
+1152|Bu ikisi kolayca karıştırılır
+1153|Biliyorsun
+1154|“{text}” dinle
+1155|Hızlı kontrol: hangisi “{answer}” anlamına gelir?
+1156|Doğru: “{q}”, “{a}” demek.
+1157|O, “{a}” demek. Yenisi “{q}”.
+1158|Anladım: yeni karta geç
+1159|Okunacak metin bulunamadı.
+1160|“{title}” eklendi: {n} bölüm, yaklaşık {chars} kelime.
+1161|okunamadı.
+1162|Bu bir web adresine benzemiyor.
+1163|Sayfa okunuyor…
+1164|Sayfa okunamadı.
+1165|Web
+1166|Metin
+1167|Word
+1168|Sayfa
+1169|Bir sınav
+1170|Bir kursu takip
+1171|İlgi
+1172|Yeniyim
+1173|Biraz
+1174|Tekrar ediyorum
+1175|Acelem yok
+1176|bir sınav: tanımlar, süreçler ve sınav tarzı sorular
+1177|bir kursu takip: notların sırasıyla
+1178|ilgi: önce büyük fikirler
+1179|yeni başlıyor: önce temelleri açıkla
+1180|biraz biliyor: en temel bilgileri atla
+1181|tekrar ediyor: yalnızca anahtar bilgiler
+1182|Thoth kaynaklarının yapısını okuyor…
+1183|Taslak oluşturulamadı.
+1184|Sorular
+1185|Terimler
+1186|Tarihler
+1187|Formüller
+1188|Adımlar
+1189|Thoth “{name}” dersinden beş kart yazıyor…
+1190|Örnek yazılamadı.
+1191|“{name}” yazılıyor ({listCount} içinden {x})…
+1192|Thoth ile oluştur
+1193|Bu destenin konusu olan dosyaları ve sayfaları ekle. Bu cihazda desteyle birlikte saklanırlar, böylece onları asla iki kez eklemezsin. Ankhwiz yalnızca kendin açabileceklerini okur ve sen Thoth'tan kart planlamasını isteyene kadar hiçbir yere bir şey gönderilmez.
+1194|{title} kullan
+1195|{n} bölüm · yaklaşık {chars} kelime{x2}
+1196|{title} kaldır
+1197|Dosya ekle
+1198|Bir web adresi yapıştır
+1199|Web adresi
+1200|Sayfa ekle
+1201|Bunun için bir ad (isteğe bağlı)
+1202|Metni buraya yapıştır
+1203|Metin ekle
+1204|Ya da biraz metin yapıştır
+1205|PDF, Word (.docx), metin, Markdown ve web sayfaları. Oturum açma gerektiren sayfalar ve yalnızca taranmış resimlerden oluşan PDF'ler okunamaz.
+1206|Üç kısa soru
+1207|Ne için?
+1208|Zaten ne kadar biliyorsun?
+1209|Ne zamana kadar?
+1210|Başka bir şey? (isteğe bağlı: “yalnızca 2-4. bölümler”)
+1211|Başka bir şey
+1212|Kart planlamak ve yazmak yapay zekâ bağlantısı gerektirir: Ayarlar › Thoth ile çalış altından kurun. Bu arada kaynakların burada kalır.
+1213|Thoth taslağı planlamak için kaynaklarının her bölümünün girişini (metnin tamamını değil), daha sonra da her dersin kullandığı bölümleri yapay zekâ hizmetine gönderir. Seninle ilgili başka hiçbir şey gönderilmez.
+1214|Taslağı planlamak için yapay zekâ hizmetine yaklaşık {outlineCost} token gidecek.
+1215|Bir taslak öner
+1216|Kart yapılmadan önce dersleri yeniden adlandır, sırala ya da çıkar. Her ders nereden geldiğini gösterir.
+1217|Kart türü
+1218|Yaklaşık kaç kart
+1219|Yukarı taşı
+1220|Aşağı taşı
+1221|Örnek · ilk dersten en fazla beş kart
+1222|Thoth'a neyin değişeceğini söyle
+1223|(her kart için)
+1224|Daha kısa cevaplar
+1225|Sınav tarzı sorular
+1226|Teknik terimleri koru
+1227|Başka bir şey? (“tek satırlık bir örnek ekle”)
+1228|Diğer istekler
+1229|Kaynaklara dön
+1230|Yaklaşık {total} kart yap
+1231|Şimdiye kadar {cards} kart. Bu ekranı açık bırakabilirsin; her ders yazılır yazılmaz eklenir.
+1232|Bu dersten sonra dur
+1233|{n} derste {cards} kart
+1234|Her kart geldiği metin parçasına bağlanır: okumak için cevabındaki “Kaynak”a dokun.
+1235|Kaynaklarında bulunamadı · kapatıldı
+1236|Thoth bunlar için bir cümle gösteremedi, bu yüzden sen karar verene kadar sorulmayacaklar.
+1237|Thoth'un alıntısı: “{quote}”
+1238|Yine de sakla
+1239|Sil
+1240|Daha fazla kaynak ekle
+1241|Derslere
+1242|Bulunduğun yer
+1243|Kütüphane
+1244|{"one":"Buradaki destelerinde {n} kartın zamanı geldi. Birlikte yapalım mı?","other":"Buradaki destelerinde {n} kartın zamanı geldi. Birlikte yapalım mı?"}
+1245|Her seferinde bir deste. Bana uyar.
+1246|Nasıl çalışılsın
+1247|Desteleri karıştır
+1248|Her seferinde bir deste
+1249|{"one":"Zamanı gelenlerin hepsini çalış · {n} kart","other":"Zamanı gelenlerin hepsini çalış · {n} kart"}
+1250|{deck} ile başla · {n}
+1251|Buradaki her desteden kartlar, birlikte karıştırılmış. Her kart kendi destesinin programını korur.
+1252|Zamanı gelen kartları olan ilk desteyi açar.
+1253|öğrenilen kart
+1254|konunun
+1255|{"one":"deste","other":"deste"}
+1256|{name} içindeki desteler
+1257|Thoth: {name}, adım {x} / {stepsCount}
+1258|{name} · {x} / {stepsCount}
+1259|Turu atla
+1260|Göster
+1261|Atla
+1262|Alanlar değişti. İlerlemen korundu.
+1263|Alanlar değişti. Bu kartlar baştan başlıyor; destenin önceki hâli Yedekler'de.
+1264|Alanlar değişti.
+1265|Değiştir
+1266|{x} bu kartları baştan başlatır.
+1267|Boşluklu metni değiştirmek
+1268|Ana soru ya da cevap alanını değiştirmek
+1269|Ana soru ve cevap aynı kalıyor, bu yüzden ilerlemen korunuyor.
+1270|{"one":"{n} kart baştan başlatılsın mı? Önce destenin bir yedeği alınır.","other":"{n} kart baştan başlatılsın mı? Önce destenin bir yedeği alınır."}
+1271|Ünite hatırlama, bir ünitenin kartlarını ezberden sorar. Önce bir derste bazı kartlarla tanış.
+1272|Bu sefer soru yok. Bir üniteden hatırladığın her kelimeyi, ifadeyi ya da bilgiyi yaz; her satıra bir tane ya da virgülle ayırarak. Yazımın kusursuz olması gerekmez. Kaçırdığın kartlar yarınki tekrarda geri gelir.
+1273|{name} · {met} tanışıldı
+1274|Diğer yüzü ipucu olarak göster
+1275|Daha kolay: her kartın ne anlama geldiğini görür ve kartı yazarsın.
+1276|{name} · {targetsCount} kart
+1277|Kalan süre
+1278|Hatırladıkların
+1279|{count} yazıldı
+1280|Üniteyle karşılaştır
+1281|{targetsCount} içinden {foundCount}
+1282|{x}şunu yazdın: {typed}
+1283|Kaçırılanlar
+1284|Diğer ünitelerden
+1285|Kartlarında yok: {x}
+1286|Yeniden dene
+1287|Güncelleme
+1288|Ankhwiz {version} çıktı
+1289|Sendeki sürüm {VERSION}. Yenilikler:
+1290|İndir
+1291|Sonra
+1292|Bu sürümü atla
+1293|Ankhwiz açılırken yeni sürümlere bakılsın mı?
+1294|Günde en fazla bir kez. GitHub'dan yalnızca son sürüm numarasını ister ve başka hiçbir şey göndermez. Bunu Ayarlar'dan değiştirebilirsin.
+1295|Evet
+1296|{lang} dilinde oku
+1307|{x} Bağlantıyı kontrol edip yeniden deneyin.
+1308|Ses indirilemedi.
+1309|Konuşma motoru
+1310|Telefonun hangi motorunun okuyacağı, örneğin Google'ınki ya da indirilebilir sesleri olan biri
+1311|Telefonun varsayılanı
+1312|Telefonun ayarlarından ses ekle
+1313|Bir destenin seçeneklerinde Sesli okuma'yı aç ve dillerini belirt; sonra burada her biri için bir ses seçilebilir.
+1314|{lang} için ses
+1315|Cihaz sesi
+1316|{name} indir (yaklaşık {x} MB)
+1317|İlk ses, indirilen her sesin kullandığı yaklaşık 30 MB'lık ses motorunu da getirir.
+1318|Dene
+1319|İndirmeyi kaldır
+1320|Bu cihazda: {x}
+1321|Bu cihazda henüz {lang} için ses yok. {x}{x2}
+1322|Yukarıdan birini indir ya da sisteme ekle:
+1323|Ankhwiz'in henüz {lang} için indirilebilir sesi yok.
+1324|İndirilen sesler Piper sesleridir: birçok yerleşik sesten daha doğal gelirler, bu cihazda çalışırlar ve indirildikten sonra çevrimdışı çalışırlar. Hugging Face'teki Piper projesinden gelirler.
+1325|Başka bir dil için ses bul
+1326|Bir dil için ses bul
+1327|Bir dil ara
+1328|Bu destede henüz kart yok. Kart ekle ile biraz ekle ya da Kaynaklardan ben oluşturayım.
+1329|Sıradaki yeni ders: {name}.
+1330|Doğru
+1331|Neredeyse: {typed} yazdın
+1332|{typed} yazdın
+1333|Eksik

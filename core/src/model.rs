@@ -195,11 +195,26 @@ pub struct Look {
     /// learned); the rest of the field in its own. Empty: off.
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub quote_lang: String,
+    /// With reading aloud on: read the question side, and the answer side.
+    /// Both are on unless the learner turns one off.
+    pub speak_question: bool,
+    pub speak_answer: bool,
 }
 
 impl Default for Look {
     fn default() -> Self {
-        Self { size: "m".into(), font: "default".into(), rtl: false, hint_extra: false, lang: String::new(), lang_back: String::new(), speak: "off".into(), quote_lang: String::new() }
+        Self {
+            size: "m".into(),
+            font: "default".into(),
+            rtl: false,
+            hint_extra: false,
+            lang: String::new(),
+            lang_back: String::new(),
+            speak: "off".into(),
+            quote_lang: String::new(),
+            speak_question: true,
+            speak_answer: true,
+        }
     }
 }
 
@@ -324,6 +339,35 @@ pub struct Deck {
     /// How the deck was made (its subject kind, say), for the app.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub made: Option<serde_json::Value>,
+    /// Cards whose answers mean the same, or nearly the same (see `links.rs`).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub links: Vec<AnswerLink>,
+    /// Where the deck sits in the library (its subject and topic), for the app.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub place: Option<serde_json::Value>,
+    /// What "Prepare for Ankhwiz" did and has waiting for review, for the app.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub prep: Option<serde_json::Value>,
+}
+
+/// Notes whose answers mean the same ("same": either answer counts on any of
+/// their cards) or nearly the same ("close": not accepted for each other, but
+/// never offered as wrong options against each other).
+#[derive(Serialize, Deserialize, Clone, Debug, Default, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct AnswerLink {
+    pub id: String,
+    /// same or close.
+    pub kind: String,
+    /// Note ids, two or more.
+    pub notes: Vec<String>,
+    /// Who made the link: you, thoth or device.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub by: String,
+    /// A short note on how the answers differ, shown side by side before the
+    /// second of a close pair is met.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub note: String,
 }
 
 /// What the scheduler remembers about a card.

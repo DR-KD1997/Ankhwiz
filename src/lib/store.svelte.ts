@@ -31,7 +31,7 @@ import {
 } from './core';
 import type { ThothMode } from './core/thoth';
 import type { SoundSet } from './sounds';
-import type { AnkiNotetype, CardState, Deck, DeckOptions, Edit, Exercise, Note, Outcome, Progress, QueueItem, RawNote, Streak, TestResult } from './core/types';
+import type { AnkiNotetype, AnswerLink, CardState, Deck, DeckOptions, Edit, Exercise, Note, Outcome, Progress, QueueItem, RawNote, Streak, TestResult } from './core/types';
 import { hasMedia, putMedia, removeDeckMedia } from './media';
 import { applyRemap, mediaNamed } from './remap';
 import type { FieldMap } from './import/apkg';
@@ -39,6 +39,9 @@ import { decodeNotes, encodeNotes, headOf, type DeckHead, type Encoded, type Sto
 import { dropUnused } from './fields';
 import { deckWithType, KINDS, reshapeFields, typeForOwnNotes, type KindId } from './cardTypes';
 import { removeDeckSources } from './sources';
+import { addLink, removePair } from './links';
+import { setLanguage, shownName } from './i18n';
+import { t } from './i18n';
 
 const DAY = 86_400_000;
 
@@ -91,6 +94,16 @@ export interface AppData {
     autoRead?: AutoRead;
     /** The deck opened last, read ahead of time when Ankhwiz opens. */
     lastDeck?: string;
+    /** The app's own language: a code, or 'system' (missing) for the device's. */
+    appLang?: string;
+    /** The language Thoth explains things in: 'app' (missing) for the app's, or a code. */
+    thothLang?: string;
+    /** Thoth looks again at typed answers that matched nothing (with the AI connection). Missing means on. */
+    thothChecks?: boolean;
+    /** How the library is shown: by subject, as lists, or every deck in one list. Missing: by subject. */
+    libraryView?: 'subjects' | 'lists' | 'all';
+    /** Subjects folded away in the library. */
+    folded?: string[];
   };
   ai: AiSettings;
   streak: Streak;
@@ -140,7 +153,7 @@ export interface Backup {
 
 const MAX_BACKUPS = 5;
 
-export type Panel = 'path' | 'ai' | 'options' | 'contents' | 'progress' | 'practice' | 'dictation' | 'recall' | 'reading' | 'types' | 'sources' | 'builder';
+export type Panel = 'path' | 'ai' | 'options' | 'contents' | 'progress' | 'practice' | 'dictation' | 'recall' | 'reading' | 'types' | 'sources' | 'builder' | 'prepare';
 
 export type SessionKind = 'lesson' | 'review' | 'practice' | 'all' | 'testout';
 
@@ -166,8 +179,9 @@ export interface Session {
   practice: boolean;
   /** Test out: the unit, its fixed questions, the answers so far, and the result at the end. */
   testOut?: { unitId: string; questions: Exercise[]; answers: { cardId: string; correct: boolean }[]; result?: TestResult } | null;
-  /** Study all decks: the decks taking part. */
+  /** Study all decks: the decks taking part, and the subject or topic they were chosen by. */
   decks?: string[];
+  title?: string;
 }
 
 // ---------- decks and progress as plain data ----------
@@ -213,21 +227,57 @@ function progressOf(id: string): Progress {
   return data.progress[id];
 }
 /** A deck with some of its settings changed: a new deck object, with the core told just what changed. */
-function withSettings(deck: Deck, fields: Partial<Pick<Deck, 'options' | 'strictAccents' | 'anki'>>): Deck {
+function withSettings(deck: Deck, fields: Partial<Pick<Deck, 'options' | 'strictAccents' | 'anki' | 'links'>>): Deck {
   const next = { ...deck, ...fields };
   deckSettingsChanged(deck, next, fields);
   return next;
 }
 const withOptions = (deck: Deck, options: DeckOptions): Deck => withSettings(deck, { options });
 
-/** Change parts of a deck the core does not read (readings, sources, how it was made), and save them. */
-export function setDeckExtras(id: string, fields: Partial<Pick<Deck, 'readings' | 'sources' | 'made'>>): void {
+/** Change parts of a deck the core does not read (readings, sources, how it was made, its place, preparing), and save them. */
+export function setDeckExtras(id: string, fields: Partial<Pick<Deck, 'readings' | 'sources' | 'made' | 'place' | 'prep'>>): void {
   const before = data.decks[id];
   if (!before) return;
   const next = { ...before, ...fields };
   deckEquivalent(before, next);
   setDeck(id, next);
   save({ deck: id });
+}
+
+/** Replace a deck's answer links (the core changes them in place). */
+export function setDeckLinks(id: string, links: AnswerLink[]): void {
+  const deck = data.decks[id];
+  if (!deck) return;
+  setDeck(id, withSettings(deck, { links }));
+  save({ deck: id });
+}
+
+/** Link notes whose answers mean the same, or nearly the same. */
+export function linkAnswers(deckId: string, noteIds: string[], kind: 'same' | 'close', by: AnswerLink['by'] = 'you'): void {
+  const deck = data.decks[deckId];
+  if (deck) setDeckLinks(deckId, addLink(deck.links ?? [], noteIds, kind, by));
+}
+
+/** Take two linked notes apart. */
+export function unlinkAnswers(deckId: string, a: string, b: string): void {
+  const deck = data.decks[deckId];
+  if (deck) setDeckLinks(deckId, removePair(deck.links ?? [], a, b));
+}
+
+/** Accept another answer on a note from now on (or stop accepting it). */
+export function acceptAnswer(deckId: string, noteId: string, text: string, on = true): void {
+  const note = data.decks[deckId]?.notes[noteId];
+  const t = text.trim();
+  if (!note || !t) return;
+  const alts = note.alts ?? [];
+  const next = on ? (alts.includes(t) ? alts : [...alts, t]) : alts.filter((a) => a !== t);
+  if (next !== alts) editDeck(deckId, [{ op: 'update', noteId, alts: next }]);
+}
+
+/** Put a deck under a subject and topic (both empty: not sorted). */
+export function setDeckPlace(deckId: string, subject: string, topic = ''): void {
+  const s = subject.trim();
+  setDeckExtras(deckId, { place: s ? { subject: s, topic: topic.trim() || undefined } : null });
 }
 
 /** Missed cards come back tomorrow instead of waiting for their date (after unit recall, say). */
@@ -296,6 +346,10 @@ export const ui = $state({
   aiNotes: [] as string[],
   /** Set when a deck's notes could not be read. */
   loadError: '',
+  /** The app language in use; the screens are drawn again when it changes. */
+  lang: 'en' as string,
+  /** A subject or topic page open in the library ("Languages" or "Languages/Turkish"). */
+  topic: null as string | null,
 });
 
 export function now(): number {
@@ -779,7 +833,7 @@ export async function load(): Promise<void> {
   try {
     await initCore();
   } catch (e) {
-    ui.failed = e instanceof Error ? e.message : String(e);
+    ui.failed = e instanceof Error ? t(e.message) : String(e);
     return;
   }
   setClock(now);
@@ -806,6 +860,7 @@ export async function load(): Promise<void> {
     save();
   }
   applyTheme();
+  ui.lang = setLanguage(data.settings.appLang ?? 'system');
   ui.ready = true;
 }
 
@@ -910,6 +965,25 @@ export function applyTheme(): void {
   else root.setAttribute('data-theme', data.settings.theme);
 }
 
+/** The app's own language: a code, or 'system' for the device's. */
+export function setAppLanguage(code: string): void {
+  data.settings.appLang = code === 'system' ? undefined : code;
+  ui.lang = setLanguage(code);
+  save();
+}
+
+/** The language Thoth explains things in: 'app' for the app's, or a code. */
+export function setThothLanguage(code: string): void {
+  data.settings.thothLang = code === 'app' ? undefined : code;
+  save();
+}
+
+/** Whether Thoth looks again at typed answers that matched nothing. */
+export function setThothChecks(on: boolean): void {
+  data.settings.thothChecks = on;
+  save();
+}
+
 export function setTheme(theme: Theme): void {
   data.settings.theme = theme;
   applyTheme();
@@ -1009,7 +1083,7 @@ export function addBuiltDeck(name: string, kindId: KindId, langs: { lang: string
 
 /** A new deck with no cards yet, to be filled by the deck builder or from sources. */
 export function addEmptyDeck(name: string, made: NonNullable<Deck['made']>): string {
-  const deck = buildDeck(name.trim() || 'New deck', [], { lessonSize: data.settings.lessonSize });
+  const deck = buildDeck(name.trim() || t('New deck'), [], { lessonSize: data.settings.lessonSize });
   deck.made = made;
   return addDeck(deck);
 }
@@ -1150,7 +1224,7 @@ export async function remapFields(deckId: string, ntid: string, next: FieldMap):
   const type = deck.anki?.notetypes[ntid];
   const r = applyRemap(deck, progress, ntid, next, (m) => have.has(m));
   if ('error' in r) return r.error;
-  makeBackup(deckId, `Before changing the fields of ${type?.name ?? 'a note type'}`);
+  makeBackup(deckId, t('Before changing the fields of {x}', { x: type?.name ?? t('a note type') }));
   for (const id of r.reset) delete progress[id];
   setDeck(deckId, deck);
   setProgress(deckId, progress);
@@ -1170,7 +1244,7 @@ export async function restoreBackup(deckId: string, backupId: string): Promise<b
     return false;
   }
   // The deck as it is now becomes a backup itself, so a restore can be undone.
-  makeBackup(deckId, 'Before restoring an earlier copy');
+  makeBackup(deckId, t('Before restoring an earlier copy'));
   const deck = plain({ ...structuredClone(backup.head), notes } as Deck);
   written.set(deckId, { notes, order: backup.order, k: backup.k, chunks: backup.chunks, labels: backup.labels, texts: new Map() });
   setDeck(deckId, deck);
@@ -1201,12 +1275,12 @@ export function updateType(deckId: string, ntid: string, patch: Partial<Pick<Ank
 export function reshapeType(deckId: string, ntid: string, plan: { from: number; name: string }[]): string | null {
   try {
     const next = reshapeFields(data.decks[deckId], ntid, plan);
-    makeBackup(deckId, `Before changing the fields of ${data.decks[deckId].anki?.notetypes[ntid]?.name ?? 'a card type'}`);
+    makeBackup(deckId, t('Before changing the fields of {x}', { x: data.decks[deckId].anki?.notetypes[ntid]?.name ?? t('a card type') }));
     setDeck(deckId, plain(next));
     save({ deck: deckId });
     return null;
   } catch (e) {
-    return e instanceof Error ? e.message : 'The fields could not be changed.';
+    return e instanceof Error ? t(e.message) : t('The fields could not be changed.');
   }
 }
 
@@ -1214,7 +1288,7 @@ export function reshapeType(deckId: string, ntid: string, plan: { from: number; 
 export function giveOwnType(deckId: string): void {
   const next = typeForOwnNotes(data.decks[deckId]);
   if (next === data.decks[deckId]) return;
-  makeBackup(deckId, 'Before giving cards a card type');
+  makeBackup(deckId, t('Before giving cards a card type'));
   setDeck(deckId, plain(next));
   save({ deck: deckId });
 }
@@ -1243,7 +1317,7 @@ export function deleteUnusedFields(deckId: string): number {
   const before = data.decks[deckId];
   const r = dropUnused(before);
   if (!r.changed) return 0;
-  makeBackup(deckId, 'Before deleting the text of unused fields');
+  makeBackup(deckId, t('Before deleting the text of unused fields'));
   setDeck(deckId, plain(r.deck));
   save({ deck: deckId });
   return r.changed;
@@ -1287,7 +1361,7 @@ export function openDeck(id: string): void {
     data.settings.lastDeck = id;
     save({});
   }
-  void ensureDeck(id).catch((e) => (ui.loadError = e instanceof Error ? e.message : String(e)));
+  void ensureDeck(id).catch((e) => (ui.loadError = e instanceof Error ? t(e.message) : String(e)));
 }
 
 /**
@@ -1363,10 +1437,12 @@ export function allDue(): { deckId: string; n: number }[] {
     .filter((d) => d.n);
 }
 
-/** Study all decks: due reviews from every deck, mixed. Returns false when nothing is due. */
-export async function startAll(): Promise<boolean> {
-  for (const d of allDue()) await ensureDeck(d.deckId);
+/** Study all decks (or the decks of one subject or topic): due reviews from each, mixed. Returns false when nothing is due. */
+export async function startAll(only: string[] | null = null, title = ''): Promise<boolean> {
+  const within = (id: string) => !only || only.includes(id);
+  for (const d of allDue()) if (within(d.deckId)) await ensureDeck(d.deckId);
   const lists = Object.values(data.decks)
+    .filter((d) => within(d.id))
     .map((d) => ({ deckId: d.id, queue: reviewQueue(d, data.progress[d.id] ?? {}) }))
     .filter((d) => d.queue.length);
   if (!lists.length) return false;
@@ -1376,7 +1452,7 @@ export async function startAll(): Promise<boolean> {
   }
   ui.deckId = lists[0].deckId;
   ui.screen = 'deck';
-  begin('all', lists[0].deckId, null, queue, { decks: lists.map((l) => l.deckId) });
+  begin('all', lists[0].deckId, null, queue, { decks: lists.map((l) => l.deckId), ...(title ? { title } : {}) });
   return true;
 }
 
@@ -1465,7 +1541,7 @@ export function pausedSummary(): { deck: string; what: string; done: number; tot
   if (!p || !data.decks[p.deckId]) return null;
   const deck = data.decks[p.deckId];
   const what =
-    p.kind === 'all' ? 'All decks' : p.lessonId && deck.lessons[p.lessonId] ? `${deck.name} · ${deck.lessons[p.lessonId].name}` : `${deck.name} · Review`;
+    p.kind === 'all' ? p.title || t('All decks') : p.lessonId && deck.lessons[p.lessonId] ? `${deck.name} · ${shownName(deck.lessons[p.lessonId].name)}` : `${deck.name} · ${t('Review')}`;
   return { deck: deck.name, what, done: p.index, total: p.queue.length };
 }
 
@@ -1491,11 +1567,39 @@ function requeueItem(queue: SessionItem[], index: number, item: SessionItem): Se
   return out;
 }
 
+/** The last answer marked, as things were before, so the mark can be overruled ("I was right too"). */
+let lastGrade: { deckId: string; cardId: string; index: number; before: CardState | null; queue: SessionItem[]; graded: number; correct: number; promoted: number; outcome: Outcome } | null = null;
+
+/**
+ * Mark the answer on screen again, the other way: the card's schedule, the
+ * session's counts and its queue go back to how they were, and the answer
+ * is marked anew. Returns whether the card moved up a stage, or null when
+ * there is nothing to overrule.
+ */
+export function overrule(correct: boolean): { promoted: boolean } | null {
+  const s = ui.session;
+  const g = lastGrade;
+  if (!s?.exercise || !g || g.cardId !== s.exercise.cardId || g.index !== s.index || g.deckId !== s.deckId) return null;
+  if (!s.practice) {
+    const progress = progressOf(s.deckId);
+    if (g.before) progress[g.cardId] = g.before;
+    else delete progress[g.cardId];
+    touchProgress(s.deckId, [g.cardId]);
+  }
+  s.queue = g.queue;
+  s.graded = g.graded;
+  s.correct = g.correct;
+  s.promoted = g.promoted;
+  return grade({ ...g.outcome, correct, assisted: true });
+}
+
 /** Record a graded answer. Returns whether the card moved up a stage. */
 export function grade(outcome: Outcome): { promoted: boolean } {
   const s = ui.session;
   if (!s?.exercise) return { promoted: false };
   const ex = s.exercise;
+  if (!s.testOut)
+    lastGrade = { deckId: s.deckId, cardId: ex.cardId, index: s.index, before: data.progress[s.deckId]?.[ex.cardId] ?? null, queue: snap(s.queue), graded: s.graded, correct: s.correct, promoted: s.promoted, outcome };
   if (s.testOut) {
     // Testing out changes nothing until the end, and nothing comes back.
     s.testOut.answers.push({ cardId: ex.cardId, correct: outcome.correct });
@@ -1619,6 +1723,7 @@ export function goBack(): boolean {
   else if (ui.panel === 'dictation' || ui.panel === 'recall' || ui.panel === 'reading') ui.panel = 'practice';
   else if (ui.panel !== 'path') ui.panel = 'path';
   else if (ui.screen === 'deck') goLibrary();
+  else if (ui.topic) ui.topic = null;
   else return false;
   return true;
 }

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { plural, t } from '../i18n';
   // Card types: name a type's fields, choose which is the question, the
   // answer and the extra, add or remove fields, and design the card's layout
   // (Anki's templates and styling) with a live preview. The layout is what a
@@ -30,22 +31,22 @@
   let draftFor = '';
   $effect(() => {
     // A fresh draft whenever another type is chosen or the type changes underneath.
-    const t = type;
-    if (!t) return;
-    const key = `${t.id}:${t.fields.join('|')}:${rolesOf(t).join('|')}`;
+    const ty = type;
+    if (!ty) return;
+    const key = `${ty.id}:${ty.fields.join('|')}:${rolesOf(ty).join('|')}`;
     if (key === draftFor) return;
     draftFor = key;
-    const roles = rolesOf(t);
-    rows = t.fields.map((name, i) => ({ from: i, name, role: roles[i] }));
-    resetLayout(t);
+    const roles = rolesOf(ty);
+    rows = ty.fields.map((name, i) => ({ from: i, name, role: roles[i] }));
+    resetLayout(ty);
   });
   const ROLES: [FieldRole, string][] = [
-    ['question', 'Question'],
-    ['questionMore', 'Shown with the question'],
-    ['answer', 'Answer'],
-    ['extra', 'Extra (after answering)'],
-    ['extraMore', 'Shown after answering'],
-    ['none', 'Not shown'],
+    ['question', t('Question')],
+    ['questionMore', t('Shown with the question')],
+    ['answer', t('Answer')],
+    ['extra', t('Extra (after answering)')],
+    ['extraMore', t('Shown after answering')],
+    ['none', t('Not shown')],
   ];
   const changedFields = $derived(!!type && (rows.length !== type.fields.length || rows.some((r, i) => r.from !== i || r.name.trim() !== type.fields[i])));
   const changedRoles = $derived(!!type && rows.some((r) => r.role !== (r.from >= 0 ? rolesOf(type)[r.from] : 'none')));
@@ -62,7 +63,7 @@
   function addField() {
     let n = rows.length + 1;
     while (rows.some((r) => r.name.toLowerCase() === `field ${n}`)) n++;
-    rows.push({ from: -1, name: `Field ${n}`, role: 'none' });
+    rows.push({ from: -1, name: t('Field {n}', { n }), role: 'none' });
   }
   async function saveFields() {
     if (!type) return;
@@ -104,7 +105,7 @@
       }
     }
     draftFor = '';
-    message = 'Saved. A backup of the deck was made first.';
+    message = t('Saved. A backup of the deck was made first.');
   }
 
   // ---------- layout (a draft until saved) ----------
@@ -113,9 +114,9 @@
   let tIndex = $state(0);
   let part = $state<'qfmt' | 'afmt' | 'css'>('qfmt');
   let editor = $state<HTMLTextAreaElement>();
-  function resetLayout(t: AnkiNotetype) {
-    templates = t.templates.map((x) => ({ ...x }));
-    css = t.css ?? '';
+  function resetLayout(ty: AnkiNotetype) {
+    templates = ty.templates.map((x) => ({ ...x }));
+    css = ty.css ?? '';
     tIndex = 0;
   }
   const draftType = $derived<AnkiNotetype | undefined>(type ? { ...type, templates: $state.snapshot(templates), css } : undefined);
@@ -140,14 +141,14 @@
   function saveLayout() {
     if (!type) return;
     updateType(deck.id, type.id, { templates: $state.snapshot(templates), css });
-    message = 'Layout saved.';
+    message = t('Layout saved.');
   }
   // Notes the layout leaves without a front (an empty question field, say), from a sample.
   const emptyFronts = $derived.by(() => {
     if (!draftType) return 0;
-    const t = draftType.templates[tIndex] ?? draftType.templates[0];
-    if (!t) return 0;
-    const fields = /\{\{[^#^/{}]+\}\}/.test(t.qfmt);
+    const tpl = draftType.templates[tIndex] ?? draftType.templates[0];
+    if (!tpl) return 0;
+    const fields = /\{\{[^#^/{}]+\}\}/.test(tpl.qfmt);
     return fields ? 0 : 1;
   });
   const lines = $derived(code.split('\n').length);
@@ -155,106 +156,106 @@
 
 <section class="types">
   <header>
-    <button class="icon-btn" aria-label="Back to lessons" onclick={() => openPanel('path')}><Icon name="back" /></button>
-    <h1 class="display">Card types</h1>
+    <button class="icon-btn" aria-label={t('Back to lessons')} onclick={() => openPanel('path')}><Icon name="back" /></button>
+    <h1 class="display">{t('Card types')}</h1>
   </header>
 
   {#if own}
     <div class="own card">
-      <span class="grow"><strong>{own} {own === 1 ? 'card' : 'cards'} made in Ankhwiz</strong><small>They use the standard layout. Give them a card type to name their fields and design how they look in Anki and here.</small></span>
-      <button class="quiet" onclick={() => giveOwnType(deck.id)}>Give them a card type</button>
+      <span class="grow"><strong>{plural('{n} card made in Ankhwiz', '{n} cards made in Ankhwiz', own)}</strong><small>{t('They use the standard layout. Give them a card type to name their fields and design how they look in Anki and here.')}</small></span>
+      <button class="quiet" onclick={() => giveOwnType(deck.id)}>{t('Give them a card type')}</button>
     </div>
   {/if}
 
   {#if !type}
-    <p class="hint">This deck has no card types yet.</p>
+    <p class="hint">{t('This deck has no card types yet.')}</p>
   {:else}
     {#if types.length > 1}
-      <label class="field"><span>Card type</span>
+      <label class="field"><span>{t('Card type')}</span>
         <select class="input" value={type.id} onchange={(e) => ((chosen = e.currentTarget.value), (at = 0))}>
-          {#each types as t (t.id)}<option value={t.id}>{t.name}</option>{/each}
+          {#each types as ty (ty.id)}<option value={ty.id}>{ty.name}</option>{/each}
         </select>
       </label>
     {/if}
     <div class="name-row">
-      <label class="field grow"><span>Name</span><input class="input" value={type.name} onchange={(e) => updateType(deck.id, type.id, { name: e.currentTarget.value.trim() || type.name })} /></label>
+      <label class="field grow"><span>{t('Name')}</span><input class="input" value={type.name} onchange={(e) => updateType(deck.id, type.id, { name: e.currentTarget.value.trim() || type.name })} /></label>
       <span class="count">{notes.length} {notes.length === 1 ? 'note' : 'notes'}</span>
     </div>
-    <div class="seg" role="tablist" aria-label="Editor">
-      <button role="tab" aria-selected={tab === 'simple'} onclick={() => (tab = 'simple')}>Simple</button>
-      <button role="tab" aria-selected={tab === 'code'} onclick={() => (tab = 'code')}>Layout code</button>
+    <div class="seg" role="tablist" aria-label={t('Editor')}>
+      <button role="tab" aria-selected={tab === 'simple'} onclick={() => (tab = 'simple')}>{t('Simple')}</button>
+      <button role="tab" aria-selected={tab === 'code'} onclick={() => (tab = 'code')}>{t('Layout code')}</button>
     </div>
 
     <div class="split">
       <div class="edit">
         {#if tab === 'simple'}
-          <p class="label">Fields</p>
+          <p class="label">{t('Fields')}</p>
           {#each rows as r, i (i)}
             <div class="frow">
               <span class="moves">
-                <button class="icon-btn" aria-label="Move {r.name} up" disabled={i === 0} onclick={() => move(i, -1)}><Icon name="up" size={16} /></button>
-                <button class="icon-btn" aria-label="Move {r.name} down" disabled={i === rows.length - 1} onclick={() => move(i, 1)}><Icon name="down" size={16} /></button>
+                <button class="icon-btn" aria-label={t('Move {name} up', { name: r.name })} disabled={i === 0} onclick={() => move(i, -1)}><Icon name="up" size={16} /></button>
+                <button class="icon-btn" aria-label={t('Move {name} down', { name: r.name })} disabled={i === rows.length - 1} onclick={() => move(i, 1)}><Icon name="down" size={16} /></button>
               </span>
-              <input class="input fname" bind:value={r.name} aria-label="Field name" />
-              <select class="input" bind:value={r.role} aria-label="Part of the card for {r.name}">
+              <input class="input fname" bind:value={r.name} aria-label={t('Field name')} />
+              <select class="input" bind:value={r.role} aria-label={t('Part of the card for {name}', { name: r.name })}>
                 {#each ROLES as [id, label] (id)}<option value={id}>{label}</option>{/each}
               </select>
-              <button class="icon-btn" aria-label="Remove {r.name}" disabled={r.role !== 'none'} title={r.role !== 'none' ? 'Choose “Not shown” first' : 'Remove this field'} onclick={() => rows.splice(i, 1)}><Icon name="trash" size={16} /></button>
+              <button class="icon-btn" aria-label={t('Remove {name}', { name: r.name })} disabled={r.role !== 'none'} title={r.role !== 'none' ? t('Choose “Not shown” first') : t('Remove this field')} onclick={() => rows.splice(i, 1)}><Icon name="trash" size={16} /></button>
             </div>
           {/each}
-          <button class="quiet" onclick={addField}><Icon name="plus" size={16} /> Add a field</button>
+          <button class="quiet" onclick={addField}><Icon name="plus" size={16} /> {t('Add a field')}</button>
           {#if typeof roleMap === 'string' && changedRoles}<p class="hint warn">{roleMap}</p>{/if}
-          {#if remapEffect && !remapEffect.keeps && remapEffect.studied}<p class="hint warn">Changing the question or the answer makes these different cards: {remapEffect.studied} studied {remapEffect.studied === 1 ? 'card starts' : 'cards start'} again.</p>{/if}
-          {#if remapEffect && remapEffect.empty}<p class="hint warn">{remapEffect.empty} {remapEffect.empty === 1 ? 'card' : 'cards'} would have no question or answer.</p>{/if}
+          {#if remapEffect && !remapEffect.keeps && remapEffect.studied}<p class="hint warn">{plural('Changing the question or the answer makes these different cards: {n} studied card starts again.', 'Changing the question or the answer makes these different cards: {n} studied cards start again.', remapEffect.studied)}</p>{/if}
+          {#if remapEffect && remapEffect.empty}<p class="hint warn">{plural('{n} card would have no question or answer.', '{n} cards would have no question or answer.', remapEffect.empty)}</p>{/if}
           <div class="pair">
-            <button class="quiet" disabled={!changedFields && !changedRoles} onclick={() => (draftFor = '')}>Undo changes</button>
-            <button class="primary" disabled={!changedFields && !changedRoles} onclick={saveFields}>Save fields</button>
+            <button class="quiet" disabled={!changedFields && !changedRoles} onclick={() => (draftFor = '')}>{t('Undo changes')}</button>
+            <button class="primary" disabled={!changedFields && !changedRoles} onclick={saveFields}>{t('Save fields')}</button>
           </div>
-          <label class="check"><input type="checkbox" checked={type.bothWays ?? deck.options.bothWays} onchange={(e) => updateType(deck.id, type.id, { bothWays: e.currentTarget.checked })} /> <span>Ask both ways <small>Also asks the answer and wants the question back.</small></span></label>
-          <label class="check"><input type="checkbox" checked={!!type.showLayout} onchange={(e) => updateType(deck.id, type.id, { showLayout: e.currentTarget.checked })} /> <span>Show this card's layout with the answer <small>As well as Ankhwiz's own, after you answer. Change it under Layout code.</small></span></label>
+          <label class="check"><input type="checkbox" checked={type.bothWays ?? deck.options.bothWays} onchange={(e) => updateType(deck.id, type.id, { bothWays: e.currentTarget.checked })} /> <span>{t('Ask both ways')} <small>{t('Also asks the answer and wants the question back.')}</small></span></label>
+          <label class="check"><input type="checkbox" checked={!!type.showLayout} onchange={(e) => updateType(deck.id, type.id, { showLayout: e.currentTarget.checked })} /> <span>{t('Show this card\'s layout with the answer')} <small>{t('As well as Ankhwiz\'s own, after you answer. Change it under Layout code.')}</small></span></label>
         {:else}
           {#if templates.length > 1}
-            <div class="seg small" role="tablist" aria-label="Card">
-              {#each templates as t, i (i)}<button role="tab" aria-selected={tIndex === i} onclick={() => (tIndex = i)}>{t.name || `Card ${i + 1}`}</button>{/each}
+            <div class="seg small" role="tablist" aria-label={t('Card')}>
+              {#each templates as ty, i (i)}<button role="tab" aria-selected={tIndex === i} onclick={() => (tIndex = i)}>{ty.name || `Card ${i + 1}`}</button>{/each}
             </div>
           {/if}
-          <div class="seg small" role="tablist" aria-label="Part">
-            <button role="tab" aria-selected={part === 'qfmt'} onclick={() => (part = 'qfmt')}>Front</button>
-            <button role="tab" aria-selected={part === 'afmt'} onclick={() => (part = 'afmt')}>Back</button>
-            <button role="tab" aria-selected={part === 'css'} onclick={() => (part = 'css')}>Styling</button>
+          <div class="seg small" role="tablist" aria-label={t('Part')}>
+            <button role="tab" aria-selected={part === 'qfmt'} onclick={() => (part = 'qfmt')}>{t('Front')}</button>
+            <button role="tab" aria-selected={part === 'afmt'} onclick={() => (part = 'afmt')}>{t('Back')}</button>
+            <button role="tab" aria-selected={part === 'css'} onclick={() => (part = 'css')}>{t('Styling')}</button>
           </div>
           <div class="code">
             <pre class="nums" aria-hidden="true">{Array.from({ length: lines }, (_, i) => i + 1).join('\n')}</pre>
-            <textarea bind:this={editor} value={code} oninput={(e) => setCode(e.currentTarget.value)} spellcheck="false" aria-label="{part === 'css' ? 'Styling' : part === 'qfmt' ? 'Front template' : 'Back template'}" rows={Math.max(10, lines + 1)}></textarea>
+            <textarea bind:this={editor} value={code} oninput={(e) => setCode(e.currentTarget.value)} spellcheck="false" aria-label="{part === 'css' ? t('Styling') : part === 'qfmt' ? t('Front template') : t('Back template')}" rows={Math.max(10, lines + 1)}></textarea>
           </div>
           {#if part !== 'css'}
-            <div class="chips" aria-label="Insert">
+            <div class="chips" aria-label={t('Insert')}>
               {#each chips as c (c)}<button class="chip" onclick={() => insert(c.replace('…', ''))}>{c}</button>{/each}
             </div>
           {/if}
-          {#if emptyFronts}<p class="hint warn">The front names no field, so every card's front would be the same.</p>{/if}
-          <p class="hint">Anki's template language: {'{{Field}}'}, {'{{#Field}}…{{/Field}}'} for fields that may be empty, {'{{FrontSide}}'} on the back. Scripts are left out, so shared decks stay safe. Ankhwiz asks cards its own way; this layout is what Anki shows, and what Ankhwiz shows with the answer when you turn that on.</p>
+          {#if emptyFronts}<p class="hint warn">{t('The front names no field, so every card\'s front would be the same.')}</p>{/if}
+          <p class="hint">{t('Anki\'s template language: {x}, {x2} for fields that may be empty, {x3} on the back. Scripts are left out, so shared decks stay safe. Ankhwiz asks cards its own way; this layout is what Anki shows, and what Ankhwiz shows with the answer when you turn that on.', { x: t('{{Field}}'), x2: t('{{#Field}}…{{/Field}}'), x3: t('{{FrontSide}}') })}</p>
           <div class="pair">
-            <button class="quiet" disabled={!layoutChanged} onclick={() => type && resetLayout(type)}>Undo changes</button>
-            <button class="primary" disabled={!layoutChanged} onclick={saveLayout}>Save layout</button>
+            <button class="quiet" disabled={!layoutChanged} onclick={() => type && resetLayout(type)}>{t('Undo changes')}</button>
+            <button class="primary" disabled={!layoutChanged} onclick={saveLayout}>{t('Save layout')}</button>
           </div>
         {/if}
       </div>
 
       <aside class="preview">
         <div class="pv-top">
-          <p class="label">Preview</p>
+          <p class="label">{t('Preview')}</p>
           {#if notes.length > 1}
             <span class="stepper">
-              <button class="icon-btn" aria-label="Previous note" onclick={() => (at = (at - 1 + notes.length) % notes.length)}><Icon name="back" size={16} /></button>
-              <small>{Math.min(at, notes.length - 1) + 1} of {notes.length}</small>
-              <button class="icon-btn flip" aria-label="Next note" onclick={() => (at = (at + 1) % notes.length)}><Icon name="back" size={16} /></button>
+              <button class="icon-btn" aria-label={t('Previous note')} onclick={() => (at = (at - 1 + notes.length) % notes.length)}><Icon name="back" size={16} /></button>
+              <small>{t('{x} of {notesCount}', { x: Math.min(at, notes.length - 1) + 1, notesCount: notes.length })}</small>
+              <button class="icon-btn flip" aria-label={t('Next note')} onclick={() => (at = (at + 1) % notes.length)}><Icon name="back" size={16} /></button>
             </span>
           {/if}
         </div>
         {#if note && draftType}
-          <div class="side card"><small>Front</small><CardLayout deckId={deck.id} type={draftType} {note} side="front" template={tIndex} /></div>
-          <div class="side card ans"><small>Back</small><CardLayout deckId={deck.id} type={draftType} {note} side="back" template={tIndex} /></div>
+          <div class="side card"><small>{t('Front')}</small><CardLayout deckId={deck.id} type={draftType} {note} side="front" template={tIndex} /></div>
+          <div class="side card ans"><small>{t('Back')}</small><CardLayout deckId={deck.id} type={draftType} {note} side="back" template={tIndex} /></div>
         {/if}
       </aside>
     </div>

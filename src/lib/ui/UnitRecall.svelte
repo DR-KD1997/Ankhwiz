@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { plural, t } from '../i18n';
   // Unit recall: no questions, just a unit's name and three minutes to write
   // every word or phrase of it the learner remembers. What was missed comes
   // back in tomorrow's review instead of waiting for its date.
@@ -57,61 +58,61 @@
 
 <section class="recall">
   <header>
-    <button class="icon-btn" aria-label="Back to practice" onclick={() => openPanel('practice')}><Icon name="back" /></button>
-    <h1 class="display">Unit recall</h1>
+    <button class="icon-btn" aria-label={t('Back to practice')} onclick={() => openPanel('practice')}><Icon name="back" /></button>
+    <h1 class="display">{t('Unit recall')}</h1>
   </header>
 
   {#if !units.length}
-    <p class="hint">Unit recall asks for the cards of a unit from memory. Meet some cards in a lesson first.</p>
+    <p class="hint">{t('Unit recall asks for the cards of a unit from memory. Meet some cards in a lesson first.')}</p>
   {:else if !started}
-    <p class="hint">No questions this time. Write every word, phrase or fact you remember from a unit, one per line or separated by commas. Spelling does not need to be perfect. Cards you miss come back in tomorrow's review.</p>
+    <p class="hint">{t('No questions this time. Write every word, phrase or fact you remember from a unit, one per line or separated by commas. Spelling does not need to be perfect. Cards you miss come back in tomorrow\'s review.')}</p>
     <label class="field"
-      ><span>Unit</span>
+      ><span>{t('Unit')}</span>
       <select class="input" bind:value={unitId}>
-        {#each units as x (x.u.id)}<option value={x.u.id}>{x.u.name} · {x.met} met</option>{/each}
+        {#each units as x (x.u.id)}<option value={x.u.id}>{t('{name} · {met} met', { name: x.u.name, met: x.met })}</option>{/each}
       </select></label
     >
-    <label class="check"><input type="checkbox" bind:checked={showHints} /> <span>Show the other side as hints <small>Easier: you see what each card means and write the card.</small></span></label>
-    <button class="primary" onclick={start}>Start</button>
+    <label class="check"><input type="checkbox" bind:checked={showHints} /> <span>{t('Show the other side as hints')} <small>{t('Easier: you see what each card means and write the card.')}</small></span></label>
+    <button class="primary" onclick={start}>{t('Start')}</button>
   {:else if !result}
     <div class="top">
-      <p class="label">{unit?.name} · {targets.length} cards</p>
-      <span class="clock" class:out={!left} aria-label="Time left">{left ? clock : 'Time’s up'}</span>
+      <p class="label">{t('{name} · {targetsCount} cards', { name: unit?.name, targetsCount: targets.length })}</p>
+      <span class="clock" class:out={!left} aria-label={t('Time left')}>{left ? clock : t('Time’s up')}</span>
     </div>
     {#if showHints}
-      <ul class="hints">{#each targets as t (t.noteId)}<li>{t.hint}</li>{/each}</ul>
+      <ul class="hints">{#each targets as ty (ty.noteId)}<li>{ty.hint}</li>{/each}</ul>
     {/if}
     <label class="field">
-      <span>What you remember</span>
+      <span>{t('What you remember')}</span>
       <textarea class="input" rows="9" bind:value={typed} autocapitalize="off" spellcheck="false" lang={deck.options.look.lang || undefined}></textarea>
     </label>
     <div class="pair">
-      <span class="small">{count} written</span>
-      <button class="primary" onclick={compare} disabled={!count}>Compare with the unit</button>
+      <span class="small">{t('{count} written', { count })}</span>
+      <button class="primary" onclick={compare} disabled={!count}>{t('Compare with the unit')}</button>
     </div>
   {:else}
     <div class="score card" role="status">
-      <h2 class="display">{result.found.length} of {targets.length}</h2>
-      <p class="small">{result.found.filter((f) => !f.exact).length ? `${result.found.filter((f) => !f.exact).length} nearly right. ` : ''}{moved ? `${moved} missed ${moved === 1 ? 'card comes' : 'cards come'} back tomorrow.` : ''}</p>
+      <h2 class="display">{t('{foundCount} of {targetsCount}', { foundCount: result.found.length, targetsCount: targets.length })}</h2>
+      <p class="small">{result.found.filter((f) => !f.exact).length ? t('{n} nearly right.', { n: result.found.filter((f) => !f.exact).length }) + ' ' : ''}{moved ? plural('{n} missed card comes back tomorrow.', '{n} missed cards come back tomorrow.', moved) : ''}</p>
     </div>
     {#if result.found.length}
-      <p class="label">Remembered</p>
-      <ul class="list">{#each result.found as f (f.target.noteId)}<li class={f.exact ? 'ok' : 'close'}><strong>{f.target.text}</strong>{#if !f.exact}<small>{' · '}you wrote {f.typed}</small>{/if}<small>{' · '}{f.target.hint}</small></li>{/each}</ul>
+      <p class="label">{t('Remembered')}</p>
+      <ul class="list">{#each result.found as f (f.target.noteId)}<li class={f.exact ? 'ok' : 'close'}><strong>{f.target.text}</strong>{#if !f.exact}<small>{t('{x}you wrote {typed}', { x: ' · ', typed: f.typed })}</small>{/if}<small>{' · '}{f.target.hint}</small></li>{/each}</ul>
     {/if}
     {#if result.missed.length}
-      <p class="label">Missed</p>
-      <ul class="list">{#each result.missed as m (m.noteId)}<li class="off"><strong>{m.text}</strong><small>{' · '}{m.hint}{m.met ? '' : ' · not met yet'}</small></li>{/each}</ul>
+      <p class="label">{t('Missed')}</p>
+      <ul class="list">{#each result.missed as m (m.noteId)}<li class="off"><strong>{m.text}</strong><small>{' · '}{m.hint}{m.met ? '' : t(' · not met yet')}</small></li>{/each}</ul>
     {/if}
     {#if result.elsewhere.length}
-      <p class="label">From other units</p>
+      <p class="label">{t('From other units')}</p>
       <ul class="list">{#each result.elsewhere as e (e.typed)}<li><strong>{e.typed}</strong><small>{' · '}{e.unit}</small></li>{/each}</ul>
     {/if}
     {#if result.unknown.length}
-      <p class="small">Not on your cards: {result.unknown.join(', ')}</p>
+      <p class="small">{t('Not on your cards: {x}', { x: result.unknown.join(', ') })}</p>
     {/if}
     <div class="pair">
-      <button class="quiet" onclick={() => openPanel('practice')}>Done</button>
-      <button class="primary" onclick={start}>Try again</button>
+      <button class="quiet" onclick={() => openPanel('practice')}>{t('Done')}</button>
+      <button class="primary" onclick={start}>{t('Try again')}</button>
     </div>
   {/if}
 </section>

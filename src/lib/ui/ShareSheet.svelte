@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '../i18n';
   // Something shared to Ankhwiz from another app (Android): a web page, some
   // text, or a document. The learner picks a deck (or a new one) and either
   // keeps it with the deck's sources or goes straight on to plan cards.
@@ -20,7 +21,7 @@
     const s = takeShared();
     if (s) {
       item = s;
-      error = s.kind === 'error' ? 'That could not be read: it may be too large (over 25 MB) or not a file Ankhwiz knows.' : '';
+      error = s.kind === 'error' ? t('That could not be read: it may be too large (over 25 MB) or not a file Ankhwiz knows.') : '';
       deckId = decks[0]?.id ?? '';
     }
   }
@@ -33,7 +34,7 @@
   const what = $derived(item?.kind === 'file' ? item.name : item?.kind === 'text' ? (url ? url : item.subject || item.text.slice(0, 80)) : '');
 
   async function read(): Promise<ReadSource> {
-    if (!item || item.kind === 'error') throw new Error('Nothing to read.');
+    if (!item || item.kind === 'error') throw new Error(t('Nothing to read.'));
     if (item.kind === 'file') {
       const raw = atob(item.base64);
       const bytes = new Uint8Array(raw.length);
@@ -46,10 +47,10 @@
 
   async function add(plan: boolean) {
     error = '';
-    busy = 'Reading it…';
+    busy = t('Reading it…');
     try {
       const r = await read();
-      const id = deckId === 'new' ? addEmptyDeck(newName || r.title || 'New deck', { by: 'sources' }) : deckId;
+      const id = deckId === 'new' ? addEmptyDeck(newName || r.title || t('New deck'), { by: 'sources' }) : deckId;
       const entry = await storeSource(id, r);
       setDeckExtras(id, { sources: [...(data.decks[id].sources ?? []), entry] });
       item = null;
@@ -58,7 +59,7 @@
         openPanel('sources');
       }
     } catch (e) {
-      error = e instanceof Error ? e.message : 'It could not be read.';
+      error = e instanceof Error ? t(e.message) : t('It could not be read.');
     } finally {
       busy = '';
     }
@@ -67,29 +68,29 @@
 
 {#if item}
   <div class="veil" role="presentation">
-    <div class="sheet" role="dialog" aria-modal="true" aria-label="Add to a deck">
+    <div class="sheet" role="dialog" aria-modal="true" aria-label={t('Add to a deck')}>
       <div class="head">
         <div class="face"><Thoth size={44} portrait /></div>
-        <div><strong class="display">Add to a deck</strong><small>Shared from another app</small></div>
+        <div><strong class="display">{t('Add to a deck')}</strong><small>{t('Shared from another app')}</small></div>
       </div>
       {#if item.kind !== 'error'}
         <p class="what card">{what}</p>
-        <label class="field"><span>Deck</span>
+        <label class="field"><span>{t('Deck')}</span>
           <select class="input" bind:value={deckId}>
             {#each decks as d (d.id)}<option value={d.id}>{d.name}</option>{/each}
-            <option value="new">+ A new deck</option>
+            <option value="new">{t('+ A new deck')}</option>
           </select>
         </label>
-        {#if deckId === 'new'}<input class="input" bind:value={newName} placeholder="Name of the new deck" aria-label="Name of the new deck" />{/if}
-        <p class="small">{url ? 'Ankhwiz reads the page’s text, as you could see it yourself.' : 'It is kept with the deck on this device.'} Nothing is sent anywhere until you ask Thoth to plan cards.</p>
+        {#if deckId === 'new'}<input class="input" bind:value={newName} placeholder={t('Name of the new deck')} aria-label={t('Name of the new deck')} />{/if}
+        <p class="small">{t('{x} Nothing is sent anywhere until you ask Thoth to plan cards.', { x: url ? t('Ankhwiz reads the page’s text, as you could see it yourself.') : t('It is kept with the deck on this device.') })}</p>
       {/if}
       {#if busy}<p class="small" role="status">{busy}</p>{/if}
       {#if error}<p class="small bad" role="alert">{error}</p>{/if}
       <div class="pair">
-        <button class="quiet" onclick={() => (item = null)}>{item.kind === 'error' ? 'Close' : 'Cancel'}</button>
+        <button class="quiet" onclick={() => (item = null)}>{item.kind === 'error' ? t('Close') : t('Cancel')}</button>
         {#if item.kind !== 'error'}
-          <button class="quiet" disabled={!!busy || !deckId} onclick={() => add(false)}>Just keep it</button>
-          <button class="primary" disabled={!!busy || !deckId} onclick={() => add(true)}>Add &amp; plan cards</button>
+          <button class="quiet" disabled={!!busy || !deckId} onclick={() => add(false)}>{t('Just keep it')}</button>
+          <button class="primary" disabled={!!busy || !deckId} onclick={() => add(true)}>{t('Add & plan cards')}</button>
         {/if}
       </div>
     </div>

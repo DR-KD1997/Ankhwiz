@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '../i18n';
   // Drawing the hidden parts of a picture card. Drag on the picture to add a
   // part; each part gets a name (optional: without one, its card is
   // self-checked) and a number (parts with the same number are asked together).
@@ -72,12 +73,12 @@
 
 <div class="occ">
   {#if !value?.image}
-    <label class="quiet pick"><Icon name="picture" size={18} /> Choose a picture<input type="file" accept="image/*" onchange={(e) => choose(e.currentTarget.files)} /></label>
+    <label class="quiet pick"><Icon name="picture" size={18} /> {t('Choose a picture')}<input type="file" accept="image/*" onchange={(e) => choose(e.currentTarget.files)} /></label>
   {:else}
-    <p class="hint">Drag on the picture to hide a part. Name each part to have it asked as a question; unnamed parts you check yourself.</p>
+    <p class="hint">{t('Drag on the picture to hide a part. Name each part to have it asked as a question; unnamed parts you check yourself.')}</p>
     {#if url}
       <div class="stage plain">
-        <div class="box" bind:this={box} role="application" aria-label="Picture: drag to add a hidden part" onpointerdown={down} onpointermove={move} onpointerup={up} onpointercancel={up}>
+        <div class="box" bind:this={box} role="application" aria-label={t('Picture: drag to add a hidden part')} onpointerdown={down} onpointermove={move} onpointerup={up} onpointercancel={up}>
           <img src={url} alt="" draggable="false" />
           {#each value.shapes as s, i (i)}
             <span class="shape" class:ellipse={s.kind === 'ellipse'} style={style(s)}><b>{s.ord}</b></span>
@@ -90,15 +91,15 @@
       <ol class="parts">
         {#each value.shapes as s, i (i)}
           <li>
-            <label class="num"><span class="sr">Part number</span><input type="number" min="1" max="99" bind:value={s.ord} /></label>
-            <input class="input" placeholder="Name (optional)" aria-label="Name of part {i + 1}" bind:value={s.label} dir="auto" />
-            <button class="icon-btn" aria-label="Remove part {i + 1}" onclick={() => remove(i)}><Icon name="trash" size={18} /></button>
+            <label class="num"><span class="sr">{t('Part number')}</span><input type="number" min="1" max="99" bind:value={s.ord} /></label>
+            <input class="input" placeholder={t('Name (optional)')} aria-label={t('Name of part {x}', { x: i + 1 })} bind:value={s.label} dir="auto" />
+            <button class="icon-btn" aria-label={t('Remove part {x}', { x: i + 1 })} onclick={() => remove(i)}><Icon name="trash" size={18} /></button>
           </li>
         {/each}
       </ol>
     {/if}
-    <label class="check"><input type="checkbox" bind:checked={value.hideAll} /> Hide every part while asking about one</label>
-    <label class="quiet pick small">Change picture<input type="file" accept="image/*" onchange={(e) => choose(e.currentTarget.files)} /></label>
+    <label class="check"><input type="checkbox" bind:checked={value.hideAll} /> {t('Hide every part while asking about one')}</label>
+    <label class="quiet pick small">{t('Change picture')}<input type="file" accept="image/*" onchange={(e) => choose(e.currentTarget.files)} /></label>
   {/if}
   {#if error}<p class="hint bad" role="alert">{error}</p>{/if}
 </div>

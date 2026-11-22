@@ -1,0 +1,517 @@
+900|Noch eine Runde
+901|Prüf dein Leseverständnis · {questionsCount} Fragen
+902|Dieses Gerät hat keine Stimme für {x}{x2}. {x3}
+904|, daher wurden diese Wörter weggelassen
+905|Vorlesen ist auf diesem Gerät nicht verfügbar.
+906|Auf dem richtigen Weg
+907|Vom Weg abgekommen
+908| Eine Stufe aufgestiegen.
+909|Nicht ganz. Die Antwort ist {x}.
+910|Guter Einwand. Das merke ich mir.
+911|Als richtig gewertet.
+912|Ähnlich genug, um jeden zu verwirren. Vermerkt.
+913|Nicht die Antwort der Karte. Ich frage Thoth, ob sie auch passt…
+914|Sie kommt bald wieder
+915|Als schwerer Abruf gewertet
+916|Die Antwort konnte nicht bewertet werden.
+917|Es konnte keine Erklärung abgerufen werden.
+918|Jede Antwort, die passt, und keine, die nicht passt.
+919|Einstufungstest · {x}
+920|Keine Hinweise
+921|Neu
+922|Stufe {stage} · {name}
+923| · Gegenrichtung
+924| · Lückentext
+927|Bestehensgrenze {passMark}
+928|{right} von {total} richtig{x}
+929| · Stufe 3
+935|Üben ändert nicht, wann deine Karten wiederkommen.
+936|{correct} von {graded}
+937|Aufgestiegen
+938|Bonus: eine Leserunde
+939|Lektion schließen
+940|{position} von {queueCount}
+941|Mehr für diese Karte
+942|Für heute überspringen
+943|Sie kommt morgen wieder (Anki: zurückstellen)
+944|Diese nicht mehr fragen
+945|In Karten fortsetzen (Anki: aussetzen)
+946|Diese Karte wurde von KI geschrieben oder geändert
+947|Frage anhören
+948|Fragefelder
+949|Hinweis: {extra}
+950|Antwort anhören
+951|Felder
+952|Extrafelder
+953|{i}: zurücknehmen
+954|Tippe die Wörter der Reihe nach an
+955|Wörter
+956|Leeren
+957|Prüf die Schreibweise
+958|(optional: sag sie dir vor oder schreib sie auf)
+960|Du hast geschrieben
+961|Die Antwort
+964|Nochmal · 1
+966|Schwer · 2
+968|Gut · 3
+969|Deine Antwort, in deinen eigenen Worten
+970|Deine Antwort und diese Karte werden zur Bewertung an deinen KI-Dienst gesendet.
+971|Lange Antworten werden von KI bewertet, sobald in den Einstellungen eine Verbindung eingerichtet ist. Bis dahin vergleichst du selbst.
+972|Thoths Bewertung: {x}
+974|noch nicht
+975|Annehmen
+976|Widersprechen: Ich lag {x}
+977|falsch
+978|richtig
+979|Als richtig gewertet
+980|Auch richtig
+982|„{given}“ wird auf dieser Karte ab jetzt akzeptiert.
+983|Verknüpft: Ab jetzt zählen beide Antworten.
+984|Immer noch ein Fehler, aber diese beiden werden nicht mehr nebeneinander angeboten.
+985|Thoth: auch richtig.
+986|Doch als falsch gewertet.
+987|Thoth: nicht ganz.
+988|Antwort dieser Karte: „{answer}“
+989|„{given}“ passt auch.
+993|Rückgängig: als falsch werten
+994|Wieder akzeptieren
+995|Ich lag auch richtig
+996|Thoth erklärt
+997|Wie nah ist „{given}“ an „{answer}“?
+998|Jetzt werten und ab jetzt beide Antworten auf beiden Karten akzeptieren.
+999|Ähnlich, aber nicht gleich
+1000|Als Fehler behalten, aber diese beiden nie mehr nebeneinander anbieten.
+1001|„{given}“ als richtig werten?
+1002|Ja, und ab jetzt akzeptieren
+1003|Ja, nur dieses Mal werten
+1004|Sie wird zu den akzeptierten Antworten dieser Karte hinzugefügt. Im Karteneditor kannst du sie entfernen.
+1005|In Gegenrichtung gefragte Karten behalten ihre eigene Antwort.
+1006|Tastenkürzel
+1007|Eine Option wählen (Selbstbewertung: 1 nicht gewusst, 2 teilweise, 3 gewusst)
+1008|Beim Satzbauen: das nummerierte Wort setzen; das letzte zurücknehmen
+1009|Prüfen, dann weiter
+1010|Erklär mir das (mit KI-Verbindung)
+1011|Vorlesen (wenn der Stapel vorliest)
+1012|Verlassen; deine Stelle bleibt gespeichert
+1013|Diese Liste zeigen oder verbergen
+1014|Systemstandard
+1015|{language}, von diesem Gerät
+1016|System
+1017|Hell
+1018|Dunkel
+1019|Klassisch
+1020|Gold und Tinte, wie im Logo
+1021|Heller Schreiber
+1022|Runder und freundlicher
+1023|Voll
+1024|Thoth begleitet dich in den Lektionen und auf dem Pfad.
+1025|Ruhig
+1026|Thoth erscheint nur, wenn eine Lektion endet.
+1027|Ausgeblendet
+1028|Kein Maskottchen. Seine Ratschläge bleiben als schlichte Vorschlagsliste.
+1029|Keine Töne beim Antworten.
+1030|{about}. Spielt bei richtigen, fast richtigen und falschen Antworten und am Ende einer Lektion.
+1031|Beides
+1032|Karten werden nur gelesen, wenn du auf eine Lautsprechertaste tippst.
+1033|Jede Frage wird gelesen, wenn ihre Karte erscheint.
+1034|Die Antwort wird gelesen, sobald du sie prüfst.
+1035|Die Frage, wenn ihre Karte erscheint, und die Antwort, sobald du sie prüfst.
+1036|Die Sicherung konnte nicht angelegt werden.
+1037|Sonntag
+1038|Montag
+1039|Dienstag
+1040|Mittwoch
+1041|Donnerstag
+1042|Freitag
+1043|Samstag
+1044|Mitteilungen sind für Ankhwiz ausgeschaltet. Erlaube sie in den Systemeinstellungen und versuch es dann noch einmal.
+1045|Verbunden. {modelsCount} Modelle gefunden; wähle unten eines aus.
+1046|Verbunden, aber der Dienst hat keine Modelle aufgelistet. Gib unten einen Modellnamen ein.
+1047| Der Schlüssel konnte nicht gespeichert werden und wird nächstes Mal wieder gebraucht.
+1048|Die Verbindung ist fehlgeschlagen.
+1049|Sicherung wiederhergestellt.
+1050|Diese Datei ist keine Ankhwiz-Sicherung.
+1051|Diese Datei konnte nicht wiederhergestellt werden.
+1052|Dieses Gerät enthält Daten eines neueren Ankhwiz. Sie wurden nicht angerührt; aktualisiere Ankhwiz, um sie zu öffnen. Nichts, was du hier tust, wird gespeichert.
+1053|Sprache
+1054|App-Sprache
+1055|Weitere Sprachen, auch solche, die von rechts nach links geschrieben werden, sind für ein späteres Update geplant.
+1056|Thoth antwortet auf
+1057|Wie die App
+1058|Karten werden nie übersetzt: nur Ankhwiz’ eigene Schaltflächen und Texte und was Thoth sagt.
+1059|Darstellung
+1060|Design
+1061|Porträtstil
+1062|Thoths Bewegung
+1063|Bewegt
+1064|Ruhig
+1065|Töne
+1066|Antworttöne
+1067|Ende einer Lektion hörbar machen
+1068|Vorlesen
+1069|Von selbst vorlesen
+1070|Stimmen
+1071|Rundgang und Tipps
+1072|Funktionstipps
+1073|Thoth erklärt Stapeloptionen, das Importieren, den Karteneditor, den Einstufungstest und das Lernen mit ihm, wenn du sie zum ersten Mal öffnest. Das ? daneben erklärt es noch einmal.
+1074|Willkommensrundgang erneut zeigen
+1075|Alle Tipps erneut zeigen
+1076|Jeder Tipp erscheint wieder, wenn du seinen Teil der App das nächste Mal öffnest.
+1077|Neue Stapel
+1078|Neue Notizen pro Lektion, {minLesson} bis {maxLesson}. Jeder Stapel kann auch seinen eigenen Wert haben.
+1079|KI-Verbindung
+1080|Optional. Verbinde einen eigenen Dienst, dann kann Thoth Fragen beantworten, Karten entwerfen, lange Antworten bewerten und Lesetexte schreiben. Ohne sie funktioniert alles andere wie bisher.
+1081|Dienst
+1082|Einen Dienst wählen…
+1083|Adresse
+1085|Schlüssel{x}
+1086| (falls der Dienst einen braucht)
+1087|Der Schlüssel wird in {x} aufbewahrt. Er wird nie in Stapel oder Sicherungen geschrieben, und jedes Gerät braucht seinen eigenen.
+1088|Verbindung entfernen
+1089|Modell für schnelle Aufgaben
+1090|Erklärungen, Bewertungen, Fragen an Thoth
+1091|Modellname
+1092|Modell für größere Aufgaben
+1093|Karten und Texte schreiben; leer lassen, um dasselbe zu verwenden
+1094|Modellname (optional)
+1095|Anfragen gehen an ein Modell auf diesem Computer; nichts verlässt ihn.
+1096|Wenn du eine KI-Funktion nutzt, werden die nötigen Karten und deine Eingaben an {x} gesendet. Sonst wird nichts gesendet.
+1097|Getippte Antworten prüfen, die nicht passen
+1098|Wenn eine getippte Antwort zu keiner der Antworten einer Karte passt, entscheidet Thoth, ob sie trotzdem fair ist. Wenn ja, zählt sie und wird ab dann akzeptiert.
+1099|Im Browser lehnen manche Dienste Aufrufe von Webseiten ab. Die Desktop- und Android-Apps haben diese Einschränkung nicht.
+1100|Tägliche Erinnerung
+1101|Ans Lernen erinnern
+1102|Nur an Tagen, an denen du noch nicht gelernt hast
+1103|Uhrzeit
+1104|Tage
+1106|Deine Bibliothek
+1107|Eine Datei mit allen Stapeln, ihren Bildern und Tönen, deinem Fortschritt und deinen Einstellungen. Dein KI-Schlüssel ist nie enthalten.
+1108|Wie wiederherstellen
+1109|Wie soll diese Sicherung übernommen werden?
+1110|Die Stapel hinzufügen, die ich nicht habe
+1111|Alles auf diesem Gerät ersetzen
+1112|Letzte Sicherung: {lastBackup}
+1113|Updates
+1115|Beim Öffnen von Ankhwiz prüfen
+1116|Höchstens einmal am Tag; eine neue Version zeigt, was neu ist
+1117|Beim Öffnen von Ankhwiz nach Updates suchen
+1118|Ankhwiz {version} ist verfügbar.
+1119|Bei GitHub holen
+1120|Du hast die neueste Version.
+1121|Es wurden noch keine Versionen veröffentlicht.
+1122|Seite mit den Versionen
+1123|GitHub war nicht erreichbar. Versuch es später noch einmal oder besuche
+1124|die Seite mit den Versionen
+1125|Ankhwiz fragt GitHub nur nach der neuesten Versionsnummer und sendet sonst nichts.
+1126|Testen
+1127|So tun, als wäre ein späterer Tag
+1128|Datum der App: {simulated}{x}
+1129|Zurücksetzen
+1130|+1 Tag
+1131|Karten brauchen richtige Antworten an verschiedenen Tagen, um aufzusteigen. Damit kannst du das ohne Warten ausprobieren.
+1132|Daten
+1133|Alles behalten
+1134|Alle Stapel und den Fortschritt löschen
+1135|Alles auf diesem Gerät löschen…
+1136|Ankhwiz {VERSION} ({x}). Stapel und Fortschritt bleiben auf diesem Gerät; es gibt keine Konten und keine Synchronisierung. Die Lernregeln laufen im gemeinsamen Rust-Kern. Die Planung nutzt die FSRS-Formeln, bis Ankis Engine angebunden ist.
+1137|Das konnte nicht gelesen werden: Es ist vielleicht zu groß (über 25 MB) oder keine Datei, die Ankhwiz kennt.
+1138|Nichts zu lesen.
+1139|Wird gelesen…
+1140|Es konnte nicht gelesen werden.
+1141|Zu einem Stapel hinzufügen
+1142|Aus einer anderen App geteilt
+1143|Stapel
+1144|+ Ein neuer Stapel
+1145|Name des neuen Stapels
+1146|{x} Nichts wird irgendwohin gesendet, bis du Thoth bittest, Karten zu planen.
+1147|Ankhwiz liest den Text der Seite so, wie du ihn selbst sehen könntest.
+1148|Er wird mit dem Stapel auf diesem Gerät aufbewahrt.
+1149|Nur aufbewahren
+1150|Hinzufügen und Karten planen
+1151|Neue Karte · ähnlich einer, die du kennst
+1152|Diese beiden verwechselt man leicht
+1153|Bekannt
+1154|„{text}“ anhören
+1155|Kurzer Check: Welche bedeutet „{answer}“?
+1156|Richtig: „{q}“ heißt „{a}“.
+1157|Das ist „{a}“. Die neue ist „{q}“.
+1158|Verstanden: weiter zur neuen Karte
+1159|Es wurde kein Text zum Lesen gefunden.
+1160|{"one":"„{title}“ hinzugefügt: {n} Teil, etwa {chars} Wörter.","other":"„{title}“ hinzugefügt: {n} Teile, etwa {chars} Wörter."}
+1161|es konnte nicht gelesen werden.
+1162|Das sieht nicht wie eine Webadresse aus.
+1163|Seite wird gelesen…
+1164|Die Seite konnte nicht gelesen werden.
+1165|Web
+1166|Text
+1167|Word
+1168|Seite
+1169|Eine Prüfung
+1170|Einem Kurs folgen
+1171|Interesse
+1172|Neu darin
+1173|Etwas
+1174|Wiederholung
+1175|Keine Eile
+1176|eine Prüfung: Definitionen, Abläufe und prüfungsartige Fragen
+1177|einem Kurs folgen, in der Reihenfolge der Unterlagen
+1178|Interesse: die großen Ideen zuerst
+1179|neu darin: zuerst die Grundlagen erklären
+1180|kennt etwas: die allerersten Grundlagen überspringen
+1181|Wiederholung: nur die wichtigsten Fakten
+1182|Thoth liest den Aufbau deiner Quellen…
+1183|Die Gliederung konnte nicht erstellt werden.
+1184|Fragen
+1185|Begriffe
+1186|Daten
+1187|Formeln
+1188|Schritte
+1189|Thoth schreibt fünf Karten aus „{name}“…
+1190|Die Probe konnte nicht geschrieben werden.
+1191|„{name}“ wird geschrieben ({x} von {listCount})…
+1192|Mit Thoth erstellen
+1193|Füge die Dateien und Seiten hinzu, um die es in diesem Stapel geht. Sie werden mit dem Stapel auf diesem Gerät aufbewahrt, damit du sie nie doppelt hinzufügst. Ankhwiz liest nur, was du selbst öffnen kannst, und nichts wird irgendwohin gesendet, bis du Thoth bittest, Karten zu planen.
+1194|{title} verwenden
+1195|{"one":"{n} Teil · etwa {chars} Wörter{x2}","other":"{n} Teile · etwa {chars} Wörter{x2}"}
+1196|{title} entfernen
+1197|Dateien hinzufügen
+1198|Eine Webadresse einfügen
+1199|Webadresse
+1200|Seite hinzufügen
+1201|Ein Name dafür (optional)
+1202|Text hier einfügen
+1203|Text hinzufügen
+1204|Oder füge etwas Text ein
+1205|PDF, Word (.docx), Text, Markdown und Webseiten. Seiten mit Anmeldung und PDFs, die nur aus gescannten Bildern bestehen, können nicht gelesen werden.
+1206|Drei kurze Fragen
+1207|Wofür ist es?
+1208|Wie viel weißt du schon?
+1209|Bis wann?
+1210|Noch etwas? (optional: „nur Kapitel 2 bis 4“)
+1211|Noch etwas
+1212|Karten zu planen und zu schreiben braucht die KI-Verbindung: Richte sie unter Einstellungen › Mit Thoth lernen ein. Deine Quellen bleiben solange hier.
+1213|Thoth sendet die Anfänge jedes Teils deiner Quellen (nicht den ganzen Text) an deinen KI-Dienst, um die Gliederung zu planen, und später die Teile, die jede Lektion nutzt. Sonst wird nichts über dich gesendet.
+1214|Etwa {outlineCost} Tokens gehen an deinen KI-Dienst, um die Gliederung zu planen.
+1215|Eine Gliederung vorschlagen
+1216|Benenne Lektionen um, sortiere oder streiche sie, bevor Karten entstehen. Jede Lektion zeigt, woher sie stammt.
+1217|Art der Karten
+1218|Ungefähr wie viele Karten
+1219|Nach oben
+1220|Nach unten
+1221|Probe · bis zu fünf Karten aus der ersten Lektion
+1222|Sag Thoth, was er ändern soll
+1223|(für jede Karte)
+1224|Kürzere Antworten
+1225|Prüfungsartige Fragen
+1226|Fachbegriffe beibehalten
+1227|Noch etwas? („ein einzeiliges Beispiel hinzufügen“)
+1228|Weitere Wünsche
+1229|Zurück zu den Quellen
+1230|Etwa {total} Karten erstellen
+1231|Bisher {cards} Karten. Du kannst diesen Bildschirm offen lassen; jede Lektion wird hinzugefügt, sobald sie geschrieben ist.
+1232|Nach dieser Lektion anhalten
+1233|{"one":"{cards} Karten in {n} Lektion","other":"{cards} Karten in {n} Lektionen"}
+1234|Jede Karte verweist auf die Stelle, aus der sie stammt: Tippe bei ihrer Antwort auf „Aus“, um sie zu lesen.
+1235|Nicht in deinen Quellen gefunden · ausgeschaltet
+1236|Thoth konnte für diese keinen Satz nennen, daher kommen sie nicht dran, bis du entscheidest.
+1237|Thoth zitierte: „{quote}“
+1238|Trotzdem behalten
+1239|Löschen
+1240|Weitere Quellen hinzufügen
+1241|Zu den Lektionen
+1242|Wo das liegt
+1243|Bibliothek
+1244|{"one":"In deinen Stapeln hier ist {n} Karte fällig. Sollen wir sie zusammen machen?","other":"In deinen Stapeln hier sind {n} Karten fällig. Sollen wir sie zusammen machen?"}
+1245|Ein Stapel nach dem anderen. Einverstanden.
+1246|Wie lernen
+1247|Stapel mischen
+1248|Ein Stapel nach dem anderen
+1249|{"one":"Alles Fällige lernen · {n} Karte","other":"Alles Fällige lernen · {n} Karten"}
+1250|Mit {deck} beginnen · {n}
+1251|Karten aus allen Stapeln hier, gemischt. Jede Karte behält den Plan ihres Stapels.
+1252|Öffnet den ersten Stapel mit fälligen Karten.
+1253|gelernte Karten
+1254|des Themas
+1255|{"one":"Stapel","other":"Stapel"}
+1256|Stapel in {name}
+1257|Thoth: {name}, Schritt {x} von {stepsCount}
+1258|{name} · {x} von {stepsCount}
+1259|Rundgang überspringen
+1260|Zeig es mir
+1261|Überspringen
+1262|Felder geändert. Dein Fortschritt bleibt erhalten.
+1263|Felder geändert. Diese Karten fangen von vorn an; der Stapel, wie er war, liegt in den Sicherungen.
+1264|Felder geändert.
+1265|Ändern
+1266|{x} lässt diese Karten von vorn anfangen.
+1267|Den Text mit Lücken ändern
+1268|Das Hauptfrage- oder Antwortfeld ändern
+1269|Hauptfrage und Antwort bleiben gleich, daher bleibt dein Fortschritt erhalten.
+1270|{"one":"{n} Karte von vorn beginnen lassen? Vorher wird eine Sicherung des Stapels angelegt.","other":"{n} Karten von vorn beginnen lassen? Vorher wird eine Sicherung des Stapels angelegt."}
+1271|Einheit abrufen fragt die Karten einer Einheit aus dem Gedächtnis ab. Lerne zuerst ein paar Karten in einer Lektion kennen.
+1272|Diesmal keine Fragen. Schreib jedes Wort, jede Wendung oder jeden Fakt auf, an das du dich aus einer Einheit erinnerst, eins pro Zeile oder durch Kommas getrennt. Die Schreibweise muss nicht perfekt sein. Karten, die fehlen, kommen in der Wiederholung morgen wieder.
+1273|{name} · {met} kennengelernt
+1274|Die andere Seite als Hinweise zeigen
+1275|Leichter: Du siehst, was jede Karte bedeutet, und schreibst die Karte.
+1276|{name} · {targetsCount} Karten
+1277|Verbleibende Zeit
+1278|Woran du dich erinnerst
+1279|{count} geschrieben
+1280|Mit der Einheit vergleichen
+1281|{foundCount} von {targetsCount}
+1282|{x}du hast {typed} geschrieben
+1283|Verpasst
+1284|Aus anderen Einheiten
+1285|Nicht auf deinen Karten: {x}
+1286|Nochmal versuchen
+1287|Update
+1288|Ankhwiz {version} ist da
+1289|Du hast {VERSION}. Neu:
+1290|Holen
+1291|Später
+1292|Diese Version überspringen
+1293|Beim Öffnen von Ankhwiz nach neuen Versionen suchen?
+1294|Höchstens einmal am Tag. Es fragt GitHub nur nach der neuesten Versionsnummer und sendet sonst nichts. Du kannst das in den Einstellungen ändern.
+1295|Ja
+1296|Auf {lang} lesen
+1307|{x} Prüf die Verbindung und versuch es noch einmal.
+1308|Die Stimme konnte nicht heruntergeladen werden.
+1309|Sprachausgabe-Engine
+1310|Welche Engine des Handys liest, etwa die von Google oder eine mit herunterladbaren Stimmen
+1311|Standard des Handys
+1312|Stimmen in den Einstellungen des Handys hinzufügen
+1313|Schalte in den Optionen eines Stapels Vorlesen ein und gib seine Sprachen an; dann kann hier für jede eine Stimme gewählt werden.
+1314|Stimme für {lang}
+1315|Gerätestimme
+1316|{name} herunterladen (etwa {x} MB)
+1317|Die erste Stimme bringt auch die Sprach-Engine mit, etwa 30 MB, die alle heruntergeladenen Stimmen nutzen.
+1318|Ausprobieren
+1319|Download entfernen
+1320|Auf diesem Gerät: {x}
+1321|Noch keine Stimme für {lang} auf diesem Gerät. {x}{x2}
+1322|Lade oben eine herunter oder füge eine im System hinzu:
+1323|Ankhwiz hat noch keine herunterladbare Stimme für {lang}.
+1324|Heruntergeladene Stimmen sind Piper-Stimmen: Sie klingen natürlicher als viele eingebaute, laufen auf diesem Gerät und funktionieren nach dem Download offline. Sie stammen vom Piper-Projekt auf Hugging Face.
+1325|Eine Stimme für eine andere Sprache finden
+1326|Eine Stimme für eine Sprache finden
+1327|Nach einer Sprache suchen
+1328|Dieser Stapel hat noch keine Karten. Füge welche mit Karten hinzufügen hinzu oder lass mich sie Aus Quellen erstellen.
+1329|Nächste neue Lektion: {name}.
+1330|Richtig
+1331|Fast: du hast {typed} geschrieben
+1332|Du hast {typed} geschrieben
+1333|Fehlt
+1334|Entwürfe werden geschrieben…
+1335|Karten entwerfen
+1336|Thoth arbeitet…
+1337|Änderungen ansehen
+1338|Karten werden gelesen…
+1339|Diese Lektion prüfen
+1340|Fragen werden gestellt…
+1341|Herausforderung starten
+1342|Fragen werden geschrieben…
+1343|Thoth stattdessen die Fragen schreiben lassen
+1344|Wird geschrieben…
+1345|Einen Text mit Fragen schreiben
+1346|Dieser Teil der Quelle ist nicht mehr da.
+1347|Die Quelle wurde aus diesem Stapel entfernt.
+1348| · Frage
+1349| · Antwort
+1350|Einzeln eintippen
+1351|Zeilen aus einer Tabelle einfügen
+1352|Die letzte Karte der Liste
+1353|So wird eine Karte aussehen
+1354|Wähle zuerst „Nicht angezeigt“
+1355|Dieses Feld entfernen
+1356|Vorlage der Vorderseite
+1357|Vorlage der Rückseite
+1358|Zurück zu den Karten
+1359|Neue Karte
+1360|Karte bearbeiten
+1361|Überschrift
+1362|Optional: über dem Bild angezeigt
+1363|Wähle Wörter in der Frage oder Antwort aus
+1364|zuerst gesehen am {date}
+1365|Karte hinzufügen
+1366|Speichern
+1367|Jetzt wiederholen
+1368|{cards} und alle, die du hinzufügst
+1369|Karten, die du hier hinzufügst
+1370|Eine Lautsprechertaste bei Frage und Antwort, mit den Stimmen dieses Geräts
+1371|Dieses Gerät bietet hier keine Stimmen an
+1372|Wird exportiert…
+1373|Für Anki (.apkg)
+1374|Für Ankhwiz (.ankh)
+1375|Stapel wiederhergestellt. Die Version, die du hattest, ist jetzt eine Sicherung.
+1376|Diese Sicherung konnte nicht gelesen werden, daher wurde nichts geändert.
+1377|Noch nichts zu schreiben
+1378|{"one":"{n} Karte nach Gehör geschrieben.","other":"{n} Karten nach Gehör geschrieben."}
+1379|Das Diktat nutzt Karten, die du kennengelernt hast und die sich anhören lassen: mit eigenem Ton oder einer Stimme für die Sprache des Stapels. Lerne zuerst ein paar Karten in einer Lektion kennen oder schalte in den Stapeloptionen Vorlesen ein.
+1380|Jedes Wort richtig.
+1381|Fast geschafft: Die unterstrichenen Wörter waren nah dran.
+1382|Hör noch einmal mit 0,7× und vergleiche.
+1383|Weiter
+1384|Beenden
+1385|Anfangsbuchstaben verbergen
+1386|Anfangsbuchstaben zeigen
+1387|Text mit Lücken
+1388|Das erste Feld tauscht beim Fragen in beide Richtungen mit der Antwort; die anderen erscheinen kleiner mit ihm.
+1389|Das erste Feld ist die Hauptfrage; die anderen erscheinen darunter, kleiner.
+1390|Weniger zeigen
+1391|{n} weitere: {what}
+1392|Ihr Anki-Layout nutzt Skripte oder Zeichnungen, die Ankhwiz nicht kopieren kann, daher siehst du die Antwort und sagst, wie nah du dran warst.
+1393|Sieh die Antwort und sag, wie nah du dran warst, statt bewertet zu werden.
+1394|{"one":"{n} Bild oder Ton kommt mit.","other":"{n} Bilder und Töne kommen mit."}
+1395|Felder, die du nicht nutzt, werden behalten und gehen unverändert zu Anki zurück, wenn du den Stapel exportierst. Du kannst sie später in den Stapeloptionen löschen.
+1396|Wird importiert…
+1397|nicht festgelegt
+1398|Eine Sprache wählen
+1399|ein Code, der nicht in der Liste steht
+1400|Wird gelesen…
+1401|Stapel importieren (.apkg oder .ankh)
+1402|Ein Versuch pro Tag: komm morgen wieder
+1403|Ein kurzes Quiz ohne Hinweise. Bestehe es, um vorzuspringen.
+1404|Einstufungstest morgen
+1405|Einstufungstest
+1406|Gesperrt
+1407|{"one":"{n} Karte, die du zweimal oder öfter verpasst hast","other":"{n} Karten, die du zweimal oder öfter verpasst hast"}
+1408|Noch keine
+1409|Noch nicht auf deinen Karten.
+1410|Ihre Lektionen sind offen, und ihre Karten starten auf Stufe 3 statt 1.
+1411|{"one":"{n} verpasste Karte kommt zum Neulernen auf Stufe 1 zurück.","other":"{n} verpasste Karten kommen zum Neulernen auf Stufe 1 zurück."}
+1412|Nichts hat sich geändert. Du kannst die Lektionen wie gewohnt machen oder es morgen noch einmal versuchen.
+1413|Stapel
+1414|Mit Thoth prüfen
+1415|Englisch
+1416|Thoth bleibt still.
+1417|Thoth blinzelt, atmet und reagiert auf deine Antworten. Er bleibt auch still, wenn dein System weniger Bewegung wünscht.
+1418|Das gilt für Stapel, bei denen Vorlesen in den Optionen eingeschaltet ist.
+1419|Dieses Gerät bietet hier keine Stimmen an.
+1420|Verbinde…
+1421|Verbinden und Modelle auflisten
+1422|Die Erinnerung kommt auch, wenn Ankhwiz geschlossen ist. Android liefert sie zum Akkusparen eventuell ein paar Minuten später.
+1423|Die Erinnerung kommt, solange Ankhwiz geöffnet ist; es darf minimiert sein.
+1424|Im Browser kommt die Erinnerung nur, solange diese Seite geöffnet ist.
+1425|Läuft…
+1426|Alles sichern
+1427|Wird auch beim Öffnen von Ankhwiz geprüft, einmal am Tag
+1428|Wird nur geprüft, wenn du auf Jetzt prüfen tippst
+1429|Wird geprüft…
+1430|Jetzt prüfen
+1431|Kein Quellenteil angegeben
+1432|Nicht in deinen Quellen gefunden: Diese Karte würde ausgeschaltet
+1433|Probe neu schreiben
+1434|Eine Probe schreiben
+1435|Wird gestartet…
+1436|{"one":"Daraus werden andere Karten, also fängt der Fortschritt von {n} gelernten Karte dieses Typs von vorn an. Um deinen Fortschritt zu behalten, ändere nur die anderen Felder.","other":"Daraus werden andere Karten, also fängt der Fortschritt von {n} gelernten Karten dieses Typs von vorn an. Um deinen Fortschritt zu behalten, ändere nur die anderen Felder."}
+1437|Keine dieser Karten wurde schon gelernt, also geht kein Fortschritt verloren.
+1438|Die Felder lassen, wie sie waren
+1439|Wird gespeichert…
+1440|Ändern und von vorn beginnen
+1441|Die Zeit ist um
+1442|{n} fast richtig.
+1443|{"one":"{n} verpasste Karte kommt morgen wieder.","other":"{n} verpasste Karten kommen morgen wieder."}
+1444| · noch nicht kennengelernt
+1445|eine heruntergeladene Stimme
+1446|die eigene Stimme dieses Geräts
+1447| · heruntergeladen

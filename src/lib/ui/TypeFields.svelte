@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { plural, t } from '../i18n';
   // Deck options › Fields: change which Anki fields become one note type's
   // question, answer and extra after the deck was imported. Extra fields, and
   // the question fields shown under the main one, can change freely and keep
@@ -26,7 +27,7 @@
   const changed = $derived(open && !sameMap(draft, currentMap(type)));
   const plan = $derived(changed ? planRemap(deck, data.progress[deck.id] ?? {}, type.id, $state.snapshot(draft)) : null);
   const flag = $derived(open ? { question: draft.question !== type.question, answer: !type.cloze && draft.answer !== type.answer } : null);
-  const where = (i: number | null | undefined) => (i === null || i === undefined ? 'None' : (type.fields[i] ?? '?'));
+  const where = (i: number | null | undefined) => (i === null || i === undefined ? t('None') : (type.fields[i] ?? '?'));
   const summary = $derived(`Question: ${[type.question, ...(type.questionMore ?? [])].map(where).join(', ')}${type.cloze ? '' : ` · Answer: ${where(type.answer)}`}${type.extra !== null && type.extra !== undefined ? ` · Extra: ${[type.extra, ...(type.extraMore ?? [])].map(where).join(', ')}` : ''}`);
 
   function start() {
@@ -46,7 +47,7 @@
     const p = plan;
     if (!p) return;
     if (p.empty) {
-      error = `${p.empty} ${p.empty === 1 ? 'card' : 'cards'} would have no question or no answer with these fields. Choose other fields.`;
+      error = plural('{n} card would have no question or no answer with these fields. Choose other fields.', '{n} cards would have no question or no answer with these fields. Choose other fields.', p.empty);
       return;
     }
     // Changing the main question or the answer asks once more before progress is lost.
@@ -63,14 +64,14 @@
     }
     open = false;
     confirming = false;
-    message = p.keeps ? 'Fields changed. Your progress is kept.' : p.studied ? 'Fields changed. These cards start again from the beginning; the deck as it was is in Backups.' : 'Fields changed.';
+    message = p.keeps ? t('Fields changed. Your progress is kept.') : p.studied ? t('Fields changed. These cards start again from the beginning; the deck as it was is in Backups.') : t('Fields changed.');
   }
 </script>
 
 <div class="type">
   <div class="row">
     <span><strong>{type.name}</strong><small>{summary}</small></span>
-    {#if !open}<button class="quiet" onclick={start}>Change</button>{/if}
+    {#if !open}<button class="quiet" onclick={start}>{t('Change')}</button>{/if}
   </div>
 
   {#if open}
@@ -80,23 +81,23 @@
         <p class="warn" role="alert">
           <Icon name="info" size={18} />
           <span>
-            <strong>{type.cloze ? 'Changing the text with gaps' : 'Changing the main question or answer field'} starts these cards again.</strong>
+            <strong>{t('{x} starts these cards again.', { x: type.cloze ? t('Changing the text with gaps') : t('Changing the main question or answer field') })}</strong>
             {plan.studied
-              ? `They become different cards, so the progress of ${plan.studied} studied ${plan.studied === 1 ? 'card' : 'cards'} of this type goes back to the beginning. To keep your progress, change only the other fields.`
-              : 'None of these cards has been studied yet, so no progress is lost.'}
+              ? plural('They become different cards, so the progress of {n} studied card of this type goes back to the beginning. To keep your progress, change only the other fields.', 'They become different cards, so the progress of {n} studied cards of this type goes back to the beginning. To keep your progress, change only the other fields.', plan.studied)
+              : t('None of these cards has been studied yet, so no progress is lost.')}
           </span>
         </p>
       {:else if changed}
-        <p class="hint">The main question and answer stay the same, so your progress is kept.</p>
+        <p class="hint">{t('The main question and answer stay the same, so your progress is kept.')}</p>
       {/if}
       {#if confirming}
-        <p class="hint strong" role="alert">Start {plan?.studied} {plan?.studied === 1 ? 'card' : 'cards'} again from the beginning? A backup of the deck is made first.</p>
+        <p class="hint strong" role="alert">{plural('Start {n} card again from the beginning? A backup of the deck is made first.', 'Start {n} cards again from the beginning? A backup of the deck is made first.', plan?.studied ?? 0)}</p>
       {/if}
       {#if error}<p class="hint bad" role="alert">{error}</p>{/if}
       <div class="pair">
-        <button class="quiet" onclick={cancel}>{confirming ? 'Keep the fields as they were' : 'Cancel'}</button>
+        <button class="quiet" onclick={cancel}>{confirming ? t('Keep the fields as they were') : t('Cancel')}</button>
         <button class={confirming ? 'danger' : 'primary'} disabled={!changed || busy} onclick={() => save()}>
-          {busy ? 'Saving…' : confirming ? 'Change and start again' : 'Save fields'}
+          {busy ? t('Saving…') : confirming ? t('Change and start again') : t('Save fields')}
         </button>
       </div>
     </div>

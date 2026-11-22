@@ -1026,6 +1026,183 @@ pub fn parse_reading(text: &str, fallback_passage: &str) -> Result<Reading, Stri
     })
 }
 
+// ---------- answers that mean the same ----------
+
+/// A group of notes whose answers mean the same or nearly the same.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct LinkGroup {
+    pub kind: String,
+    pub notes: Vec<String>,
+}
+
+/// Which of the listed cards have answers that mean the same, or nearly the same.
+pub fn link_answers_request(deck: &Deck, note_ids: &[String]) -> AiRequest {
+    let mut listing = String::new();
+    for (i, id) in note_ids.iter().take(200).enumerate() {
+        let Some(n) = deck.notes.get(id) else { continue };
+        listing.push_str(&format!("{}: {} = {}\n", i + 1, clip(&n.front, 120), clip(&n.back, 160)));
+    }
+    let instructions = format!(
+        "These are flashcards from the deck \"{}\": number, question, answer. Find cards whose answers would be \
+confused for each other in multiple choice. Group them as \"same\" when either answer is a fair answer to either \
+question (true synonyms, or the same meaning in other words), and as \"close\" when the answers are near in meaning but \
+a careful marker would still tell them apart (a different tense, register or nuance). Only group cards that really \
+belong together; most cards belong to no group. {JSON_ONLY} Shape: {{\"groups\":[{{\"kind\":\"same\",\"n\":[1,4]}}]}}",
+        deck.name
+    );
+    request("linkAnswers", vec![sys(&instructions), user(listing)], true, true, 0.2)
+}
+
+pub fn parse_link_answers(deck: &Deck, note_ids: &[String], text: &str) -> Result<Vec<LinkGroup>, String> {
+    let v = extract_json(text)?;
+    let strict = deck.strict_accents;
+    let mut out: Vec<LinkGroup> = Vec::new();
+    let mut used: BTreeSet<(String, String)> = BTreeSet::new();
+    for g in v["groups"].as_array().cloned().unwrap_or_default() {
+        let kind = match text_of(&g["kind"]).as_str() {
+            "same" => "same",
+            "close" => "close",
+            _ => continue,
+        };
+        let mut notes: Vec<String> = Vec::new();
+        for n in g["n"].as_array().cloned().unwrap_or_default() {
+            let Some(id) = n.as_u64().and_then(|n| (n as usize).checked_sub(1)).and_then(|i| note_ids.get(i)) else { continue };
+            if deck.notes.contains_key(id) && !notes.contains(id) {
+                notes.push(id.clone());
+            }
+        }
+        // Answers already the same need no link: they count for each other anyway.
+        let distinct: BTreeSet<String> = notes.iter().filter_map(|id| deck.notes.get(id)).map(|n| normalize(&n.back, strict)).collect();
+        if notes.len() < 2 || distinct.len() < 2 {
+            continue;
+        }
+        let key = (kind.to_string(), notes.iter().cloned().collect::<Vec<_>>().join(","));
+        if used.insert(key) {
+            out.push(LinkGroup { kind: kind.into(), notes });
+        }
+    }
+    Ok(out)
+}
+
+/// For close pairs: a short note on how the answers differ.
+pub fn contrast_request(deck: &Deck, groups: &[Vec<String>]) -> AiRequest {
+    let mut listing = String::new();
+    for (i, g) in groups.iter().take(30).enumerate() {
+        let cards: Vec<String> = g.iter().filter_map(|id| deck.notes.get(id)).map(|n| format!("{} = {}", clip(&n.front, 80), clip(&n.back, 100))).collect();
+        listing.push_str(&format!("{}: {}\n", i + 1, cards.join(" | ")));
+    }
+    let instructions = format!(
+        "Each numbered line holds flashcards from the deck \"{}\" whose answers are easy to mix up. For each line write \
+one short note (at most 30 words) that tells them apart: what each means and when each is used. Plain text, no lists. \
+{JSON_ONLY} Shape: {{\"notes\":[{{\"n\":1,\"note\":\"…\"}}]}}",
+        deck.name
+    );
+    request("contrast", vec![sys(&instructions), user(listing)], true, false, 0.3)
+}
+
+pub fn parse_contrast(text: &str, count: usize) -> Result<Vec<String>, String> {
+    let v = extract_json(text)?;
+    let mut out = vec![String::new(); count];
+    for n in v["notes"].as_array().cloned().unwrap_or_default() {
+        if let Some(i) = n["n"].as_u64().and_then(|x| (x as usize).checked_sub(1)) {
+            if i < count {
+                out[i] = clip(&text_of(&n["note"]), 260);
+            }
+        }
+    }
+    Ok(out)
+}
+
+/// Is a typed answer that matched nothing on the card still a fair answer?
+pub fn judge_request(deck: &Deck, card_id: &str, given: &str) -> AiRequest {
+    let f = crate::cards::face(deck, card_id);
+    let (front, back, accepted) = f.as_ref().map(|f| (f.prompt.clone(), f.answer.clone(), f.accepted.join(" | "))).unwrap_or_default();
+    let instructions = format!(
+        "A learner typed an answer to a flashcard from the deck \"{}\" that matches none of the card's accepted answers. \
+Decide whether it is still a fair answer: the same meaning in other words, a correct translation, or a common \
+equivalent. It is not fair if it changes the meaning, the tense, the person or the number, or is a different word. \
+Ignore small spelling slips. `feedback` is one sentence to the learner saying why. {JSON_ONLY} \
+Shape: {{\"correct\":true,\"feedback\":\"…\"}}",
+        deck.name
+    );
+    let ask = format!("Question: {front}\nCard's answer: {back}\nAlso accepted: {accepted}\nLearner's answer: {}", clip(given.trim(), 300));
+    request("judge", vec![sys(&instructions), user(ask)], true, false, 0.0)
+}
+
+/// Cards whose answers mean the same as, or nearly the same as, one card's.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct Similar {
+    pub same: Vec<String>,
+    pub close: Vec<String>,
+}
+
+pub fn similar_request(deck: &Deck, note_id: &str, candidates: &[String]) -> AiRequest {
+    let (front, back) = deck.notes.get(note_id).map(|n| (n.front.clone(), n.back.clone())).unwrap_or_default();
+    let mut listing = String::new();
+    for (i, id) in candidates.iter().take(150).enumerate() {
+        let Some(n) = deck.notes.get(id) else { continue };
+        listing.push_str(&format!("{}: {} = {}\n", i + 1, clip(&n.front, 100), clip(&n.back, 140)));
+    }
+    let instructions = format!(
+        "One flashcard from the deck \"{}\" is followed by numbered others. List the numbers whose answer means the same \
+as this card's (\"same\": either answer is fair for either question) and those near in meaning but still \
+distinguishable (\"close\"). Most cards are neither. {JSON_ONLY} Shape: {{\"same\":[2],\"close\":[5]}}",
+        deck.name
+    );
+    let ask = format!("The card: {} = {}\n\nOthers:\n{listing}", clip(&front, 120), clip(&back, 160));
+    request("similar", vec![sys(&instructions), user(ask)], true, false, 0.2)
+}
+
+pub fn parse_similar(candidates: &[String], text: &str) -> Result<Similar, String> {
+    let v = extract_json(text)?;
+    let pick = |key: &str| -> Vec<String> {
+        let mut out: Vec<String> = Vec::new();
+        for n in v[key].as_array().cloned().unwrap_or_default() {
+            if let Some(id) = n.as_u64().and_then(|x| (x as usize).checked_sub(1)).and_then(|i| candidates.get(i)) {
+                if !out.contains(id) {
+                    out.push(id.clone());
+                }
+            }
+        }
+        out
+    };
+    let same = pick("same");
+    let close: Vec<String> = pick("close").into_iter().filter(|id| !same.contains(id)).collect();
+    Ok(Similar { same, close })
+}
+
+/// Where a deck belongs in the library: a subject and, if useful, a topic.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct Place {
+    pub subject: String,
+    pub topic: String,
+}
+
+pub fn place_request(deck: &Deck, existing: &[String]) -> AiRequest {
+    let sample: Vec<String> = deck.notes.values().take(12).map(|n| format!("{} = {}", clip(&n.front, 60), clip(&n.back, 60))).collect();
+    let instructions = format!(
+        "Sort a flashcard deck into a learner's library. Give a broad subject (such as Languages, Math, Science, History, \
+Medicine, Music) and, if it helps, a narrower topic (such as Turkish, Trigonometry, Biology). Reuse one of the \
+learner's existing names when it fits: {}. Names are one to three words. {JSON_ONLY} \
+Shape: {{\"subject\":\"…\",\"topic\":\"…\"}}",
+        if existing.is_empty() { "(none yet)".to_string() } else { existing.join(", ") }
+    );
+    let ask = format!("Deck: {}\nSome cards:\n{}", deck.name, sample.join("\n"));
+    request("place", vec![sys(&instructions), user(ask)], true, false, 0.2)
+}
+
+pub fn parse_place(text: &str) -> Result<Place, String> {
+    let v = extract_json(text)?;
+    let subject = clip(&text_of(&v["subject"]), 40);
+    if subject.is_empty() {
+        return Err("The AI did not suggest a subject.".into());
+    }
+    Ok(Place { subject, topic: clip(&text_of(&v["topic"]), 40) })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1186,5 +1363,27 @@ mod tests {
         assert!(req.messages[0].content.contains("under five words"));
         let story = story_request(&deck, &["ekmek".into(), "su".into()], 3);
         assert!(story.messages[1].content.contains("ekmek, su"));
+    }
+
+    #[test]
+    fn link_groups_keep_real_pairs_and_drop_bad_numbers() {
+        let rows: Vec<crate::model::RawNote> = [("Anlıyorum.", "I understand."), ("Anladım.", "I got it."), ("Kavrıyorum.", "I grasp it."), ("Su", "water"), ("Sular", "Water")]
+            .iter()
+            .map(|(f, b)| serde_json::from_value(serde_json::json!({"front": f, "back": b})).unwrap())
+            .collect();
+        let deck = crate::split::build_deck("T", &rows, &serde_json::from_str("{\"lessonSize\":6}").unwrap(), 0.0);
+        let ids: Vec<String> = rows.iter().map(|r| deck.notes.values().find(|n| n.front == r.front).unwrap().id.clone()).collect();
+        let reply = r#"{"groups":[{"kind":"close","n":[1,2]},{"kind":"same","n":[1,3,99]},{"kind":"same","n":[4,5]},{"kind":"odd","n":[1,2]},{"kind":"same","n":[2]}]}"#;
+        let groups = parse_link_answers(&deck, &ids, reply).unwrap();
+        assert_eq!(groups.len(), 2);
+        assert_eq!(groups[0], LinkGroup { kind: "close".into(), notes: vec![ids[0].clone(), ids[1].clone()] });
+        assert_eq!(groups[1].notes, vec![ids[0].clone(), ids[2].clone()]);
+        let sim = parse_similar(&ids, r#"{"same":[3,3],"close":[2,3,40]}"#).unwrap();
+        assert_eq!(sim.same, vec![ids[2].clone()]);
+        assert_eq!(sim.close, vec![ids[1].clone()]);
+        assert_eq!(parse_contrast(r#"{"notes":[{"n":2,"note":"Past vs present."}]}"#, 2).unwrap(), vec!["".to_string(), "Past vs present.".to_string()]);
+        assert!(parse_place(r#"{"subject":"","topic":"x"}"#).is_err());
+        let req = judge_request(&deck, &ids[0], "I understood");
+        assert!(req.messages[1].content.contains("I understood"));
     }
 }

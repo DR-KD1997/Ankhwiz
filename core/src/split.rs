@@ -167,6 +167,9 @@ pub fn build_deck(name: &str, rows: &[RawNote], options: &BuildOptions, now: f64
         anki: None,
         sources: vec![],
         made: None,
+        links: vec![],
+        place: None,
+        prep: None,
     }
 }
 

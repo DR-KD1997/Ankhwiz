@@ -6,6 +6,7 @@
 //   browser          plain web features, for the single-file and dev builds
 
 import type { HttpRequest } from './core/types';
+import { t } from './i18n';
 
 export interface HttpReply {
   /** HTTP status, or 0 when the service could not be reached. */
@@ -143,11 +144,11 @@ export async function setSecret(name: string, value: string): Promise<boolean> {
 export function secretHome(): string {
   switch (platform()) {
     case 'desktop':
-      return "your computer's password store (Windows Credential Manager or the Linux keyring; a private file if there is none)";
+      return t('your computer\'s password store (Windows Credential Manager or the Linux keyring; a private file if there is none)');
     case 'android':
-      return "this app's private storage, encrypted with a key from the Android Keystore";
+      return t('this app\'s private storage, encrypted with a key from the Android Keystore');
     default:
-      return "this browser's storage for this page, which is not encrypted";
+      return t('this browser\'s storage for this page, which is not encrypted');
   }
 }
 
@@ -157,11 +158,11 @@ export function secretHome(): string {
 export async function saveFile(name: string, text: string): Promise<string> {
   try {
     const invoke = tauri();
-    if (invoke) return `Saved to ${await invoke<string>('save_file', { name, contents: text })}.`;
+    if (invoke) return t('Saved to {x}.', { x: await invoke<string>('save_file', { name, contents: text }) });
     const bridge = android();
     if (bridge) return bridge.saveFile(name, text);
   } catch {
-    return 'The file could not be saved.';
+    return t('The file could not be saved.');
   }
   const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
   const a = document.createElement('a');
@@ -169,7 +170,7 @@ export async function saveFile(name: string, text: string): Promise<string> {
   a.download = name;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-  return 'Sent to your downloads. If nothing arrived, this view blocks downloads; use the desktop or Android app.';
+  return t('Sent to your downloads. If nothing arrived, this view blocks downloads; use the desktop or Android app.');
 }
 
 function toBase64(bytes: Uint8Array): string {
@@ -182,11 +183,11 @@ function toBase64(bytes: Uint8Array): string {
 export async function saveBytes(name: string, bytes: Uint8Array, type = 'application/octet-stream'): Promise<string> {
   try {
     const invoke = tauri();
-    if (invoke) return `Saved to ${await invoke<string>('save_bytes', { name, base64: toBase64(bytes) })}.`;
+    if (invoke) return t('Saved to {x}.', { x: await invoke<string>('save_bytes', { name, base64: toBase64(bytes) }) });
     const bridge = android();
     if (bridge?.saveBase64) return bridge.saveBase64(name, toBase64(bytes));
   } catch {
-    return 'The file could not be saved.';
+    return t('The file could not be saved.');
   }
   const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type }));
   const a = document.createElement('a');
@@ -194,7 +195,7 @@ export async function saveBytes(name: string, bytes: Uint8Array, type = 'applica
   a.download = name;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
-  return 'Sent to your downloads. If nothing arrived, this view blocks downloads; use the desktop or Android app.';
+  return t('Sent to your downloads. If nothing arrived, this view blocks downloads; use the desktop or Android app.');
 }
 
 // ---------- notifications (the daily reminder) ----------

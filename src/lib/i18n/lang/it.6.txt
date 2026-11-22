@@ -1,0 +1,12 @@
+1453|Scoperta
+1454|Riconoscimento
+1455|Richiamo assistito
+1456|Richiamo sicuro
+1457|Padroneggiata
+1458|Ollama (questo computer)
+1459|LM Studio (questo computer)
+1460|Altro indirizzo
+1461|Usa l’indirizzo di Gemini compatibile con OpenAI.
+1462|Un’unica chiave per i modelli di molti fornitori.
+1463|Gira sulla tua macchina; nulla esce da qui.
+1464|Qualsiasi indirizzo che usi il formato chat di OpenAI.

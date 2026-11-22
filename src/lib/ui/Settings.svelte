@@ -15,8 +15,11 @@
     newer,
     now,
     save,
+    setAppLanguage,
     setAutoRead,
     setLessonSize,
+    setThothChecks,
+    setThothLanguage,
     setMotion,
     setSounds,
     setUpdateAtLaunch,
@@ -34,11 +37,31 @@
   import Voices from './Voices.svelte';
   import { resetTips, startPart } from '../tour.svelte';
   import WhatsNew from './WhatsNew.svelte';
+  import { APP_LANGUAGES, deviceLanguage, t } from '../i18n';
+
+  // ----- language -----
+  let langOpen = $state(false);
+  // The AI services' names and notes come from the core in English.
+  function presetText(s: string): string {
+    switch (s) {
+      case 'Ollama (this computer)': return t('Ollama (this computer)');
+      case 'LM Studio (this computer)': return t('LM Studio (this computer)');
+      case 'Other endpoint': return t('Other endpoint');
+      case "Uses Gemini's OpenAI-compatible address.": return t("Uses Gemini's OpenAI-compatible address.");
+      case 'One key for models from many providers.': return t('One key for models from many providers.');
+      case 'Runs on your own machine; nothing leaves it.': return t('Runs on your own machine; nothing leaves it.');
+      case 'Any address that speaks the OpenAI chat format.': return t('Any address that speaks the OpenAI chat format.');
+      default: return s;
+    }
+  }
+  const appLang = $derived(data.settings.appLang ?? 'system');
+  const own = (code: string) => APP_LANGUAGES.find((l) => l.code === code);
+  const langNow = $derived(appLang === 'system' ? { own: t('System default'), sub: t('{language}, from this device', { language: own(deviceLanguage())?.own ?? 'English' }) } : { own: own(appLang)?.own ?? appLang, sub: own(appLang)?.english ?? '' });
 
   const themes: [Theme, string][] = [
-    ['system', 'System'],
-    ['light', 'Light'],
-    ['dark', 'Dark'],
+    ['system', t('System')],
+    ['light', t('Light')],
+    ['dark', t('Dark')],
   ];
   let tipsReset = $state(false);
   function setTips(on: boolean) {
@@ -51,29 +74,29 @@
     startPart('basics');
   }
   const STYLES = [
-    { id: 'classic', name: 'Classic', hint: 'Gold and ink, as on the logo' },
-    { id: 'bright', name: 'Bright Scribe', hint: 'Rounder and friendlier' },
+    { id: 'classic', name: t('Classic'), hint: t('Gold and ink, as on the logo') },
+    { id: 'bright', name: t('Bright Scribe'), hint: t('Rounder and friendlier') },
   ] as const;
   const modes: [ThothMode, string, string][] = [
-    ['full', 'Full', 'Thoth guides you during lessons and on the path.'],
-    ['quiet', 'Quiet', 'Thoth appears only when a lesson ends.'],
-    ['hidden', 'Hidden', 'No mascot. His advice stays as a plain Suggestions list.'],
+    ['full', t('Full'), t('Thoth guides you during lessons and on the path.')],
+    ['quiet', t('Quiet'), t('Thoth appears only when a lesson ends.')],
+    ['hidden', t('Hidden'), t('No mascot. His advice stays as a plain Suggestions list.')],
   ];
 
   // ----- sounds and reading aloud -----
   const sounds = $derived(data.settings.sounds ?? DEFAULT_SOUNDS);
-  const soundAbout = $derived(sounds === 'off' ? 'No sounds when you answer.' : `${SOUND_SETS.find((s) => s.id === sounds)?.about}. Plays for right, nearly right and wrong answers, and at the end of a lesson.`);
+  const soundAbout = $derived(sounds === 'off' ? t('No sounds when you answer.') : t('{about}. Plays for right, nearly right and wrong answers, and at the end of a lesson.', { about: t(SOUND_SETS.find((s) => s.id === sounds)?.about ?? '') }));
   const reads: [AutoRead, string][] = [
-    ['off', 'Off'],
-    ['question', 'Question'],
-    ['answer', 'Answer'],
-    ['both', 'Both'],
+    ['off', t('Off')],
+    ['question', t('Question')],
+    ['answer', t('Answer')],
+    ['both', t('Both')],
   ];
   const readAbout: Record<AutoRead, string> = {
-    off: 'Cards are read only when you tap a speaker button.',
-    question: 'Each question is read as its card opens.',
-    answer: 'The answer is read once you check it.',
-    both: 'The question as its card opens, and the answer once you check it.',
+    off: t('Cards are read only when you tap a speaker button.'),
+    question: t('Each question is read as its card opens.'),
+    answer: t('The answer is read once you check it.'),
+    both: t('The question as its card opens, and the answer once you check it.'),
   };
 
   let confirmErase = $state(false);
@@ -90,7 +113,7 @@
     try {
       note = await backupLibrary();
     } catch (e) {
-      note = e instanceof Error ? e.message : 'The backup could not be made.';
+      note = e instanceof Error ? t(e.message) : t('The backup could not be made.');
     } finally {
       busy = false;
     }
@@ -98,11 +121,11 @@
 
   // ----- reminder -----
   const DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-  const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const DAY_NAMES = [t('Sunday'), t('Monday'), t('Tuesday'), t('Wednesday'), t('Thursday'), t('Friday'), t('Saturday')];
   let reminderNote = $state('');
   async function setReminderOn(on: boolean) {
     if (on && !(await askNotifications())) {
-      reminderNote = 'Notifications are turned off for Ankhwiz. Allow them in your system settings, then try again.';
+      reminderNote = t('Notifications are turned off for Ankhwiz. Allow them in your system settings, then try again.');
       return;
     }
     reminderNote = '';
@@ -160,12 +183,12 @@
       aiNote = {
         ok: true,
         text: models.length
-          ? `Connected. ${models.length} models found; choose one below.`
-          : 'Connected, but the service listed no models. Type a model name below.',
+          ? t('Connected. {modelsCount} models found; choose one below.', { modelsCount: models.length })
+          : t('Connected, but the service listed no models. Type a model name below.'),
       };
-      if (!stored) aiNote.text += ' The key could not be stored and will be needed again next time.';
+      if (!stored) aiNote.text += t(' The key could not be stored and will be needed again next time.');
     } catch (e) {
-      aiNote = { ok: false, text: e instanceof Error ? e.message : 'The connection failed.' };
+      aiNote = { ok: false, text: e instanceof Error ? t(e.message) : t('The connection failed.') };
     } finally {
       testing = false;
     }
@@ -188,7 +211,7 @@
     if (!file) return;
     // Backups from 0.3 and earlier were plain files with everything in them.
     if (/\.json$/i.test(file.name)) {
-      note = importBackup(await file.text()) ? 'Backup restored.' : 'That file is not an Ankhwiz backup.';
+      note = importBackup(await file.text()) ? t('Backup restored.') : t('That file is not an Ankhwiz backup.');
       return;
     }
     restoring = new Uint8Array(await file.arrayBuffer());
@@ -202,7 +225,7 @@
     try {
       note = await restoreLibraryFile(bytes, replace);
     } catch (e) {
-      note = e instanceof Error ? e.message : 'That file could not be restored.';
+      note = e instanceof Error ? t(e.message) : t('That file could not be restored.');
     } finally {
       busy = false;
     }
@@ -218,16 +241,50 @@
 
 <section class="settings">
   {#if newer.found}
-    <p class="update bad" role="alert">This device holds data from a newer Ankhwiz. It has been left untouched; update Ankhwiz to open it. Nothing you do here is saved.</p>
+    <p class="update bad" role="alert">{t('This device holds data from a newer Ankhwiz. It has been left untouched; update Ankhwiz to open it. Nothing you do here is saved.')}</p>
   {/if}
   <header>
-    <button class="icon-btn" aria-label="Back" onclick={back}><Icon name="back" /></button>
-    <h1 class="display">Settings</h1>
+    <button class="icon-btn" aria-label={t('Back')} onclick={back}><Icon name="back" /></button>
+    <h1 class="display">{t('Settings')}</h1>
   </header>
 
   <div class="group">
-    <p class="label">Appearance</p>
-    <div class="seg" role="group" aria-label="Theme">
+    <p class="label">{t('Language')}</p>
+    <div class="plain lang-box">
+      <span class="lang-title">{t('App language')}</span>
+      <button class="lang-btn" aria-expanded={langOpen} aria-haspopup="listbox" onclick={() => (langOpen = !langOpen)}>
+        <span class="grow"><strong>{langNow.own}</strong><small>{langNow.sub}</small></span>
+        <Icon name="down" size={16} />
+      </button>
+      {#if langOpen}
+        <div class="lang-list" role="listbox" aria-label={t('App language')}>
+          <button role="option" aria-selected={appLang === 'system'} onclick={() => ((langOpen = false), setAppLanguage('system'))}>
+            <span class="grow"><span>{t('System default')}</span><small>{t('{language}, from this device', { language: own(deviceLanguage())?.own ?? t('English') })}</small></span>
+            {#if appLang === 'system'}<Icon name="check" size={18} />{/if}
+          </button>
+          {#each APP_LANGUAGES as l (l.code)}
+            <button role="option" lang={l.code} aria-selected={appLang === l.code} onclick={() => ((langOpen = false), setAppLanguage(l.code))}>
+              <span class="grow"><span>{l.own}</span><small lang="en">{l.english}</small></span>
+              {#if appLang === l.code}<Icon name="check" size={18} />{/if}
+            </button>
+          {/each}
+          <p class="hint later">{t('More languages, including right-to-left ones, are planned for a later update.')}</p>
+        </div>
+      {/if}
+      <label class="field">
+        <span>{t('Thoth replies in')}</span>
+        <select value={data.settings.thothLang ?? 'app'} onchange={(e) => setThothLanguage(e.currentTarget.value)}>
+          <option value="app">{t('Same as the app')}</option>
+          {#each APP_LANGUAGES as l (l.code)}<option value={l.code}>{l.own}</option>{/each}
+        </select>
+      </label>
+      <p class="hint">{t('Cards are never translated: only Ankhwiz’s own buttons and text, and what Thoth says.')}</p>
+    </div>
+  </div>
+
+  <div class="group">
+    <p class="label">{t('Appearance')}</p>
+    <div class="seg" role="group" aria-label={t('Theme')}>
       {#each themes as [value, name] (value)}
         <button aria-pressed={data.settings.theme === value} onclick={() => setTheme(value)}>{name}</button>
       {/each}
@@ -235,15 +292,15 @@
   </div>
 
   <div class="group">
-    <p class="label">Thoth</p>
-    <div class="seg" role="group" aria-label="Thoth">
+    <p class="label">{t('Thoth')}</p>
+    <div class="seg" role="group" aria-label={t('Thoth')}>
       {#each modes as [value, name] (value)}
         <button aria-pressed={data.settings.thoth === value} onclick={() => setThoth(value)}>{name}</button>
       {/each}
     </div>
     <p class="hint">{modes.find((m) => m[0] === data.settings.thoth)?.[2]}</p>
     {#if data.settings.thoth !== 'hidden'}
-      <div class="styles" role="radiogroup" aria-label="Portrait style">
+      <div class="styles" role="radiogroup" aria-label={t('Portrait style')}>
         {#each STYLES as st (st.id)}
           {@const on = (data.settings.thothStyle ?? 'classic') === st.id}
           <button class="style" role="radio" aria-checked={on} onclick={() => setThothStyle(st.id)}>
@@ -252,143 +309,148 @@
           </button>
         {/each}
       </div>
-      <div class="seg" role="group" aria-label="Thoth's movement">
-        <button aria-pressed={data.settings.motion !== false} onclick={() => setMotion(true)}>Moves</button>
-        <button aria-pressed={data.settings.motion === false} onclick={() => setMotion(false)}>Still</button>
+      <div class="seg" role="group" aria-label={t('Thoth\'s movement')}>
+        <button aria-pressed={data.settings.motion !== false} onclick={() => setMotion(true)}>{t('Moves')}</button>
+        <button aria-pressed={data.settings.motion === false} onclick={() => setMotion(false)}>{t('Still')}</button>
       </div>
-      <p class="hint">{data.settings.motion === false ? 'Thoth stays still.' : 'Thoth blinks, breathes and reacts to your answers. He also stays still if your system asks for reduced motion.'}</p>
+      <p class="hint">{data.settings.motion === false ? t('Thoth stays still.') : t('Thoth blinks, breathes and reacts to your answers. He also stays still if your system asks for reduced motion.')}</p>
     {/if}
   </div>
 
   <div class="group">
-    <p class="label">Sounds</p>
+    <p class="label">{t('Sounds')}</p>
     <div class="row plain">
       <label class="field grow">
-        <span>Answer sounds</span>
+        <span>{t('Answer sounds')}</span>
         <select value={sounds} onchange={(e) => setSounds(e.currentTarget.value as SoundSet | 'off')}>
-          {#each SOUND_SETS as s (s.id)}<option value={s.id}>{s.name}</option>{/each}
-          <option value="off">Off</option>
+          {#each SOUND_SETS as s (s.id)}<option value={s.id}>{t(s.name)}</option>{/each}
+          <option value="off">{t('Off')}</option>
         </select>
       </label>
-      <button class="icon-btn play" aria-label="Hear the end of a lesson" disabled={sounds === 'off'} onclick={() => sounds !== 'off' && playFrom(sounds, 'end')}><Icon name="play" /></button>
+      <button class="icon-btn play" aria-label={t('Hear the end of a lesson')} disabled={sounds === 'off'} onclick={() => sounds !== 'off' && playFrom(sounds, 'end')}><Icon name="play" /></button>
     </div>
     <p class="hint">{soundAbout}</p>
   </div>
 
   <div class="group">
-    <p class="label">Reading aloud</p>
-    <div class="seg" role="group" aria-label="Read by itself">
+    <p class="label">{t('Reading aloud')}</p>
+    <div class="seg" role="group" aria-label={t('Read by itself')}>
       {#each reads as [value, name] (value)}
         <button aria-pressed={(data.settings.autoRead ?? 'off') === value} onclick={() => setAutoRead(value)}>{name}</button>
       {/each}
     </div>
     <p class="hint">
       {readAbout[data.settings.autoRead ?? 'off']}
-      {canSpeak() ? 'This applies to decks with Read aloud turned on in their options.' : 'This device offers no voices here.'}
+      {canSpeak() ? t('This applies to decks with Read aloud turned on in their options.') : t('This device offers no voices here.')}
     </p>
   </div>
 
   <div class="group">
-    <p class="label">Voices</p>
+    <p class="label">{t('Voices')}</p>
     <Voices />
   </div>
 
   <div class="group">
-    <p class="label">Tour and tips</p>
+    <p class="label">{t('Tour and tips')}</p>
     <label class="row plain">
-      <span><strong>Feature tips</strong><small>Thoth explains Deck options, importing, the card editor, Test out and studying with him the first time you open each. The ? beside each explains it again.</small></span>
+      <span><strong>{t('Feature tips')}</strong><small>{t('Thoth explains Deck options, importing, the card editor, Test out and studying with him the first time you open each. The ? beside each explains it again.')}</small></span>
       <input type="checkbox" checked={data.settings.tips !== false} onchange={(e) => setTips(e.currentTarget.checked)} />
     </label>
     <div class="pair">
-      <button class="quiet" onclick={replayTour}>Replay the welcome tour</button>
-      <button class="quiet" onclick={() => ((tipsReset = true), resetTips())}>Show every tip again</button>
+      <button class="quiet" onclick={replayTour}>{t('Replay the welcome tour')}</button>
+      <button class="quiet" onclick={() => ((tipsReset = true), resetTips())}>{t('Show every tip again')}</button>
     </div>
-    {#if tipsReset}<p class="hint" role="status">Each tip shows again the next time you open its part of the app.</p>{/if}
+    {#if tipsReset}<p class="hint" role="status">{t('Each tip shows again the next time you open its part of the app.')}</p>{/if}
   </div>
 
   <div class="group">
-    <p class="label">New decks</p>
+    <p class="label">{t('New decks')}</p>
     <div class="row plain">
-      <span><strong>Lesson size</strong><small>New notes per lesson, {limits.minLesson} to {limits.maxLesson}. Each deck can also set its own.</small></span>
+      <span><strong>{t('Lesson size')}</strong><small>{t('New notes per lesson, {minLesson} to {maxLesson}. Each deck can also set its own.', { minLesson: limits.minLesson, maxLesson: limits.maxLesson })}</small></span>
       <span class="stepper">
-        <button class="icon-btn" aria-label="Smaller lessons" disabled={data.settings.lessonSize <= limits.minLesson} onclick={() => setLessonSize(data.settings.lessonSize - 1)}>−</button>
+        <button class="icon-btn" aria-label={t('Smaller lessons')} disabled={data.settings.lessonSize <= limits.minLesson} onclick={() => setLessonSize(data.settings.lessonSize - 1)}>−</button>
         <b>{data.settings.lessonSize}</b>
-        <button class="icon-btn" aria-label="Larger lessons" disabled={data.settings.lessonSize >= limits.maxLesson} onclick={() => setLessonSize(data.settings.lessonSize + 1)}>+</button>
+        <button class="icon-btn" aria-label={t('Larger lessons')} disabled={data.settings.lessonSize >= limits.maxLesson} onclick={() => setLessonSize(data.settings.lessonSize + 1)}>+</button>
       </span>
     </div>
   </div>
 
   <div class="group">
-    <p class="label">AI connection</p>
+    <p class="label">{t('AI connection')}</p>
     <p class="hint">
-      Optional. Connect a service of your own and Thoth can answer questions, draft cards, mark long answers and write
-      reading passages. Without it, everything else works as before.
+      {t('Optional. Connect a service of your own and Thoth can answer questions, draft cards, mark long answers and write reading passages. Without it, everything else works as before.')}
     </p>
     <label class="field">
-      <span>Service</span>
+      <span>{t('Service')}</span>
       <select value={data.ai.preset} onchange={(e) => choosePreset(e.currentTarget.value)}>
-        <option value="" disabled>Choose a service…</option>
-        {#each presets as p (p.id)}<option value={p.id}>{p.name}</option>{/each}
+        <option value="" disabled>{t('Choose a service…')}</option>
+        {#each presets as p (p.id)}<option value={p.id}>{presetText(p.name)}</option>{/each}
       </select>
     </label>
     {#if data.ai.preset}
-      {#if preset?.note}<p class="hint">{preset.note}</p>{/if}
+      {#if preset?.note}<p class="hint">{presetText(preset.note)}</p>{/if}
       <label class="field">
-        <span>Address</span>
-        <input type="url" bind:value={data.ai.baseUrl} onchange={() => save()} placeholder="https://…/v1" autocomplete="off" spellcheck="false" />
+        <span>{t('Address')}</span>
+        <input type="url" bind:value={data.ai.baseUrl} onchange={() => save()} placeholder={t('https://…/v1')} autocomplete="off" spellcheck="false" />
       </label>
       <label class="field">
-        <span>Key{preset && !preset.needsKey ? ' (if the service needs one)' : ''}</span>
+        <span>{t('Key{x}', { x: preset && !preset.needsKey ? t(' (if the service needs one)') : '' })}</span>
         <input type="password" bind:value={keyDraft} autocomplete="off" spellcheck="false" />
       </label>
-      <p class="hint">The key is kept in {secretHome()}. It is never written into decks or backups, and each device needs its own.</p>
+      <p class="hint">{t('The key is kept in {x}. It is never written into decks or backups, and each device needs its own.', { x: secretHome() })}</p>
       <div class="pair">
-        <button class="quiet" disabled={testing || !data.ai.baseUrl.trim()} onclick={connect}>{testing ? 'Connecting…' : 'Connect and list models'}</button>
-        <button class="quiet" onclick={disconnect}>Remove connection</button>
+        <button class="quiet" disabled={testing || !data.ai.baseUrl.trim()} onclick={connect}>{testing ? t('Connecting…') : t('Connect and list models')}</button>
+        <button class="quiet" onclick={disconnect}>{t('Remove connection')}</button>
       </div>
       {#if aiNote}<p class="hint" role="status"><strong class:bad={!aiNote.ok}>{aiNote.text}</strong></p>{/if}
       <datalist id="models">{#each models as m (m)}<option value={m}></option>{/each}</datalist>
       <label class="field">
-        <span>Model for quick jobs <small>explanations, marking, questions to Thoth</small></span>
-        <input list="models" bind:value={data.ai.fastModel} onchange={() => save()} placeholder="Model name" autocomplete="off" spellcheck="false" />
+        <span>{t('Model for quick jobs')} <small>{t('explanations, marking, questions to Thoth')}</small></span>
+        <input list="models" bind:value={data.ai.fastModel} onchange={() => save()} placeholder={t('Model name')} autocomplete="off" spellcheck="false" />
       </label>
       <label class="field">
-        <span>Model for larger jobs <small>writing cards and passages; leave empty to use the same one</small></span>
-        <input list="models" bind:value={data.ai.strongModel} onchange={() => save()} placeholder="Model name (optional)" autocomplete="off" spellcheck="false" />
+        <span>{t('Model for larger jobs')} <small>{t('writing cards and passages; leave empty to use the same one')}</small></span>
+        <input list="models" bind:value={data.ai.strongModel} onchange={() => save()} placeholder={t('Model name (optional)')} autocomplete="off" spellcheck="false" />
       </label>
       {#if aiReady()}
         <p class="hint">
-          {#if isLocal()}Requests go to a model on this computer; nothing leaves it.
-          {:else}When you use an AI feature, the cards it needs and what you type are sent to {aiHost()}. Nothing is sent otherwise.{/if}
+          {#if isLocal()}{t('Requests go to a model on this computer; nothing leaves it.')}
+          {:else}{t('When you use an AI feature, the cards it needs and what you type are sent to {x}. Nothing is sent otherwise.', { x: aiHost() })}{/if}
         </p>
       {/if}
+      {#if aiReady()}
+        <label class="row plain">
+          <span><strong>{t('Check typed answers that don’t match')}</strong><small>{t('When a typed answer matches none of a card’s answers, Thoth decides whether it is fair all the same. If it is, it counts and is accepted from then on.')}</small></span>
+          <input type="checkbox" checked={data.settings.thothChecks !== false} onchange={(e) => setThothChecks(e.currentTarget.checked)} />
+        </label>
+      {/if}
       {#if platform() === 'browser'}
-        <p class="hint">In a browser, some services refuse calls from web pages. The desktop and Android apps do not have that limit.</p>
+        <p class="hint">{t('In a browser, some services refuse calls from web pages. The desktop and Android apps do not have that limit.')}</p>
       {/if}
     {/if}
   </div>
 
   <div class="group">
-    <p class="label">Daily reminder</p>
+    <p class="label">{t('Daily reminder')}</p>
     <div class="row plain">
-      <span><strong>Remind me to study</strong><small>Only on days you haven’t studied yet</small></span>
-      <button class="switch" role="switch" aria-checked={data.reminder.on} aria-label="Daily reminder" onclick={() => void setReminderOn(!data.reminder.on)}><span></span></button>
+      <span><strong>{t('Remind me to study')}</strong><small>{t('Only on days you haven’t studied yet')}</small></span>
+      <button class="switch" role="switch" aria-checked={data.reminder.on} aria-label={t('Daily reminder')} onclick={() => void setReminderOn(!data.reminder.on)}><span></span></button>
     </div>
     {#if data.reminder.on}
       <div class="rem plain">
-        <label class="time">Time <input type="time" bind:value={data.reminder.time} onchange={reminderChanged} /></label>
-        <div class="days" role="group" aria-label="Days">
+        <label class="time">{t('Time')} <input type="time" bind:value={data.reminder.time} onchange={reminderChanged} /></label>
+        <div class="days" role="group" aria-label={t('Days')}>
           {#each DAYS as d, i (i)}
             <button class="day" aria-pressed={data.reminder.days.includes(i)} aria-label={DAY_NAMES[i]} onclick={() => toggleDay(i)}>{d}</button>
           {/each}
         </div>
-        <p class="preview"><strong>Ankhwiz</strong> · {preview}</p>
+        <p class="preview"><strong>{t('Ankhwiz')}</strong> · {preview}</p>
         <p class="hint">
           {remindsNatively()
-            ? 'The reminder comes even when Ankhwiz is closed. Android may deliver it a few minutes late to save battery.'
+            ? t('The reminder comes even when Ankhwiz is closed. Android may deliver it a few minutes late to save battery.')
             : platform() === 'desktop'
-              ? 'The reminder comes while Ankhwiz is open; it can be minimised.'
-              : 'In a browser, the reminder comes only while this page is open.'}
+              ? t('The reminder comes while Ankhwiz is open; it can be minimised.')
+              : t('In a browser, the reminder comes only while this page is open.')}
         </p>
       </div>
     {/if}
@@ -396,81 +458,135 @@
   </div>
 
   <div class="group">
-    <p class="label">Your library</p>
+    <p class="label">{t('Your library')}</p>
     <input bind:this={picker} type="file" accept=".ankhlib,.json" hidden onchange={restore} />
-    <p class="hint">One file with every deck, its pictures and sounds, your progress and your settings. Your AI key is never included.</p>
+    <p class="hint">{t('One file with every deck, its pictures and sounds, your progress and your settings. Your AI key is never included.')}</p>
     <div class="pair">
-      <button class="quiet" disabled={busy} onclick={download}><Icon name="download" size={18} /> {busy ? 'Working…' : 'Back up all'}</button>
-      <button class="quiet" disabled={busy} onclick={() => picker?.click()}><Icon name="upload" size={18} /> Restore</button>
+      <button class="quiet" disabled={busy} onclick={download}><Icon name="download" size={18} /> {busy ? t('Working…') : t('Back up all')}</button>
+      <button class="quiet" disabled={busy} onclick={() => picker?.click()}><Icon name="upload" size={18} /> {t('Restore')}</button>
     </div>
     {#if restoring}
-      <div class="choice plain" role="group" aria-label="How to restore">
-        <p><strong>How should this backup come in?</strong></p>
-        <button class="quiet" onclick={() => void finishRestore(false)}>Add the decks I don’t have</button>
-        <button class="quiet danger" onclick={() => void finishRestore(true)}>Replace everything on this device</button>
-        <button class="link" onclick={() => (restoring = null)}>Cancel</button>
+      <div class="choice plain" role="group" aria-label={t('How to restore')}>
+        <p><strong>{t('How should this backup come in?')}</strong></p>
+        <button class="quiet" onclick={() => void finishRestore(false)}>{t('Add the decks I don’t have')}</button>
+        <button class="quiet danger" onclick={() => void finishRestore(true)}>{t('Replace everything on this device')}</button>
+        <button class="link" onclick={() => (restoring = null)}>{t('Cancel')}</button>
       </div>
     {/if}
-    {#if lastBackup}<p class="hint">Last backup: {lastBackup}</p>{/if}
+    {#if lastBackup}<p class="hint">{t('Last backup: {lastBackup}', { lastBackup })}</p>{/if}
     {#if note}<p class="hint" role="status"><strong>{note}</strong></p>{/if}
   </div>
 
   <div class="group">
-    <p class="label">Updates</p>
+    <p class="label">{t('Updates')}</p>
     <div class="row plain">
-      <span><strong>Ankhwiz {VERSION}</strong><small>{data.updates.atLaunch ? 'Also checked when Ankhwiz opens, once a day' : 'Checked only when you tap Check now'}</small></span>
-      <button class="quiet" disabled={checking} onclick={check}>{checking ? 'Checking…' : 'Check now'}</button>
+      <span><strong>{t('Ankhwiz {VERSION}', { VERSION })}</strong><small>{data.updates.atLaunch ? t('Also checked when Ankhwiz opens, once a day') : t('Checked only when you tap Check now')}</small></span>
+      <button class="quiet" disabled={checking} onclick={check}>{checking ? t('Checking…') : t('Check now')}</button>
     </div>
     <div class="row plain">
-      <span><strong>Check when Ankhwiz opens</strong><small>At most once a day; a new version shows what's new in it</small></span>
-      <button class="switch" role="switch" aria-checked={!!data.updates.atLaunch} aria-label="Check for updates when Ankhwiz opens" onclick={() => setUpdateAtLaunch(!data.updates.atLaunch)}><span></span></button>
+      <span><strong>{t('Check when Ankhwiz opens')}</strong><small>{t('At most once a day; a new version shows what\'s new in it')}</small></span>
+      <button class="switch" role="switch" aria-checked={!!data.updates.atLaunch} aria-label={t('Check for updates when Ankhwiz opens')} onclick={() => setUpdateAtLaunch(!data.updates.atLaunch)}><span></span></button>
     </div>
     {#if update?.state === 'newer'}
       <div class="update ok" role="status">
-        <p><strong>Ankhwiz {update.version} is available.</strong> <OutLink href={update.url}>Get it from GitHub</OutLink></p>
+        <p><strong>{t('Ankhwiz {version} is available.', { version: update.version })}</strong> <OutLink href={update.url}>{t('Get it from GitHub')}</OutLink></p>
         {#if update.details}<WhatsNew notes={update.details} />{/if}
       </div>
     {:else if update?.state === 'current'}
-      <p class="update" role="status">You have the latest version.</p>
+      <p class="update" role="status">{t('You have the latest version.')}</p>
     {:else if update?.state === 'none'}
-      <p class="update" role="status">No releases have been published yet. <OutLink href={RELEASES}>Releases page</OutLink></p>
+      <p class="update" role="status">{t('No releases have been published yet.')} <OutLink href={RELEASES}>{t('Releases page')}</OutLink></p>
     {:else if update?.state === 'failed'}
-      <p class="update" role="status">GitHub could not be reached. Try again later, or visit <OutLink href={RELEASES}>the releases page</OutLink>.</p>
+      <p class="update" role="status">{t('GitHub could not be reached. Try again later, or visit')} <OutLink href={RELEASES}>{t('the releases page')}</OutLink>.</p>
     {/if}
-    <p class="hint">Ankhwiz asks GitHub for the latest version number and sends nothing else.</p>
+    <p class="hint">{t('Ankhwiz asks GitHub for the latest version number and sends nothing else.')}</p>
   </div>
 
   <div class="group">
-    <p class="label">Testing</p>
+    <p class="label">{t('Testing')}</p>
     <div class="row plain">
-      <span><strong>Pretend it is a later day</strong><small>The app's date: {simulated}{data.dayOffset ? ` (+${data.dayOffset})` : ''}</small></span>
+      <span><strong>{t('Pretend it is a later day')}</strong><small>{t('The app\'s date: {simulated}{x}', { simulated, x: data.dayOffset ? ` (+${data.dayOffset})` : '' })}</small></span>
       <span class="pair">
-        {#if data.dayOffset}<button class="quiet" onclick={() => skipDays(0)}>Reset</button>{/if}
-        <button class="quiet" onclick={() => skipDays(1)}>+1 day</button>
+        {#if data.dayOffset}<button class="quiet" onclick={() => skipDays(0)}>{t('Reset')}</button>{/if}
+        <button class="quiet" onclick={() => skipDays(1)}>{t('+1 day')}</button>
       </span>
     </div>
-    <p class="hint">Cards need correct answers on separate days to move up. This lets you try that without waiting.</p>
+    <p class="hint">{t('Cards need correct answers on separate days to move up. This lets you try that without waiting.')}</p>
   </div>
 
   <div class="group">
-    <p class="label">Data</p>
+    <p class="label">{t('Data')}</p>
     {#if confirmErase}
       <div class="pair">
-        <button class="quiet" onclick={() => (confirmErase = false)}>Keep everything</button>
-        <button class="quiet danger" onclick={() => void eraseAll()}>Erase all decks and progress</button>
+        <button class="quiet" onclick={() => (confirmErase = false)}>{t('Keep everything')}</button>
+        <button class="quiet danger" onclick={() => void eraseAll()}>{t('Erase all decks and progress')}</button>
       </div>
     {:else}
-      <button class="quiet" onclick={() => (confirmErase = true)}>Erase everything on this device…</button>
+      <button class="quiet" onclick={() => (confirmErase = true)}>{t('Erase everything on this device…')}</button>
     {/if}
   </div>
 
   <p class="about">
-    Ankhwiz {VERSION} ({platform()}). Decks and progress stay on this device; there are no accounts or sync.
-    The learning rules run in the shared Rust core. Scheduling uses the FSRS formulas until Anki's engine is attached.
+    {t('Ankhwiz {VERSION} ({x}). Decks and progress stay on this device; there are no accounts or sync. The learning rules run in the shared Rust core. Scheduling uses the FSRS formulas until Anki\'s engine is attached.', { VERSION, x: platform() })}
   </p>
 </section>
 
 <style>
+  .lang-box {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+  }
+  .lang-title {
+    font-weight: 700;
+  }
+  .lang-btn,
+  .lang-list button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 4px 12px;
+    border: 2px solid var(--line);
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .lang-list {
+    display: flex;
+    flex-direction: column;
+    max-height: 420px;
+    overflow-y: auto;
+    border: 2px solid var(--line);
+  }
+  .lang-list button {
+    border: 0;
+    border-bottom: 1px solid var(--hair);
+    background: var(--surface);
+  }
+  .lang-list button[aria-selected='true'] {
+    background: var(--sel-bg);
+    color: var(--sel-text);
+    font-weight: 700;
+  }
+  .lang-btn .grow,
+  .lang-list .grow {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .lang-btn small,
+  .lang-list small {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 400;
+  }
+  .later {
+    padding: 8px 12px;
+  }
   .styles {
     display: grid;
     grid-template-columns: 1fr 1fr;

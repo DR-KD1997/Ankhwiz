@@ -7,8 +7,8 @@ card grows stronger, and Thoth, a scribe of ancient Egypt, keeps you company
 along the way. It reads and writes Anki decks, so nothing you have in Anki
 is left behind, and nothing you make here is locked in.
 
-Windows, Linux and Android, plus a one-file version for any browser. No
-account, no server, no tracking: your decks stay on your device.
+Windows, Linux and Android, plus a one-file version for any browser, in ten
+languages. No account, no server, no tracking: your decks stay on your device.
 
 [**Download the latest release**](https://github.com/DR-KD1997/Ankhwiz/releases/latest) ·
 [What's new](CHANGELOG.md) · [How it works](#how-learning-works) ·
@@ -130,6 +130,18 @@ with a retention slider per deck.
   Anki shows, and can be shown with the answer in Ankhwiz too.
 - **Unused fields:** fields of an Anki note type that no card shows can be
   left out when importing, or deleted later in Deck options.
+- **Answers that mean the same:** cards that share an answer, or answers
+  with two meanings, are linked as **Same** (either answer counts on both
+  cards) or **Close** (never offered against each other). Links are found on
+  the device or suggested by Thoth; small lessons full of shared meanings
+  ask you to **pick all that fit**, and cards that are easy to mix up are
+  shown **side by side** after a slip.
+- **Prepare for Ankhwiz:** one screen that gets a deck, imported or not,
+  ready for Ankhwiz's features: languages and reading aloud, a place in your
+  library, linked answers and unused fields on the device in under a minute,
+  and, with your AI connection, wrong options, extra answers, doubtful
+  cards, lesson names, notes on look-alike answers and reading stories. You
+  choose what to keep, and a backup is made first.
 
 ### Thoth and AI
 Thoth's built-in lines and animations work offline: he breathes, blinks and
@@ -176,6 +188,10 @@ keyring, the Android Keystore) and never goes into decks or backups.
   kinds, options, readings and progress.
 
 ### Your library
+- **Arranged by subject:** shelves such as Languages › Turkish ›
+  Conversational Turkish, or plain lists, most due first. A subject's page
+  shows how much of it is learned and can **mix the decks** into one
+  session. Places are suggested from deck names and languages, or by Thoth.
 - **Back up everything** in one `.ankhlib` file (decks, pictures and sounds,
   progress and settings, never your AI key) and restore it on another device.
 - **Daily reminder** at a time and on days you choose, only when you haven't
@@ -189,7 +205,14 @@ keyring, the Android Keystore) and never goes into decks or backups.
 Every control can be reached by keyboard with a clear focus ring; results are
 announced to screen readers; pictures describe their hidden parts; light and
 dark themes; one column on phones, path and lesson side by side on wide
-screens. Interface text is moving into translatable files (`src/lib/i18n/`).
+screens.
+
+### In your language
+English, Türkçe, Español, Português (Brasil), Français, Deutsch, Italiano,
+Русский, 日本語 and 简体中文, or the device's own language (Settings ›
+Language). Thoth's lines, lesson names, plurals, numbers and dates follow it.
+Translations live in `src/lib/i18n/lang/` as numbered lines, one file per
+language; corrections are welcome.
 
 ## Download
 
@@ -270,6 +293,8 @@ npm test                 # bridge, import and round-trip tests
 npm run check            # type check
 scripts/build-core.sh    # after changing core/: rebuilds the WebAssembly module
 npm run build:single     # dist-single/index.html, the one-file version
+node scripts/i18n-extract.mjs   # after changing interface text: numbers new text
+node scripts/i18n-compile.mjs   # lang/*.txt into the dictionaries the app loads
 ```
 
 `src/lib/core/wasm.generated.ts` is the compiled core as text, checked in so

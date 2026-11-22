@@ -15,6 +15,7 @@
 
 import { piperSpeak, piperStop } from './piper';
 import { data } from './store.svelte';
+import { t } from './i18n';
 
 type Invoke = <T>(cmd: string, args?: Record<string, unknown>) => Promise<T>;
 /** The downloaded Piper voice chosen for a language, if any. */
@@ -357,8 +358,8 @@ export function stopSpeaking(): void {
 
 /** Where to install a voice, for the hint shown when a language has none. */
 export function voiceHelp(): string {
-  if (bridge()) return 'Add the language’s voice in your phone’s settings, under Text-to-speech output.';
-  if (tauri() && /Windows/i.test(navigator.userAgent)) return 'Add the language’s voice in Windows Settings, under Time & language › Speech.';
-  if (tauri()) return 'Install a voice for the language for speech-dispatcher, such as espeak-ng or RHVoice.';
-  return 'Your browser or system has no voice for this language.';
+  if (bridge()) return t('Add the language’s voice in your phone’s settings, under Text-to-speech output.');
+  if (tauri() && /Windows/i.test(navigator.userAgent)) return t('Add the language’s voice in Windows Settings, under Time & language › Speech.');
+  if (tauri()) return t('Install a voice for the language for speech-dispatcher, such as espeak-ng or RHVoice.');
+  return t('Your browser or system has no voice for this language.');
 }

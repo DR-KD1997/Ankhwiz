@@ -28,6 +28,8 @@
   import Help from './Help.svelte';
   import { offerPart } from '../tour.svelte';
   import { onMount } from 'svelte';
+  import { date, plural, stageName, t } from '../i18n';
+  import { job } from '../prepare.svelte';
 
   onMount(() => offerPart('options'));
 
@@ -57,9 +59,9 @@
     return { list, own };
   });
   const SPACING = {
-    spread: 'Asked later in the same lesson, never just after. Each day, only one way of a note comes up for review (Anki: bury siblings).',
-    nextDay: 'Met the day after, among the reviews. Each day, only one way of a note comes up for review (Anki: bury siblings).',
-    together: 'Asked straight after the first way, and both can come up for review on the same day.',
+    spread: t('Asked later in the same lesson, never just after. Each day, only one way of a note comes up for review (Anki: bury siblings).'),
+    nextDay: t('Met the day after, among the reviews. Each day, only one way of a note comes up for review (Anki: bury siblings).'),
+    together: t('Asked straight after the first way, and both can come up for review on the same day.'),
   } as const;
   const cards = (n: number) => `${n} ${n === 1 ? 'note' : 'notes'}`;
   // Anki note types whose fields can be chosen again (pictures with hidden parts keep theirs).
@@ -87,7 +89,7 @@
     try {
       message = kind === 'apkg' ? await exportApkg(deck.id, withProgress) : await exportAnkh(deck.id, withProgress);
     } catch (e) {
-      message = e instanceof Error ? e.message : 'The deck could not be exported.';
+      message = e instanceof Error ? t(e.message) : t('The deck could not be exported.');
     } finally {
       exporting = '';
     }
@@ -101,7 +103,7 @@
   function dropUnused() {
     const n = deleteUnusedFields(deck.id);
     confirmUnused = false;
-    message = n ? `Deleted the text of unused fields in ${n} ${n === 1 ? 'note' : 'notes'}. A backup was made first.` : 'There was nothing to delete.';
+    message = n ? plural('Deleted the text of unused fields in {n} note. A backup was made first.', 'Deleted the text of unused fields in {n} notes. A backup was made first.', n) : t('There was nothing to delete.');
   }
 
   const when = (t: number) => new Date(t).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
@@ -109,33 +111,44 @@
 
 <section class="opts">
   <header>
-    <button class="icon-btn" aria-label="Back to lessons" onclick={() => openPanel('path')}><Icon name="back" /></button>
-    <h1 class="display">Deck options</h1>
+    <button class="icon-btn" aria-label={t('Back to lessons')} onclick={() => openPanel('path')}><Icon name="back" /></button>
+    <h1 class="display">{t('Deck options')}</h1>
     <Help part="options" />
   </header>
 
+  <div class="group">
+    <p class="label">{t('Prepare for Ankhwiz')}</p>
+    <button class="row as-button" onclick={() => openPanel('prepare')}>
+      <span>
+        <strong>{job.running && job.deckId === deck.id ? t('Preparing…') : deck.prep?.pending?.length ? t('Results to check') : deck.prep?.at ? t('Prepare again') : t('Prepare this deck')}</strong>
+        <small>{deck.prep?.at ? t('Last prepared on {date}. Only cards added or changed since are looked at again.', { date: date(deck.prep.at) }) : t('Voices, fair answers, lesson names and more, set up in one go: on this device, and with Thoth if the AI connection is set up.')}</small>
+      </span>
+      <Icon name="play" size={18} />
+    </button>
+  </div>
+
   <div class="group" data-tour="o-daily">
-    <p class="label">Daily goal</p>
+    <p class="label">{t('Daily goal')}</p>
     <div class="row">
-      <span><strong>New lessons a day</strong><small>{o.newLessonsPerDay ? 'Thoth says when the goal is reached; you can always go on' : 'No goal'} (Anki: new cards/day)</small></span>
+      <span><strong>{t('New lessons a day')}</strong><small>{t('{x} (Anki: new cards/day)', { x: o.newLessonsPerDay ? t('Thoth says when the goal is reached; you can always go on') : t('No goal') })}</small></span>
       <span class="stepper">
-        <button class="icon-btn" aria-label="Fewer new lessons" disabled={o.newLessonsPerDay <= 0} onclick={() => setDeckOptions(deck.id, { newLessonsPerDay: o.newLessonsPerDay - 1 })}>−</button>
-        <b>{o.newLessonsPerDay || 'Off'}</b>
-        <button class="icon-btn" aria-label="More new lessons" disabled={o.newLessonsPerDay >= 10} onclick={() => setDeckOptions(deck.id, { newLessonsPerDay: o.newLessonsPerDay + 1 })}>+</button>
+        <button class="icon-btn" aria-label={t('Fewer new lessons')} disabled={o.newLessonsPerDay <= 0} onclick={() => setDeckOptions(deck.id, { newLessonsPerDay: o.newLessonsPerDay - 1 })}>−</button>
+        <b>{o.newLessonsPerDay || t('Off')}</b>
+        <button class="icon-btn" aria-label={t('More new lessons')} disabled={o.newLessonsPerDay >= 10} onclick={() => setDeckOptions(deck.id, { newLessonsPerDay: o.newLessonsPerDay + 1 })}>+</button>
       </span>
     </div>
     <div class="row">
-      <span><strong>Reviews a day</strong><small>The rest wait until tomorrow (Anki: maximum reviews/day)</small></span>
+      <span><strong>{t('Reviews a day')}</strong><small>{t('The rest wait until tomorrow (Anki: maximum reviews/day)')}</small></span>
       <span class="stepper">
-        <button class="icon-btn" aria-label="Fewer reviews" disabled={o.reviewCap <= 10} onclick={() => setDeckOptions(deck.id, { reviewCap: Math.max(10, o.reviewCap - 10) })}>−</button>
+        <button class="icon-btn" aria-label={t('Fewer reviews')} disabled={o.reviewCap <= 10} onclick={() => setDeckOptions(deck.id, { reviewCap: Math.max(10, o.reviewCap - 10) })}>−</button>
         <b>{o.reviewCap}</b>
-        <button class="icon-btn" aria-label="More reviews" disabled={o.reviewCap >= 999} onclick={() => setDeckOptions(deck.id, { reviewCap: Math.min(999, o.reviewCap + 10) })}>+</button>
+        <button class="icon-btn" aria-label={t('More reviews')} disabled={o.reviewCap >= 999} onclick={() => setDeckOptions(deck.id, { reviewCap: Math.min(999, o.reviewCap + 10) })}>+</button>
       </span>
     </div>
   </div>
 
   <div class="group">
-    <p class="label">Remembering</p>
+    <p class="label">{t('Remembering')}</p>
     <div class="slider plain">
       <input
         type="range"
@@ -143,19 +156,19 @@
         max="95"
         step="1"
         value={pct}
-        aria-label="Remember more or review less"
+        aria-label={t('Remember more or review less')}
         oninput={(e) => setDeckOptions(deck.id, { retention: Number(e.currentTarget.value) / 100 })}
       />
-      <span class="ends"><small>Review less</small><small>Remember more</small></span>
-      <p>Cards come back when you are likely to still remember {pct}% of them. Higher means more reviews. (Anki: desired retention)</p>
+      <span class="ends"><small>{t('Review less')}</small><small>{t('Remember more')}</small></span>
+      <p>{t('Cards come back when you are likely to still remember {pct}% of them. Higher means more reviews. (Anki: desired retention)', { pct })}</p>
     </div>
   </div>
 
   <div class="group" data-tour="o-kinds">
-    <p class="label">Card kinds</p>
+    <p class="label">{t('Card kinds')}</p>
     {#if kinds.list.length}
       <div class="row kinds">
-        <span><strong>Ask both ways</strong><small>Also show the answer and ask for the question, for each kind of card (Anki: reversed card)</small></span>
+        <span><strong>{t('Ask both ways')}</strong><small>{t('Also show the answer and ask for the question, for each kind of card (Anki: reversed card)')}</small></span>
       </div>
       {#each kinds.list as k (k.id)}
         <label class="row sub">
@@ -164,186 +177,188 @@
         </label>
       {/each}
       <label class="row sub">
-        <span><strong>Cards made in Ankhwiz</strong><small>{kinds.own ? `${cards(kinds.own)}, and any you add` : 'Cards you add here'}</small></span>
+        <span><strong>{t('Cards made in Ankhwiz')}</strong><small>{kinds.own ? t('{cards}, and any you add', { cards: cards(kinds.own) }) : t('Cards you add here')}</small></span>
         <input type="checkbox" checked={o.bothWays} onchange={(e) => setTypeBothWays(deck.id, '', e.currentTarget.checked)} />
       </label>
     {:else}
       <label class="row">
-        <span><strong>Ask both ways</strong><small>Also show the answer and ask for the question (Anki: reversed card)</small></span>
+        <span><strong>{t('Ask both ways')}</strong><small>{t('Also show the answer and ask for the question (Anki: reversed card)')}</small></span>
         <input type="checkbox" checked={o.bothWays} onchange={(e) => setTypeBothWays(deck.id, '', e.currentTarget.checked)} />
       </label>
     {/if}
     {#if kinds.list.some((k) => k.on) || o.bothWays}
       <label class="row">
-        <span><strong>Other way round</strong><small>{SPACING[o.reverseSpacing ?? 'spread']}</small></span>
-        <select aria-label="When the other way round is asked" value={o.reverseSpacing ?? 'spread'} onchange={(e) => setDeckOptions(deck.id, { reverseSpacing: e.currentTarget.value as 'spread' })}>
-          <option value="spread">Spread out</option>
-          <option value="nextDay">Next day</option>
-          <option value="together">Straight after</option>
+        <span><strong>{t('Other way round')}</strong><small>{SPACING[o.reverseSpacing ?? 'spread']}</small></span>
+        <select aria-label={t('When the other way round is asked')} value={o.reverseSpacing ?? 'spread'} onchange={(e) => setDeckOptions(deck.id, { reverseSpacing: e.currentTarget.value as 'spread' })}>
+          <option value="spread">{t('Spread out')}</option>
+          <option value="nextDay">{t('Next day')}</option>
+          <option value="together">{t('Straight after')}</option>
         </select>
       </label>
     {/if}
     <label class="row">
-      <span><strong>Build sentences</strong><small>In the first two stages, answers of three words or more are put together from word tiles, with a few extra words mixed in. Each card can opt out in Cards.</small></span>
+      <span><strong>{t('Build sentences')}</strong><small>{t('In the first two stages, answers of three words or more are put together from word tiles, with a few extra words mixed in. Each card can opt out in Cards.')}</small></span>
       <input type="checkbox" checked={o.buildSentences !== false} onchange={(e) => setDeckOptions(deck.id, { buildSentences: e.currentTarget.checked })} />
     </label>
     <label class="row">
-      <span><strong>Require accents</strong><small>When off, “melocoton” counts for “melocotón”</small></span>
+      <span><strong>{t('Require accents')}</strong><small>{t('When off, “melocoton” counts for “melocotón”')}</small></span>
       <input type="checkbox" checked={deck.strictAccents} onchange={(e) => setDeckAccents(deck.id, e.currentTarget.checked)} />
     </label>
-    <p class="hint">Fill-the-gap cards: in Cards, write a question with gaps like <code>{'{{c1::Madrid}}'}</code> (Anki: cloze).</p>
+    <p class="hint">{t('Fill-the-gap cards: in Cards, write a question with gaps like')} <code>{'{{c1::Madrid}}'}</code> {t('(Anki: cloze).')}</p>
   </div>
 
   {#if mappable.length}
     <div class="group">
-      <p class="label">Fields</p>
-      <p class="hint">Which Anki fields become the question, the answer and the extra. Changing the extra fields, or the question fields shown under the main one, keeps your progress; changing the main question or the answer starts those cards again.</p>
-      {#each mappable as t (t.id)}<TypeFields {deck} type={t} />{/each}
+      <p class="label">{t('Fields')}</p>
+      <p class="hint">{t('Which Anki fields become the question, the answer and the extra. Changing the extra fields, or the question fields shown under the main one, keeps your progress; changing the main question or the answer starts those cards again.')}</p>
+      {#each mappable as ty (ty.id)}<TypeFields {deck} type={ty} />{/each}
     </div>
   {/if}
 
   {#if unused.length}
     <div class="group">
-      <p class="label">Unused fields</p>
-      <p class="hint">These Anki fields hold text that no card shows. It is kept so the deck can go back to Anki as it came; deleting it makes the deck smaller and quicker to open.</p>
+      <p class="label">{t('Unused fields')}</p>
+      <p class="hint">{t('These Anki fields hold text that no card shows. It is kept so the deck can go back to Anki as it came; deleting it makes the deck smaller and quicker to open.')}</p>
       {#each unused as r (r.ntid)}
         <div class="row">
-          <span><strong>{r.names.join(', ')}</strong><small>{r.type} · text in {r.notes} {r.notes === 1 ? 'note' : 'notes'} · about {sizeText(r.size)}</small></span>
+          <span><strong>{r.names.join(', ')}</strong><small>{plural('{type} · text in {n} note · about {rCount}', '{type} · text in {n} notes · about {rCount}', r.notes, { type: r.type, rCount: sizeText(r.size) })}</small></span>
         </div>
       {/each}
       {#if confirmUnused}
-        <p class="hint">Delete the text of these fields in every note? A backup of the deck is made first. If you later choose one of these fields for the question, answer or extra, it will be empty.</p>
+        <p class="hint">{t('Delete the text of these fields in every note? A backup of the deck is made first. If you later choose one of these fields for the question, answer or extra, it will be empty.')}</p>
         <span class="pair">
-          <button class="quiet" onclick={() => (confirmUnused = false)}>Cancel</button>
-          <button class="quiet danger" onclick={dropUnused}>Delete their text</button>
+          <button class="quiet" onclick={() => (confirmUnused = false)}>{t('Cancel')}</button>
+          <button class="quiet danger" onclick={dropUnused}>{t('Delete their text')}</button>
         </span>
       {:else}
-        <button class="quiet" onclick={() => (confirmUnused = true)}>Delete the text of unused fields ({sizeText(unusedSize)})</button>
+        <button class="quiet" onclick={() => (confirmUnused = true)}>{t('Delete the text of unused fields ({unusedSize})', { unusedSize: sizeText(unusedSize) })}</button>
       {/if}
     </div>
   {/if}
 
   <div class="group">
-    <p class="label">Lessons</p>
+    <p class="label">{t('Lessons')}</p>
     <div class="row">
-      <span><strong>Lesson size</strong><small>Applies to lessons not yet started. Rename and reorder lessons in Cards.</small></span>
+      <span><strong>{t('Lesson size')}</strong><small>{t('Applies to lessons not yet started. Rename and reorder lessons in Cards.')}</small></span>
       <span class="stepper">
-        <button class="icon-btn" aria-label="Smaller lessons" disabled={deck.lessonSize <= limits.minLesson} onclick={() => setDeckLessonSize(deck.id, deck.lessonSize - 1)}>−</button>
+        <button class="icon-btn" aria-label={t('Smaller lessons')} disabled={deck.lessonSize <= limits.minLesson} onclick={() => setDeckLessonSize(deck.id, deck.lessonSize - 1)}>−</button>
         <b>{deck.lessonSize}</b>
-        <button class="icon-btn" aria-label="Larger lessons" disabled={deck.lessonSize >= limits.maxLesson} onclick={() => setDeckLessonSize(deck.id, deck.lessonSize + 1)}>+</button>
+        <button class="icon-btn" aria-label={t('Larger lessons')} disabled={deck.lessonSize >= limits.maxLesson} onclick={() => setDeckLessonSize(deck.id, deck.lessonSize + 1)}>+</button>
       </span>
     </div>
   </div>
 
   <div class="group" data-tour="o-look">
-    <p class="label">Look</p>
+    <p class="label">{t('Look')}</p>
     <div class="row">
-      <span><strong>Text size</strong></span>
-      <div class="seg" role="group" aria-label="Text size">
+      <span><strong>{t('Text size')}</strong></span>
+      <div class="seg" role="group" aria-label={t('Text size')}>
         {#each [['s', 'Small'], ['m', 'Medium'], ['l', 'Large']] as [v, name] (v)}
           <button aria-pressed={o.look.size === v} onclick={() => look({ size: v as Look['size'] })}>{name}</button>
         {/each}
       </div>
     </div>
     <label class="row">
-      <span><strong>Font for cards</strong></span>
+      <span><strong>{t('Font for cards')}</strong></span>
       <select value={o.look.font} onchange={(e) => look({ font: e.currentTarget.value as Look['font'] })}>
-        <option value="default">Standard</option>
-        <option value="serif">Serif</option>
-        <option value="rounded">Rounded</option>
-        <option value="mono">Monospace</option>
+        <option value="default">{t('Standard')}</option>
+        <option value="serif">{t('Serif')}</option>
+        <option value="rounded">{t('Rounded')}</option>
+        <option value="mono">{t('Monospace')}</option>
       </select>
     </label>
     <label class="row">
-      <span><strong>Right-to-left text</strong><small>Otherwise each card's text picks its own direction</small></span>
+      <span><strong>{t('Right-to-left text')}</strong><small>{t('Otherwise each card\'s text picks its own direction')}</small></span>
       <input type="checkbox" checked={o.look.rtl} onchange={(e) => look({ rtl: e.currentTarget.checked })} />
     </label>
     <label class="row">
-      <span><strong>Show Extra as a hint</strong><small>Before answering, instead of after</small></span>
+      <span><strong>{t('Show Extra as a hint')}</strong><small>{t('Before answering, instead of after')}</small></span>
       <input type="checkbox" checked={o.look.hintExtra} onchange={(e) => look({ hintExtra: e.currentTarget.checked })} />
     </label>
     <label class="row">
-      <span><strong>Read aloud</strong><small>{canSpeak() ? 'A speaker button by the question and the answer, with this device’s own voices' : 'This device offers no voices here'}</small></span>
+      <span><strong>{t('Read aloud')}</strong><small>{canSpeak() ? t('A speaker button by the question and the answer, with this device’s own voices') : t('This device offers no voices here')}</small></span>
       <input type="checkbox" checked={o.look.speak !== 'off'} disabled={!canSpeak()} onchange={(e) => look({ speak: e.currentTarget.checked ? 'on' : 'off' })} />
     </label>
     {#if o.look.speak !== 'off'}
       <div class="row sub wrap">
-        <span><strong>Question language</strong><small>What the question side is read in</small></span>
+        <span><strong>{t('Question language')}</strong><small>{t('What the question side is read in')}</small></span>
         <span class="lang">
-          <LangPicker label="Question language" value={o.look.lang} emptyLabel="The device's own language" extra={used} onPick={(c) => look({ lang: c })} />
-          <button class="icon-btn" aria-label="Try the question voice" disabled={!canSpeak()} onclick={() => speak(sample?.front ?? deck.name, o.look.lang)}>
+          <LangPicker label={t('Question language')} value={o.look.lang} emptyLabel={t('The device\'s own language')} extra={used} onPick={(c) => look({ lang: c })} />
+          <button class="icon-btn" aria-label={t('Try the question voice')} disabled={!canSpeak()} onclick={() => speak(sample?.front ?? deck.name, o.look.lang)}>
             <Icon name="sound" />
           </button>
+          <label class="say"><input type="checkbox" checked={o.look.speakQuestion !== false} onchange={(e) => look({ speakQuestion: e.currentTarget.checked })} />{t('Read aloud')}</label>
         </span>
       </div>
       <div class="row sub wrap">
-        <span><strong>Answer language</strong><small>What the answer side is read in</small></span>
+        <span><strong>{t('Answer language')}</strong><small>{t('What the answer side is read in')}</small></span>
         <span class="lang">
-          <LangPicker label="Answer language" value={o.look.langBack ?? ''} emptyLabel="Same as the question" extra={used} onPick={(c) => look({ langBack: c })} />
-          <button class="icon-btn" aria-label="Try the answer voice" disabled={!canSpeak()} onclick={() => speak(sample?.back ?? deck.name, o.look.langBack || o.look.lang)}>
+          <LangPicker label={t('Answer language')} value={o.look.langBack ?? ''} emptyLabel={t('Same as the question')} extra={used} onPick={(c) => look({ langBack: c })} />
+          <button class="icon-btn" aria-label={t('Try the answer voice')} disabled={!canSpeak()} onclick={() => speak(sample?.back ?? deck.name, o.look.langBack || o.look.lang)}>
             <Icon name="sound" />
           </button>
+          <label class="say"><input type="checkbox" checked={o.look.speakAnswer !== false} onchange={(e) => look({ speakAnswer: e.currentTarget.checked })} />{t('Read aloud')}</label>
         </span>
       </div>
       <div class="row sub wrap">
-        <span><strong>Read quotes in another language</strong><small>Words in quotes, like 'la manzana', are read in this language and the rest in the field's own. Words marked in Cards keep their own language.</small></span>
+        <span><strong>{t('Read quotes in another language')}</strong><small>{t('Words in quotes, like \'la manzana\', are read in this language and the rest in the field\'s own. Words marked in Cards keep their own language.')}</small></span>
         <span class="lang">
-          <LangPicker label="Language for words in quotes" value={o.look.quoteLang ?? ''} emptyLabel="Off" extra={used} onPick={(c) => look({ quoteLang: c })} />
+          <LangPicker label={t('Language for words in quotes')} value={o.look.quoteLang ?? ''} emptyLabel={t('Off')} extra={used} onPick={(c) => look({ quoteLang: c })} />
         </span>
       </div>
-      {#if missing.length}<p class="hint warn" role="status">No voice for {missing.map(langName).join(' or ')} on this device yet. {voiceHelp()} Settings › Voices can download one for many languages.</p>{/if}
-      <p class="hint">To have cards read by themselves as you go, choose what is read in Settings.</p>
+      {#if missing.length}<p class="hint warn" role="status">{t('No voice for {x} on this device yet. {x2} Settings › Voices can download one for many languages.', { x: missing.map(langName).join(' or '), x2: voiceHelp() })}</p>{/if}
+      <p class="hint">{t('To have cards read by themselves as you go, choose what is read in Settings.')}</p>
     {/if}
   </div>
 
   <div class="group">
-    <p class="label">Export</p>
+    <p class="label">{t('Export')}</p>
     <label class="row">
-      <span><strong>Include progress</strong><small>Stages, due dates and recent answers</small></span>
+      <span><strong>{t('Include progress')}</strong><small>{t('Stages, due dates and recent answers')}</small></span>
       <input type="checkbox" bind:checked={withProgress} />
     </label>
     <div class="exports">
       <button class="quiet" disabled={!!exporting} onclick={() => run('apkg')}>
         <Icon name="download" size={18} />
-        <span><strong>{exporting === 'apkg' ? 'Exporting…' : 'For Anki (.apkg)'}</strong><small>Units as subdecks, lessons as tags</small></span>
+        <span><strong>{exporting === 'apkg' ? t('Exporting…') : t('For Anki (.apkg)')}</strong><small>{t('Units as subdecks, lessons as tags')}</small></span>
       </button>
       <button class="quiet" disabled={!!exporting} onclick={() => run('ankh')}>
         <Icon name="download" size={18} />
-        <span><strong>{exporting === 'ankh' ? 'Exporting…' : 'For Ankhwiz (.ankh)'}</strong><small>Everything, exactly as it is here</small></span>
+        <span><strong>{exporting === 'ankh' ? t('Exporting…') : t('For Ankhwiz (.ankh)')}</strong><small>{t('Everything, exactly as it is here')}</small></span>
       </button>
     </div>
     {#if message}<p class="hint" role="status">{message}</p>{/if}
   </div>
 
   <div class="group">
-    <p class="label">Backups</p>
-    <p class="hint">Copies of this deck kept on this device, the newest {backups.length ? 'first' : 'kept here'}. Thoth's changes can make one first.</p>
+    <p class="label">{t('Backups')}</p>
+    <p class="hint">{t('Copies of this deck kept on this device, the newest {x}. Thoth\'s changes can make one first.', { x: backups.length ? t('first') : t('kept here') })}</p>
     {#each backups as b (b.id)}
       <div class="row">
-        <span><strong>{b.label}</strong><small>{when(b.t)} · {b.order.length} notes</small></span>
+        <span><strong>{b.label}</strong><small>{t('{t} · {orderCount} notes', { t: when(b.t), orderCount: b.order.length })}</small></span>
         {#if confirmRestore === b.id}
           <span class="pair">
-            <button class="quiet" onclick={() => (confirmRestore = '')}>Cancel</button>
+            <button class="quiet" onclick={() => (confirmRestore = '')}>{t('Cancel')}</button>
             <button class="quiet" onclick={async () => {
                 confirmRestore = '';
-                message = (await restoreBackup(deck.id, b.id)) ? 'Deck restored. The version you had is now a backup.' : 'That backup could not be read, so nothing was changed.';
-              }}>Restore</button>
+                message = (await restoreBackup(deck.id, b.id)) ? t('Deck restored. The version you had is now a backup.') : t('That backup could not be read, so nothing was changed.');
+              }}>{t('Restore')}</button>
           </span>
         {:else}
           <span class="pair">
-            <button class="quiet" onclick={() => (confirmRestore = b.id)}>Restore</button>
-            <button class="icon-btn" aria-label="Delete this backup" onclick={() => deleteBackup(deck.id, b.id)}><Icon name="trash" /></button>
+            <button class="quiet" onclick={() => (confirmRestore = b.id)}>{t('Restore')}</button>
+            <button class="icon-btn" aria-label={t('Delete this backup')} onclick={() => deleteBackup(deck.id, b.id)}><Icon name="trash" /></button>
           </span>
         {/if}
       </div>
     {/each}
-    <button class="quiet left" onclick={() => makeBackup(deck.id, 'Made by hand')}>Make a backup now</button>
+    <button class="quiet left" onclick={() => makeBackup(deck.id, 'Made by hand')}>{t('Make a backup now')}</button>
   </div>
 
   <details class="group advanced">
-    <summary class="label">Advanced</summary>
+    <summary class="label">{t('Advanced')}</summary>
     <div class="row">
-      <span><strong>Longest gap</strong><small>Days between reviews at most (Anki: maximum interval)</small></span>
+      <span><strong>{t('Longest gap')}</strong><small>{t('Days between reviews at most (Anki: maximum interval)')}</small></span>
       <input
         class="num"
         type="number"
@@ -355,29 +370,29 @@
     </div>
     {#each [0, 1, 2] as i (i)}
       <div class="row">
-        <span><strong>Days to leave stage {i + 2}</strong><small>{limits.stageNames[i + 1]}: separate days with a correct answer</small></span>
+        <span><strong>{t('Days to leave stage {x}', { x: i + 2 })}</strong><small>{t('{x}: separate days with a correct answer', { x: stageName(limits.stageNames[i + 1]) })}</small></span>
         <span class="stepper">
-          <button class="icon-btn" aria-label="Fewer days" disabled={o.stageDays[i] <= 1} onclick={() => setDeckOptions(deck.id, { stageDays: o.stageDays.map((d, j) => (j === i ? d - 1 : d)) as [number, number, number] })}>−</button>
+          <button class="icon-btn" aria-label={t('Fewer days')} disabled={o.stageDays[i] <= 1} onclick={() => setDeckOptions(deck.id, { stageDays: o.stageDays.map((d, j) => (j === i ? d - 1 : d)) as [number, number, number] })}>−</button>
           <b>{o.stageDays[i]}</b>
-          <button class="icon-btn" aria-label="More days" disabled={o.stageDays[i] >= 7} onclick={() => setDeckOptions(deck.id, { stageDays: o.stageDays.map((d, j) => (j === i ? d + 1 : d)) as [number, number, number] })}>+</button>
+          <button class="icon-btn" aria-label={t('More days')} disabled={o.stageDays[i] >= 7} onclick={() => setDeckOptions(deck.id, { stageDays: o.stageDays.map((d, j) => (j === i ? d + 1 : d)) as [number, number, number] })}>+</button>
         </span>
       </div>
     {/each}
     {#if otherDecks > 0}
       <div class="row">
-        <span><strong>Use these options everywhere</strong><small>Copies them to your {otherDecks} other {otherDecks === 1 ? 'deck' : 'decks'} (Anki: presets)</small></span>
-        <button class="quiet" onclick={() => (message = `Options copied to ${copyOptionsToAll(deck.id)} decks.`)}>Copy</button>
+        <span><strong>{t('Use these options everywhere')}</strong><small>{plural('Copies them to your {n} other deck (Anki: presets)', 'Copies them to your {n} other decks (Anki: presets)', otherDecks)}</small></span>
+        <button class="quiet" onclick={() => (message = `Options copied to ${copyOptionsToAll(deck.id)} decks.`)}>{t('Copy')}</button>
       </div>
     {/if}
     {#if firstType}
       <div class="tmpl">
-        <strong>Anki note type kept for export: {firstType.name}</strong>
-        <small>Fields: {firstType.fields.join(', ')}. Question from “{firstType.fields[firstType.question]}”, answer from “{firstType.fields[firstType.answer]}”.</small>
-        {#each firstType.templates as t (t.name)}
+        <strong>{t('Anki note type kept for export: {name}', { name: firstType.name })}</strong>
+        <small>{t('Fields: {x}. Question from “{question}”, answer from “{answer}”.', { x: firstType.fields.join(', '), question: firstType.fields[firstType.question], answer: firstType.fields[firstType.answer] })}</small>
+        {#each firstType.templates as ty (ty.name)}
           <details>
-            <summary>{t.name}</summary>
-            <pre>{t.qfmt}</pre>
-            <pre>{t.afmt}</pre>
+            <summary>{ty.name}</summary>
+            <pre>{ty.qfmt}</pre>
+            <pre>{ty.afmt}</pre>
           </details>
         {/each}
       </div>
@@ -386,20 +401,43 @@
 
   <div class="group">
     <div class="row">
-      <span><strong>Remove deck</strong><small>Deletes the deck, its progress and its media from this device</small></span>
+      <span><strong>{t('Remove deck')}</strong><small>{t('Deletes the deck, its progress and its media from this device')}</small></span>
       {#if confirmDelete}
         <span class="pair">
-          <button class="quiet" onclick={() => (confirmDelete = false)}>Keep</button>
-          <button class="quiet danger" onclick={() => removeDeck(deck.id)}>Remove</button>
+          <button class="quiet" onclick={() => (confirmDelete = false)}>{t('Keep')}</button>
+          <button class="quiet danger" onclick={() => removeDeck(deck.id)}>{t('Remove')}</button>
         </span>
       {:else}
-        <button class="icon-btn" aria-label="Remove deck" onclick={() => (confirmDelete = true)}><Icon name="trash" /></button>
+        <button class="icon-btn" aria-label={t('Remove deck')} onclick={() => (confirmDelete = true)}><Icon name="trash" /></button>
       {/if}
     </div>
   </div>
 </section>
 
 <style>
+  .say {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .say input {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--emerald);
+  }
+  .as-button {
+    width: 100%;
+    background: var(--surface);
+    border: 2px solid var(--line);
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    padding: 10px 12px;
+  }
   .opts {
     width: 100%;
     max-width: 560px;

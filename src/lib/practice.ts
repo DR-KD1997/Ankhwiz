@@ -5,6 +5,7 @@
 
 import type { Deck, Note, Progress, ReadingQuestion } from './core/types';
 import { isAudio } from './media';
+import { t } from './i18n';
 
 // ---------- words ----------
 
@@ -362,7 +363,7 @@ export function offlineRound(deck: Deck, progress: Progress, opts: { unitId?: st
     if (kind === 'translation') {
       const wrong = others(s).slice(0, 2).map((x) => x.translation);
       const options = shuffle([s.translation, ...wrong], rand);
-      questions.push({ kind, question: `What does “${s.text}” mean?`, options, answer: options.indexOf(s.translation) });
+      questions.push({ kind, question: t('What does “{text}” mean?', { text: s.text }), options, answer: options.indexOf(s.translation) });
     } else if (kind === 'gap') {
       const ws = words(s.text).filter((w) => w.length >= 3 && known.has(fold(w)));
       const word = ws[Math.floor(rand() * ws.length)];
@@ -370,11 +371,11 @@ export function offlineRound(deck: Deck, progress: Progress, opts: { unitId?: st
       if (!word || pool2.length < 2) return;
       const options = shuffle([word, ...shuffle(pool2, rand).slice(0, 2)], rand);
       const gapped = s.text.replace(new RegExp(`(^|[^\\p{L}])${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?=$|[^\\p{L}])`, 'iu'), '$1____');
-      questions.push({ kind, question: `Which word fills the gap? “${gapped}”`, options, answer: options.indexOf(word) });
+      questions.push({ kind, question: t('Which word fills the gap? “{gapped}”', { gapped }), options, answer: options.indexOf(word) });
     } else {
       const lie = rand() < 0.5 && sentences.length > 1;
       const shown = lie ? others(s)[0].translation : s.translation;
-      questions.push({ kind, question: `True or false: “${s.text}” means “${shown}”.`, options: ['True', 'False'], answer: lie ? 1 : 0 });
+      questions.push({ kind, question: t('True or false: “{text}” means “{shown}”.', { text: s.text, shown }), options: [t('True'), t('False')], answer: lie ? 1 : 0 });
     }
   });
   return { sentences, questions: questions.slice(0, 6) };

@@ -1,0 +1,12 @@
+1453|Kennenlernen
+1454|Wiedererkennen
+1455|Abruf mit Hilfe
+1456|Sicherer Abruf
+1457|Gemeistert
+1458|Ollama (dieser Computer)
+1459|LM Studio (dieser Computer)
+1460|Andere Adresse
+1461|Nutzt Geminis OpenAI-kompatible Adresse.
+1462|Ein Schlüssel für Modelle vieler Anbieter.
+1463|Läuft auf deinem eigenen Rechner; nichts verlässt ihn.
+1464|Jede Adresse, die das Chat-Format von OpenAI spricht.

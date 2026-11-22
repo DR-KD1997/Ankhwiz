@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { shownName, t } from '../i18n';
   // Wide windows only: shown beside the path while no lesson is open.
   import { currentStreak, data, now, snap, startLesson, startReview, ui } from '../store.svelte';
   import { summarise } from './deckView';
@@ -19,12 +20,12 @@
     <div class="figure plain"><Thoth size={240} /></div>
   {/if}
   <dl>
-    <div class="plain"><dt>Learned</dt><dd>{sum.introduced} of {sum.total}</dd></div>
-    <div class="plain"><dt>Due today</dt><dd>{sum.due}</dd></div>
-    <div class="plain"><dt>Streak</dt><dd>{currentStreak()}</dd></div>
+    <div class="plain"><dt>{t('Learned')}</dt><dd>{t('{introduced} of {total}', { introduced: sum.introduced, total: sum.total })}</dd></div>
+    <div class="plain"><dt>{t('Due today')}</dt><dd>{sum.due}</dd></div>
+    <div class="plain"><dt>{t('Streak')}</dt><dd>{currentStreak()}</dd></div>
   </dl>
   {#if review || sum.nextId}
-    <button class="primary" onclick={go}>{review ? 'Review now' : `Start ${deck.lessons[sum.nextId!].name}`}</button>
+    <button class="primary" onclick={go}>{review ? t('Review now') : t('Start {name}', { name: shownName(deck.lessons[sum.nextId!].name) })}</button>
   {/if}
 </aside>
 

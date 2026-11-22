@@ -9,6 +9,7 @@ import { unzipSync, strFromU8 } from 'fflate';
 import { createStore, del, get, keys, set, delMany } from 'idb-keyval';
 import type { DeckSource, OutlineLesson } from './core/types';
 import { http } from './platform';
+import { t } from './i18n';
 
 export interface Section {
   /** Where it is in the source: "p. 4", "Diffusion and osmosis", "§3". */
@@ -200,15 +201,15 @@ export async function readWebPage(url: string): Promise<ReadSource> {
     },
     body: '',
   });
-  if (reply.status === 0) throw new Error('The page could not be reached. Check the address and the connection.');
-  if (reply.status === 401 || reply.status === 403) throw new Error('That page needs a sign-in or does not allow readers like Ankhwiz. Open it yourself and paste its text instead.');
-  if (reply.status >= 400) throw new Error(`The page answered with an error (${reply.status}).`);
+  if (reply.status === 0) throw new Error(t('The page could not be reached. Check the address and the connection.'));
+  if (reply.status === 401 || reply.status === 403) throw new Error(t('That page needs a sign-in or does not allow readers like Ankhwiz. Open it yourself and paste its text instead.'));
+  if (reply.status >= 400) throw new Error(t('The page answered with an error ({status}).', { status: reply.status }));
   const body = reply.body;
-  if (/^\s*%PDF/.test(body)) throw new Error('That address is a PDF. Download it and add it as a file instead.');
+  if (/^\s*%PDF/.test(body)) throw new Error(t('That address is a PDF. Download it and add it as a file instead.'));
   const looksHtml = /<html|<body|<p[\s>]|<div[\s>]/i.test(body.slice(0, 5000));
   if (!looksHtml) return { title: new URL(url).hostname, kind: 'web', url, sections: sectionsFromText(body) };
   const { title, sections } = sectionsFromHtml(body);
-  if (!sections.length) throw new Error('No readable text was found on that page. It may build itself with scripts; open it and paste its text instead.');
+  if (!sections.length) throw new Error(t('No readable text was found on that page. It may build itself with scripts; open it and paste its text instead.'));
   return { title: title || new URL(url).hostname, kind: 'web', url, sections };
 }
 
@@ -220,10 +221,10 @@ export function sectionsFromDocx(bytes: Uint8Array): { title: string; sections: 
   try {
     files = unzipSync(bytes, { filter: (f) => f.name === 'word/document.xml' || f.name === 'docProps/core.xml' });
   } catch {
-    throw new Error('This Word file could not be opened.');
+    throw new Error(t('This Word file could not be opened.'));
   }
   const xml = files['word/document.xml'];
-  if (!xml) throw new Error('This file is not a Word document (.docx).');
+  if (!xml) throw new Error(t('This file is not a Word document (.docx).'));
   const doc = new DOMParser().parseFromString(strFromU8(xml), 'application/xml');
   const W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
   const out: Section[] = [];
@@ -268,8 +269,8 @@ export async function sectionsFromPdf(bytes: Uint8Array): Promise<{ title: strin
   try {
     doc = await pdfjs.getDocument({ data: bytes, isEvalSupported: false, disableFontFace: true }).promise;
   } catch (e) {
-    const m = e instanceof Error ? e.message : '';
-    throw new Error(/password/i.test(m) ? 'This PDF is locked with a password.' : 'This PDF could not be read.');
+    const m = e instanceof Error ? t(e.message) : '';
+    throw new Error(/password/i.test(m) ? t('This PDF is locked with a password.') : t('This PDF could not be read.'));
   }
   const out: Section[] = [];
   let total = 0;
@@ -294,7 +295,7 @@ export async function sectionsFromPdf(bytes: Uint8Array): Promise<{ title: strin
     /* no title */
   }
   await doc.destroy();
-  if (!out.length) throw new Error('This PDF has no text to read: its pages may be scans or pictures.');
+  if (!out.length) throw new Error(t('This PDF has no text to read: its pages may be scans or pictures.'));
   return { title, sections: sized(out) };
 }
 
@@ -314,7 +315,7 @@ export async function readSourceFile(name: string, bytes: Uint8Array): Promise<R
     return { title: r.title || stem(name), kind: 'word', sections: r.sections };
   }
   if (['doc', 'odt', 'pages', 'rtf', 'epub', 'pptx', 'ppt', 'xlsx'].includes(ext)) {
-    throw new Error(`Ankhwiz cannot read .${ext} files yet. Save it as PDF, Word (.docx) or text, and add that.`);
+    throw new Error(t('Ankhwiz cannot read .{ext} files yet. Save it as PDF, Word (.docx) or text, and add that.', { ext }));
   }
   const text = new TextDecoder().decode(bytes);
   if (ext === 'html' || ext === 'htm' || /^\s*<(!doctype html|html)/i.test(text)) {
@@ -322,7 +323,7 @@ export async function readSourceFile(name: string, bytes: Uint8Array): Promise<R
     return { title: r.title || stem(name), kind: 'html', sections: r.sections };
   }
   if (ext === 'md' || ext === 'markdown') return { title: stem(name), kind: 'markdown', sections: sectionsFromMarkdown(text) };
-  if (text.includes('\u0000')) throw new Error('This file does not look like text, a PDF or a Word document.');
+  if (text.includes('\u0000')) throw new Error(t('This file does not look like text, a PDF or a Word document.'));
   return { title: stem(name), kind: 'text', sections: sectionsFromText(text) };
 }
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '../i18n';
   // Pictures and sounds attached to a card side.
   import { isAudio, mediaUrl } from '../media';
   import Icon from './Icon.svelte';
@@ -39,13 +40,13 @@
   <div class="media" class:small>
     {#each names as name (name)}
       {#if isAudio(name)}
-        <button class="quiet sound" disabled={!urls[name]} onclick={() => play(name)} aria-label="Play sound {name}">
-          <Icon name="sound" size={18} /> Play
+        <button class="quiet sound" disabled={!urls[name]} onclick={() => play(name)} aria-label={t('Play sound {name}', { name })}>
+          <Icon name="sound" size={18} /> {t('Play')}
         </button>
       {:else if urls[name]}
         <img src={urls[name]} alt="" />
       {:else if urls[name] === null}
-        <span class="missing">Picture {name} is not on this device</span>
+        <span class="missing">{t('Picture {name} is not on this device', { name })}</span>
       {/if}
     {/each}
   </div>

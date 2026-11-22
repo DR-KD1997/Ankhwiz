@@ -177,6 +177,9 @@ fn run(c: &Call) -> Result<Value, String> {
                 if v.get("anki").is_some() {
                     deck.anki = arg(v, "anki")?;
                 }
+                if v.get("links").is_some() {
+                    deck.links = arg(v, "links")?;
+                }
                 Ok(())
             })?;
             out(true)
@@ -288,6 +291,11 @@ fn run(c: &Call) -> Result<Value, String> {
                 "story" => ai::story_request(&deck, &opt::<Vec<String>>(v, "known"), n("count", 3)),
                 "outline" => ai::outline_request(&deck, &opt::<Vec<ai::SourceBrief>>(v, "sources"), &opt::<ai::BuildGoal>(v, "goal")),
                 "sourceCards" => ai::source_cards_request(&deck, &s("lesson"), &s("kind"), n("count", 12), &s("passages"), &opt::<ai::CardStyle>(v, "style")),
+                "linkAnswers" => ai::link_answers_request(&deck, &arg::<Vec<String>>(v, "noteIds")?),
+                "contrast" => ai::contrast_request(&deck, &arg::<Vec<Vec<String>>>(v, "groups")?),
+                "judge" => ai::judge_request(&deck, &s("cardId"), &s("given")),
+                "similar" => ai::similar_request(&deck, &s("noteId"), &arg::<Vec<String>>(v, "candidates")?),
+                "place" => ai::place_request(&deck, &opt::<Vec<String>>(v, "existing")),
                 other => return Err(format!("unknown AI task `{other}`")),
             })
         }
@@ -308,6 +316,11 @@ fn run(c: &Call) -> Result<Value, String> {
                 "cards" => out(ai::parse_cards(&*c.deck()?, &text)?),
                 "lessons" => out(ai::parse_lessons(&*c.deck()?, &text)?),
                 "improve" => out(ai::parse_improve(&*c.deck()?, &arg::<Vec<String>>(v, "noteIds")?, &text)?),
+                "linkAnswers" => out(ai::parse_link_answers(&*c.deck()?, &arg::<Vec<String>>(v, "noteIds")?, &text)?),
+                "contrast" => out(ai::parse_contrast(&text, arg::<Vec<Vec<String>>>(v, "groups")?.len())?),
+                "judge" => out(ai::parse_grade(&text)?),
+                "similar" => out(ai::parse_similar(&arg::<Vec<String>>(v, "candidates")?, &text)?),
+                "place" => out(ai::parse_place(&text)?),
                 other => Err(format!("unknown AI task `{other}`")),
             }
         }

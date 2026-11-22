@@ -4,15 +4,16 @@
 // licences. Sounds only follow a tap or a key, so web views allow them.
 
 import { data } from './store.svelte';
+import { t } from './i18n';
 
 export type SoundSet = 'marimba' | 'lyre' | 'bell' | 'pop';
 export type Moment = 'right' | 'nearly' | 'wrong' | 'end';
 
 export const SOUND_SETS: { id: SoundSet; name: string; about: string }[] = [
-  { id: 'marimba', name: 'Reed marimba', about: 'Warm and wooden' },
-  { id: 'lyre', name: 'Lyre', about: 'A plucked string' },
-  { id: 'bell', name: 'Temple bell', about: 'A bell and a sistrum' },
-  { id: 'pop', name: 'Soft pop', about: 'Round, bouncy blips' },
+  { id: 'marimba', name: t('Reed marimba'), about: t('Warm and wooden') },
+  { id: 'lyre', name: t('Lyre'), about: t('A plucked string') },
+  { id: 'bell', name: t('Temple bell'), about: t('A bell and a sistrum') },
+  { id: 'pop', name: t('Soft pop'), about: t('Round, bouncy blips') },
 ];
 
 export const DEFAULT_SOUNDS: SoundSet = 'marimba';

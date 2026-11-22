@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { plural, t } from '../i18n';
   // The second step of importing an Anki deck: which Anki fields become the
   // question, the answer and the extra, for each kind of note in the file.
   // Each kind arrives already matched (from its card layout, or a known note
@@ -64,7 +65,7 @@
   let suggest = $state(aiReady());
   let busy = $state(false);
   let stepNow = $state<ImportStep | null>(null);
-  const STAGE: Record<ImportStep['stage'], string> = { notes: 'Reading the notes', lessons: 'Building lessons', media: 'Saving pictures and sounds', saving: 'Saving the deck' };
+  const STAGE: Record<ImportStep['stage'], string> = { notes: t('Reading the notes'), lessons: t('Building lessons'), media: t('Saving pictures and sounds'), saving: t('Saving the deck') };
   /** Rough share of the whole import each stage has reached. */
   const share = $derived.by(() => {
     const s = stepNow;
@@ -80,11 +81,11 @@
   const mediaCount = $derived(Object.keys(pkg.media).length);
 
   const MATCHED: Record<string, string> = {
-    ankhwiz: 'Matched: an Ankhwiz deck',
-    occlusion: 'Matched: pictures with hidden parts',
-    cloze: 'Matched: fill the gap',
-    template: 'Matched from its card layout',
-    names: 'Matched by field names',
+    ankhwiz: t('Matched: an Ankhwiz deck'),
+    occlusion: t('Matched: pictures with hidden parts'),
+    cloze: t('Matched: fill the gap'),
+    template: t('Matched from its card layout'),
+    names: t('Matched by field names'),
   };
 
   /** Units under each way of splitting, for the preview. */
@@ -109,7 +110,7 @@
       );
       onDone({ ...r, suggest });
     } catch (e) {
-      error = e instanceof Error ? e.message : 'The deck could not be imported.';
+      error = e instanceof Error ? t(e.message) : t('The deck could not be imported.');
     } finally {
       busy = false;
       stepNow = null;
@@ -118,79 +119,79 @@
 </script>
 
 <div class="map plain">
-  <div class="title"><p class="label">Import from Anki</p><Help part="import" /></div>
-  <label class="field"><span>Deck name</span><input class="input" bind:value={name} /></label>
+  <div class="title"><p class="label">{t('Import from Anki')}</p><Help part="import" /></div>
+  <label class="field"><span>{t('Deck name')}</span><input class="input" bind:value={name} /></label>
 
-  {#each pkg.notetypes as t, ti (t.id)}
-    {@const m = maps[t.id]}
-    <section class="type" aria-label={t.name} data-tour={ti === 0 ? 'i-fields' : undefined}>
+  {#each pkg.notetypes as ty, ti (ty.id)}
+    {@const m = maps[ty.id]}
+    <section class="type" aria-label={ty.name} data-tour={ti === 0 ? 'i-fields' : undefined}>
       <div class="head">
-        <strong>{t.name}</strong>
-        <span class="matched">{MATCHED[t.matched]}</span>
+        <strong>{ty.name}</strong>
+        <span class="matched">{MATCHED[ty.matched]}</span>
       </div>
-      <small>{t.count} {t.count === 1 ? 'note' : 'notes'} · fields: {t.fields.join(', ')}</small>
+      <small>{plural('{n} note · fields: {x2}', '{n} notes · fields: {x2}', ty.count, { x2: ty.fields.join(', ') })}</small>
 
-      {#if t.occlusion}
-        <p class="hint">Each note is a picture with parts hidden; each part becomes a card. Parts with names are asked as questions; the rest you check yourself.</p>
+      {#if ty.occlusion}
+        <p class="hint">{t('Each note is a picture with parts hidden; each part becomes a card. Parts with names are asked as questions; the rest you check yourself.')}</p>
       {/if}
 
-      <FieldMapper fields={t.fields} sample={t.sample} map={m} cloze={t.cloze} occlusion={t.occlusion} bothWays={!!m.bothWays} />
+      <FieldMapper fields={ty.fields} sample={ty.sample} map={m} cloze={ty.cloze} occlusion={ty.occlusion} bothWays={!!m.bothWays} />
 
-      {#if !t.cloze && !t.occlusion}
+      {#if !ty.cloze && !ty.occlusion}
         <label class="check">
           <input type="checkbox" bind:checked={m.bothWays} />
-          <span>Ask both ways <small>{t.reverse ? 'Anki asks this type both ways too. ' : ''}Question to answer, and answer to the main question field.</small></span>
+          <span>{t('Ask both ways')} <small>{t('{x}Question to answer, and answer to the main question field.', { x: ty.reverse ? t('Anki asks this type both ways too. ') : '' })}</small></span>
         </label>
       {/if}
       <label class="check">
         <input type="checkbox" bind:checked={m.selfCheck} />
-        <span>You check these cards yourself <small>{t.custom ? 'Their Anki layout uses scripts or drawing Ankhwiz cannot copy, so you see the answer and say how close you were.' : 'See the answer and say how close you were, instead of being marked.'}</small></span>
+        <span>{t('You check these cards yourself')} <small>{ty.custom ? t('Their Anki layout uses scripts or drawing Ankhwiz cannot copy, so you see the answer and say how close you were.') : t('See the answer and say how close you were, instead of being marked.')}</small></span>
       </label>
     </section>
   {/each}
 
   <div class="group global">
-    <span class="name">Units</span>
-    <select class="input s0" bind:value={splitBy} aria-label="Group cards into units by">
-      <option value="subdeck">One unit per subdeck</option>
-      <option value="tag">One unit per tag</option>
-      <option value="size">One unit, split into lessons</option>
+    <span class="name">{t('Units')}</span>
+    <select class="input s0" bind:value={splitBy} aria-label={t('Group cards into units by')}>
+      <option value="subdeck">{t('One unit per subdeck')}</option>
+      <option value="tag">{t('One unit per tag')}</option>
+      <option value="size">{t('One unit, split into lessons')}</option>
     </select>
-    <p class="note">{unitCount} {unitCount === 1 ? 'unit' : 'units'}, each split into lessons of about {data.settings.lessonSize} cards.</p>
+    <p class="note">{plural('{n} unit, each split into lessons of about {lessonSize} cards.', '{n} units, each split into lessons of about {lessonSize} cards.', unitCount, { lessonSize: data.settings.lessonSize })}</p>
   </div>
 
   {#if selfCount}
-    <p class="notice" role="note"><Icon name="info" size={18} /> <span><strong>{selfCount} {selfCount === 1 ? 'card' : 'cards'} will be self-check.</strong> You see the answer and say how close you were.</span></p>
+    <p class="notice" role="note"><Icon name="info" size={18} /> <span><strong>{plural('{n} card will be self-check.', '{n} cards will be self-check.', selfCount)}</strong> {t('You see the answer and say how close you were.')}</span></p>
   {/if}
 
   {#if pkg.studied}
-    <label class="check" data-tour="i-progress"><input type="checkbox" bind:checked={withProgress} /> <span>Bring my Anki progress <small>Cards you know well start at a higher stage.</small></span></label>
+    <label class="check" data-tour="i-progress"><input type="checkbox" bind:checked={withProgress} /> <span>{t('Bring my Anki progress')} <small>{t('Cards you know well start at a higher stage.')}</small></span></label>
   {/if}
   {#if canSpeak()}
-    <label class="check"><input type="checkbox" bind:checked={read} /> <span>Read aloud <small>A speaker button by the question and the answer, with this device's own voices.</small></span></label>
+    <label class="check"><input type="checkbox" bind:checked={read} /> <span>{t('Read aloud')} <small>{t('A speaker button by the question and the answer, with this device\'s own voices.')}</small></span></label>
     {#if read}
       <div class="langs">
-        <div class="field"><span>Question language</span><LangPicker label="Question language" value={lang} emptyLabel="The device's own language" onPick={(c) => (lang = c)} /></div>
-        <div class="field"><span>Answer language</span><LangPicker label="Answer language" value={langBack} emptyLabel="Same as the question" onPick={(c) => (langBack = c)} /></div>
+        <div class="field"><span>{t('Question language')}</span><LangPicker label={t('Question language')} value={lang} emptyLabel={t('The device\'s own language')} onPick={(c) => (lang = c)} /></div>
+        <div class="field"><span>{t('Answer language')}</span><LangPicker label={t('Answer language')} value={langBack} emptyLabel={t('Same as the question')} onPick={(c) => (langBack = c)} /></div>
       </div>
     {/if}
   {/if}
   {#if aiReady()}
-    <label class="check"><input type="checkbox" bind:checked={suggest} /> <span>Suggest lesson names and wrong options <small>Opens Thoth's suggestions after importing. Uses your AI connection; you approve each one.</small></span></label>
+    <label class="check"><input type="checkbox" bind:checked={suggest} /> <span>{t('Suggest lesson names and wrong options')} <small>{t('Opens Thoth\'s suggestions after importing. Uses your AI connection; you approve each one.')}</small></span></label>
   {/if}
   {#if unusedNames.length}
-    <label class="check"><input type="checkbox" bind:checked={dropUnusedText} /> <span>Leave out fields no card shows <small>{unusedNames.join(', ')}. The deck is smaller and quicker to open, but goes back to Anki without them.</small></span></label>
+    <label class="check"><input type="checkbox" bind:checked={dropUnusedText} /> <span>{t('Leave out fields no card shows')} <small>{t('{x}. The deck is smaller and quicker to open, but goes back to Anki without them.', { x: unusedNames.join(', ') })}</small></span></label>
   {/if}
   <p class="hint">
-    {mediaCount ? `${mediaCount} ${mediaCount === 1 ? 'picture or sound comes' : 'pictures and sounds come'} with it. ` : ''}{dropUnusedText ? '' : 'Fields you do not use are kept, and go back to Anki unchanged if you export the deck. You can delete them later in Deck options.'}
+    {mediaCount ? plural('{n} picture or sound comes with it.', '{n} pictures and sounds come with it.', mediaCount) + ' ' : ''}{dropUnusedText ? '' : t('Fields you do not use are kept, and go back to Anki unchanged if you export the deck. You can delete them later in Deck options.')}
   </p>
   {#if busy && stepNow}
     <ProgressBar label={stepNow.stage === 'media' ? `${STAGE.media}: ${stepNow.done} of ${stepNow.total}` : `${STAGE[stepNow.stage]}…`} value={share} />
   {/if}
   {#if error}<p class="hint bad" role="alert">{error}</p>{/if}
   <div class="pair">
-    <button class="quiet" onclick={onCancel}>Cancel</button>
-    <button class="primary" data-tour="i-go" disabled={busy} onclick={go}>{busy ? 'Importing…' : `Import ${pkg.notes.length} notes`}</button>
+    <button class="quiet" onclick={onCancel}>{t('Cancel')}</button>
+    <button class="primary" data-tour="i-go" disabled={busy} onclick={go}>{busy ? t('Importing…') : `Import ${pkg.notes.length} notes`}</button>
   </div>
 </div>
 

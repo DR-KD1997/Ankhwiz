@@ -6,6 +6,7 @@ import { aiHttp, aiModels, aiModelsHttp, aiReply, aiRequest, CoreError } from '.
 import type { AiRequest, Deck, Provider } from './core/types';
 import { getSecret, http, setSecret } from './platform';
 import { data, save } from './store.svelte';
+import { language, languageInEnglish, t } from './i18n';
 
 const KEY_NAME = 'ai-key';
 
@@ -59,13 +60,30 @@ export function plan(task: string, deck: Deck, args: Record<string, unknown> = {
 }
 
 function message(e: unknown): string {
-  return e instanceof CoreError || e instanceof Error ? e.message : 'Something went wrong.';
+  return e instanceof CoreError || e instanceof Error ? t(e.message) : t('Something went wrong.');
 }
+
+/** The language Thoth explains things in (Settings › Language), in English. */
+export function replyLanguage(): string {
+  const pref = data.settings.thothLang;
+  return languageInEnglish(pref && pref !== 'app' ? pref : language());
+}
+
+/** Tasks whose words are Thoth's own (explanations, marks, names), not card content: they come in the learner's language. */
+const OWN_WORDS = new Set(['explain', 'chat', 'grade', 'judge', 'contrast', 'place', 'lessons']);
 
 /** Run one AI task. Throws an Error whose message can be shown to the learner. */
 export async function ask<T>(task: string, deck: Deck, args: Record<string, unknown> = {}): Promise<T> {
   try {
     const request = aiRequest(task, deck, args);
+    const lang = replyLanguage();
+    if (OWN_WORDS.has(task) && lang !== 'English') {
+      const note =
+        task === 'lessons' || task === 'place'
+          ? `Write the names in ${lang}.`
+          : `Write your explanation or feedback in ${lang}. Keep words from the cards as they are.`;
+      request.messages = [...request.messages.slice(0, 1), { role: 'system', content: note }, ...request.messages.slice(1)];
+    }
     const reply = await http(aiHttp(provider(), request));
     return aiReply<T>(task, reply.status, reply.body, { deck, ...args });
   } catch (e) {

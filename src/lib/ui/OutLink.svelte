@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '../i18n';
   // A link to a web page outside Ankhwiz. The app's window never leaves the
   // interface, so the page opens in the learner's own browser; if that fails,
   // the address is shown so it can be copied.
@@ -16,7 +17,7 @@
 </script>
 
 <a {href} class={cls} target="_blank" rel="noopener" onclick={open}>{@render children()}</a>
-{#if failed}<span class="addr">The browser could not be opened. The address is <span class="url">{href}</span></span>{/if}
+{#if failed}<span class="addr">{t('The browser could not be opened. The address is')} <span class="url">{href}</span></span>{/if}
 
 <style>
   .addr {

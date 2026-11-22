@@ -5,11 +5,12 @@
   //
   // `first` is the field number of items[0] on its side: 2 when the side's
   // first field is shown elsewhere (the question itself), 1 otherwise.
+  import { t } from '../i18n';
   import Icon from './Icon.svelte';
 
   let { items, first = 1, base = 17, label = 'More' }: { items: string[]; first?: number; base?: number; label?: string } = $props();
 
-  const shown = $derived(items.filter((t) => t.trim()));
+  const shown = $derived(items.filter((x) => x.trim()));
   // Fields up to the third on the side are visible; the rest fold away.
   const visible = $derived(Math.max(0, 3 - (first - 1)));
   let open = $state(false);
@@ -24,7 +25,7 @@
     {#if shown.length > visible}
       <button class="fold" aria-expanded={open} onclick={() => (open = !open)}>
         <Icon name={open ? 'up' : 'down'} size={16} />
-        {open ? 'Show less' : `${shown.length - visible} more ${shown.length - visible === 1 ? label.toLowerCase().replace(/s$/, '') : label.toLowerCase()}`}
+        {open ? t('Show less') : t('{n} more: {what}', { n: shown.length - visible, what: label })}
       </button>
       {#if open}
         <div class="rest">

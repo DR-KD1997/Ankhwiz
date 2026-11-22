@@ -1,3 +1,4 @@
+import { t } from '../i18n';
 // SQLite in the web view, for reading and writing Anki collections.
 // Loaded only when an import or export starts.
 
@@ -55,7 +56,7 @@ export const openInBrowser: OpenDatabase = async (bytes) => {
     return new SQL.Database(bytes);
   } catch {
     module = null;
-    throw new Error('This view cannot open Anki files. Use the desktop or Android app, or the Ankhwiz HTML file.');
+    throw new Error(t('This view cannot open Anki files. Use the desktop or Android app, or the Ankhwiz HTML file.'));
   }
 };
 

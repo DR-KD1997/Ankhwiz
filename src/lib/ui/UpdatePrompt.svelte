@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '../i18n';
   // Updates when Ankhwiz opens. Once, it asks whether to look for new versions
   // at launch; if the learner says yes, it checks at most once a day and shows
   // what's new when a newer version is out. Never in a browser, which always
@@ -40,23 +41,23 @@
 {#if found && !ui.session}
   <div class="veil" role="presentation"></div>
   <div class="prompt plain" role="dialog" aria-modal="true" aria-labelledby="update-title">
-    <p class="label">Update</p>
-    <h2 id="update-title" class="display">Ankhwiz {found.version} is out</h2>
-    <p class="sub">You have {VERSION}. What's new:</p>
+    <p class="label">{t('Update')}</p>
+    <h2 id="update-title" class="display">{t('Ankhwiz {version} is out', { version: found.version })}</h2>
+    <p class="sub">{t('You have {VERSION}. What\'s new:', { VERSION })}</p>
     <WhatsNew notes={found.details || found.notes} />
     <div class="actions">
-      <OutLink class="primary link" href={found.url} onopen={() => (found = null)}>Get it</OutLink>
-      <button class="quiet" onclick={() => (found = null)}>Later</button>
-      <button class="quiet" onclick={() => (skipVersion(found!.version), (found = null))}>Skip this version</button>
+      <OutLink class="primary link" href={found.url} onopen={() => (found = null)}>{t('Get it')}</OutLink>
+      <button class="quiet" onclick={() => (found = null)}>{t('Later')}</button>
+      <button class="quiet" onclick={() => (skipVersion(found!.version), (found = null))}>{t('Skip this version')}</button>
     </div>
   </div>
 {:else if asking}
-  <div class="ask plain" role="region" aria-label="Updates">
+  <div class="ask plain" role="region" aria-label={t('Updates')}>
     <Icon name="info" size={20} />
-    <p><strong>Look for new versions when Ankhwiz opens?</strong> <span>Once a day at most. It asks GitHub for the latest version number and sends nothing else. You can change this in Settings.</span></p>
+    <p><strong>{t('Look for new versions when Ankhwiz opens?')}</strong> <span>{t('Once a day at most. It asks GitHub for the latest version number and sends nothing else. You can change this in Settings.')}</span></p>
     <div class="pair">
-      <button class="quiet" onclick={() => answer(false)}>No thanks</button>
-      <button class="quiet yes" onclick={() => answer(true)}>Yes</button>
+      <button class="quiet" onclick={() => answer(false)}>{t('No thanks')}</button>
+      <button class="quiet yes" onclick={() => answer(true)}>{t('Yes')}</button>
     </div>
   </div>
 {/if}

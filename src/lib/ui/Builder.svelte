@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { plural, t } from '../i18n';
   // The deck builder: type cards in a card type's own fields, or paste rows
   // from a spreadsheet, check them in a list, then add them to the deck in
   // one go. Lessons are filled up in order; nothing is added until asked.
@@ -37,7 +38,7 @@
     if (!type) return;
     const rows = parseRows(pasted, cols);
     drafts.push(...rows.map((r) => type!.fields.map((_, i) => r[i] ?? '')));
-    message = `${rows.length} ${rows.length === 1 ? 'row' : 'rows'} added to the list.`;
+    message = plural('{n} row added to the list.', '{n} rows added to the list.', rows.length);
     pasted = '';
     pasting = false;
   }
@@ -45,7 +46,7 @@
     if (!type) return;
     const rows = drafts.map((d) => rowFor(type!, d, kind?.selfCheck)).filter((r) => r !== null);
     const n = addRows(deck.id, rows, unitName);
-    message = `${n} ${n === 1 ? 'card' : 'cards'} added to ${unitName}.`;
+    message = plural('{n} card added to {unitName}.', '{n} cards added to {unitName}.', n, { unitName });
     drafts = [];
   }
   const preview = $derived(type ? (drafts.at(-1) ?? (entry.some(Boolean) ? entry : kind?.example ?? [])) : []);
@@ -54,21 +55,21 @@
 
 <section class="builder">
   <header>
-    <button class="icon-btn" aria-label="Back to lessons" onclick={() => openPanel('path')}><Icon name="back" /></button>
-    <h1 class="display">Add cards</h1>
+    <button class="icon-btn" aria-label={t('Back to lessons')} onclick={() => openPanel('path')}><Icon name="back" /></button>
+    <h1 class="display">{t('Add cards')}</h1>
   </header>
 
   {#if !type}
-    <p class="hint">This deck has no card type to type cards into. Open Card types to give its cards one, or add cards in Cards.</p>
-    <button class="quiet" onclick={() => openPanel('types')}>Card types</button>
+    <p class="hint">{t('This deck has no card type to type cards into. Open Card types to give its cards one, or add cards in Cards.')}</p>
+    <button class="quiet" onclick={() => openPanel('types')}>{t('Card types')}</button>
   {:else}
     <div class="top">
       {#if types.length > 1}
-        <label class="field"><span>Card type</span>
-          <select class="input" bind:value={chosen}>{#each types as t (t.id)}<option value={t.id}>{t.name}</option>{/each}</select>
+        <label class="field"><span>{t('Card type')}</span>
+          <select class="input" bind:value={chosen}>{#each types as ty (ty.id)}<option value={ty.id}>{ty.name}</option>{/each}</select>
         </label>
       {/if}
-      <label class="field"><span>Unit</span>
+      <label class="field"><span>{t('Unit')}</span>
         <input class="input" bind:value={unit} placeholder={deck.units.at(-1)?.name || deck.name} list="units" />
         <datalist id="units">{#each deck.units as u (u.id)}<option value={u.name}></option>{/each}</datalist>
       </label>
@@ -77,26 +78,26 @@
     <div class="entry card">
       {#each type.fields as f, i (f + i)}
         {#if i === 0}
-          <label class="field"><span>{f}{i === type.question ? ' · question' : i === type.answer ? ' · answer' : ''}</span>
+          <label class="field"><span>{f}{i === type.question ? t(' · question') : i === type.answer ? t(' · answer') : ''}</span>
             <input class="input" bind:this={first} bind:value={entry[i]} placeholder={ex(i)} onkeydown={(e) => e.key === 'Enter' && add()} /></label>
         {:else}
-          <label class="field"><span>{f}{i === type.question ? ' · question' : i === type.answer ? ' · answer' : ''}</span>
+          <label class="field"><span>{f}{i === type.question ? t(' · question') : i === type.answer ? t(' · answer') : ''}</span>
             <input class="input" bind:value={entry[i]} placeholder={ex(i)} onkeydown={(e) => e.key === 'Enter' && add()} /></label>
         {/if}
       {/each}
       <div class="pair">
-        <button class="link-btn" onclick={() => (pasting = !pasting)}>{pasting ? 'Type one at a time' : 'Paste rows from a spreadsheet'}</button>
-        <button class="quiet" disabled={!ready} onclick={add}><Icon name="plus" size={16} /> Add to the list</button>
+        <button class="link-btn" onclick={() => (pasting = !pasting)}>{pasting ? t('Type one at a time') : t('Paste rows from a spreadsheet')}</button>
+        <button class="quiet" disabled={!ready} onclick={add}><Icon name="plus" size={16} /> {t('Add to the list')}</button>
       </div>
       {#if pasting}
-        <textarea class="input" rows="6" bind:value={pasted} placeholder={`One card a line, columns in this order: ${type.fields.join(', ')}. Copy from a spreadsheet, or separate with ; or “ = ”.`} aria-label="Rows"></textarea>
-        <button class="quiet" disabled={!pasted.trim()} onclick={addPasted}>Add these rows to the list</button>
+        <textarea class="input" rows="6" bind:value={pasted} placeholder={`One card a line, columns in this order: ${type.fields.join(', ')}. Copy from a spreadsheet, or separate with ; or “ = ”.`} aria-label={t('Rows')}></textarea>
+        <button class="quiet" disabled={!pasted.trim()} onclick={addPasted}>{t('Add these rows to the list')}</button>
       {/if}
     </div>
 
     {#if preview.length}
       <div class="pv card">
-        <small>{drafts.length ? 'The last card in the list' : 'How a card will look'}</small>
+        <small>{drafts.length ? t('The last card in the list') : t('How a card will look')}</small>
         <strong>{preview[type.question] || ex(type.question)}</strong>
         <span>{preview[type.answer] || ex(type.answer)}</span>
         {#if type.extra !== null && type.extra !== undefined && (preview[type.extra] || ex(type.extra))}<small>{preview[type.extra] || ex(type.extra)}</small>{/if}
@@ -104,20 +105,20 @@
     {/if}
 
     {#if drafts.length}
-      <p class="label">To add · {drafts.length}</p>
-      <div class="table" role="table" aria-label="Cards to add">
+      <p class="label">{t('To add · {draftsCount}', { draftsCount: drafts.length })}</p>
+      <div class="table" role="table" aria-label={t('Cards to add')}>
         {#each drafts as d, r (r)}
           <div class="tr" role="row">
             {#each d.slice(0, Math.min(cols, 3)) as _, c (c)}
-              <input class="input cell" role="cell" bind:value={drafts[r][c]} aria-label="{type.fields[c]} of card {r + 1}" />
+              <input class="input cell" role="cell" bind:value={drafts[r][c]} aria-label={t('{c} of card {x}', { c: type.fields[c], x: r + 1 })} />
             {/each}
-            <button class="icon-btn" aria-label="Remove card {r + 1}" onclick={() => drafts.splice(r, 1)}><Icon name="close" size={16} /></button>
+            <button class="icon-btn" aria-label={t('Remove card {x}', { x: r + 1 })} onclick={() => drafts.splice(r, 1)}><Icon name="close" size={16} /></button>
           </div>
         {/each}
       </div>
-      <button class="primary" onclick={commit}>Add {drafts.length} {drafts.length === 1 ? 'card' : 'cards'} to {unitName}</button>
+      <button class="primary" onclick={commit}>{plural('Add {n} card to {unitName}', 'Add {n} cards to {unitName}', drafts.length, { unitName })}</button>
     {/if}
-    <p class="hint">Cards go into lessons of {deck.lessonSize} in the order you add them. Change any card later in Cards, and the fields or the layout in Card types.</p>
+    <p class="hint">{t('Cards go into lessons of {lessonSize} in the order you add them. Change any card later in Cards, and the fields or the layout in Card types.', { lessonSize: deck.lessonSize })}</p>
   {/if}
   {#if message}<p class="hint good" role="status">{message}</p>{/if}
 </section>

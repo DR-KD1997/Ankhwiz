@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { plural, t } from '../i18n';
   // Dictation: hear a card, write it. The card's own sound plays where it has
   // one; otherwise a voice reads it. Answers are checked word by word, a
   // missing accent counts as nearly right, and nothing changes the schedule.
@@ -124,63 +125,63 @@
 
 <section class="dict">
   <header>
-    <button class="icon-btn" aria-label="Back to practice" onclick={() => openPanel('practice')}><Icon name="back" /></button>
-    <h1 class="display">Dictation</h1>
+    <button class="icon-btn" aria-label={t('Back to practice')} onclick={() => openPanel('practice')}><Icon name="back" /></button>
+    <h1 class="display">{t('Dictation')}</h1>
   </header>
 
   {#if !started}
-    <p class="hint">Hear a card, then write what you hear. Play it as often as you like. Words are checked one by one, so one slip does not fail the sentence, and a missing accent counts as nearly right. Practice only: nothing changes when your cards come back.</p>
+    <p class="hint">{t('Hear a card, then write what you hear. Play it as often as you like. Words are checked one by one, so one slip does not fail the sentence, and a missing accent counts as nearly right. Practice only: nothing changes when your cards come back.')}</p>
     {#if deck.units.length > 1}
       <label class="field"
-        ><span>Cards from</span>
+        ><span>{t('Cards from')}</span>
         <select class="input" bind:value={unitId}>
-          <option value="">The whole deck</option>
+          <option value="">{t('The whole deck')}</option>
           {#each deck.units as u (u.id)}<option value={u.id}>{u.name}</option>{/each}
         </select></label
       >
     {/if}
-    {#if voiceOk === false}<p class="hint warn">There is no voice for {langName(heard)} on this device, so only cards with their own sound can be used. {voiceHelp()}</p>{/if}
-    <button class="primary" onclick={start}>Start</button>
+    {#if voiceOk === false}<p class="hint warn">{t('There is no voice for {heard} on this device, so only cards with their own sound can be used. {x}', { heard: langName(heard), x: voiceHelp() })}</p>{/if}
+    <button class="primary" onclick={start}>{t('Start')}</button>
   {:else if done}
     <div class="end card">
-      <h2 class="display">{items.length ? `${average}% right` : 'Nothing to write yet'}</h2>
-      <p>{items.length ? `${items.length} ${items.length === 1 ? 'card' : 'cards'} written from hearing.` : 'Dictation uses cards you have met that can be heard: their own sound, or a voice for the deck’s language. Meet some cards in a lesson first, or turn on Read aloud in Deck options.'}</p>
+      <h2 class="display">{items.length ? `${average}% right` : t('Nothing to write yet')}</h2>
+      <p>{items.length ? plural('{n} card written from hearing.', '{n} cards written from hearing.', items.length) : t('Dictation uses cards you have met that can be heard: their own sound, or a voice for the deck’s language. Meet some cards in a lesson first, or turn on Read aloud in Deck options.')}</p>
       <div class="pair">
-        <button class="quiet" onclick={() => openPanel('practice')}>Done</button>
-        {#if items.length}<button class="primary" onclick={start}>Again</button>{/if}
+        <button class="quiet" onclick={() => openPanel('practice')}>{t('Done')}</button>
+        {#if items.length}<button class="primary" onclick={start}>{t('Again')}</button>{/if}
       </div>
     </div>
   {:else if item}
-    <p class="label">Card {index + 1} of {items.length}</p>
+    <p class="label">{t('Card {x} of {itemsCount}', { x: index + 1, itemsCount: items.length })}</p>
     <div class="listen">
-      <button class="big" aria-label="Play" onclick={() => play()}><Icon name="sound" size={36} /></button>
-      <button class="slow" aria-label="Play slowly" onclick={() => play(0.7)}>0.7×</button>
+      <button class="big" aria-label={t('Play')} onclick={() => play()}><Icon name="sound" size={36} /></button>
+      <button class="slow" aria-label={t('Play slowly')} onclick={() => play(0.7)}>0.7×</button>
     </div>
-    {#if hints && !result}<p class="hints" aria-label="First letters">{firstLetters(item.text)}</p>{/if}
+    {#if hints && !result}<p class="hints" aria-label={t('First letters')}>{firstLetters(item.text)}</p>{/if}
     <label class="field">
-      <span>What you hear</span>
+      <span>{t('What you hear')}</span>
       <textarea class="input" rows="2" bind:this={box} bind:value={typed} onkeydown={onKey} disabled={!!result} lang={item.lang} autocapitalize="off" spellcheck="false"></textarea>
     </label>
     {#if letters.length && !result}
-      <div class="keys" aria-label="Letters">
+      <div class="keys" aria-label={t('Letters')}>
         {#each letters as ch (ch)}<button class="key" onclick={() => add(ch)}>{ch}</button>{/each}
       </div>
     {/if}
     {#if result}
       <div class="result card" role="status">
         <p class="words">
-          {#each result.words as w, i (i)}<span class="w {w.state}" title={w.state === 'ok' ? 'Right' : w.state === 'close' ? `Nearly: you wrote ${w.typed}` : w.state === 'off' ? `You wrote ${w.typed}` : 'Missing'}>{w.word}</span>{' '}{/each}
+          {#each result.words as w, i (i)}<span class="w {w.state}" title={w.state === 'ok' ? t('Right') : w.state === 'close' ? t('Nearly: you wrote {typed}', { typed: w.typed }) : w.state === 'off' ? t('You wrote {typed}', { typed: w.typed }) : t('Missing')}>{w.word}</span>{' '}{/each}
         </p>
-        {#if result.score < 0.999 && typed.trim()}<p class="small">You wrote: {typed.trim()}</p>{/if}
-        {#if result.extra.length}<p class="small">Not in the sentence: {result.extra.join(', ')}</p>{/if}
+        {#if result.score < 0.999 && typed.trim()}<p class="small">{t('You wrote: {x}', { x: typed.trim() })}</p>{/if}
+        {#if result.extra.length}<p class="small">{t('Not in the sentence: {x}', { x: result.extra.join(', ') })}</p>{/if}
         <p class="small">{item.meaning}</p>
-        <p class="small">{result.score >= 0.999 ? 'Every word right.' : result.score >= 0.7 ? 'Nearly there: the underlined words were close.' : 'Listen again at 0.7× and compare.'}</p>
+        <p class="small">{result.score >= 0.999 ? t('Every word right.') : result.score >= 0.7 ? t('Nearly there: the underlined words were close.') : t('Listen again at 0.7× and compare.')}</p>
       </div>
-      <button class="primary" onclick={() => next()}>{index + 1 < items.length ? 'Next' : 'Finish'}</button>
+      <button class="primary" onclick={() => next()}>{index + 1 < items.length ? t('Next') : t('Finish')}</button>
     {:else}
       <div class="pair">
-        <button class="quiet" onclick={() => (hints = !hints)}>{hints ? 'Hide first letters' : 'Show first letters'}</button>
-        <button class="primary" onclick={check}>Check</button>
+        <button class="quiet" onclick={() => (hints = !hints)}>{hints ? t('Hide first letters') : t('Show first letters')}</button>
+        <button class="primary" onclick={check}>{t('Check')}</button>
       </div>
     {/if}
   {/if}

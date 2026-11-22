@@ -8,6 +8,7 @@ import { readPackage } from './apkg';
 import { sqlWasm } from './sql';
 import type { FromWorker, ToWorker } from './import.worker';
 import ImportWorker from './import.worker?worker&inline';
+import { t } from '../i18n';
 
 /** Packages read by a worker, with the worker that holds their media. */
 const workers = new WeakMap<AnkiPackage, Worker>();
@@ -60,7 +61,7 @@ export function runInWorker(
       else if (m.type === 'done') resolve(m);
       else if (m.type === 'error') reject(new Error(m.message));
     };
-    worker.onerror = (e) => reject(new Error(e.message || 'The import stopped.'));
+    worker.onerror = (e) => reject(new Error(e.message || t('The import stopped.')));
     worker.postMessage(msg);
   });
 }

@@ -10,6 +10,7 @@
 
 import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate';
 import type { Deck, Progress } from '../core/types';
+import { t } from '../i18n';
 
 export const ANKH_VERSION = 1;
 
@@ -65,7 +66,7 @@ export function readAnkh(bytes: Uint8Array): AnkhContents {
   try {
     files = unzipSync(bytes);
   } catch {
-    throw new Error('This file is not a readable .ankh deck.');
+    throw new Error(t('This file is not a readable .ankh deck.'));
   }
   const json = <T>(name: string): T | null => {
     const f = files[name];
@@ -73,14 +74,14 @@ export function readAnkh(bytes: Uint8Array): AnkhContents {
     try {
       return JSON.parse(strFromU8(f)) as T;
     } catch {
-      throw new Error(`Part of this .ankh file (${name}) is damaged.`);
+      throw new Error(t('Part of this .ankh file ({name}) is damaged.', { name }));
     }
   };
   const manifest = json<AnkhManifest>('manifest.json');
-  if (manifest?.format !== 'ankh') throw new Error('This file is not an Ankhwiz deck.');
-  if (manifest.version > ANKH_VERSION) throw new Error('This deck was saved by a newer Ankhwiz. Update Ankhwiz to open it.');
+  if (manifest?.format !== 'ankh') throw new Error(t('This file is not an Ankhwiz deck.'));
+  if (manifest.version > ANKH_VERSION) throw new Error(t('This deck was saved by a newer Ankhwiz. Update Ankhwiz to open it.'));
   const deck = json<Deck>('deck.json');
-  if (!deck?.notes || !deck.units) throw new Error('This .ankh file has no deck in it.');
+  if (!deck?.notes || !deck.units) throw new Error(t('This .ankh file has no deck in it.'));
   const media: Record<string, Uint8Array> = {};
   for (const [name, data] of Object.entries(files)) if (name.startsWith('media/') && name.length > 6) media[name.slice(6)] = data;
   return { manifest, deck, progress: json<Progress>('progress.json'), media };

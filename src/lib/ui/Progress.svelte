@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { stageName, t } from '../i18n';
   // Progress for one deck: stages, the week ahead, how well cards are
   // remembered, the streak calendar, and the cards that keep slipping.
   // (Anki: Statistics, with leeches as tricky cards.)
@@ -18,7 +19,7 @@
   // Twelve weeks, oldest first, ending today.
   const calendar = $derived(Array.from({ length: 84 }, (_, i) => day0 - 83 + i));
   const label = (offset: number) =>
-    offset === 0 ? 'Today' : offset === 1 ? 'Tmrw' : new Date((day0 + offset) * 86_400_000).toLocaleDateString(undefined, { weekday: 'short' });
+    offset === 0 ? t('Today') : offset === 1 ? t('Tmrw') : new Date((day0 + offset) * 86_400_000).toLocaleDateString(undefined, { weekday: 'short' });
   const noteOf = (cardId: string) => deck.notes[cardId.split(':')[0]];
   const tricky = $derived(stats.tricky.slice(0, 8));
 
@@ -31,31 +32,31 @@
 
 <section class="prog">
   <header>
-    <button class="icon-btn" aria-label="Back to lessons" onclick={() => openPanel('path')}><Icon name="back" /></button>
-    <h1 class="display">Progress</h1>
+    <button class="icon-btn" aria-label={t('Back to lessons')} onclick={() => openPanel('path')}><Icon name="back" /></button>
+    <h1 class="display">{t('Progress')}</h1>
   </header>
 
   <div class="tiles">
-    <div class="plain"><span class="label">Met</span><b>{stats.introduced}</b><small>of {stats.total} cards</small></div>
-    <div class="plain"><span class="label">Remembered</span><b>{stats.retention === null ? '–' : `${Math.round(stats.retention * 100)}%`}</b><small>last 30 days, {stats.answers30} answers</small></div>
-    <div class="plain"><span class="label">Streak</span><b>{data.streak.count}</b><small>best {data.streak.best}</small></div>
+    <div class="plain"><span class="label">{t('Met')}</span><b>{stats.introduced}</b><small>{t('of {total} cards', { total: stats.total })}</small></div>
+    <div class="plain"><span class="label">{t('Remembered')}</span><b>{stats.retention === null ? '–' : `${Math.round(stats.retention * 100)}%`}</b><small>{t('last 30 days, {answers30} answers', { answers30: stats.answers30 })}</small></div>
+    <div class="plain"><span class="label">{t('Streak')}</span><b>{data.streak.count}</b><small>{t('best {best}', { best: data.streak.best })}</small></div>
   </div>
 
   <div class="group">
-    <p class="label">Cards by stage</p>
+    <p class="label">{t('Cards by stage')}</p>
     {#each stats.stages as n, i (i)}
       <div class="bar">
-        <span class="name">{i + 1} · {limits.stageNames[i]}</span>
+        <span class="name">{i + 1} · {stageName(limits.stageNames[i])}</span>
         <span class="track"><i style="width: {(n / maxStage) * 100}%"></i></span>
         <b>{n}</b>
       </div>
     {/each}
-    {#if stats.stopped}<p class="hint">{stats.stopped} stopped (not asked until resumed in Cards).</p>{/if}
+    {#if stats.stopped}<p class="hint">{t('{stopped} stopped (not asked until resumed in Cards).', { stopped: stats.stopped })}</p>{/if}
   </div>
 
   <div class="group">
-    <p class="label">The week ahead</p>
-    <div class="week" role="img" aria-label="Reviews due over the next seven days: {stats.forecast.join(', ')}">
+    <p class="label">{t('The week ahead')}</p>
+    <div class="week" role="img" aria-label={t('Reviews due over the next seven days: {x}', { x: stats.forecast.join(', ') })}>
       {#each stats.forecast as n, i (i)}
         <div class="col">
           <b>{n}</b>
@@ -67,16 +68,16 @@
   </div>
 
   <div class="group">
-    <p class="label">Days studied · last 12 weeks</p>
-    <div class="cal" role="img" aria-label="{calendar.filter((d) => days.has(d)).length} days studied in the last 12 weeks">
+    <p class="label">{t('Days studied · last 12 weeks')}</p>
+    <div class="cal" role="img" aria-label={t('{length} days studied in the last 12 weeks', { length: calendar.filter((d) => days.has(d)).length })}>
       {#each calendar as d (d)}<i class:on={days.has(d)} class:today={d === day0}></i>{/each}
     </div>
   </div>
 
   <div class="group">
-    <p class="label">Tricky cards</p>
+    <p class="label">{t('Tricky cards')}</p>
     {#if tricky.length}
-      <p class="hint">Missed twice or more (Anki: leeches). Practise them, or let Thoth suggest better answers and wrong options.</p>
+      <p class="hint">{t('Missed twice or more (Anki: leeches). Practise them, or let Thoth suggest better answers and wrong options.')}</p>
       <ul>
         {#each tricky as c (c)}
           {@const n = noteOf(c)}
@@ -84,18 +85,18 @@
             <li>
               <button class="row" onclick={() => ((ui.editNote = n.id), openPanel('contents'))}>
                 <span class="grow"><strong dir="auto">{n.cloze ? filledIn(n.front) : n.front}</strong><small dir="auto">{n.cloze ? '' : n.back}</small></span>
-                <span class="miss">{progress[c]?.lapses} wrong</span>
+                <span class="miss">{t('{lapses} wrong', { lapses: progress[c]?.lapses })}</span>
               </button>
             </li>
           {/if}
         {/each}
       </ul>
       <div class="pair">
-        <button class="quiet" onclick={() => openPanel('practice')}>Practise them</button>
-        <button class="quiet" onclick={askThoth}>Ask Thoth to improve them</button>
+        <button class="quiet" onclick={() => openPanel('practice')}>{t('Practise them')}</button>
+        <button class="quiet" onclick={askThoth}>{t('Ask Thoth to improve them')}</button>
       </div>
     {:else}
-      <p class="hint">None so far.</p>
+      <p class="hint">{t('None so far.')}</p>
     {/if}
   </div>
 </section>

@@ -1,0 +1,517 @@
+900|Un altro giro
+901|Verifica la lettura · {questionsCount} domande
+902|Questo dispositivo non ha una voce per {x}{x2}. {x3}
+904|, quindi quelle parole sono state escluse
+905|La lettura ad alta voce non è disponibile su questo dispositivo.
+906|Sulla buona strada
+907|Fuori strada
+908| Salita di una fase.
+909|Non proprio. La risposta è {x}.
+910|Giusta osservazione. Me lo ricorderò.
+911|Contata come giusta.
+912|Abbastanza simili da confondere chiunque. Annotato.
+913|Non è la risposta della carta. Chiedo a Thoth se va bene lo stesso…
+914|Torna presto
+915|Contato come un ricordo difficile
+916|Impossibile correggere la risposta.
+917|Impossibile ottenere una spiegazione.
+918|Tutte le risposte giuste, e nessuna sbagliata.
+919|Test di livello · {x}
+920|Niente suggerimenti
+921|Nuova
+922|Fase {stage} · {name}
+923| · Senso inverso
+924| · Completa lo spazio
+927|soglia {passMark}
+928|{right} su {total} giuste{x}
+929| · fase 3
+935|La pratica non cambia quando tornano le tue carte.
+936|{correct} di {graded}
+937|Salita
+938|Bonus: un giro di lettura
+939|Chiudi la lezione
+940|{position} di {queueCount}
+941|Altro per questa carta
+942|Salta per oggi
+943|Torna domani (Anki: seppellisci)
+944|Smetti di chiedere questa
+945|Riprendila in Carte (Anki: sospendi)
+946|Questa carta è stata scritta o cambiata dall’IA
+947|Ascolta la domanda
+948|campi domanda
+949|Suggerimento: {extra}
+950|Ascolta la risposta
+951|campi
+952|campi extra
+953|{i}: togli
+954|Tocca le parole in ordine
+955|Parole
+956|Cancella
+957|Controlla l’ortografia
+958|(facoltativo: dilla tra te o scrivila)
+960|Hai scritto
+961|La risposta
+964|Di nuovo · 1
+966|Difficile · 2
+968|Bene · 3
+969|La tua risposta, con parole tue
+970|La tua risposta e questa carta vengono inviate al tuo servizio di IA per la correzione.
+971|Le risposte lunghe vengono corrette dall’IA dopo aver configurato una connessione nelle Impostazioni. Fino ad allora, confronta tu.
+972|Voto di Thoth: {x}
+974|non ancora
+975|Accetta
+976|Contesta: avevo {x}
+977|torto
+978|ragione
+979|Contata come giusta
+980|Giusta anche questa
+982|«{given}» viene accettata su questa carta d’ora in poi.
+983|Collegate: d’ora in poi vale l’una o l’altra risposta.
+984|È ancora un errore, ma queste due non verranno più proposte fianco a fianco.
+985|Thoth: giusta anche questa.
+986|Alla fine contata come sbagliata.
+987|Thoth: non proprio.
+988|Risposta di questa carta: «{answer}»
+989|Anche «{given}» va bene.
+993|Annulla: contala come sbagliata
+994|Accettala di nuovo
+995|Avevo ragione anch’io
+996|Thoth spiega
+997|Quanto è vicina «{given}» a «{answer}»?
+998|Contala ora, e accetta l’una o l’altra risposta su entrambe le carte d’ora in poi.
+999|Simile, ma non uguale
+1000|Lasciala come errore, ma non proporre mai più queste due fianco a fianco.
+1001|Contare «{given}» come giusta?
+1002|Sì, e accettala d’ora in poi
+1003|Sì, contala solo stavolta
+1004|Viene aggiunta alle risposte accettate di questa carta. Puoi rimuoverla nell’editor delle carte.
+1005|Le carte chieste al contrario mantengono la propria risposta.
+1006|Scorciatoie da tastiera
+1007|Scegli un’opzione (autovalutazione: 1 sbagliata, 2 in parte, 3 indovinata)
+1008|Mentre costruisci una frase: metti la parola numerata; togli l’ultima
+1009|Controlla, poi continua
+1010|Spiegamelo (con una connessione IA)
+1011|Leggi ad alta voce (se il mazzo legge ad alta voce)
+1012|Esci; il tuo punto viene conservato
+1013|Mostra o nascondi questa lista
+1014|Predefinita di sistema
+1015|{language}, da questo dispositivo
+1016|Sistema
+1017|Chiaro
+1018|Scuro
+1019|Classico
+1020|Oro e inchiostro, come nel logo
+1021|Scriba Luminoso
+1022|Più tondo e amichevole
+1023|Completo
+1024|Thoth ti guida durante le lezioni e lungo il percorso.
+1025|Discreto
+1026|Thoth compare solo quando finisce una lezione.
+1027|Nascosto
+1028|Nessuna mascotte. I suoi consigli restano come semplice elenco di Suggerimenti.
+1029|Nessun suono quando rispondi.
+1030|{about}. Suona per le risposte giuste, quasi giuste e sbagliate, e alla fine di una lezione.
+1031|Entrambe
+1032|Le carte vengono lette solo quando tocchi un pulsante altoparlante.
+1033|Ogni domanda viene letta quando si apre la sua carta.
+1034|La risposta viene letta quando la controlli.
+1035|La domanda quando si apre la sua carta, e la risposta quando la controlli.
+1036|Impossibile fare il backup.
+1037|Domenica
+1038|Lunedì
+1039|Martedì
+1040|Mercoledì
+1041|Giovedì
+1042|Venerdì
+1043|Sabato
+1044|Le notifiche di Ankhwiz sono disattivate. Consentile nelle impostazioni di sistema, poi riprova.
+1045|Connesso. Trovati {modelsCount} modelli; scegline uno qui sotto.
+1046|Connesso, ma il servizio non ha elencato modelli. Scrivi qui sotto il nome di un modello.
+1047| Non è stato possibile salvare la chiave, che servirà di nuovo la prossima volta.
+1048|La connessione non è riuscita.
+1049|Backup ripristinato.
+1050|Quel file non è un backup di Ankhwiz.
+1051|Impossibile ripristinare quel file.
+1052|Questo dispositivo contiene dati di un Ankhwiz più recente. Non sono stati toccati; aggiorna Ankhwiz per aprirli. Nulla di ciò che fai qui viene salvato.
+1053|Lingua
+1054|Lingua dell’app
+1055|Altre lingue, comprese quelle da destra a sinistra, sono previste in un aggiornamento futuro.
+1056|Thoth risponde in
+1057|Come l’app
+1058|Le carte non vengono mai tradotte: solo i pulsanti e i testi di Ankhwiz, e ciò che dice Thoth.
+1059|Aspetto
+1060|Tema
+1061|Stile del ritratto
+1062|Movimento di Thoth
+1063|Animato
+1064|Fermo
+1065|Suoni
+1066|Suoni delle risposte
+1067|Senti la fine di una lezione
+1068|Lettura ad alta voce
+1069|Leggi da solo
+1070|Voci
+1071|Tour e consigli
+1072|Consigli sulle funzioni
+1073|Thoth spiega Opzioni del mazzo, importazione, editor delle carte, Test di livello e lo studio con lui la prima volta che apri ciascuno. Il ? accanto a ognuno lo spiega di nuovo.
+1074|Rivedi il tour di benvenuto
+1075|Mostra di nuovo tutti i consigli
+1076|Ogni consiglio ricompare la prossima volta che apri la sua parte dell’app.
+1077|Nuovi mazzi
+1078|Nuove note per lezione, da {minLesson} a {maxLesson}. Ogni mazzo può anche impostarne di proprie.
+1079|Connessione IA
+1080|Facoltativa. Collega un tuo servizio e Thoth potrà rispondere alle domande, abbozzare carte, correggere risposte lunghe e scrivere testi di lettura. Senza, tutto il resto funziona come prima.
+1081|Servizio
+1082|Scegli un servizio…
+1083|Indirizzo
+1085|Chiave{x}
+1086| (se il servizio ne richiede una)
+1087|La chiave è conservata in {x}. Non viene mai scritta nei mazzi o nei backup, e ogni dispositivo ha bisogno della sua.
+1088|Rimuovi la connessione
+1089|Modello per lavori rapidi
+1090|spiegazioni, correzioni, domande a Thoth
+1091|Nome del modello
+1092|Modello per lavori più grandi
+1093|scrittura di carte e testi; lascia vuoto per usare lo stesso
+1094|Nome del modello (facoltativo)
+1095|Le richieste vanno a un modello su questo computer; nulla esce da qui.
+1096|Quando usi una funzione IA, le carte che servono e ciò che scrivi vengono inviati a {x}. Altrimenti non viene inviato nulla.
+1097|Controlla le risposte scritte che non corrispondono
+1098|Quando una risposta scritta non corrisponde a nessuna delle risposte di una carta, Thoth decide se è comunque valida. Se lo è, conta e da allora viene accettata.
+1099|In un browser alcuni servizi rifiutano le chiamate dalle pagine web. Le app per desktop e Android non hanno questo limite.
+1100|Promemoria giornaliero
+1101|Ricordami di studiare
+1102|Solo nei giorni in cui non hai ancora studiato
+1103|Ora
+1104|Giorni
+1106|La tua libreria
+1107|Un unico file con ogni mazzo, le sue immagini e suoni, i tuoi progressi e le tue impostazioni. La tua chiave IA non è mai inclusa.
+1108|Come ripristinare
+1109|Come deve entrare questo backup?
+1110|Aggiungi i mazzi che non ho
+1111|Sostituisci tutto su questo dispositivo
+1112|Ultimo backup: {lastBackup}
+1113|Aggiornamenti
+1115|Controlla all’apertura di Ankhwiz
+1116|Al massimo una volta al giorno; una nuova versione mostra le sue novità
+1117|Cerca aggiornamenti all’apertura di Ankhwiz
+1118|È disponibile Ankhwiz {version}.
+1119|Scaricalo da GitHub
+1120|Hai l’ultima versione.
+1121|Non è ancora stata pubblicata alcuna versione.
+1122|Pagina delle versioni
+1123|Impossibile raggiungere GitHub. Riprova più tardi o visita
+1124|la pagina delle versioni
+1125|Ankhwiz chiede a GitHub solo il numero dell’ultima versione e non invia nient’altro.
+1126|Test
+1127|Fai finta che sia un altro giorno
+1128|Data dell’app: {simulated}{x}
+1129|Reimposta
+1130|+1 giorno
+1131|Le carte hanno bisogno di risposte giuste in giorni diversi per salire. Così puoi provarlo senza aspettare.
+1132|Dati
+1133|Tieni tutto
+1134|Cancella tutti i mazzi e i progressi
+1135|Cancella tutto su questo dispositivo…
+1136|Ankhwiz {VERSION} ({x}). Mazzi e progressi restano su questo dispositivo; non ci sono account né sincronizzazione. Le regole di apprendimento girano nel motore Rust condiviso. La pianificazione usa le formule FSRS finché non verrà integrato il motore di Anki.
+1137|Impossibile leggerlo: potrebbe essere troppo grande (oltre 25 MB) o non essere un file che Ankhwiz conosce.
+1138|Niente da leggere.
+1139|Lettura…
+1140|Impossibile leggerlo.
+1141|Aggiungi a un mazzo
+1142|Condiviso da un’altra app
+1143|Mazzo
+1144|+ Un nuovo mazzo
+1145|Nome del nuovo mazzo
+1146|{x} Nulla viene inviato da nessuna parte finché non chiedi a Thoth di pianificare le carte.
+1147|Ankhwiz legge il testo della pagina come lo vedresti tu.
+1148|Viene conservato con il mazzo su questo dispositivo.
+1149|Tienilo e basta
+1150|Aggiungi e pianifica carte
+1151|Nuova carta · simile a una che conosci
+1152|Queste due si confondono facilmente
+1153|La conosci
+1154|Ascolta «{text}»
+1155|Verifica veloce: quale significa «{answer}»?
+1156|Giusto: «{q}» è «{a}».
+1157|Quella è «{a}». La nuova è «{q}».
+1158|Capito: alla nuova carta
+1159|Non è stato trovato testo da leggere.
+1160|{"one":"Aggiunto «{title}»: {n} parte, circa {chars} parole.","other":"Aggiunto «{title}»: {n} parti, circa {chars} parole."}
+1161|non è stato possibile leggerlo.
+1162|Non sembra un indirizzo web.
+1163|Lettura della pagina…
+1164|Impossibile leggere la pagina.
+1165|Web
+1166|Testo
+1167|Word
+1168|Pagina
+1169|Un esame
+1170|Seguire un corso
+1171|Interesse
+1172|Principiante
+1173|Qualcosa
+1174|Ripasso
+1175|Nessuna fretta
+1176|un esame: definizioni, processi e domande stile esame
+1177|seguire un corso, nell’ordine degli appunti
+1178|interesse: prima le grandi idee
+1179|principiante: spiega prima le basi
+1180|sa qualcosa: salta le basi più elementari
+1181|ripasso: solo i fatti chiave
+1182|Thoth sta leggendo la struttura delle tue fonti…
+1183|Impossibile creare la scaletta.
+1184|Domande
+1185|Termini
+1186|Date
+1187|Formule
+1188|Passaggi
+1189|Thoth sta scrivendo cinque carte da «{name}»…
+1190|Impossibile scrivere il campione.
+1191|Scrittura di «{name}» ({x} di {listCount})…
+1192|Crea con Thoth
+1193|Aggiungi i file e le pagine di cui tratta questo mazzo. Vengono conservati con il mazzo su questo dispositivo, così non li aggiungi mai due volte. Ankhwiz legge solo ciò che potresti aprire tu, e nulla viene inviato da nessuna parte finché non chiedi a Thoth di pianificare le carte.
+1194|Usa {title}
+1195|{"one":"{n} parte · circa {chars} parole{x2}","other":"{n} parti · circa {chars} parole{x2}"}
+1196|Rimuovi {title}
+1197|Aggiungi file
+1198|Incolla un indirizzo web
+1199|Indirizzo web
+1200|Aggiungi la pagina
+1201|Un nome (facoltativo)
+1202|Incolla qui il testo
+1203|Aggiungi il testo
+1204|Oppure incolla del testo
+1205|PDF, Word (.docx), testo, Markdown e pagine web. Le pagine che richiedono l’accesso e i PDF fatti solo di immagini scansionate non si possono leggere.
+1206|Tre domande veloci
+1207|A cosa serve?
+1208|Quanto sai già?
+1209|Entro quando?
+1210|Altro? (facoltativo: «solo i capitoli da 2 a 4»)
+1211|Altro
+1212|Pianificare e scrivere carte richiede la connessione IA: configurala in Impostazioni › Studia con Thoth. Intanto le tue fonti restano qui.
+1213|Thoth invia l’inizio di ogni parte delle tue fonti (non il testo intero) al tuo servizio di IA per pianificare la scaletta, e poi le parti che usa ogni lezione. Nient’altro su di te viene inviato.
+1214|Circa {outlineCost} token andranno al tuo servizio di IA per pianificare la scaletta.
+1215|Proponi una scaletta
+1216|Rinomina, riordina o togli lezioni prima che venga creata qualsiasi carta. Ogni lezione mostra da dove viene.
+1217|Genere di carte
+1218|Circa quante carte
+1219|Sposta su
+1220|Sposta giù
+1221|Campione · fino a cinque carte della prima lezione
+1222|Di’ a Thoth cosa cambiare
+1223|(per ogni carta)
+1224|Risposte più brevi
+1225|Domande stile esame
+1226|Mantieni i termini tecnici
+1227|Altro? («aggiungi un esempio di una riga»)
+1228|Altri desideri
+1229|Torna alle fonti
+1230|Crea circa {total} carte
+1231|{cards} carte finora. Puoi lasciare aperta questa schermata; ogni lezione viene aggiunta appena è scritta.
+1232|Fermati dopo questa lezione
+1233|{"one":"{cards} carte in {n} lezione","other":"{cards} carte in {n} lezioni"}
+1234|Ogni carta rimanda al passo da cui viene: tocca «Da» nella sua risposta per leggerlo.
+1235|Non trovata nelle tue fonti · disattivata
+1236|Thoth non è riuscito a indicare una frase per queste, quindi non verranno chieste finché non decidi.
+1237|Thoth ha citato: «{quote}»
+1238|Tienila comunque
+1239|Eliminala
+1240|Aggiungi altre fonti
+1241|Alle lezioni
+1242|Dove si trova
+1243|Libreria
+1244|{"one":"C’è {n} carta da ripassare tra i tuoi mazzi qui. La facciamo insieme?","other":"Ci sono {n} carte da ripassare tra i tuoi mazzi qui. Le facciamo insieme?"}
+1245|Un mazzo alla volta. Per me va bene.
+1246|Come studiare
+1247|Mescola i mazzi
+1248|Un mazzo alla volta
+1249|{"one":"Studia tutto ciò che è da ripassare · {n} carta","other":"Studia tutto ciò che è da ripassare · {n} carte"}
+1250|Inizia con {deck} · {n}
+1251|Carte da tutti i mazzi qui, mescolate. Ogni carta mantiene il programma del suo mazzo.
+1252|Apre il primo mazzo con carte da ripassare.
+1253|carte imparate
+1254|dell’argomento
+1255|{"one":"mazzo","other":"mazzi"}
+1256|Mazzi in {name}
+1257|Thoth: {name}, passo {x} di {stepsCount}
+1258|{name} · {x} di {stepsCount}
+1259|Salta il tour
+1260|Mostrami
+1261|Salta
+1262|Campi cambiati. I tuoi progressi sono conservati.
+1263|Campi cambiati. Queste carte ricominciano dall’inizio; il mazzo com’era è in Backup.
+1264|Campi cambiati.
+1265|Cambia
+1266|{x} fa ricominciare queste carte.
+1267|Cambiare il testo con gli spazi
+1268|Cambiare il campo principale della domanda o della risposta
+1269|La domanda principale e la risposta restano uguali, quindi i tuoi progressi sono conservati.
+1270|{"one":"Far ricominciare {n} carta dall’inizio? Prima viene fatto un backup del mazzo.","other":"Far ricominciare {n} carte dall’inizio? Prima viene fatto un backup del mazzo."}
+1271|Il richiamo dell’unità ti chiede a memoria le carte di un’unità. Prima incontra qualche carta in una lezione.
+1272|Stavolta niente domande. Scrivi ogni parola, espressione o fatto che ricordi di un’unità, uno per riga o separati da virgole. L’ortografia non deve essere perfetta. Le carte che mancano tornano nel ripasso di domani.
+1273|{name} · {met} incontrate
+1274|Mostra l’altro lato come suggerimenti
+1275|Più facile: vedi cosa significa ogni carta e scrivi la carta.
+1276|{name} · {targetsCount} carte
+1277|Tempo rimasto
+1278|Ciò che ricordi
+1279|{count} scritte
+1280|Confronta con l’unità
+1281|{foundCount} di {targetsCount}
+1282|{x}hai scritto {typed}
+1283|Mancate
+1284|Da altre unità
+1285|Non è sulle tue carte: {x}
+1286|Riprova
+1287|Aggiornamento
+1288|È uscito Ankhwiz {version}
+1289|Hai la {VERSION}. Novità:
+1290|Scaricalo
+1291|Più tardi
+1292|Salta questa versione
+1293|Cercare nuove versioni all’apertura di Ankhwiz?
+1294|Al massimo una volta al giorno. Chiede a GitHub solo il numero dell’ultima versione e non invia nient’altro. Puoi cambiarlo nelle Impostazioni.
+1295|Sì
+1296|Leggi in {lang}
+1307|{x} Controlla la connessione e riprova.
+1308|Impossibile scaricare la voce.
+1309|Motore vocale
+1310|Quale motore del telefono legge, come quello di Google o uno con voci scaricabili
+1311|Predefinito del telefono
+1312|Aggiungi voci nelle impostazioni del telefono
+1313|Attiva Leggi ad alta voce nelle opzioni di un mazzo e indica le sue lingue; poi qui potrai scegliere una voce per ciascuna.
+1314|Voce per {lang}
+1315|Voce del dispositivo
+1316|Scarica {name} (circa {x} MB)
+1317|La prima voce porta con sé anche il motore vocale, circa 30 MB, usato da tutte le voci scaricate.
+1318|Prova
+1319|Rimuovi il download
+1320|Su questo dispositivo: {x}
+1321|Nessuna voce per {lang} su questo dispositivo, per ora. {x}{x2}
+1322|Scaricane una qui sopra, o aggiungine una nel sistema:
+1323|Ankhwiz non ha ancora una voce scaricabile per {lang}.
+1324|Le voci scaricate sono voci Piper: suonano più naturali di molte voci integrate, girano su questo dispositivo e funzionano offline una volta scaricate. Vengono dal progetto Piper su Hugging Face.
+1325|Trova una voce per un’altra lingua
+1326|Trova una voce per una lingua
+1327|Cerca una lingua
+1328|Questo mazzo non ha ancora carte. Aggiungine alcune con Aggiungi carte, o lascia che le crei Da fonti.
+1329|Prossima lezione nuova: {name}.
+1330|Giusta
+1331|Quasi: hai scritto {typed}
+1332|Hai scritto {typed}
+1333|Mancante
+1334|Scrittura delle bozze…
+1335|Abbozza carte
+1336|Thoth sta lavorando…
+1337|Anteprima delle modifiche
+1338|Lettura delle carte…
+1339|Rivedi questa lezione
+1340|Preparazione delle domande…
+1341|Inizia una sfida
+1342|Scrittura delle domande…
+1343|Lascia che sia Thoth a scrivere le domande
+1344|Scrittura…
+1345|Scrivi un testo con domande
+1346|Quella parte della fonte non c’è più.
+1347|La fonte è stata rimossa da questo mazzo.
+1348| · domanda
+1349| · risposta
+1350|Scrivi una alla volta
+1351|Incolla righe da un foglio di calcolo
+1352|L’ultima carta della lista
+1353|Come apparirà una carta
+1354|Prima scegli «Non mostrato»
+1355|Rimuovi questo campo
+1356|Modello del fronte
+1357|Modello del retro
+1358|Torna alle carte
+1359|Nuova carta
+1360|Modifica la carta
+1361|Intestazione
+1362|Facoltativo: mostrato sopra l’immagine
+1363|Seleziona parole nella domanda o nella risposta
+1364|incontrata il {date}
+1365|Aggiungi la carta
+1366|Salva
+1367|Ripassa ora
+1368|{cards}, e quelle che aggiungi
+1369|Le carte che aggiungi qui
+1370|Un pulsante altoparlante accanto alla domanda e alla risposta, con le voci di questo dispositivo
+1371|Questo dispositivo non offre voci qui
+1372|Esportazione…
+1373|Per Anki (.apkg)
+1374|Per Ankhwiz (.ankh)
+1375|Mazzo ripristinato. La versione che avevi ora è un backup.
+1376|Impossibile leggere quel backup, quindi non è cambiato nulla.
+1377|Ancora niente da scrivere
+1378|{"one":"{n} carta scritta a orecchio.","other":"{n} carte scritte a orecchio."}
+1379|Il dettato usa le carte che hai incontrato e che si possono ascoltare: con un proprio suono o con una voce per la lingua del mazzo. Prima incontra qualche carta in una lezione, o attiva Leggi ad alta voce in Opzioni del mazzo.
+1380|Ogni parola giusta.
+1381|Quasi: le parole sottolineate erano vicine.
+1382|Riascolta a 0,7× e confronta.
+1383|Avanti
+1384|Fine
+1385|Nascondi le prime lettere
+1386|Mostra le prime lettere
+1387|Testo con spazi
+1388|Il primo campo si scambia con la risposta quando si chiede in entrambi i sensi; gli altri appaiono con lui, più piccoli.
+1389|Il primo campo è la domanda principale; gli altri appaiono sotto, più piccoli.
+1390|Mostra meno
+1391|Altri {n}: {what}
+1392|Il loro layout di Anki usa script o disegni che Ankhwiz non può copiare, quindi vedi la risposta e dici quanto ci sei andato vicino.
+1393|Guarda la risposta e di’ quanto ci sei andato vicino, invece di essere corretto.
+1394|{"one":"Con esso arriva {n} immagine o suono.","other":"Con esso arrivano {n} immagini e suoni."}
+1395|I campi che non usi vengono conservati e tornano ad Anki invariati se esporti il mazzo. Puoi eliminarli più tardi in Opzioni del mazzo.
+1396|Importazione…
+1397|non impostata
+1398|Scegli una lingua
+1399|un codice non presente nella lista
+1400|Lettura…
+1401|Importa un mazzo (.apkg o .ankh)
+1402|Un tentativo al giorno: torna domani
+1403|Un breve quiz senza suggerimenti. Superalo per andare avanti.
+1404|Test di livello domani
+1405|Test di livello
+1406|Bloccata
+1407|{"one":"{n} carta che hai sbagliato due volte o più","other":"{n} carte che hai sbagliato due volte o più"}
+1408|Ancora nessuna
+1409|Non è ancora sulle tue carte.
+1410|Le sue lezioni sono aperte e le sue carte partono dalla fase 3 invece che dalla 1.
+1411|{"one":"{n} carta sbagliata torna alla fase 1 per essere reimparata.","other":"{n} carte sbagliate tornano alla fase 1 per essere reimparate."}
+1412|Non è cambiato nulla. Puoi fare le lezioni come al solito o riprovare domani.
+1413|Mazzi
+1414|Controlla con Thoth
+1415|Inglese
+1416|Thoth resta fermo.
+1417|Thoth sbatte le palpebre, respira e reagisce alle tue risposte. Resta fermo anche se il tuo sistema chiede di ridurre il movimento.
+1418|Vale per i mazzi che hanno Leggi ad alta voce attivo nelle opzioni.
+1419|Questo dispositivo non offre voci qui.
+1420|Connessione…
+1421|Connetti ed elenca i modelli
+1422|Il promemoria arriva anche quando Ankhwiz è chiuso. Android potrebbe consegnarlo con qualche minuto di ritardo per risparmiare batteria.
+1423|Il promemoria arriva mentre Ankhwiz è aperto; può restare ridotto a icona.
+1424|In un browser, il promemoria arriva solo mentre questa pagina è aperta.
+1425|In corso…
+1426|Backup di tutto
+1427|Controllato anche all’apertura di Ankhwiz, una volta al giorno
+1428|Controllato solo quando tocchi Controlla ora
+1429|Controllo…
+1430|Controlla ora
+1431|Nessuna parte della fonte indicata
+1432|Non trovata nelle tue fonti: questa carta verrebbe disattivata
+1433|Riscrivi il campione
+1434|Scrivi un campione
+1435|Avvio…
+1436|{"one":"Diventano carte diverse, quindi i progressi di {n} carta studiata di questo tipo ripartono dall’inizio. Per mantenere i progressi, cambia solo gli altri campi.","other":"Diventano carte diverse, quindi i progressi di {n} carte studiate di questo tipo ripartono dall’inizio. Per mantenere i progressi, cambia solo gli altri campi."}
+1437|Nessuna di queste carte è ancora stata studiata, quindi non si perde alcun progresso.
+1438|Lascia i campi com’erano
+1439|Salvataggio…
+1440|Cambia e ricomincia
+1441|Tempo scaduto
+1442|{n} quasi giuste.
+1443|{"one":"{n} carta mancata torna domani.","other":"{n} carte mancate tornano domani."}
+1444| · non ancora incontrata
+1445|una voce scaricata
+1446|la voce di questo dispositivo
+1447| · scaricata

@@ -1,0 +1,12 @@
+1453|Tanış
+1454|Tanı
+1455|Yardımlı hatırlama
+1456|Sağlam hatırlama
+1457|Ustalaşıldı
+1458|Ollama (bu bilgisayar)
+1459|LM Studio (bu bilgisayar)
+1460|Başka bir adres
+1461|Gemini'nin OpenAI uyumlu adresini kullanır.
+1462|Birçok sağlayıcının modelleri için tek anahtar.
+1463|Kendi makinende çalışır; hiçbir şey dışarı çıkmaz.
+1464|OpenAI sohbet biçimini konuşan herhangi bir adres.

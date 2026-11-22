@@ -10,6 +10,7 @@
 import { lessonQueue, reviewQueue, today } from './core';
 import { markStudiedNative, notify, remindsNatively, setNativeReminder } from './platform';
 import { data, deckLoaded, now, onStudied, quickCounts, snap } from './store.svelte';
+import { plural, shownName, t } from './i18n';
 
 const NOTIFIED = 'ankhwiz-reminded';
 
@@ -27,15 +28,15 @@ export function reminderText(): string {
         const fresh = deck.lessons[id].noteIds.some((n) => !progress[n]);
         if (fresh) {
           const cards = loaded ? lessonQueue(snap(deck), progress, id).length : deck.lessons[id].noteIds.length * 3;
-          next = { deck: deck.name, lesson: deck.lessons[id].name, cards };
+          next = { deck: deck.name, lesson: shownName(deck.lessons[id].name), cards };
           break;
         }
       }
     }
   }
-  if (due && (!next || due >= 10)) return `${due} ${due === 1 ? 'card is' : 'cards are'} due for review. A few minutes keeps them strong.`;
-  if (next) return `Your next lesson is ready: ${next.deck}, ${next.lesson}. About ${Math.max(2, Math.round(next.cards / 4))} minutes.`;
-  return 'Time for a few minutes of study.';
+  if (due && (!next || due >= 10)) return plural('{n} card is due for review. A few minutes keeps them strong.', '{n} cards are due for review. A few minutes keeps them strong.', due);
+  if (next) return t('Your next lesson is ready: {deck}, {lesson}. About {x} minutes.', { deck: next.deck, lesson: next.lesson, x: Math.max(2, Math.round(next.cards / 4)) });
+  return t('Time for a few minutes of study.');
 }
 
 function studiedToday(): boolean {

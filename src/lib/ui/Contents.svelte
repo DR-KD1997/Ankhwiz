@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { plural, shownName, stageName, t } from '../i18n';
+  import AnswerLinks from './AnswerLinks.svelte';
   import Help from './Help.svelte';
   import { offerPart } from '../tour.svelte';
   // Cards: every card of the deck by unit and lesson, with search, labels,
@@ -32,10 +34,10 @@
   });
 
   const allLabels = $derived([...new Set(Object.values(deck.notes).flatMap((n) => n.labels ?? []))].sort());
-  const lessonList = $derived(deck.units.flatMap((u) => u.lessonIds.map((id) => ({ id, name: deck.lessons[id].name, unit: u.name }))));
+  const lessonList = $derived(deck.units.flatMap((u) => u.lessonIds.map((id) => ({ id, name: shownName(deck.lessons[id].name), unit: shownName(u.name) }))));
 
   const text = (n: Note) =>
-    n.occlusion ? `${n.front ? `${n.front} · ` : ''}Picture, ${n.occlusion.shapes.length} hidden ${n.occlusion.shapes.length === 1 ? 'part' : 'parts'}` : n.cloze ? filledIn(n.front) : n.front;
+    n.occlusion ? plural('{x}Picture, {n} hidden part', '{x}Picture, {n} hidden parts', n.occlusion.shapes.length, { x: n.front ? `${n.front} · ` : '' }) : n.cloze ? filledIn(n.front) : n.front;
   function cardsOf(n: Note): string[] {
     return cardIds(deck, n);
   }
@@ -83,7 +85,7 @@
 
   function edit(edits: Edit[], message = '') {
     const r = editDeck(deck.id, edits);
-    notice = message || (r.skipped ? 'Some changes could not be made.' : '');
+    notice = message || (r.skipped ? t('Some changes could not be made.') : '');
     return r;
   }
 
@@ -125,8 +127,8 @@
     if (!markLang && voiceLangs.length) markLang = voiceLangs[0];
   });
   function pick(e: Event) {
-    const t = e.currentTarget as HTMLTextAreaElement;
-    const text = t.value.slice(t.selectionStart ?? 0, t.selectionEnd ?? 0).trim();
+    const el = e.currentTarget as HTMLTextAreaElement;
+    const text = el.value.slice(el.selectionStart ?? 0, el.selectionEnd ?? 0).trim();
     if (text) picked = text.slice(0, 120);
   }
   function addMark() {
@@ -224,7 +226,7 @@
         },
       ]);
       open(null, form.lessonId);
-      notice = 'Card added. Add another, or go back to the list.';
+      notice = t('Card added. Add another, or go back to the list.');
       return;
     }
     const id = editing!;
@@ -257,7 +259,7 @@
 
   function deleteCard() {
     if (!editing) return;
-    edit([{ op: 'delete', noteId: editing }], 'Card removed.');
+    edit([{ op: 'delete', noteId: editing }], t('Card removed.'));
     close();
   }
 
@@ -265,7 +267,7 @@
     for (const file of Array.from(files ?? [])) {
       const name = await freeName(deck.id, file.name);
       if (await putMedia(deck.id, name, file)) form[side] = [...form[side], name];
-      else notice = 'This device could not store the file.';
+      else notice = t('This device could not store the file.');
     }
   }
 
@@ -273,20 +275,20 @@
   const day = (d: number) => new Date(d * 86_400_000).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
   const dueText = (c: CardState) => {
     const days = Math.round((c.due - now()) / 86_400_000);
-    return days <= 0 ? 'Due now' : days === 1 ? 'Due tomorrow' : `Due in ${days} days`;
+    return days <= 0 ? t('Due now') : days === 1 ? t('Due tomorrow') : t('Due in {days} days', { days });
   };
   const cardName = (id: string) =>
     id.endsWith(':r')
-      ? 'Other way round'
+      ? t('Other way round')
       : id.includes(':c')
-        ? `Gap ${id.split(':c')[1]}`
+        ? t('Gap {x}', { x: id.split(':c')[1] })
         : id.includes(':o')
-          ? `Part ${id.split(':o')[1]}`
+          ? t('Part {x}', { x: id.split(':o')[1] })
           : deck.notes[id]?.occlusion
-            ? `Part ${Math.min(...deck.notes[id].occlusion!.shapes.map((s) => s.ord))}`
+            ? t('Part {x}', { x: Math.min(...deck.notes[id].occlusion!.shapes.map((s) => s.ord)) })
             : deck.notes[id]?.cloze
               ? 'Gap 1'
-              : 'Question to answer';
+              : t('Question to answer');
 
   function rename(kind: 'lesson' | 'unit', id: string) {
     if (!newName.trim()) return;
@@ -297,10 +299,10 @@
 
 <section class="contents">
   <header>
-    <button class="icon-btn" aria-label={editing || adding ? 'Back to cards' : 'Back to lessons'} onclick={() => (editing || adding ? close() : openPanel('path'))}>
+    <button class="icon-btn" aria-label={editing || adding ? t('Back to cards') : t('Back to lessons')} onclick={() => (editing || adding ? close() : openPanel('path'))}>
       <Icon name="back" />
     </button>
-    <h1 class="display">{adding ? 'New card' : editing ? 'Edit card' : 'Cards'}</h1>
+    <h1 class="display">{adding ? t('New card') : editing ? t('Edit card') : t('Cards')}</h1>
     {#if editing || adding}<Help part="editor" />{/if}
     {#if !editing && !adding}<span class="count">{filtering ? `${shown} of ` : ''}{Object.keys(deck.notes).length}</span>{/if}
   </header>
@@ -311,98 +313,98 @@
     {@const n = editing ? deck.notes[editing] : null}
     <div class="editor">
       {#if adding}
-        <div class="seg" role="group" aria-label="Kind of card">
-          <button aria-pressed={!form.picture} onclick={() => (form.picture = false)}>Question and answer</button>
-          <button aria-pressed={form.picture} onclick={() => ((form.picture = true), (form.occlusion ??= { image: '', shapes: [], hideAll: false }))}>Picture with hidden parts</button>
+        <div class="seg" role="group" aria-label={t('Kind of card')}>
+          <button aria-pressed={!form.picture} onclick={() => (form.picture = false)}>{t('Question and answer')}</button>
+          <button aria-pressed={form.picture} onclick={() => ((form.picture = true), (form.occlusion ??= { image: '', shapes: [], hideAll: false }))}>{t('Picture with hidden parts')}</button>
         </div>
       {/if}
       {#if form.picture}
         <OcclusionEditor deckId={deck.id} bind:value={form.occlusion} />
       {/if}
       <div class="field" data-tour="e-fields">
-        <label for="q-main">{form.picture ? 'Heading' : 'Question'} <small>{form.picture ? 'Optional: shown above the picture' : 'Write gaps as {{c1::answer}} for a fill-the-gap card'}</small></label>
+        <label for="q-main">{form.picture ? t('Heading') : t('Question')} <small>{form.picture ? t('Optional: shown above the picture') : 'Write gaps as {{c1::answer}} for a fill-the-gap card'}</small></label>
         <div class="more-list" use:sortable={{ onMove: (a, b) => reorderFields('front', a, b) }}>
         <div class="more-row" data-sort>
-          {#if form.frontMore.length}<button class="grip" data-grip aria-label="Move question field 1: hold and drag, or use the arrow keys"><Icon name="grip" /></button>{/if}
+          {#if form.frontMore.length}<button class="grip" data-grip aria-label={t('Move question field 1: hold and drag, or use the arrow keys')}><Icon name="grip" /></button>{/if}
           <textarea id="q-main" class="input" rows={form.picture ? 1 : 3} bind:value={form.front} dir="auto" onselect={pick} onkeyup={pick} onpointerup={pick}></textarea>
           {#if !form.picture && !isCloze && !form.frontMore.length}
-            <button class="plus" aria-label="Add another question field" onclick={() => (form.frontMore = [...form.frontMore, ''])}><Icon name="plus" size={18} /></button>
+            <button class="plus" aria-label={t('Add another question field')} onclick={() => (form.frontMore = [...form.frontMore, ''])}><Icon name="plus" size={18} /></button>
           {/if}
         </div>
         {#each form.frontMore as _, i (i)}
           <div class="more-row" data-sort>
-            <button class="grip" data-grip aria-label="Move question field {i + 2}: hold and drag, or use the arrow keys"><Icon name="grip" /></button>
-            <input class="input {step(i)}" aria-label="Question field {i + 2}" bind:value={form.frontMore[i]} dir="auto" />
-            <button class="minus" aria-label="Remove question field {i + 2}" onclick={() => (form.frontMore = form.frontMore.filter((_, j) => j !== i))}><Icon name="close" size={16} /></button>
+            <button class="grip" data-grip aria-label={t('Move question field {x}: hold and drag, or use the arrow keys', { x: i + 2 })}><Icon name="grip" /></button>
+            <input class="input {step(i)}" aria-label={t('Question field {x}', { x: i + 2 })} bind:value={form.frontMore[i]} dir="auto" />
+            <button class="minus" aria-label={t('Remove question field {x}', { x: i + 2 })} onclick={() => (form.frontMore = form.frontMore.filter((_, j) => j !== i))}><Icon name="close" size={16} /></button>
             {#if i === form.frontMore.length - 1}
-              <button class="plus" aria-label="Add another question field" onclick={() => (form.frontMore = [...form.frontMore, ''])}><Icon name="plus" size={18} /></button>
+              <button class="plus" aria-label={t('Add another question field')} onclick={() => (form.frontMore = [...form.frontMore, ''])}><Icon name="plus" size={18} /></button>
             {/if}
           </div>
         {/each}
         </div>
-        {#if form.frontMore.length}<small>The first field is the main question (asked the other way round when this kind of card is asked both ways); the others show under it, smaller{form.frontMore.length > 2 ? ', and after the third, behind an arrow' : ''}.</small>{/if}
+        {#if form.frontMore.length}<small>{t('The first field is the main question (asked the other way round when this kind of card is asked both ways); the others show under it, smaller{x}.', { x: form.frontMore.length > 2 ? t(', and after the third, behind an arrow') : '' })}</small>{/if}
       </div>
       {#if form.picture}
         <!-- a picture card has no written answer: its parts are the answers -->
       {:else if gaps.length && !form.back.trim()}
-        <p class="hint">Fill-the-gap card with {gaps.length} {gaps.length === 1 ? 'gap' : 'gaps'}: each gap is asked on its own.</p>
+        <p class="hint">{plural('Fill-the-gap card with {n} gap: each gap is asked on its own.', 'Fill-the-gap card with {n} gaps: each gap is asked on its own.', gaps.length)}</p>
       {:else}
         <label class="field">
-          <span>Answer</span>
+          <span>{t('Answer')}</span>
           <textarea class="input" rows="2" bind:value={form.back} dir="auto" onselect={pick} onkeyup={pick} onpointerup={pick}></textarea>
         </label>
       {/if}
       {#if deck.options.look.speak !== 'off' && !form.picture}
         <div class="voices-edit">
-          <span class="label">Read in another language</span>
+          <span class="label">{t('Read in another language')}</span>
           <div class="pick-row">
-            <span class="picked" dir="auto">{picked ? `“${picked}”` : 'Select words in the question or answer'}</span>
-            <select class="input" aria-label="Language for the selected words" bind:value={markLang}>
+            <span class="picked" dir="auto">{picked ? `“${picked}”` : t('Select words in the question or answer')}</span>
+            <select class="input" aria-label={t('Language for the selected words')} bind:value={markLang}>
               {#each voiceLangs as l (l)}<option value={l}>{flagOf(l)} {langName(l)}</option>{/each}
             </select>
-            <button class="quiet" disabled={!picked || !markLang} onclick={addMark}>Mark</button>
+            <button class="quiet" disabled={!picked || !markLang} onclick={addMark}>{t('Mark')}</button>
           </div>
           {#each form.voices as v, i (v.text + v.lang)}
-            <button class="chip" aria-label="Unmark {v.text}" onclick={() => (form.voices = form.voices.filter((_, j) => j !== i))}><span class="marked" lang={v.lang}>{v.text}</span> · {flagOf(v.lang)} {langName(v.lang)} <Icon name="close" size={12} /></button>
+            <button class="chip" aria-label={t('Unmark {text}', { text: v.text })} onclick={() => (form.voices = form.voices.filter((_, j) => j !== i))}><span class="marked" lang={v.lang}>{v.text}</span> · {flagOf(v.lang)} {langName(v.lang)} <Icon name="close" size={12} /></button>
           {/each}
-          {#if !form.voices.length}<small>Marked words are read in their own language wherever they appear, such as the Spanish in “What does la manzana mean?”.</small>{/if}
+          {#if !form.voices.length}<small>{t('Marked words are read in their own language wherever they appear, such as the Spanish in “What does la manzana mean?”.')}</small>{/if}
         </div>
       {/if}
       <div class="media-edit" data-tour="e-media">
-        <span class="label">Question pictures and sounds</span>
+        <span class="label">{t('Question pictures and sounds')}</span>
         <Media deckId={deck.id} names={form.qmedia} small />
         {#each form.qmedia as m (m)}
           <button class="chip" onclick={() => (form.qmedia = form.qmedia.filter((x) => x !== m))}>{isAudio(m) ? '♪' : '▣'} {m} <Icon name="close" size={12} /></button>
         {/each}
-        <label class="quiet attach">Add<input type="file" accept="image/*,audio/*" multiple onchange={(e) => attach('qmedia', e.currentTarget.files)} /></label>
+        <label class="quiet attach">{t('Add')}<input type="file" accept="image/*,audio/*" multiple onchange={(e) => attach('qmedia', e.currentTarget.files)} /></label>
       </div>
       {#if !isCloze}
         <div class="media-edit">
-          <span class="label">Answer pictures and sounds</span>
+          <span class="label">{t('Answer pictures and sounds')}</span>
           <Media deckId={deck.id} names={form.amedia} small />
           {#each form.amedia as m (m)}
             <button class="chip" onclick={() => (form.amedia = form.amedia.filter((x) => x !== m))}>{isAudio(m) ? '♪' : '▣'} {m} <Icon name="close" size={12} /></button>
           {/each}
-          <label class="quiet attach">Add<input type="file" accept="image/*,audio/*" multiple onchange={(e) => attach('amedia', e.currentTarget.files)} /></label>
+          <label class="quiet attach">{t('Add')}<input type="file" accept="image/*,audio/*" multiple onchange={(e) => attach('amedia', e.currentTarget.files)} /></label>
         </div>
       {/if}
       <div class="field">
-        <label for="x-main">Extra <small>An example or note, shown after answering</small></label>
+        <label for="x-main">{t('Extra')} <small>{t('An example or note, shown after answering')}</small></label>
         <div class="more-list" use:sortable={{ onMove: (a, b) => reorderFields('extra', a, b) }}>
         <div class="more-row" data-sort>
-          {#if form.extraMore.length}<button class="grip" data-grip aria-label="Move extra field 1: hold and drag, or use the arrow keys"><Icon name="grip" /></button>{/if}
+          {#if form.extraMore.length}<button class="grip" data-grip aria-label={t('Move extra field 1: hold and drag, or use the arrow keys')}><Icon name="grip" /></button>{/if}
           <textarea id="x-main" class="input" rows="2" bind:value={form.extra} dir="auto"></textarea>
           {#if form.extra.trim() && !form.extraMore.length}
-            <button class="plus" aria-label="Add another extra field" onclick={() => (form.extraMore = [...form.extraMore, ''])}><Icon name="plus" size={18} /></button>
+            <button class="plus" aria-label={t('Add another extra field')} onclick={() => (form.extraMore = [...form.extraMore, ''])}><Icon name="plus" size={18} /></button>
           {/if}
         </div>
         {#each form.extraMore as _, i (i)}
           <div class="more-row" data-sort>
-            <button class="grip" data-grip aria-label="Move extra field {i + 2}: hold and drag, or use the arrow keys"><Icon name="grip" /></button>
-            <input class="input {step(i)}" aria-label="Extra field {i + 2}" bind:value={form.extraMore[i]} dir="auto" />
-            <button class="minus" aria-label="Remove extra field {i + 2}" onclick={() => (form.extraMore = form.extraMore.filter((_, j) => j !== i))}><Icon name="close" size={16} /></button>
+            <button class="grip" data-grip aria-label={t('Move extra field {x}: hold and drag, or use the arrow keys', { x: i + 2 })}><Icon name="grip" /></button>
+            <input class="input {step(i)}" aria-label={t('Extra field {x}', { x: i + 2 })} bind:value={form.extraMore[i]} dir="auto" />
+            <button class="minus" aria-label={t('Remove extra field {x}', { x: i + 2 })} onclick={() => (form.extraMore = form.extraMore.filter((_, j) => j !== i))}><Icon name="close" size={16} /></button>
             {#if i === form.extraMore.length - 1}
-              <button class="plus" aria-label="Add another extra field" onclick={() => (form.extraMore = [...form.extraMore, ''])}><Icon name="plus" size={18} /></button>
+              <button class="plus" aria-label={t('Add another extra field')} onclick={() => (form.extraMore = [...form.extraMore, ''])}><Icon name="plus" size={18} /></button>
             {/if}
           </div>
         {/each}
@@ -410,31 +412,39 @@
       </div>
       <label class="check">
         <input type="checkbox" bind:checked={form.selfCheck} />
-        <span>You check this card yourself <small>See the answer and say how close you were, instead of being marked</small></span>
+        <span>{t('You check this card yourself')} <small>{t('See the answer and say how close you were, instead of being marked')}</small></span>
       </label>
       {#if deck.options.buildSentences !== false && !form.picture && !form.selfCheck}
         <label class="check">
           <input type="checkbox" checked={!form.noBuild} onchange={(e) => (form.noBuild = !e.currentTarget.checked)} />
-          <span>Build the answer from words <small>In the first two stages, answers of three words or more are put together from word tiles</small></span>
+          <span>{t('Build the answer from words')} <small>{t('In the first two stages, answers of three words or more are put together from word tiles')}</small></span>
         </label>
       {/if}
       <label class="field" data-tour="e-more">
-        <span>Also accepted <small>Other right answers, separated by commas</small></span>
+        <span>{t('Also accepted')} <small>{t('Other right answers, separated by commas')}</small></span>
         <input class="input" bind:value={form.alts} dir="auto" />
       </label>
       {#if !isCloze && editing}
         <label class="field">
-          <span>Wrong options <small>Shown first in multiple choice, separated by commas</small></span>
+          <span>{t('Wrong options')} <small>{t('Shown first in multiple choice, separated by commas')}</small></span>
           <input class="input" bind:value={form.wrong} dir="auto" />
         </label>
       {/if}
+      {#if !isCloze && editing && !form.picture}
+        <AnswerLinks
+          deckId={deck.id}
+          noteId={editing}
+          onAlts={(more) => (form.alts = [form.alts, ...more].filter((x) => x.trim()).join(', '))}
+          onWrong={(more) => (form.wrong = [form.wrong, ...more].filter((x) => x.trim()).join(', '))}
+        />
+      {/if}
       <label class="field">
-        <span>Labels <small>Your own tags, separated by commas</small></span>
+        <span>{t('Labels')} <small>{t('Your own tags, separated by commas')}</small></span>
         <input class="input" bind:value={form.labels} list="labels" />
         <datalist id="labels">{#each allLabels as l (l)}<option value={l}></option>{/each}</datalist>
       </label>
       <label class="field">
-        <span>Lesson</span>
+        <span>{t('Lesson')}</span>
         <select class="input" bind:value={form.lessonId}>
           {#each lessonList as l (l.id)}<option value={l.id}>{l.unit !== deck.name ? `${l.unit} · ` : ''}{l.name}</option>{/each}
         </select>
@@ -442,7 +452,7 @@
 
       {#if n}
         <div class="history plain">
-          <p class="label">History {#if n.ai}<span class="tag">AI</span>{/if}</p>
+          <p class="label">{t('History')} {#if n.ai}<span class="tag">{t('AI')}</span>{/if}</p>
           {#each cardsOf(n) as cid (cid)}
             {@const c = progress[cid]}
             <div class="hrow">
@@ -450,22 +460,21 @@
                 <strong>{cardName(cid)}</strong>
                 {#if c}
                   <small>
-                    Stage {c.stage} · {limits.stageNames[c.stage - 1]} · {c.suspended ? 'Stopped' : dueText(c)} · {c.reps}
-                    {c.reps === 1 ? 'answer' : 'answers'}, {c.lapses} wrong{c.added != null ? ` · first met ${day(c.added)}` : ''}
+                    {plural('Stage {stage} · {x} · {c} · {n} answer, {lapses} wrong{x3}', 'Stage {stage} · {x} · {c} · {n} answers, {lapses} wrong{x3}', c.reps, { stage: c.stage, x: stageName(limits.stageNames[c.stage - 1]), c: c.suspended ? t('Stopped') : dueText(c), lapses: c.lapses, x3: c.added != null ? ' · ' + t('first met {date}', { date: day(c.added) }) : '' })}
                   </small>
                   {#if c.hist?.length}
-                    <span class="dots" aria-label="Recent answers">
+                    <span class="dots" aria-label={t('Recent answers')}>
                       {#each c.hist.slice(-12) as h, i (i)}<i class:ok={h.ok} title="{day(h.day)}: {h.ok ? 'right' : 'wrong'}"></i>{/each}
                     </span>
                   {/if}
                 {:else}
-                  <small>Not met yet</small>
+                  <small>{t('Not met yet')}</small>
                 {/if}
               </span>
               {#if c?.suspended || (c?.buried ?? null) !== null}
-                <button class="quiet small" onclick={() => flagCard(deck.id, cid, 'resume')}>Resume</button>
+                <button class="quiet small" onclick={() => flagCard(deck.id, cid, 'resume')}>{t('Resume')}</button>
               {:else if c}
-                <button class="quiet small" onclick={() => flagCard(deck.id, cid, 'stop')} title="Anki: suspend">Stop asking</button>
+                <button class="quiet small" onclick={() => flagCard(deck.id, cid, 'stop')} title={t('Anki: suspend')}>{t('Stop asking')}</button>
               {/if}
             </div>
           {/each}
@@ -475,39 +484,39 @@
       <div class="actions">
         {#if editing}
           {#if confirmDelete}
-            <button class="quiet danger" onclick={deleteCard}>Remove for good</button>
+            <button class="quiet danger" onclick={deleteCard}>{t('Remove for good')}</button>
           {:else}
-            <button class="icon-btn" aria-label="Remove card" onclick={() => (confirmDelete = true)}><Icon name="trash" /></button>
+            <button class="icon-btn" aria-label={t('Remove card')} onclick={() => (confirmDelete = true)}><Icon name="trash" /></button>
           {/if}
         {/if}
         <span class="grow"></span>
-        <button class="quiet" onclick={close}>Cancel</button>
-        <button class="primary" disabled={!valid} onclick={saveCard}>{adding ? 'Add card' : 'Save'}</button>
+        <button class="quiet" onclick={close}>{t('Cancel')}</button>
+        <button class="primary" disabled={!valid} onclick={saveCard}>{adding ? t('Add card') : t('Save')}</button>
       </div>
     </div>
   {:else}
     <div class="filters">
       <label class="search">
         <Icon name="search" size={18} />
-        <input bind:value={query} placeholder="Search cards" aria-label="Search cards" />
+        <input bind:value={query} placeholder={t('Search cards')} aria-label={t('Search cards')} />
       </label>
       <div class="pair">
-        <select class="input" bind:value={show} aria-label="Show">
-          <option value="all">All cards</option>
-          <option value="new">Not met yet</option>
-          <option value="tricky">Tricky</option>
-          <option value="stopped">Stopped</option>
-          <option value="ai">Written by AI</option>
-          {#if deck.sources?.length}<option value="unsourced">Not found in sources</option>{/if}
+        <select class="input" bind:value={show} aria-label={t('Show')}>
+          <option value="all">{t('All cards')}</option>
+          <option value="new">{t('Not met yet')}</option>
+          <option value="tricky">{t('Tricky')}</option>
+          <option value="stopped">{t('Stopped')}</option>
+          <option value="ai">{t('Written by AI')}</option>
+          {#if deck.sources?.length}<option value="unsourced">{t('Not found in sources')}</option>{/if}
         </select>
         {#if allLabels.length}
-          <select class="input" bind:value={label} aria-label="Label">
-            <option value="">Any label</option>
+          <select class="input" bind:value={label} aria-label={t('Label')}>
+            <option value="">{t('Any label')}</option>
             {#each allLabels as l (l)}<option value={l}>{l}</option>{/each}
           </select>
         {/if}
       </div>
-      <button class="quiet add" onclick={() => open(null)}><Icon name="plus" size={18} /> Add a card</button>
+      <button class="quiet add" onclick={() => open(null)}><Icon name="plus" size={18} /> {t('Add a card')}</button>
     </div>
 
     {#each groups as g (g.unit.id)}
@@ -515,13 +524,13 @@
       <div class="unit">
         {#if renaming === g.unit.id}
           <form class="rename" onsubmit={(e) => (e.preventDefault(), rename('unit', g.unit.id))}>
-            <input class="input" bind:value={newName} aria-label="Unit name" />
-            <button class="quiet">Rename</button>
+            <input class="input" bind:value={newName} aria-label={t('Unit name')} />
+            <button class="quiet">{t('Rename')}</button>
           </form>
         {:else}
           <p class="label unit-name">
             {g.unit.name}
-            <button class="link" onclick={() => ((renaming = g.unit.id), (newName = g.unit.name))}>Rename</button>
+            <button class="link" onclick={() => ((renaming = g.unit.id), (newName = g.unit.name))}>{t('Rename')}</button>
           </p>
         {/if}
         {#each g.lessons as l, li (l.lesson.id)}
@@ -530,15 +539,15 @@
               <div class="lhead">
                 {#if renaming === l.lesson.id}
                   <form class="rename" onsubmit={(e) => (e.preventDefault(), rename('lesson', l.lesson.id))}>
-                    <input class="input" bind:value={newName} aria-label="Lesson name" />
-                    <button class="quiet">Rename</button>
+                    <input class="input" bind:value={newName} aria-label={t('Lesson name')} />
+                    <button class="quiet">{t('Rename')}</button>
                   </form>
                 {:else}
                   <strong class="grow">{l.lesson.name} <small>· {l.lesson.noteIds.length}</small></strong>
-                  <button class="icon-btn s" aria-label="Rename {l.lesson.name}" onclick={() => ((renaming = l.lesson.id), (newName = l.lesson.name))}><Icon name="edit" size={16} /></button>
-                  <button class="icon-btn s" aria-label="Move {l.lesson.name} up" onclick={() => edit([{ op: 'shiftLesson', lessonId: l.lesson.id, delta: -1 }])}><Icon name="up" size={16} /></button>
-                  <button class="icon-btn s" aria-label="Move {l.lesson.name} down" onclick={() => edit([{ op: 'shiftLesson', lessonId: l.lesson.id, delta: 1 }])}><Icon name="down" size={16} /></button>
-                  <button class="icon-btn s" aria-label="Add a card to {l.lesson.name}" onclick={() => open(null, l.lesson.id)}><Icon name="plus" size={16} /></button>
+                  <button class="icon-btn s" aria-label={t('Rename {name}', { name: l.lesson.name })} onclick={() => ((renaming = l.lesson.id), (newName = l.lesson.name))}><Icon name="edit" size={16} /></button>
+                  <button class="icon-btn s" aria-label={t('Move {name} up', { name: l.lesson.name })} onclick={() => edit([{ op: 'shiftLesson', lessonId: l.lesson.id, delta: -1 }])}><Icon name="up" size={16} /></button>
+                  <button class="icon-btn s" aria-label={t('Move {name} down', { name: l.lesson.name })} onclick={() => edit([{ op: 'shiftLesson', lessonId: l.lesson.id, delta: 1 }])}><Icon name="down" size={16} /></button>
+                  <button class="icon-btn s" aria-label={t('Add a card to {name}', { name: l.lesson.name })} onclick={() => open(null, l.lesson.id)}><Icon name="plus" size={16} /></button>
                 {/if}
               </div>
               <ul>
@@ -551,11 +560,11 @@
                         {#if !n.cloze}<span class="back" dir="auto">{n.back}</span>{/if}
                       </span>
                       <span class="badges">
-                        {#if n.qmedia?.length || n.amedia?.length}<i title="Has media">▣</i>{/if}
-                        {#if n.cloze}<i title="Fill the gap">[ ]</i>{/if}
-                        {#if n.ai}<span class="tag">AI</span>{/if}
-                        {#if st.stopped}<span class="tag">Stopped</span>{/if}
-                        <span class="stage" class:none={!st.met} title={st.met ? `Stage ${st.stage}` : 'Not met yet'}>{st.met ? st.stage : '·'}</span>
+                        {#if n.qmedia?.length || n.amedia?.length}<i title={t('Has media')}>▣</i>{/if}
+                        {#if n.cloze}<i title={t('Fill the gap')}>[ ]</i>{/if}
+                        {#if n.ai}<span class="tag">{t('AI')}</span>{/if}
+                        {#if st.stopped}<span class="tag">{t('Stopped')}</span>{/if}
+                        <span class="stage" class:none={!st.met} title={st.met ? `Stage ${st.stage}` : t('Not met yet')}>{st.met ? st.stage : '·'}</span>
                       </span>
                     </button>
                   </li>
@@ -563,7 +572,7 @@
               </ul>
               {#if !filtering && li === g.lessons.length - 1}
                 <button class="link" onclick={() => edit([{ op: 'addLesson', unitId: g.unit.id, name: `Lesson ${Object.keys(deck.lessons).length + 1}` }])}>
-                  + New lesson in {g.unit.name}
+                  {t('+ New lesson in {name}', { name: g.unit.name })}
                 </button>
               {/if}
             </div>
@@ -572,9 +581,9 @@
       </div>
       {/if}
     {/each}
-    {#if filtering && shown === 0}<p class="hint">No cards match.</p>{/if}
+    {#if filtering && shown === 0}<p class="hint">{t('No cards match.')}</p>{/if}
     {#if shown > limit}
-      <button class="quiet more" onclick={() => (limit += PAGE)}>Show {Math.min(PAGE, shown - limit)} more cards ({shown - limit} not shown yet)</button>
+      <button class="quiet more" onclick={() => (limit += PAGE)}>{t('Show {limit} more cards ({limit2} not shown yet)', { limit: Math.min(PAGE, shown - limit), limit2: shown - limit })}</button>
     {/if}
   {/if}
 </section>

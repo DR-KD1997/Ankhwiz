@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '../i18n';
   // The reading round: a short text to read, then a few questions on it.
   // With the AI connection, Thoth writes a story from the words the learner
   // has studied and it is kept for later, so stories can be prepared ahead
@@ -41,24 +42,24 @@
   }
 
   async function newStory() {
-    busy = 'Thoth is writing a story from the words you know…';
+    busy = t('Thoth is writing a story from the words you know…');
     error = '';
     try {
       await writeStory();
     } catch (e) {
-      error = e instanceof Error ? e.message : 'The story could not be written.';
+      error = e instanceof Error ? t(e.message) : t('The story could not be written.');
     } finally {
       busy = '';
     }
   }
 
   async function prepare() {
-    busy = 'Preparing three stories for later…';
+    busy = t('Preparing three stories for later…');
     error = '';
     try {
       for (let i = 0; i < 3; i++) await writeStory(true);
     } catch (e) {
-      error = e instanceof Error ? e.message : 'The stories could not be written.';
+      error = e instanceof Error ? t(e.message) : t('The stories could not be written.');
     } finally {
       busy = '';
     }
@@ -68,7 +69,7 @@
     error = '';
     const round = offlineRound(deck, progress, { unitId: unitId || undefined });
     if (!round) {
-      error = 'There are not enough sentences made of words you have studied yet. Meet more cards, or let Thoth write a story.';
+      error = t('There are not enough sentences made of words you have studied yet. Meet more cards, or let Thoth write a story.');
       return;
     }
     open({ kind: 'cards', round });
@@ -117,43 +118,43 @@
 
 <section class="read">
   <header>
-    <button class="icon-btn" aria-label="Back" onclick={() => (shown ? (shown = null) : openPanel('practice'))}><Icon name="back" /></button>
-    <h1 class="display">Reading round</h1>
+    <button class="icon-btn" aria-label={t('Back')} onclick={() => (shown ? (shown = null) : openPanel('practice'))}><Icon name="back" /></button>
+    <h1 class="display">{t('Reading round')}</h1>
   </header>
 
   {#if !shown}
-    <p class="hint">A short text to read, then a few questions. Tap any word to see what it means on your cards. Practice only: nothing changes when your cards come back.</p>
+    <p class="hint">{t('A short text to read, then a few questions. Tap any word to see what it means on your cards. Practice only: nothing changes when your cards come back.')}</p>
     {#if online}
       <div class="choice card">
-        <span class="grow"><strong>A new story by Thoth</strong><small>Written from the {known.size} words you have studied, with two or three new ones. Kept, so you can read it again.</small></span>
-        <button class="quiet go" disabled={!!busy || known.size < 8} onclick={newStory}>Write</button>
+        <span class="grow"><strong>{t('A new story by Thoth')}</strong><small>{t('Written from the {knownCount} words you have studied, with two or three new ones. Kept, so you can read it again.', { knownCount: known.size })}</small></span>
+        <button class="quiet go" disabled={!!busy || known.size < 8} onclick={newStory}>{t('Write')}</button>
       </div>
     {/if}
     {#if prepared.length}
-      <p class="label">Ready to read{online ? '' : ' without a connection'}</p>
+      <p class="label">{t('Ready to read{x}', { x: online ? '' : t(' without a connection') })}</p>
       {#each prepared as r (r.id)}
         <button class="choice card" onclick={() => open({ kind: 'story', reading: r })}>
-          <span class="grow"><strong>{r.title}</strong><small>A story by Thoth · {share(r.passage)}% words you know</small></span>
+          <span class="grow"><strong>{r.title}</strong><small>{t('A story by Thoth · {passage}% words you know', { passage: share(r.passage) })}</small></span>
           <Icon name="play" size={18} />
         </button>
       {/each}
     {/if}
     <div class="choice card">
       <span class="grow"
-        ><strong>From your cards</strong><small>Sentences from your cards and their examples, made mostly of words you have studied, easiest first. Works without a connection.</small>
+        ><strong>{t('From your cards')}</strong><small>{t('Sentences from your cards and their examples, made mostly of words you have studied, easiest first. Works without a connection.')}</small>
         {#if deck.units.length > 1}
-          <select class="input" bind:value={unitId} aria-label="Unit">
-            <option value="">The whole deck</option>
+          <select class="input" bind:value={unitId} aria-label={t('Unit')}>
+            <option value="">{t('The whole deck')}</option>
             {#each deck.units as u (u.id)}<option value={u.id}>{u.name}</option>{/each}
           </select>
         {/if}
       </span>
-      <button class="quiet go" onclick={fromCards}>Start</button>
+      <button class="quiet go" onclick={fromCards}>{t('Start')}</button>
     </div>
     {#if online}
-      <button class="quiet" disabled={!!busy || known.size < 8} onclick={prepare}><Icon name="download" size={18} /> Prepare three stories for later</button>
+      <button class="quiet" disabled={!!busy || known.size < 8} onclick={prepare}><Icon name="download" size={18} /> {t('Prepare three stories for later')}</button>
     {:else}
-      <p class="hint">Set up the AI connection in Settings and Thoth can write stories from the words you know, and prepare some for times without a connection.</p>
+      <p class="hint">{t('Set up the AI connection in Settings and Thoth can write stories from the words you know, and prepare some for times without a connection.')}</p>
     {/if}
     {#if busy}<p class="hint" role="status">{busy}</p>{/if}
     {#if error}<p class="hint bad" role="alert">{error}</p>{/if}
@@ -164,12 +165,12 @@
       <article class="passage card" {lang}>
         <div class="top">
           <p class="label">{shown.reading.title}</p>
-          {#if lang}<button class="icon-btn" aria-label="Read it to me" onclick={() => shown?.kind === 'story' && speak(shown.reading.passage, lang)}><Icon name="sound" /></button>{/if}
+          {#if lang}<button class="icon-btn" aria-label={t('Read it to me')} onclick={() => shown?.kind === 'story' && speak(shown.reading.passage, lang)}><Icon name="sound" /></button>{/if}
         </div>
         <p class="text">
           {#each tokens(shown.reading.passage) as tk, i (i)}{#if tk.word}<button class="tok" class:new={!tk.known} onclick={() => tap(tk.t)}>{tk.t}</button>{:else}{tk.t}{/if}{/each}
         </p>
-        <p class="small">Underlined words are not on the cards you have studied yet.</p>
+        <p class="small">{t('Underlined words are not on the cards you have studied yet.')}</p>
       </article>
     {:else}
       <ol class="sentences">
@@ -177,9 +178,9 @@
           <li class="card" {lang}>
             <p class="text">
               {#each tokens(s.text) as tk, j (j)}{#if tk.word}<button class="tok" class:new={!tk.known} onclick={() => tap(tk.t)}>{tk.t}</button>{:else}{tk.t}{/if}{/each}
-              {#if lang}<button class="icon-btn small-btn" aria-label="Read it to me" onclick={() => speak(s.text, lang)}><Icon name="sound" size={16} /></button>{/if}
+              {#if lang}<button class="icon-btn small-btn" aria-label={t('Read it to me')} onclick={() => speak(s.text, lang)}><Icon name="sound" size={16} /></button>{/if}
             </p>
-            {#if revealed.has(i)}<p class="small">{s.translation}</p>{:else}<button class="link" onclick={() => (revealed = new Set([...revealed, i]))}>Show the translation</button>{/if}
+            {#if revealed.has(i)}<p class="small">{s.translation}</p>{:else}<button class="link" onclick={() => (revealed = new Set([...revealed, i]))}>{t('Show the translation')}</button>{/if}
           </li>
         {/each}
       </ol>
@@ -187,18 +188,18 @@
     {#if word}
       <div class="word card" role="status">
         <strong>{word.text}</strong>
-        <span>{word.meaning ?? 'Not on your cards yet.'}</span>
-        <button class="icon-btn" aria-label="Close" onclick={() => (word = null)}><Icon name="close" size={16} /></button>
+        <span>{word.meaning ?? t('Not on your cards yet.')}</span>
+        <button class="icon-btn" aria-label={t('Close')} onclick={() => (word = null)}><Icon name="close" size={16} /></button>
       </div>
     {/if}
     {#if score !== null}
-      <p class="done card" role="status">{score} of {questions.length} right.</p>
+      <p class="done card" role="status">{t('{score} of {questionsCount} right.', { score, questionsCount: questions.length })}</p>
       <div class="pair">
-        <button class="quiet" onclick={() => (shown = null)}>Another round</button>
-        <button class="primary" onclick={() => openPanel('practice')}>Done</button>
+        <button class="quiet" onclick={() => (shown = null)}>{t('Another round')}</button>
+        <button class="primary" onclick={() => openPanel('practice')}>{t('Done')}</button>
       </div>
     {:else}
-      <button class="primary" disabled={!questions.length} onclick={() => (quiz = true)}>Check your reading · {questions.length} questions</button>
+      <button class="primary" disabled={!questions.length} onclick={() => (quiz = true)}>{t('Check your reading · {questionsCount} questions', { questionsCount: questions.length })}</button>
     {/if}
   {/if}
 </section>

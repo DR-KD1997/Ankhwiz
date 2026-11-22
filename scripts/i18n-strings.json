@@ -1,0 +1,7327 @@
+[
+ {
+  "text": "Ankhwiz could not start.",
+  "kind": "text",
+  "where": "src/App.svelte"
+ },
+ {
+  "text": "The learning core did not load in this view ({failed}). Try the desktop or Android app, or a current browser.",
+  "kind": "text",
+  "where": "src/App.svelte"
+ },
+ {
+  "text": "This deck could not be opened.",
+  "kind": "text",
+  "where": "src/App.svelte"
+ },
+ {
+  "text": "Back to your decks",
+  "kind": "text",
+  "where": "src/App.svelte"
+ },
+ {
+  "text": "Opening {name}…",
+  "kind": "text",
+  "where": "src/App.svelte"
+ },
+ {
+  "text": "Something went wrong.",
+  "kind": "text",
+  "where": "src/lib/ai.svelte.ts"
+ },
+ {
+  "text": "{n} choices this time. Take your time.",
+  "kind": "text",
+  "where": "src/lib/core/thoth.ts"
+ },
+ {
+  "text": "{n} cards are due. I suggest a review before anything new.",
+  "kind": "plural:{n} card is due. I suggest a review before anything new.",
+  "where": "src/lib/core/thoth.ts"
+ },
+ {
+  "text": "{n} cards are due for review today.",
+  "kind": "plural:{n} card is due for review today.",
+  "where": "src/lib/core/thoth.ts"
+ },
+ {
+  "text": "First day recorded.",
+  "kind": "text",
+  "where": "src/lib/core/thoth.ts"
+ },
+ {
+  "text": "{n} days in a row.",
+  "kind": "plural:{n} day in a row.",
+  "where": "src/lib/core/thoth.ts"
+ },
+ {
+  "text": "This file is not a readable .ankh deck.",
+  "kind": "text",
+  "where": "src/lib/export/ankh.ts"
+ },
+ {
+  "text": "Part of this .ankh file ({name}) is damaged.",
+  "kind": "text",
+  "where": "src/lib/export/ankh.ts"
+ },
+ {
+  "text": "This file is not an Ankhwiz deck.",
+  "kind": "text",
+  "where": "src/lib/export/ankh.ts"
+ },
+ {
+  "text": "This deck was saved by a newer Ankhwiz. Update Ankhwiz to open it.",
+  "kind": "text",
+  "where": "src/lib/export/ankh.ts"
+ },
+ {
+  "text": "This .ankh file has no deck in it.",
+  "kind": "text",
+  "where": "src/lib/export/ankh.ts"
+ },
+ {
+  "text": "This file is not a readable Ankhwiz library.",
+  "kind": "text",
+  "where": "src/lib/export/library.ts"
+ },
+ {
+  "text": "Part of this library file ({name}) is damaged.",
+  "kind": "text",
+  "where": "src/lib/export/library.ts"
+ },
+ {
+  "text": "This file is not an Ankhwiz library.",
+  "kind": "text",
+  "where": "src/lib/export/library.ts"
+ },
+ {
+  "text": "This library was saved by a newer Ankhwiz. Update Ankhwiz to open it.",
+  "kind": "text",
+  "where": "src/lib/export/library.ts"
+ },
+ {
+  "text": " {n} media files were not on this device and were left out.",
+  "kind": "plural: {n} media file was not on this device and were left out.",
+  "where": "src/lib/exporting.ts"
+ },
+ {
+  "text": "{notes} notes and {cards} cards exported for Anki{x}. {where}{missing}",
+  "kind": "text",
+  "where": "src/lib/exporting.ts"
+ },
+ {
+  "text": ", with progress",
+  "kind": "text",
+  "where": "src/lib/exporting.ts"
+ },
+ {
+  "text": "Deck saved as an Ankhwiz file{x}. {where}{missing}",
+  "kind": "text",
+  "where": "src/lib/exporting.ts"
+ },
+ {
+  "text": "{n} decks backed up with progress and settings. {where}{x2}",
+  "kind": "plural:{n} deck backed up with progress and settings. {where}{x2}",
+  "where": "src/lib/exporting.ts"
+ },
+ {
+  "text": "Library restored: {n} decks, with progress and settings.",
+  "kind": "plural:Library restored: {n} deck, with progress and settings.",
+  "where": "src/lib/exporting.ts"
+ },
+ {
+  "text": "; {n} already here were left as they are",
+  "kind": "plural:; {n} already here was left as they are",
+  "where": "src/lib/exporting.ts"
+ },
+ {
+  "text": "Something new. Read it once; I shall ask in a moment.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "A new entry for the scroll. Look it over.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Here is the next one. Take it in before we go on.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Two choices to begin with.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "You have just seen it. Which is it?",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "A short list this time.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Choose with care.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Now write it yourself. The colours will guide you.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Type it out. Green means you are on the right path.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Put the words in order. Some of them do not belong.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Build the answer word by word. Leave out the strays.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "A scribe sets each sign in its place. Tap the words in order.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "No colours now. Trust what you know.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Write it from memory. I will check when you are done.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Write your answer, then compare it with mine. Answer honestly.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "You judge this one. Think of the answer, then look. An honest mark helps you most.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "I cannot mark this card myself. Recall it, show the answer, and say how close you were.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "No hints in a test. Answer what you know.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Take your time. This is only to see what you know already.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "You knew this already. I have opened the unit for you.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Well known. The scroll moves ahead.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Not yet. The lessons will build it up properly.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Some of this is still new to you. That is what the lessons are for.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "A good stretch of days. Habit is the scribe’s best tool.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Day after day. That is how scrolls get written.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "A whole month and more. Even the scribes of Thebes took days off.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Remarkable steadiness. I have noted it twice.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Write it in your own words. I will read it.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "No fixed wording here. Tell me what you know.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Nearly. Check your spelling and try once more.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Correct.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Just so.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Well remembered.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "That is right.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Correct. That one moves up a stage.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Well done. I have marked it as stronger.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Not this time. It will come round again shortly.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Not quite. Note the answer; we shall return to it.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "A clean lesson. The scroll is longer than it was this morning.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Carefully done. That is how knowledge is kept.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Good work. The ones you missed will return until they stay.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "A fair lesson. What slipped today will be asked again.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "A hard one, and you finished it. That counts.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "These will take a few more passes. That is how it goes.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Your earlier lessons are in good order again.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Reviewed and recorded.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Welcome. Add a deck and we can begin.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Your next lesson is ready when you are.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Every lesson here has been introduced. Reviews will keep them strong.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Nothing is due. Come back tomorrow, or start the next lesson.",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Check",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Continue",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Correct",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Not quite",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Answer: {answer}",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Moved up a stage",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Practice: the schedule is unchanged",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Show the answer",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "How close were you?",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Missed it",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Partly",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Got it",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Lesson complete",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Review complete",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Practice complete",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "All decks done",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Unit passed",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Not this time",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "{n} days in a row",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "{n} card",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "{n} cards",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "{n} review",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "{n} reviews",
+  "kind": "line",
+  "where": "src/lib/i18n/en.ts"
+ },
+ {
+  "text": "Your answer",
+  "kind": "text",
+  "where": "src/lib/i18n/index.ts"
+ },
+ {
+  "text": "continue",
+  "kind": "text",
+  "where": "src/lib/i18n/index.ts"
+ },
+ {
+  "text": "The import stopped.",
+  "kind": "text",
+  "where": "src/lib/import/background.ts"
+ },
+ {
+  "text": "This view cannot open Anki files. Use the desktop or Android app, or the Ankhwiz HTML file.",
+  "kind": "text",
+  "where": "src/lib/import/sql.ts"
+ },
+ {
+  "text": "open_link",
+  "kind": "text",
+  "where": "src/lib/platform.ts"
+ },
+ {
+  "text": "your computer's password store (Windows Credential Manager or the Linux keyring; a private file if there is none)",
+  "kind": "text",
+  "where": "src/lib/platform.ts"
+ },
+ {
+  "text": "this app's private storage, encrypted with a key from the Android Keystore",
+  "kind": "text",
+  "where": "src/lib/platform.ts"
+ },
+ {
+  "text": "this browser's storage for this page, which is not encrypted",
+  "kind": "text",
+  "where": "src/lib/platform.ts"
+ },
+ {
+  "text": "Saved to {x}.",
+  "kind": "text",
+  "where": "src/lib/platform.ts"
+ },
+ {
+  "text": "The file could not be saved.",
+  "kind": "text",
+  "where": "src/lib/platform.ts"
+ },
+ {
+  "text": "Sent to your downloads. If nothing arrived, this view blocks downloads; use the desktop or Android app.",
+  "kind": "text",
+  "where": "src/lib/platform.ts"
+ },
+ {
+  "text": "What does “{text}” mean?",
+  "kind": "text",
+  "where": "src/lib/practice.ts"
+ },
+ {
+  "text": "Which word fills the gap? “{gapped}”",
+  "kind": "text",
+  "where": "src/lib/practice.ts"
+ },
+ {
+  "text": "True or false: “{text}” means “{shown}”.",
+  "kind": "text",
+  "where": "src/lib/practice.ts"
+ },
+ {
+  "text": "True",
+  "kind": "text",
+  "where": "src/lib/practice.ts"
+ },
+ {
+  "text": "False",
+  "kind": "text",
+  "where": "src/lib/practice.ts"
+ },
+ {
+  "text": "Languages and voices",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Its place in your library",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Unused card fields",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Answers that mean the same",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Fairer wrong options",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Lesson names",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Notes on similar answers",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Stories for reading rounds",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Check for doubtful cards",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Languages",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Before preparing for Ankhwiz",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Already set",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Could not tell; choose them in Deck options",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Already sorted",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Could not tell; sort it from the library",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "None",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "{n} fields to check",
+  "kind": "plural:{n} field to check",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "{n} links on this device",
+  "kind": "plural:{n} link on this device",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "{n} from Thoth to check",
+  "kind": "plural:{n} from Thoth to check",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "None found",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Wrong options for {n} cards",
+  "kind": "plural:Wrong options for {n} card",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "{n} cards look doubtful",
+  "kind": "plural:{n} card looks doubtful",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Already named",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "{n} lessons to name",
+  "kind": "plural:{n} lesson to name",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "No close pairs",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "{n} notes written",
+  "kind": "plural:{n} note written",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Not enough words yet",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "{n} stories",
+  "kind": "plural:{n} story",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Not run",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Needs the AI connection",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Stopped",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Languages: {q}{a}",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Reading aloud is on.",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Placed under {where}",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "From the deck’s Anki name",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "From its languages",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Suggested by Thoth",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Delete the text of {n} unused fields",
+  "kind": "plural:Delete the text of {n} unused field",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "{names}: in {count} cards, never shown.",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "{n} answers linked on this device",
+  "kind": "plural:{n} answer linked on this device",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "{n} answers linked",
+  "kind": "plural:{n} answer linked",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "same meaning",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "close, never offered against each other",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Extra right answers for {n} cards",
+  "kind": "plural:Extra right answers for {n} card",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Kept: they get the label “thoth-check”, to find them in Cards.",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "{n} lessons named by theme",
+  "kind": "plural:{n} lesson named by theme",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "{n} notes on similar answers",
+  "kind": "plural:{n} note on similar answers",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "{n} stories for reading rounds",
+  "kind": "plural:{n} story for reading rounds",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "These fields cannot be changed.",
+  "kind": "text",
+  "where": "src/lib/remap.ts"
+ },
+ {
+  "text": "{n} cards would have no question or no answer with these fields. Choose other fields.",
+  "kind": "plural:{n} card would have no question or no answer with these fields. Choose other fields.",
+  "where": "src/lib/remap.ts"
+ },
+ {
+  "text": "{n} cards are due for review. A few minutes keeps them strong.",
+  "kind": "plural:{n} card is due for review. A few minutes keeps them strong.",
+  "where": "src/lib/reminders.ts"
+ },
+ {
+  "text": "Your next lesson is ready: {deck}, {lesson}. About {x} minutes.",
+  "kind": "text",
+  "where": "src/lib/reminders.ts"
+ },
+ {
+  "text": "Time for a few minutes of study.",
+  "kind": "text",
+  "where": "src/lib/reminders.ts"
+ },
+ {
+  "text": "Reed marimba",
+  "kind": "text",
+  "where": "src/lib/sounds.ts"
+ },
+ {
+  "text": "Warm and wooden",
+  "kind": "text",
+  "where": "src/lib/sounds.ts"
+ },
+ {
+  "text": "Lyre",
+  "kind": "text",
+  "where": "src/lib/sounds.ts"
+ },
+ {
+  "text": "A plucked string",
+  "kind": "text",
+  "where": "src/lib/sounds.ts"
+ },
+ {
+  "text": "Temple bell",
+  "kind": "text",
+  "where": "src/lib/sounds.ts"
+ },
+ {
+  "text": "A bell and a sistrum",
+  "kind": "text",
+  "where": "src/lib/sounds.ts"
+ },
+ {
+  "text": "Soft pop",
+  "kind": "text",
+  "where": "src/lib/sounds.ts"
+ },
+ {
+  "text": "Round, bouncy blips",
+  "kind": "text",
+  "where": "src/lib/sounds.ts"
+ },
+ {
+  "text": "The page could not be reached. Check the address and the connection.",
+  "kind": "text",
+  "where": "src/lib/sources.ts"
+ },
+ {
+  "text": "That page needs a sign-in or does not allow readers like Ankhwiz. Open it yourself and paste its text instead.",
+  "kind": "text",
+  "where": "src/lib/sources.ts"
+ },
+ {
+  "text": "The page answered with an error ({status}).",
+  "kind": "text",
+  "where": "src/lib/sources.ts"
+ },
+ {
+  "text": "That address is a PDF. Download it and add it as a file instead.",
+  "kind": "text",
+  "where": "src/lib/sources.ts"
+ },
+ {
+  "text": "No readable text was found on that page. It may build itself with scripts; open it and paste its text instead.",
+  "kind": "text",
+  "where": "src/lib/sources.ts"
+ },
+ {
+  "text": "This Word file could not be opened.",
+  "kind": "text",
+  "where": "src/lib/sources.ts"
+ },
+ {
+  "text": "This file is not a Word document (.docx).",
+  "kind": "text",
+  "where": "src/lib/sources.ts"
+ },
+ {
+  "text": "This PDF is locked with a password.",
+  "kind": "text",
+  "where": "src/lib/sources.ts"
+ },
+ {
+  "text": "This PDF could not be read.",
+  "kind": "text",
+  "where": "src/lib/sources.ts"
+ },
+ {
+  "text": "This PDF has no text to read: its pages may be scans or pictures.",
+  "kind": "text",
+  "where": "src/lib/sources.ts"
+ },
+ {
+  "text": "Ankhwiz cannot read .{ext} files yet. Save it as PDF, Word (.docx) or text, and add that.",
+  "kind": "text",
+  "where": "src/lib/sources.ts"
+ },
+ {
+  "text": "This file does not look like text, a PDF or a Word document.",
+  "kind": "text",
+  "where": "src/lib/sources.ts"
+ },
+ {
+  "text": "Add the language’s voice in your phone’s settings, under Text-to-speech output.",
+  "kind": "text",
+  "where": "src/lib/speech.ts"
+ },
+ {
+  "text": "Add the language’s voice in Windows Settings, under Time & language › Speech.",
+  "kind": "text",
+  "where": "src/lib/speech.ts"
+ },
+ {
+  "text": "Install a voice for the language for speech-dispatcher, such as espeak-ng or RHVoice.",
+  "kind": "text",
+  "where": "src/lib/speech.ts"
+ },
+ {
+  "text": "Your browser or system has no voice for this language.",
+  "kind": "text",
+  "where": "src/lib/speech.ts"
+ },
+ {
+  "text": "A part of this deck is missing ({i}).",
+  "kind": "text",
+  "where": "src/lib/storage.ts"
+ },
+ {
+  "text": "New deck",
+  "kind": "text",
+  "where": "src/lib/store.svelte.ts"
+ },
+ {
+  "text": "Before changing the fields of {x}",
+  "kind": "text",
+  "where": "src/lib/store.svelte.ts"
+ },
+ {
+  "text": "a note type",
+  "kind": "text",
+  "where": "src/lib/store.svelte.ts"
+ },
+ {
+  "text": "Before restoring an earlier copy",
+  "kind": "text",
+  "where": "src/lib/store.svelte.ts"
+ },
+ {
+  "text": "a card type",
+  "kind": "text",
+  "where": "src/lib/store.svelte.ts"
+ },
+ {
+  "text": "The fields could not be changed.",
+  "kind": "text",
+  "where": "src/lib/store.svelte.ts"
+ },
+ {
+  "text": "Before giving cards a card type",
+  "kind": "text",
+  "where": "src/lib/store.svelte.ts"
+ },
+ {
+  "text": "Before deleting the text of unused fields",
+  "kind": "text",
+  "where": "src/lib/store.svelte.ts"
+ },
+ {
+  "text": "All decks",
+  "kind": "text",
+  "where": "src/lib/store.svelte.ts"
+ },
+ {
+  "text": "The sections “{name}” draws on were not found in the sources.",
+  "kind": "text",
+  "where": "src/lib/thothBuild.ts"
+ },
+ {
+  "text": "Welcome",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Welcome. I'm Thoth, scribe of the gods and keeper of your cards. Shall I show you the basics? It takes about a minute.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Let's begin with a sample deck of everyday Spanish. Tap Add the sample deck.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Every deck is split into units, and units into short lessons that open one after another. Start Lesson 1.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "First you meet each new card: the question with its answer. No pressure yet. Tap Continue when you have read it.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Now I ask it. Tap the answer you think is right.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Then tap Check. Once you check, your answer counts, so take your time before.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Each card climbs five stages. My help fades as it climbs: choices first, then typing with hints, then plain typing.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Carry on to the end of the lesson. I will be back then.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Lesson done. Reviews bring each card back just before you would forget it, starting tomorrow.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Tap Continue to go back to the deck.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Your streak of days in a row lives here, and reviews appear at the top when cards are due. A few minutes a day is plenty.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Deck options, the card editor, Test out and studying with me can wait. I will explain each one the first time you open it, and the ? beside it explains it again.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Deck options",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "How much to study: new lessons for your daily goal, and how many reviews a day at most.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Ask both ways also asks the answer back to you. The other way round is spread out, so one never gives the other away. Long answers can be built from word tiles.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "How cards look, and Read aloud: a speaker button by each question and answer, in the languages you set.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Importing from Anki",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Anki notes have fields. Choose which become the question, the answer and the extra; drag them into order. You can change this later in Deck options.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Your progress from Anki can come with the deck, so you carry on where you left off.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "When the fields look right, import. Big decks show how far they have got.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "The card editor",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "The question and the answer. More fields can show with the question; drag them into order.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Other answers you will accept, such as \"apple\" without \"the\", and wrong options I may show beside the answer. Leave them empty and I pick some from your deck.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Add pictures and sounds, or make a picture card with hidden parts for me to ask about.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Testing out of a unit",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Already know this unit? A short quiz with no help. Pass it and the unit opens.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Its cards then start at stage 3, and any you miss go back to the beginning. One try a day.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Studying with Thoth",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "For this I need an AI service of your own, set up in Settings. Nothing is sent anywhere until you do.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Then ask me anything about your cards, and I explain. I can also add cards, improve them, set a challenge round, or write a short reading passage.",
+  "kind": "text",
+  "where": "src/lib/tour.svelte.ts"
+ },
+ {
+  "text": "Ask",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Add cards",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Improve",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Challenge",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Reading",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "About {x} tokens will be sent, using the {x2} model.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "larger",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "quick",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Added with Thoth",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Added {noteIdsCount} cards as new lessons in “{unit}”. They are marked AI on the lesson screen.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Tricky cards",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Thoth found nothing to add to these cards.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Updated {changed} cards.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Nothing was selected.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "The lesson names already fit.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Lesson names updated.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Before Thoth: {x}{x2}",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": " The deck as it was is kept under Deck options › Backups.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Add a passage and at least one question with a right answer and a wrong one.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Back to lessons",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Study with Thoth",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "No AI connection yet.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Connect a service of your own (OpenAI, Gemini, Grok, OpenRouter, a model on this computer, or any compatible address) and I can answer questions, draft cards, set challenge rounds and write reading passages.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Open Settings",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Before the first request",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Your AI model runs on this computer, so nothing leaves it.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "When you use a feature here, the cards it needs from this deck and whatever you type are sent to",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": ", under your own key and that service's terms. Nothing is sent at other times.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "AI can be wrong. New cards and changes are shown as drafts for you to approve, and are marked “AI” afterwards.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "I understand",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Features",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Ask about anything this deck covers. Answers draw on its cards first.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Thoth is thinking…",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Your question",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Start over",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Drafts. Edit them, untick any you do not want, then add the rest.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Keep this card",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Front",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Answer",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Also accepted: {x}",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Discard",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Add {length} cards",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Topic",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "what the new cards should cover",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "e.g. vegetables, the French Revolution",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Source text",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "optional: paste notes or an article and the cards will come only from it",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "How many",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Proposed changes",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "{x}. Untick any you do not want.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Make this change",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Keep a backup of the deck as it is now",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Make {length} changes",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Change the deck in your own words",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "e.g. Add an example sentence to each card's Extra · Make the answers lowercase · Add five more fruits to the Fruit lesson",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Apply to",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "The whole deck",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Unit: {name}",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Lesson: {name}",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Only the first 150 cards are sent; choose a unit or lesson to reach the rest.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "{scopeArgs} You see every change before anything is made.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Or let Thoth suggest",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Suggestions. Untick anything you disagree with. Flags are for you to act on; they change nothing.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Check this card: {flag}",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Also accept “{a}”",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Wrong option “{w}”",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Apply selected",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Proposed lesson names.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Use this name",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "New name",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Rename lessons",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Lesson",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Thoth suggests other accepted answers and harder wrong options, and flags doubtful cards",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Tricky cards ({sentNotesCount})",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Propose names for all lessons",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "AI",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Written for this round. It does not change your review schedule.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Challenge complete: {challengeScore} of {challengeCount}.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Five fresh questions on what you have met so far, asked in new ways. A challenge round is extra practice: it never moves a card's stage or due date.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Show the passage",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "You answered {readScore} of {questionsCount} correctly.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Back to passages",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Remove",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Passage",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Question {x}",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Question",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Right answer",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Wrong answer{x}",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": " (optional)",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Wrong answer",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Add a question",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Cancel",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Save passage",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Read a passage, then answer questions about it. Questions can be yours or Thoth's.",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "{questionsCount} questions{x}{x2}",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": " · AI",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Topic for a new passage",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "optional",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Thoth chooses if left empty",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Use my own passage",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "From: {x} · {at}",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerExtras.svelte"
+ },
+ {
+  "text": "a source",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerExtras.svelte"
+ },
+ {
+  "text": "Not found in your sources",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerExtras.svelte"
+ },
+ {
+  "text": "Open the page",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerExtras.svelte"
+ },
+ {
+  "text": "Added by you",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Found on this device",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Found on this device: the same question, another answer",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Found on this device: the same answer, another question",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Suggested by Thoth: same meaning",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Suggested by Thoth: close in meaning",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Thoth could not be asked.",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Answers like this, on other cards",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "{text}: {kind}. Tap to change.",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Same",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Close",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "None yet.",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Not related",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Nothing else found.",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Looking…",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Find answers like this",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "On this device + Thoth · 1 request",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "On this device",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Thoth is reading…",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Check this card",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Thoth · 1 request",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Thoth found nothing to change.",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Thoth:",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Also right: {list}",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Add",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Wrong options: {list}",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "Same: either answer counts on both cards. Close: never offered against each other. Links are saved straight away.",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerLinks.svelte"
+ },
+ {
+  "text": "On this device · from the deck’s Anki name",
+  "kind": "text",
+  "where": "src/lib/ui/ArrangePanel.svelte"
+ },
+ {
+  "text": "On this device · from its card languages",
+  "kind": "text",
+  "where": "src/lib/ui/ArrangePanel.svelte"
+ },
+ {
+  "text": "Thoth · from what the cards are about",
+  "kind": "text",
+  "where": "src/lib/ui/ArrangePanel.svelte"
+ },
+ {
+  "text": "Back to the library",
+  "kind": "text",
+  "where": "src/lib/ui/ArrangePanel.svelte"
+ },
+ {
+  "text": "Arrange your library",
+  "kind": "text",
+  "where": "src/lib/ui/ArrangePanel.svelte"
+ },
+ {
+  "text": "Suggestions",
+  "kind": "text",
+  "where": "src/lib/ui/ArrangePanel.svelte"
+ },
+ {
+  "text": "Move it",
+  "kind": "text",
+  "where": "src/lib/ui/ArrangePanel.svelte"
+ },
+ {
+  "text": "No thanks",
+  "kind": "text",
+  "where": "src/lib/ui/ArrangePanel.svelte"
+ },
+ {
+  "text": "Moved.",
+  "kind": "text",
+  "where": "src/lib/ui/ArrangePanel.svelte"
+ },
+ {
+  "text": "Left where it is.",
+  "kind": "text",
+  "where": "src/lib/ui/ArrangePanel.svelte"
+ },
+ {
+  "text": "Ask Thoth about the other {n}",
+  "kind": "text",
+  "where": "src/lib/ui/ArrangePanel.svelte"
+ },
+ {
+  "text": "Thoth · 1 request a deck",
+  "kind": "text",
+  "where": "src/lib/ui/ArrangePanel.svelte"
+ },
+ {
+  "text": "Move a deck",
+  "kind": "text",
+  "where": "src/lib/ui/ArrangePanel.svelte"
+ },
+ {
+  "text": "Not sorted yet",
+  "kind": "text",
+  "where": "src/lib/ui/ArrangePanel.svelte"
+ },
+ {
+  "text": "Move",
+  "kind": "text",
+  "where": "src/lib/ui/ArrangePanel.svelte"
+ },
+ {
+  "text": "Moving a deck never changes its cards or progress. Subjects and topics are only how the library is arranged; a deck can also stay unsorted.",
+  "kind": "text",
+  "where": "src/lib/ui/ArrangePanel.svelte"
+ },
+ {
+  "text": "{n} rows added to the list.",
+  "kind": "plural:{n} row added to the list.",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": "{n} cards added to {unitName}.",
+  "kind": "plural:{n} card added to {unitName}.",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": "This deck has no card type to type cards into. Open Card types to give its cards one, or add cards in Cards.",
+  "kind": "text",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": "Card types",
+  "kind": "text",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": "Card type",
+  "kind": "text",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": "Unit",
+  "kind": "text",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": "Add to the list",
+  "kind": "text",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": "Rows",
+  "kind": "text",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": "Add these rows to the list",
+  "kind": "text",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": "To add · {draftsCount}",
+  "kind": "text",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": "Cards to add",
+  "kind": "text",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": "{c} of card {x}",
+  "kind": "text",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": "Remove card {x}",
+  "kind": "text",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": "Add {n} cards to {unitName}",
+  "kind": "plural:Add {n} card to {unitName}",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": "Cards go into lessons of {lessonSize} in the order you add them. Change any card later in Cards, and the fields or the layout in Card types.",
+  "kind": "text",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": "Shown with the question",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Extra (after answering)",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Shown after answering",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Not shown",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Field {n}",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Saved. A backup of the deck was made first.",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Layout saved.",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "{n} cards made in Ankhwiz",
+  "kind": "plural:{n} card made in Ankhwiz",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "They use the standard layout. Give them a card type to name their fields and design how they look in Anki and here.",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Give them a card type",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "This deck has no card types yet.",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Name",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Editor",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Simple",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Layout code",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Fields",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Move {name} up",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Move {name} down",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Field name",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Part of the card for {name}",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Remove {name}",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Add a field",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Changing the question or the answer makes these different cards: {n} studied cards start again.",
+  "kind": "plural:Changing the question or the answer makes these different cards: {n} studied card starts again.",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "{n} cards would have no question or answer.",
+  "kind": "plural:{n} card would have no question or answer.",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Undo changes",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Save fields",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Ask both ways",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Also asks the answer and wants the question back.",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Show this card's layout with the answer",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "As well as Ankhwiz's own, after you answer. Change it under Layout code.",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Card",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Part",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Back",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Styling",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Insert",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "The front names no field, so every card's front would be the same.",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Anki's template language: {x}, {x2} for fields that may be empty, {x3} on the back. Scripts are left out, so shared decks stay safe. Ankhwiz asks cards its own way; this layout is what Anki shows, and what Ankhwiz shows with the answer when you turn that on.",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "{{Field}}",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "{{#Field}}…{{/Field}}",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "{{FrontSide}}",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Save layout",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Preview",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Previous note",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "{x} of {notesCount}",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Next note",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "{x}Picture, {n} hidden parts",
+  "kind": "plural:{x}Picture, {n} hidden part",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Some changes could not be made.",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Card added. Add another, or go back to the list.",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Card removed.",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "This device could not store the file.",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Due now",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Due tomorrow",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Due in {days} days",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Other way round",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Gap {x}",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Part {x}",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Question to answer",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Kind of card",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Question and answer",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Picture with hidden parts",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Move question field 1: hold and drag, or use the arrow keys",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Add another question field",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Move question field {x}: hold and drag, or use the arrow keys",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Question field {x}",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Remove question field {x}",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "The first field is the main question (asked the other way round when this kind of card is asked both ways); the others show under it, smaller{x}.",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": ", and after the third, behind an arrow",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Fill-the-gap card with {n} gaps: each gap is asked on its own.",
+  "kind": "plural:Fill-the-gap card with {n} gap: each gap is asked on its own.",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Read in another language",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Language for the selected words",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Mark",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Unmark {text}",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Marked words are read in their own language wherever they appear, such as the Spanish in “What does la manzana mean?”.",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Question pictures and sounds",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Answer pictures and sounds",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Extra",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "An example or note, shown after answering",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Move extra field 1: hold and drag, or use the arrow keys",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Add another extra field",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Move extra field {x}: hold and drag, or use the arrow keys",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Extra field {x}",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Remove extra field {x}",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "You check this card yourself",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "See the answer and say how close you were, instead of being marked",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Build the answer from words",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "In the first two stages, answers of three words or more are put together from word tiles",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Also accepted",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Other right answers, separated by commas",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Wrong options",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Shown first in multiple choice, separated by commas",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Labels",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Your own tags, separated by commas",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "History",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Stage {stage} · {x} · {c} · {n} answers, {lapses} wrong{x3}",
+  "kind": "plural:Stage {stage} · {x} · {c} · {n} answer, {lapses} wrong{x3}",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Recent answers",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Not met yet",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Resume",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Anki: suspend",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Stop asking",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Remove for good",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Remove card",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Search cards",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Show",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "All cards",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Tricky",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Written by AI",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Not found in sources",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Label",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Any label",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Add a card",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Unit name",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Rename",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Lesson name",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Rename {name}",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Add a card to {name}",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Has media",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Fill the gap",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "+ New lesson in {name}",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "No cards match.",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Show {limit} more cards ({limit2} not shown yet)",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Learned",
+  "kind": "text",
+  "where": "src/lib/ui/DeckAside.svelte"
+ },
+ {
+  "text": "{introduced} of {total}",
+  "kind": "text",
+  "where": "src/lib/ui/DeckAside.svelte"
+ },
+ {
+  "text": "Due today",
+  "kind": "text",
+  "where": "src/lib/ui/DeckAside.svelte"
+ },
+ {
+  "text": "Streak",
+  "kind": "text",
+  "where": "src/lib/ui/DeckAside.svelte"
+ },
+ {
+  "text": "Asked later in the same lesson, never just after. Each day, only one way of a note comes up for review (Anki: bury siblings).",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Met the day after, among the reviews. Each day, only one way of a note comes up for review (Anki: bury siblings).",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Asked straight after the first way, and both can come up for review on the same day.",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "The deck could not be exported.",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Deleted the text of unused fields in {n} notes. A backup was made first.",
+  "kind": "plural:Deleted the text of unused fields in {n} note. A backup was made first.",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "There was nothing to delete.",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Prepare for Ankhwiz",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Preparing…",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Results to check",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Prepare again",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Prepare this deck",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Last prepared on {date}. Only cards added or changed since are looked at again.",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Voices, fair answers, lesson names and more, set up in one go: on this device, and with Thoth if the AI connection is set up.",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Daily goal",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "New lessons a day",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "{x} (Anki: new cards/day)",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Thoth says when the goal is reached; you can always go on",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "No goal",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Fewer new lessons",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "More new lessons",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Reviews a day",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "The rest wait until tomorrow (Anki: maximum reviews/day)",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Fewer reviews",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "More reviews",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Remembering",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Remember more or review less",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Review less",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Remember more",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Cards come back when you are likely to still remember {pct}% of them. Higher means more reviews. (Anki: desired retention)",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Card kinds",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Also show the answer and ask for the question, for each kind of card (Anki: reversed card)",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Cards made in Ankhwiz",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Also show the answer and ask for the question (Anki: reversed card)",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "When the other way round is asked",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Spread out",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Next day",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Straight after",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Build sentences",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "In the first two stages, answers of three words or more are put together from word tiles, with a few extra words mixed in. Each card can opt out in Cards.",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Require accents",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "When off, “melocoton” counts for “melocotón”",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Fill-the-gap cards: in Cards, write a question with gaps like",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "(Anki: cloze).",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Which Anki fields become the question, the answer and the extra. Changing the extra fields, or the question fields shown under the main one, keeps your progress; changing the main question or the answer starts those cards again.",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Unused fields",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "These Anki fields hold text that no card shows. It is kept so the deck can go back to Anki as it came; deleting it makes the deck smaller and quicker to open.",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "{type} · text in {n} notes · about {rCount}",
+  "kind": "plural:{type} · text in {n} note · about {rCount}",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Delete the text of these fields in every note? A backup of the deck is made first. If you later choose one of these fields for the question, answer or extra, it will be empty.",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Delete their text",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Delete the text of unused fields ({unusedSize})",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Lessons",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Lesson size",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Applies to lessons not yet started. Rename and reorder lessons in Cards.",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Smaller lessons",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Larger lessons",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Look",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Text size",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Font for cards",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Standard",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Serif",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Rounded",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Monospace",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Right-to-left text",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Otherwise each card's text picks its own direction",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Show Extra as a hint",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Before answering, instead of after",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Read aloud",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Question language",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "What the question side is read in",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "The device's own language",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Try the question voice",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Answer language",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "What the answer side is read in",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Same as the question",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Try the answer voice",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Read quotes in another language",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Words in quotes, like 'la manzana', are read in this language and the rest in the field's own. Words marked in Cards keep their own language.",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Language for words in quotes",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Off",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "No voice for {x} on this device yet. {x2} Settings › Voices can download one for many languages.",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "To have cards read by themselves as you go, choose what is read in Settings.",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Export",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Include progress",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Stages, due dates and recent answers",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Units as subdecks, lessons as tags",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Everything, exactly as it is here",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Backups",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Copies of this deck kept on this device, the newest {x}. Thoth's changes can make one first.",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "first",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "kept here",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "{t} · {orderCount} notes",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Restore",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Delete this backup",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Make a backup now",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Advanced",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Longest gap",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Days between reviews at most (Anki: maximum interval)",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Days to leave stage {x}",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "{x}: separate days with a correct answer",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Fewer days",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "More days",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Use these options everywhere",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Copies them to your {n} other decks (Anki: presets)",
+  "kind": "plural:Copies them to your {n} other deck (Anki: presets)",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Copy",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Anki note type kept for export: {name}",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Fields: {x}. Question from “{question}”, answer from “{answer}”.",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Remove deck",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Deletes the deck, its progress and its media from this device",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Keep",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "{n} of {total} learned",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "{n} due",
+  "kind": "plural:{n} due",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Move “{name}”",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "How decks are shown",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "By subject",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Lists",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "{n} topics",
+  "kind": "plural:{n} topic",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "{n} decks",
+  "kind": "plural:{n} deck",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Everything in {subject}",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Open",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Not sorted",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Most due first. The path under each name shows where it lives.",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Back to practice",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Dictation",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Hear a card, then write what you hear. Play it as often as you like. Words are checked one by one, so one slip does not fail the sentence, and a missing accent counts as nearly right. Practice only: nothing changes when your cards come back.",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Cards from",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "There is no voice for {heard} on this device, so only cards with their own sound can be used. {x}",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Start",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Done",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Again",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Card {x} of {itemsCount}",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Play",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Play slowly",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "First letters",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "What you hear",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Letters",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "You wrote: {x}",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Not in the sentence: {x}",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Move {what} field {n}: hold and drag, or use the arrow keys",
+  "kind": "text",
+  "where": "src/lib/ui/FieldMapper.svelte"
+ },
+ {
+  "text": "shown after answering",
+  "kind": "text",
+  "where": "src/lib/ui/FieldMapper.svelte"
+ },
+ {
+  "text": "Explain {name}",
+  "kind": "text",
+  "where": "src/lib/ui/Help.svelte"
+ },
+ {
+  "text": "Explain this",
+  "kind": "text",
+  "where": "src/lib/ui/Help.svelte"
+ },
+ {
+  "text": "Reading the notes",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Building lessons",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Saving pictures and sounds",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Saving the deck",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Matched: an Ankhwiz deck",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Matched: pictures with hidden parts",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Matched: fill the gap",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Matched from its card layout",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Matched by field names",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "The deck could not be imported.",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Import from Anki",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Deck name",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "{n} notes · fields: {x2}",
+  "kind": "plural:{n} note · fields: {x2}",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Each note is a picture with parts hidden; each part becomes a card. Parts with names are asked as questions; the rest you check yourself.",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "{x}Question to answer, and answer to the main question field.",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Anki asks this type both ways too. ",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "You check these cards yourself",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Units",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Group cards into units by",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "One unit per subdeck",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "One unit per tag",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "One unit, split into lessons",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "{n} units, each split into lessons of about {lessonSize} cards.",
+  "kind": "plural:{n} unit, each split into lessons of about {lessonSize} cards.",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "{n} cards will be self-check.",
+  "kind": "plural:{n} card will be self-check.",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "You see the answer and say how close you were.",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Bring my Anki progress",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Cards you know well start at a higher stage.",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "A speaker button by the question and the answer, with this device's own voices.",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Suggest lesson names and wrong options",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Opens Thoth's suggestions after importing. Uses your AI connection; you approve each one.",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Leave out fields no card shows",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "{x}. The deck is smaller and quicker to open, but goes back to Anki without them.",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Ready on this device",
+  "kind": "text",
+  "where": "src/lib/ui/LangPicker.svelte"
+ },
+ {
+  "text": "Ankhwiz can download a voice",
+  "kind": "text",
+  "where": "src/lib/ui/LangPicker.svelte"
+ },
+ {
+  "text": "Add a voice in the system's settings",
+  "kind": "text",
+  "where": "src/lib/ui/LangPicker.svelte"
+ },
+ {
+  "text": "Search: a language, country or code",
+  "kind": "text",
+  "where": "src/lib/ui/LangPicker.svelte"
+ },
+ {
+  "text": "Search languages",
+  "kind": "text",
+  "where": "src/lib/ui/LangPicker.svelte"
+ },
+ {
+  "text": "Use {typed}",
+  "kind": "text",
+  "where": "src/lib/ui/LangPicker.svelte"
+ },
+ {
+  "text": "No language matches “{query}”. A full code such as es-ES can be typed too.",
+  "kind": "text",
+  "where": "src/lib/ui/LangPicker.svelte"
+ },
+ {
+  "text": " on chosen days",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Daily reminder at {time}{days}, on days you haven’t studied",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": " {skipped} left out because a side had no text.",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Added “{name}”: {count} notes in {n} lessons{x2}.{left}",
+  "kind": "plural:Added “{name}”: {count} notes in {n} lesson{x2}.{left}",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "That file could not be read.",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "No notes found. Put one per line, with a tab, “ = ”, semicolon or comma between question and answer.",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "My deck",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Subjects",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Arrange",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Settings",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "This device is not letting the app save. Progress will last only until you close it.",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Pick up where you left off",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "{done} of {total} done",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Not now: start fresh next time",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Study all decks",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "{n} reviews due · about {x2} {x3}",
+  "kind": "plural:{n} review due · about {x2} {x3}",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "minute",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "minutes",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "One mixed session. Each card still counts toward its own deck.",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "New: Study all decks",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "When several decks have reviews due, do them all in one go from here.",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Your decks",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Add a deck",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Build a deck",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Paste a list",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Add the sample deck",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "What are you learning?",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "From files or pages",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Thoth plans lessons and writes cards from your PDFs, documents and web pages",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Words in",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Language of the words",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Not a language deck",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Meanings in",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Language of the meanings",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Create deck",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "One note per line",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Separate question and answer with a tab, “ = ”, a semicolon or a comma. A third column names the unit.",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Play sound {name}",
+  "kind": "text",
+  "where": "src/lib/ui/Media.svelte"
+ },
+ {
+  "text": "Picture {name} is not on this device",
+  "kind": "text",
+  "where": "src/lib/ui/Media.svelte"
+ },
+ {
+  "text": "Subject",
+  "kind": "text",
+  "where": "src/lib/ui/MoveDeck.svelte"
+ },
+ {
+  "text": "+ New subject",
+  "kind": "text",
+  "where": "src/lib/ui/MoveDeck.svelte"
+ },
+ {
+  "text": "Languages, Math, History…",
+  "kind": "text",
+  "where": "src/lib/ui/MoveDeck.svelte"
+ },
+ {
+  "text": "New subject",
+  "kind": "text",
+  "where": "src/lib/ui/MoveDeck.svelte"
+ },
+ {
+  "text": "+ New topic",
+  "kind": "text",
+  "where": "src/lib/ui/MoveDeck.svelte"
+ },
+ {
+  "text": "No topic",
+  "kind": "text",
+  "where": "src/lib/ui/MoveDeck.svelte"
+ },
+ {
+  "text": "Turkish, Trigonometry…",
+  "kind": "text",
+  "where": "src/lib/ui/MoveDeck.svelte"
+ },
+ {
+  "text": "New topic",
+  "kind": "text",
+  "where": "src/lib/ui/MoveDeck.svelte"
+ },
+ {
+  "text": "Moving a deck never changes its cards or progress.",
+  "kind": "text",
+  "where": "src/lib/ui/MoveDeck.svelte"
+ },
+ {
+  "text": "Move here",
+  "kind": "text",
+  "where": "src/lib/ui/MoveDeck.svelte"
+ },
+ {
+  "text": "Choose a picture",
+  "kind": "text",
+  "where": "src/lib/ui/OcclusionEditor.svelte"
+ },
+ {
+  "text": "Drag on the picture to hide a part. Name each part to have it asked as a question; unnamed parts you check yourself.",
+  "kind": "text",
+  "where": "src/lib/ui/OcclusionEditor.svelte"
+ },
+ {
+  "text": "Picture: drag to add a hidden part",
+  "kind": "text",
+  "where": "src/lib/ui/OcclusionEditor.svelte"
+ },
+ {
+  "text": "Part number",
+  "kind": "text",
+  "where": "src/lib/ui/OcclusionEditor.svelte"
+ },
+ {
+  "text": "Name (optional)",
+  "kind": "text",
+  "where": "src/lib/ui/OcclusionEditor.svelte"
+ },
+ {
+  "text": "Name of part {x}",
+  "kind": "text",
+  "where": "src/lib/ui/OcclusionEditor.svelte"
+ },
+ {
+  "text": "Remove part {x}",
+  "kind": "text",
+  "where": "src/lib/ui/OcclusionEditor.svelte"
+ },
+ {
+  "text": "Hide every part while asking about one",
+  "kind": "text",
+  "where": "src/lib/ui/OcclusionEditor.svelte"
+ },
+ {
+  "text": "Change picture",
+  "kind": "text",
+  "where": "src/lib/ui/OcclusionEditor.svelte"
+ },
+ {
+  "text": "The browser could not be opened. The address is",
+  "kind": "text",
+  "where": "src/lib/ui/OutLink.svelte"
+ },
+ {
+  "text": "{introduced} of {total} introduced",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Complete",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Back to library",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Days in a row",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Lesson in progress.",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Preparing is paused",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Preparing for Ankhwiz…",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "{done} of {total} steps done · you can keep studying",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Prepared: results to check",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Thoth’s suggestions wait for your OK.",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "This deck wasn’t made with Ankhwiz in mind.",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Shall I prepare it? I’ll set up voices, fair answers and lessons. Nothing in the cards’ own text changes.",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Not now",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Prepare…",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "{x} · {done} of {total} done",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Review",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "{n} cards due today",
+  "kind": "plural:{n} card due today",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Ask questions, add or change cards, challenge rounds, reading",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Daily goal, card kinds, look, export",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Cards",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Progress",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Practice{x}",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "From sources",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Today's goal of {n} new lessons is done. You can keep going.",
+  "kind": "plural:Today's goal of {n} new lesson is done. You can keep going.",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Unit {number}{x}",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Show {from} earlier lessons",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Strength {strength} of 5",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Show more lessons ({to} to go)",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "The card’s own answer.",
+  "kind": "text",
+  "where": "src/lib/ui/PickAllRound.svelte"
+ },
+ {
+  "text": "Linked as the same meaning.",
+  "kind": "text",
+  "where": "src/lib/ui/PickAllRound.svelte"
+ },
+ {
+  "text": "Missed: linked as the same meaning.",
+  "kind": "text",
+  "where": "src/lib/ui/PickAllRound.svelte"
+ },
+ {
+  "text": "That one is “{front}”.",
+  "kind": "text",
+  "where": "src/lib/ui/PickAllRound.svelte"
+ },
+ {
+  "text": "Pick all that fit",
+  "kind": "text",
+  "where": "src/lib/ui/PickAllRound.svelte"
+ },
+ {
+  "text": "Which of these can mean “{text}”?",
+  "kind": "text",
+  "where": "src/lib/ui/PickAllRound.svelte"
+ },
+ {
+  "text": "Select every one that fits. There may be more than one.",
+  "kind": "text",
+  "where": "src/lib/ui/PickAllRound.svelte"
+ },
+ {
+  "text": "Answers",
+  "kind": "text",
+  "where": "src/lib/ui/PickAllRound.svelte"
+ },
+ {
+  "text": "All found, nothing extra.",
+  "kind": "text",
+  "where": "src/lib/ui/PickAllRound.svelte"
+ },
+ {
+  "text": "{found} of {total} found",
+  "kind": "text",
+  "where": "src/lib/ui/PickAllRound.svelte"
+ },
+ {
+  "text": "{n} that do not fit",
+  "kind": "plural:{n} that does not fit",
+  "where": "src/lib/ui/PickAllRound.svelte"
+ },
+ {
+  "text": "check",
+  "kind": "text",
+  "where": "src/lib/ui/PickAllRound.svelte"
+ },
+ {
+  "text": "The picture {image} is not on this device.",
+  "kind": "text",
+  "where": "src/lib/ui/Picture.svelte"
+ },
+ {
+  "text": "Nothing to practise there yet: meet some cards in a lesson first.",
+  "kind": "text",
+  "where": "src/lib/ui/Practice.svelte"
+ },
+ {
+  "text": "Practice",
+  "kind": "text",
+  "where": "src/lib/ui/Practice.svelte"
+ },
+ {
+  "text": "Practice rounds are extra. They mark your answers but never change your stages or when cards come back.",
+  "kind": "text",
+  "where": "src/lib/ui/Practice.svelte"
+ },
+ {
+  "text": "One unit",
+  "kind": "text",
+  "where": "src/lib/ui/Practice.svelte"
+ },
+ {
+  "text": "Up to 20 cards you have met, in a shuffled order",
+  "kind": "text",
+  "where": "src/lib/ui/Practice.svelte"
+ },
+ {
+  "text": "Cram for a test",
+  "kind": "text",
+  "where": "src/lib/ui/Practice.svelte"
+ },
+ {
+  "text": "Your 20 weakest cards from the whole deck",
+  "kind": "text",
+  "where": "src/lib/ui/Practice.svelte"
+ },
+ {
+  "text": "Other ways to practise",
+  "kind": "text",
+  "where": "src/lib/ui/Practice.svelte"
+ },
+ {
+  "text": "Hear a card and write it, checked word by word",
+  "kind": "text",
+  "where": "src/lib/ui/Practice.svelte"
+ },
+ {
+  "text": "Unit recall",
+  "kind": "text",
+  "where": "src/lib/ui/Practice.svelte"
+ },
+ {
+  "text": "Write everything you remember from a unit; what you miss comes back tomorrow",
+  "kind": "text",
+  "where": "src/lib/ui/Practice.svelte"
+ },
+ {
+  "text": "Reading round",
+  "kind": "text",
+  "where": "src/lib/ui/Practice.svelte"
+ },
+ {
+  "text": "A short text made of words you know, then a few questions{x}",
+  "kind": "text",
+  "where": "src/lib/ui/Practice.svelte"
+ },
+ {
+  "text": "; Thoth can write stories",
+  "kind": "text",
+  "where": "src/lib/ui/Practice.svelte"
+ },
+ {
+  "text": "Waiting",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Working",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Skipped",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Did not finish",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Paused",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Stopping…",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Finished",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Nothing is sent while paused. Resume any time.",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "You can leave this screen and keep studying: it carries on in the background.",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Pause",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Stop",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Thoth · {done} of {of}",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "See what changed",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "A backup was made first: Deck options › Backups can undo all of this later too.",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Applied · on this device",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Redo",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Undo",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Check before keeping",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Thoth",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "This device",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Same meaning",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "And {n} more.",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Drop",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Close list",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "See all",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Not finished: {steps}. Prepare again to do the rest.",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Drop all",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Keep all",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Prepared on {date}.",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "{n} cards are new or changed since: preparing again only looks at those.",
+  "kind": "plural:{n} card is new or changed since: preparing again only looks at those.",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Nothing has changed since.",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Ankhwiz sets this deck up for its own features: voices, fair answers, lesson names and more. Nothing in the cards’ own text changes.",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "What to prepare",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Full, with Thoth",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Custom",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "On this device only",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Thoth · ~{n} requests",
+  "kind": "plural:Thoth · ~{n} request",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "adds AI-written text",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "About {n} minutes",
+  "kind": "plural:About {n} minute",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "about {n} requests",
+  "kind": "plural:about {n} request",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Under a minute · nothing leaves this device",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Card text is sent to your AI provider for the Thoth steps. The rest runs on this device.",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Thoth steps are off.",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "The AI connection isn’t set up, so only the steps on this device run. Set it up in Settings.",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Another deck is being prepared",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Prepare",
+  "kind": "text",
+  "where": "src/lib/ui/Prepare.svelte"
+ },
+ {
+  "text": "Today",
+  "kind": "text",
+  "where": "src/lib/ui/Progress.svelte"
+ },
+ {
+  "text": "Tmrw",
+  "kind": "text",
+  "where": "src/lib/ui/Progress.svelte"
+ },
+ {
+  "text": "Met",
+  "kind": "text",
+  "where": "src/lib/ui/Progress.svelte"
+ },
+ {
+  "text": "of {total} cards",
+  "kind": "text",
+  "where": "src/lib/ui/Progress.svelte"
+ },
+ {
+  "text": "Remembered",
+  "kind": "text",
+  "where": "src/lib/ui/Progress.svelte"
+ },
+ {
+  "text": "last 30 days, {answers30} answers",
+  "kind": "text",
+  "where": "src/lib/ui/Progress.svelte"
+ },
+ {
+  "text": "best {best}",
+  "kind": "text",
+  "where": "src/lib/ui/Progress.svelte"
+ },
+ {
+  "text": "Cards by stage",
+  "kind": "text",
+  "where": "src/lib/ui/Progress.svelte"
+ },
+ {
+  "text": "{stopped} stopped (not asked until resumed in Cards).",
+  "kind": "text",
+  "where": "src/lib/ui/Progress.svelte"
+ },
+ {
+  "text": "The week ahead",
+  "kind": "text",
+  "where": "src/lib/ui/Progress.svelte"
+ },
+ {
+  "text": "Reviews due over the next seven days: {x}",
+  "kind": "text",
+  "where": "src/lib/ui/Progress.svelte"
+ },
+ {
+  "text": "Days studied · last 12 weeks",
+  "kind": "text",
+  "where": "src/lib/ui/Progress.svelte"
+ },
+ {
+  "text": "{length} days studied in the last 12 weeks",
+  "kind": "text",
+  "where": "src/lib/ui/Progress.svelte"
+ },
+ {
+  "text": "Missed twice or more (Anki: leeches). Practise them, or let Thoth suggest better answers and wrong options.",
+  "kind": "text",
+  "where": "src/lib/ui/Progress.svelte"
+ },
+ {
+  "text": "{lapses} wrong",
+  "kind": "text",
+  "where": "src/lib/ui/Progress.svelte"
+ },
+ {
+  "text": "Practise them",
+  "kind": "text",
+  "where": "src/lib/ui/Progress.svelte"
+ },
+ {
+  "text": "Ask Thoth to improve them",
+  "kind": "text",
+  "where": "src/lib/ui/Progress.svelte"
+ },
+ {
+  "text": "None so far.",
+  "kind": "text",
+  "where": "src/lib/ui/Progress.svelte"
+ },
+ {
+  "text": "Question {x} of {questionsCount}",
+  "kind": "text",
+  "where": "src/lib/ui/Quiz.svelte"
+ },
+ {
+  "text": "Thoth is writing a story from the words you know…",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "The story could not be written.",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "Preparing three stories for later…",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "The stories could not be written.",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "There are not enough sentences made of words you have studied yet. Meet more cards, or let Thoth write a story.",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "A short text to read, then a few questions. Tap any word to see what it means on your cards. Practice only: nothing changes when your cards come back.",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "A new story by Thoth",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "Written from the {knownCount} words you have studied, with two or three new ones. Kept, so you can read it again.",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "Write",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "Ready to read{x}",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": " without a connection",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "A story by Thoth · {passage}% words you know",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "From your cards",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "Sentences from your cards and their examples, made mostly of words you have studied, easiest first. Works without a connection.",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "Prepare three stories for later",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "Set up the AI connection in Settings and Thoth can write stories from the words you know, and prepare some for times without a connection.",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "Read it to me",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "Underlined words are not on the cards you have studied yet.",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "Show the translation",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "{score} of {questionsCount} right.",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "Another round",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "Check your reading · {questionsCount} questions",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "This device has no voice for {x}{x2}. {x3}",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "ok",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": ", so those words were left out",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Reading aloud is not available on this device.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "On track",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Off track",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": " Moved up a stage.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Not quite. The answer is {x}.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Fair point. I’ll remember that one.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Counted as right.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Close enough to confuse anyone. Noted.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Not the card’s answer. Asking Thoth whether it fits too…",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "It comes back soon",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Counted as a hard recall",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "The answer could not be marked.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "No explanation could be fetched.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Every answer that fits, and none that doesn’t.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Test out · {x}",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "No hints",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "New",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Stage {stage} · {name}",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": " · Other way round",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": " · Fill the gap",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "unitPassed",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "notThisTime",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "pass mark {passMark}",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "{right} of {total} right{x}",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": " · stage 3",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "daysInARow",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "practiceComplete",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "allDecksDone",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "lessonComplete",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "reviewComplete",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Practice does not change when your cards come back.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "{correct} of {graded}",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Moved up",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Bonus: a reading round",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Close lesson",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "{position} of {queueCount}",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "More for this card",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Skip for today",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "It comes back tomorrow (Anki: bury)",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Stop asking this one",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Resume it in Cards (Anki: suspend)",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "This card was written or changed by AI",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Hear the question",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "question fields",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Hint: {extra}",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Hear the answer",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "fields",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "extra fields",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "{i}: take back",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Tap the words in order",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Words",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Clear",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Check your spelling",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "(optional: say it to yourself, or write it)",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "showAnswer",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "You wrote",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "The answer",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "howClose",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "missedIt",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Again · 1",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "partly",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Hard · 2",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "gotIt",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Good · 3",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Your answer, in your own words",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Your answer and this card are sent to your AI service for marking.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Long answers are marked by AI once a connection is set up in Settings. Until then, compare for yourself.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Thoth's mark: {x}",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "correct",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "not yet",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Accept",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Overrule: I was {x}",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "wrong",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "right",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Counted as right",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Also right",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "notQuite",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "“{given}” is accepted on this card from now on.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Linked: either answer counts from now on.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Still a mistake, but these two won’t be offered side by side again.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Thoth: also right.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Marked wrong after all.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Thoth: not quite.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "This card’s answer: “{answer}”",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "“{given}” fits too.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "answerIs",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "movedUp",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "practiceUnchanged",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Undo: mark it wrong",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Accept it again",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "I was right too",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Thoth explains",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "How close is “{given}” to “{answer}”?",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Count it now, and accept either answer on both cards from now on.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Close, but not the same",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Keep it as a mistake, but never offer these two side by side again.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Count “{given}” as right?",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Yes, and accept it from now on",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Yes, count it this time",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "It is added to this card’s accepted answers. You can remove it in the card editor.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Cards asked the other way round keep their own answer.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Keyboard shortcuts",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Pick an option (self-check: 1 missed, 2 partly, 3 got it)",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Building a sentence: place the numbered word; take back the last",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Check, then continue",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Explain this (with an AI connection)",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Read aloud (when the deck reads aloud)",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Leave; your place is kept",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Show or hide this list",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "System default",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "{language}, from this device",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "System",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Light",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Dark",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Classic",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Gold and ink, as on the logo",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Bright Scribe",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Rounder and friendlier",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Full",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Thoth guides you during lessons and on the path.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Quiet",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Thoth appears only when a lesson ends.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Hidden",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "No mascot. His advice stays as a plain Suggestions list.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "No sounds when you answer.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "{about}. Plays for right, nearly right and wrong answers, and at the end of a lesson.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Both",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Cards are read only when you tap a speaker button.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Each question is read as its card opens.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "The answer is read once you check it.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "The question as its card opens, and the answer once you check it.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "The backup could not be made.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Sunday",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Monday",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Tuesday",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Wednesday",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Thursday",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Friday",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Saturday",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Notifications are turned off for Ankhwiz. Allow them in your system settings, then try again.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Connected. {modelsCount} models found; choose one below.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Connected, but the service listed no models. Type a model name below.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": " The key could not be stored and will be needed again next time.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "The connection failed.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Backup restored.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "That file is not an Ankhwiz backup.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "That file could not be restored.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "This device holds data from a newer Ankhwiz. It has been left untouched; update Ankhwiz to open it. Nothing you do here is saved.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Language",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "App language",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "More languages, including right-to-left ones, are planned for a later update.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Thoth replies in",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Same as the app",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Cards are never translated: only Ankhwiz’s own buttons and text, and what Thoth says.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Appearance",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Theme",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Portrait style",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Thoth's movement",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Moves",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Still",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Sounds",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Answer sounds",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Hear the end of a lesson",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Reading aloud",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Read by itself",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Voices",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Tour and tips",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Feature tips",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Thoth explains Deck options, importing, the card editor, Test out and studying with him the first time you open each. The ? beside each explains it again.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Replay the welcome tour",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Show every tip again",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Each tip shows again the next time you open its part of the app.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "New decks",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "New notes per lesson, {minLesson} to {maxLesson}. Each deck can also set its own.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "AI connection",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Optional. Connect a service of your own and Thoth can answer questions, draft cards, mark long answers and write reading passages. Without it, everything else works as before.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Service",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Choose a service…",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Address",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "https://…/v1",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Key{x}",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": " (if the service needs one)",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "The key is kept in {x}. It is never written into decks or backups, and each device needs its own.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Remove connection",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Model for quick jobs",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "explanations, marking, questions to Thoth",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Model name",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Model for larger jobs",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "writing cards and passages; leave empty to use the same one",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Model name (optional)",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Requests go to a model on this computer; nothing leaves it.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "When you use an AI feature, the cards it needs and what you type are sent to {x}. Nothing is sent otherwise.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Check typed answers that don’t match",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "When a typed answer matches none of a card’s answers, Thoth decides whether it is fair all the same. If it is, it counts and is accepted from then on.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "In a browser, some services refuse calls from web pages. The desktop and Android apps do not have that limit.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Daily reminder",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Remind me to study",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Only on days you haven’t studied yet",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Time",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Days",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Ankhwiz",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Your library",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "One file with every deck, its pictures and sounds, your progress and your settings. Your AI key is never included.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "How to restore",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "How should this backup come in?",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Add the decks I don’t have",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Replace everything on this device",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Last backup: {lastBackup}",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Updates",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Ankhwiz {VERSION}",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Check when Ankhwiz opens",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "At most once a day; a new version shows what's new in it",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Check for updates when Ankhwiz opens",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Ankhwiz {version} is available.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Get it from GitHub",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "You have the latest version.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "No releases have been published yet.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Releases page",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "GitHub could not be reached. Try again later, or visit",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "the releases page",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Ankhwiz asks GitHub for the latest version number and sends nothing else.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Testing",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Pretend it is a later day",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "The app's date: {simulated}{x}",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Reset",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "+1 day",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Cards need correct answers on separate days to move up. This lets you try that without waiting.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Data",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Keep everything",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Erase all decks and progress",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Erase everything on this device…",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Ankhwiz {VERSION} ({x}). Decks and progress stay on this device; there are no accounts or sync. The learning rules run in the shared Rust core. Scheduling uses the FSRS formulas until Anki's engine is attached.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "That could not be read: it may be too large (over 25 MB) or not a file Ankhwiz knows.",
+  "kind": "text",
+  "where": "src/lib/ui/ShareSheet.svelte"
+ },
+ {
+  "text": "Nothing to read.",
+  "kind": "text",
+  "where": "src/lib/ui/ShareSheet.svelte"
+ },
+ {
+  "text": "Reading it…",
+  "kind": "text",
+  "where": "src/lib/ui/ShareSheet.svelte"
+ },
+ {
+  "text": "It could not be read.",
+  "kind": "text",
+  "where": "src/lib/ui/ShareSheet.svelte"
+ },
+ {
+  "text": "Add to a deck",
+  "kind": "text",
+  "where": "src/lib/ui/ShareSheet.svelte"
+ },
+ {
+  "text": "Shared from another app",
+  "kind": "text",
+  "where": "src/lib/ui/ShareSheet.svelte"
+ },
+ {
+  "text": "Deck",
+  "kind": "text",
+  "where": "src/lib/ui/ShareSheet.svelte"
+ },
+ {
+  "text": "+ A new deck",
+  "kind": "text",
+  "where": "src/lib/ui/ShareSheet.svelte"
+ },
+ {
+  "text": "Name of the new deck",
+  "kind": "text",
+  "where": "src/lib/ui/ShareSheet.svelte"
+ },
+ {
+  "text": "{x} Nothing is sent anywhere until you ask Thoth to plan cards.",
+  "kind": "text",
+  "where": "src/lib/ui/ShareSheet.svelte"
+ },
+ {
+  "text": "Ankhwiz reads the page’s text, as you could see it yourself.",
+  "kind": "text",
+  "where": "src/lib/ui/ShareSheet.svelte"
+ },
+ {
+  "text": "It is kept with the deck on this device.",
+  "kind": "text",
+  "where": "src/lib/ui/ShareSheet.svelte"
+ },
+ {
+  "text": "Just keep it",
+  "kind": "text",
+  "where": "src/lib/ui/ShareSheet.svelte"
+ },
+ {
+  "text": "Add & plan cards",
+  "kind": "text",
+  "where": "src/lib/ui/ShareSheet.svelte"
+ },
+ {
+  "text": "New card · close to one you know",
+  "kind": "text",
+  "where": "src/lib/ui/SideBySide.svelte"
+ },
+ {
+  "text": "These two are easy to mix up",
+  "kind": "text",
+  "where": "src/lib/ui/SideBySide.svelte"
+ },
+ {
+  "text": "You know",
+  "kind": "text",
+  "where": "src/lib/ui/SideBySide.svelte"
+ },
+ {
+  "text": "Hear “{text}”",
+  "kind": "text",
+  "where": "src/lib/ui/SideBySide.svelte"
+ },
+ {
+  "text": "Quick check: which one means “{answer}”?",
+  "kind": "text",
+  "where": "src/lib/ui/SideBySide.svelte"
+ },
+ {
+  "text": "Right: “{q}” is “{a}”.",
+  "kind": "text",
+  "where": "src/lib/ui/SideBySide.svelte"
+ },
+ {
+  "text": "That one is “{a}”. The new one is “{q}”.",
+  "kind": "text",
+  "where": "src/lib/ui/SideBySide.svelte"
+ },
+ {
+  "text": "Got it: on to the new card",
+  "kind": "text",
+  "where": "src/lib/ui/SideBySide.svelte"
+ },
+ {
+  "text": "No text was found to read.",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Added “{title}”: {n} parts, about {chars} words.",
+  "kind": "plural:Added “{title}”: {n} part, about {chars} words.",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "it could not be read.",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "That does not look like a web address.",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Reading the page…",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "The page could not be read.",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Web",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Text",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Word",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Page",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "An exam",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Following a course",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Interest",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "New to it",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Some",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Revising",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "No rush",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "an exam: definitions, processes and exam-style questions",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "following a course, in the order of the notes",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "interest: big ideas first",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "new to it: explain the basics first",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "knows some: skip the very basics",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "revising: key facts only",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Thoth is reading the shape of your sources…",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "The outline could not be made.",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Questions",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Terms",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Dates",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Formulas",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Steps",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Thoth is writing five cards from “{name}”…",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "The sample could not be written.",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Writing “{name}” ({x} of {listCount})…",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Build with Thoth",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Add the files and pages this deck is about. They are kept with the deck on this device, so you never add them twice. Ankhwiz reads only what you can open yourself, and nothing is sent anywhere until you ask Thoth to plan cards.",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Use {title}",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "{n} parts · about {chars} words{x2}",
+  "kind": "plural:{n} part · about {chars} words{x2}",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Remove {title}",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Add files",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Paste a web address",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Web address",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Add page",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "A name for it (optional)",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Paste text here",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Add text",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Or paste some text",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "PDF, Word (.docx), text, Markdown and web pages. Pages that need a sign-in, and PDFs that are only scanned pictures, cannot be read.",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Three quick questions",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "What is it for?",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "How much do you know already?",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "By when?",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Anything else? (optional: “only chapters 2 to 4”)",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Anything else",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Planning and writing cards needs the AI connection: set it up in Settings › Study with Thoth. Your sources stay here meanwhile.",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Thoth sends the openings of each part of your sources (not the whole text) to your AI service to plan the outline, and later the parts each lesson uses. Nothing else about you is sent.",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "About {outlineCost} tokens will go to your AI service to plan the outline.",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Suggest an outline",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Rename, reorder or drop lessons before any cards are made. Each lesson shows where it comes from.",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Kind of cards",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "About how many cards",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Move up",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Move down",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Sample · up to five cards from the first lesson",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Tell Thoth what to change",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "(for every card)",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Shorter answers",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Exam-style questions",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Keep technical terms",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Anything else? (“add a one-line example”)",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Other wishes",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Back to sources",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Make about {total} cards",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "{cards} cards so far. You can leave this screen open; each lesson is added as soon as it is written.",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Stop after this lesson",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "{cards} cards in {n} lessons",
+  "kind": "plural:{cards} cards in {n} lesson",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Every card links to the passage it comes from: tap “From” on its answer to read it.",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Not found in your sources · switched off",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Thoth could not point to a sentence for these, so they will not come up until you decide.",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Thoth quoted: “{quote}”",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Keep it anyway",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Delete it",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Add more sources",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "To the lessons",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Where this is",
+  "kind": "text",
+  "where": "src/lib/ui/TopicPage.svelte"
+ },
+ {
+  "text": "Library",
+  "kind": "text",
+  "where": "src/lib/ui/TopicPage.svelte"
+ },
+ {
+  "text": "{n} cards due across your decks here. Shall we do them together?",
+  "kind": "plural:{n} card due across your decks here. Shall we do them together?",
+  "where": "src/lib/ui/TopicPage.svelte"
+ },
+ {
+  "text": "One deck at a time. Fine by me.",
+  "kind": "text",
+  "where": "src/lib/ui/TopicPage.svelte"
+ },
+ {
+  "text": "How to study",
+  "kind": "text",
+  "where": "src/lib/ui/TopicPage.svelte"
+ },
+ {
+  "text": "Mix the decks",
+  "kind": "text",
+  "where": "src/lib/ui/TopicPage.svelte"
+ },
+ {
+  "text": "One deck at a time",
+  "kind": "text",
+  "where": "src/lib/ui/TopicPage.svelte"
+ },
+ {
+  "text": "Study all due · {n} cards",
+  "kind": "plural:Study all due · {n} card",
+  "where": "src/lib/ui/TopicPage.svelte"
+ },
+ {
+  "text": "Start with {deck} · {n}",
+  "kind": "text",
+  "where": "src/lib/ui/TopicPage.svelte"
+ },
+ {
+  "text": "Cards from every deck here, shuffled together. Each card keeps its own deck’s schedule.",
+  "kind": "text",
+  "where": "src/lib/ui/TopicPage.svelte"
+ },
+ {
+  "text": "Opens the first deck with cards due.",
+  "kind": "text",
+  "where": "src/lib/ui/TopicPage.svelte"
+ },
+ {
+  "text": "cards learned",
+  "kind": "text",
+  "where": "src/lib/ui/TopicPage.svelte"
+ },
+ {
+  "text": "of the topic",
+  "kind": "text",
+  "where": "src/lib/ui/TopicPage.svelte"
+ },
+ {
+  "text": "decks",
+  "kind": "plural:deck",
+  "where": "src/lib/ui/TopicPage.svelte"
+ },
+ {
+  "text": "Decks in {name}",
+  "kind": "text",
+  "where": "src/lib/ui/TopicPage.svelte"
+ },
+ {
+  "text": "Thoth: {name}, step {x} of {stepsCount}",
+  "kind": "text",
+  "where": "src/lib/ui/Tour.svelte"
+ },
+ {
+  "text": "{name} · {x} of {stepsCount}",
+  "kind": "text",
+  "where": "src/lib/ui/Tour.svelte"
+ },
+ {
+  "text": "Skip the tour",
+  "kind": "text",
+  "where": "src/lib/ui/Tour.svelte"
+ },
+ {
+  "text": "Show me",
+  "kind": "text",
+  "where": "src/lib/ui/Tour.svelte"
+ },
+ {
+  "text": "Skip",
+  "kind": "text",
+  "where": "src/lib/ui/Tour.svelte"
+ },
+ {
+  "text": "Fields changed. Your progress is kept.",
+  "kind": "text",
+  "where": "src/lib/ui/TypeFields.svelte"
+ },
+ {
+  "text": "Fields changed. These cards start again from the beginning; the deck as it was is in Backups.",
+  "kind": "text",
+  "where": "src/lib/ui/TypeFields.svelte"
+ },
+ {
+  "text": "Fields changed.",
+  "kind": "text",
+  "where": "src/lib/ui/TypeFields.svelte"
+ },
+ {
+  "text": "Change",
+  "kind": "text",
+  "where": "src/lib/ui/TypeFields.svelte"
+ },
+ {
+  "text": "{x} starts these cards again.",
+  "kind": "text",
+  "where": "src/lib/ui/TypeFields.svelte"
+ },
+ {
+  "text": "Changing the text with gaps",
+  "kind": "text",
+  "where": "src/lib/ui/TypeFields.svelte"
+ },
+ {
+  "text": "Changing the main question or answer field",
+  "kind": "text",
+  "where": "src/lib/ui/TypeFields.svelte"
+ },
+ {
+  "text": "The main question and answer stay the same, so your progress is kept.",
+  "kind": "text",
+  "where": "src/lib/ui/TypeFields.svelte"
+ },
+ {
+  "text": "Start {n} cards again from the beginning? A backup of the deck is made first.",
+  "kind": "plural:Start {n} card again from the beginning? A backup of the deck is made first.",
+  "where": "src/lib/ui/TypeFields.svelte"
+ },
+ {
+  "text": "Unit recall asks for the cards of a unit from memory. Meet some cards in a lesson first.",
+  "kind": "text",
+  "where": "src/lib/ui/UnitRecall.svelte"
+ },
+ {
+  "text": "No questions this time. Write every word, phrase or fact you remember from a unit, one per line or separated by commas. Spelling does not need to be perfect. Cards you miss come back in tomorrow's review.",
+  "kind": "text",
+  "where": "src/lib/ui/UnitRecall.svelte"
+ },
+ {
+  "text": "{name} · {met} met",
+  "kind": "text",
+  "where": "src/lib/ui/UnitRecall.svelte"
+ },
+ {
+  "text": "Show the other side as hints",
+  "kind": "text",
+  "where": "src/lib/ui/UnitRecall.svelte"
+ },
+ {
+  "text": "Easier: you see what each card means and write the card.",
+  "kind": "text",
+  "where": "src/lib/ui/UnitRecall.svelte"
+ },
+ {
+  "text": "{name} · {targetsCount} cards",
+  "kind": "text",
+  "where": "src/lib/ui/UnitRecall.svelte"
+ },
+ {
+  "text": "Time left",
+  "kind": "text",
+  "where": "src/lib/ui/UnitRecall.svelte"
+ },
+ {
+  "text": "What you remember",
+  "kind": "text",
+  "where": "src/lib/ui/UnitRecall.svelte"
+ },
+ {
+  "text": "{count} written",
+  "kind": "text",
+  "where": "src/lib/ui/UnitRecall.svelte"
+ },
+ {
+  "text": "Compare with the unit",
+  "kind": "text",
+  "where": "src/lib/ui/UnitRecall.svelte"
+ },
+ {
+  "text": "{foundCount} of {targetsCount}",
+  "kind": "text",
+  "where": "src/lib/ui/UnitRecall.svelte"
+ },
+ {
+  "text": "{x}you wrote {typed}",
+  "kind": "text",
+  "where": "src/lib/ui/UnitRecall.svelte"
+ },
+ {
+  "text": "Missed",
+  "kind": "text",
+  "where": "src/lib/ui/UnitRecall.svelte"
+ },
+ {
+  "text": "From other units",
+  "kind": "text",
+  "where": "src/lib/ui/UnitRecall.svelte"
+ },
+ {
+  "text": "Not on your cards: {x}",
+  "kind": "text",
+  "where": "src/lib/ui/UnitRecall.svelte"
+ },
+ {
+  "text": "Try again",
+  "kind": "text",
+  "where": "src/lib/ui/UnitRecall.svelte"
+ },
+ {
+  "text": "Update",
+  "kind": "text",
+  "where": "src/lib/ui/UpdatePrompt.svelte"
+ },
+ {
+  "text": "Ankhwiz {version} is out",
+  "kind": "text",
+  "where": "src/lib/ui/UpdatePrompt.svelte"
+ },
+ {
+  "text": "You have {VERSION}. What's new:",
+  "kind": "text",
+  "where": "src/lib/ui/UpdatePrompt.svelte"
+ },
+ {
+  "text": "Get it",
+  "kind": "text",
+  "where": "src/lib/ui/UpdatePrompt.svelte"
+ },
+ {
+  "text": "Later",
+  "kind": "text",
+  "where": "src/lib/ui/UpdatePrompt.svelte"
+ },
+ {
+  "text": "Skip this version",
+  "kind": "text",
+  "where": "src/lib/ui/UpdatePrompt.svelte"
+ },
+ {
+  "text": "Look for new versions when Ankhwiz opens?",
+  "kind": "text",
+  "where": "src/lib/ui/UpdatePrompt.svelte"
+ },
+ {
+  "text": "Once a day at most. It asks GitHub for the latest version number and sends nothing else. You can change this in Settings.",
+  "kind": "text",
+  "where": "src/lib/ui/UpdatePrompt.svelte"
+ },
+ {
+  "text": "Yes",
+  "kind": "text",
+  "where": "src/lib/ui/UpdatePrompt.svelte"
+ },
+ {
+  "text": "Read in {lang}",
+  "kind": "text",
+  "where": "src/lib/ui/VoiceText.svelte"
+ },
+ {
+  "text": "Hola, ¿qué tal?",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Bonjour, comment ça va ?",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Hallo, wie geht es dir?",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Ciao, come stai?",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Olá, tudo bem?",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Hallo, hoe gaat het?",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Привет, как дела?",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Merhaba, nasılsın?",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Cześć, jak się masz?",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Hello, how are you?",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "{x} Check the connection and try again.",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "The voice could not be downloaded.",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Speech engine",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Which of the phone's engines reads, such as Google's or one with downloadable voices",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Phone's default",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Add voices in the phone's settings",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Turn on Read aloud in a deck's options and give its languages; then a voice can be chosen for each here.",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Voice for {lang}",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Device voice",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Download {name} (about {x} MB)",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "The first voice also brings the voice engine, about 30 MB, used by every downloaded voice.",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Try",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Remove download",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "On this device: {x}",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "No voice for {lang} on this device yet. {x}{x2}",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Download one above, or add one in the system: ",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Ankhwiz has no downloadable voice for {lang} yet.",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Downloaded voices are Piper voices: they sound more natural than many built-in ones, run on this device and work offline once downloaded. They come from the Piper project on Hugging Face.",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Find a voice for another language",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Find a voice for a language",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Search for a language",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "This deck has no cards yet. Add some with Add cards, or let me build them From sources.",
+  "kind": "text",
+  "where": "src/lib/ui/deckView.ts"
+ },
+ {
+  "text": "Next new lesson: {name}.",
+  "kind": "text",
+  "where": "src/lib/ui/deckView.ts"
+ },
+ {
+  "text": "Right",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Nearly: you wrote {typed}",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "You wrote {typed}",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Missing",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Writing drafts…",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Draft cards",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Thoth is working…",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Preview changes",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Reading the cards…",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Review this lesson",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Setting questions…",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Start a challenge",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Writing questions…",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Let Thoth write the questions instead",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Writing…",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "Write a passage with questions",
+  "kind": "text",
+  "where": "src/lib/ui/Ai.svelte"
+ },
+ {
+  "text": "That part of the source is no longer there.",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerExtras.svelte"
+ },
+ {
+  "text": "The source was removed from this deck.",
+  "kind": "text",
+  "where": "src/lib/ui/AnswerExtras.svelte"
+ },
+ {
+  "text": " · question",
+  "kind": "text",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": " · answer",
+  "kind": "text",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": "Type one at a time",
+  "kind": "text",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": "Paste rows from a spreadsheet",
+  "kind": "text",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": "The last card in the list",
+  "kind": "text",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": "How a card will look",
+  "kind": "text",
+  "where": "src/lib/ui/Builder.svelte"
+ },
+ {
+  "text": "Choose “Not shown” first",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Remove this field",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Front template",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Back template",
+  "kind": "text",
+  "where": "src/lib/ui/CardTypes.svelte"
+ },
+ {
+  "text": "Back to cards",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "New card",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Edit card",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Heading",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Optional: shown above the picture",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Select words in the question or answer",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "first met {date}",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Add card",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Save",
+  "kind": "text",
+  "where": "src/lib/ui/Contents.svelte"
+ },
+ {
+  "text": "Review now",
+  "kind": "text",
+  "where": "src/lib/ui/DeckAside.svelte"
+ },
+ {
+  "text": "{cards}, and any you add",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Cards you add here",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "A speaker button by the question and the answer, with this device’s own voices",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "This device offers no voices here",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Exporting…",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "For Anki (.apkg)",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "For Ankhwiz (.ankh)",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Deck restored. The version you had is now a backup.",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "That backup could not be read, so nothing was changed.",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Nothing to write yet",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "{n} cards written from hearing.",
+  "kind": "plural:{n} card written from hearing.",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Dictation uses cards you have met that can be heard: their own sound, or a voice for the deck’s language. Meet some cards in a lesson first, or turn on Read aloud in Deck options.",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Every word right.",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Nearly there: the underlined words were close.",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Listen again at 0.7× and compare.",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Next",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Finish",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Hide first letters",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Show first letters",
+  "kind": "text",
+  "where": "src/lib/ui/Dictation.svelte"
+ },
+ {
+  "text": "Text with gaps",
+  "kind": "text",
+  "where": "src/lib/ui/FieldMapper.svelte"
+ },
+ {
+  "text": "The first field swaps with the answer when asked both ways; the others show with it, smaller.",
+  "kind": "text",
+  "where": "src/lib/ui/FieldMapper.svelte"
+ },
+ {
+  "text": "The first field is the main question; the others show under it, smaller.",
+  "kind": "text",
+  "where": "src/lib/ui/FieldMapper.svelte"
+ },
+ {
+  "text": "Show less",
+  "kind": "text",
+  "where": "src/lib/ui/Fields.svelte"
+ },
+ {
+  "text": "{n} more: {what}",
+  "kind": "text",
+  "where": "src/lib/ui/Fields.svelte"
+ },
+ {
+  "text": "Their Anki layout uses scripts or drawing Ankhwiz cannot copy, so you see the answer and say how close you were.",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "See the answer and say how close you were, instead of being marked.",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "{n} pictures and sounds come with it.",
+  "kind": "plural:{n} picture or sound comes with it.",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Fields you do not use are kept, and go back to Anki unchanged if you export the deck. You can delete them later in Deck options.",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "Importing…",
+  "kind": "text",
+  "where": "src/lib/ui/ImportMap.svelte"
+ },
+ {
+  "text": "not set",
+  "kind": "text",
+  "where": "src/lib/ui/LangPicker.svelte"
+ },
+ {
+  "text": "Choose a language",
+  "kind": "text",
+  "where": "src/lib/ui/LangPicker.svelte"
+ },
+ {
+  "text": "a code not in the list",
+  "kind": "text",
+  "where": "src/lib/ui/LangPicker.svelte"
+ },
+ {
+  "text": "Reading…",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "Import a deck (.apkg or .ankh)",
+  "kind": "text",
+  "where": "src/lib/ui/Library.svelte"
+ },
+ {
+  "text": "One try a day: come back tomorrow",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "A short quiz without hints. Pass it to skip ahead.",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Test out tomorrow",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Test out",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Locked",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "{n} cards you have missed twice or more",
+  "kind": "plural:{n} card you have missed twice or more",
+  "where": "src/lib/ui/Practice.svelte"
+ },
+ {
+  "text": "None yet",
+  "kind": "text",
+  "where": "src/lib/ui/Practice.svelte"
+ },
+ {
+  "text": "Not on your cards yet.",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingRound.svelte"
+ },
+ {
+  "text": "Its lessons are open, and their cards start at stage 3 instead of 1.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "{n} missed cards go back to stage 1 to relearn.",
+  "kind": "plural:{n} missed card goes back to stage 1 to relearn.",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Nothing has changed. You can do the lessons as usual, or try again tomorrow.",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Decks",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Check with Thoth",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "English",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Thoth stays still.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Thoth blinks, breathes and reacts to your answers. He also stays still if your system asks for reduced motion.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "This applies to decks with Read aloud turned on in their options.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "This device offers no voices here.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Connecting…",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Connect and list models",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "The reminder comes even when Ankhwiz is closed. Android may deliver it a few minutes late to save battery.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "The reminder comes while Ankhwiz is open; it can be minimised.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "In a browser, the reminder comes only while this page is open.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Working…",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Back up all",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Also checked when Ankhwiz opens, once a day",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Checked only when you tap Check now",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Checking…",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Check now",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "No source part named",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Not found in your sources: this card would be switched off",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Write the sample again",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Write a sample",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "Starting…",
+  "kind": "text",
+  "where": "src/lib/ui/Sources.svelte"
+ },
+ {
+  "text": "They become different cards, so the progress of {n} studied cards of this type goes back to the beginning. To keep your progress, change only the other fields.",
+  "kind": "plural:They become different cards, so the progress of {n} studied card of this type goes back to the beginning. To keep your progress, change only the other fields.",
+  "where": "src/lib/ui/TypeFields.svelte"
+ },
+ {
+  "text": "None of these cards has been studied yet, so no progress is lost.",
+  "kind": "text",
+  "where": "src/lib/ui/TypeFields.svelte"
+ },
+ {
+  "text": "Keep the fields as they were",
+  "kind": "text",
+  "where": "src/lib/ui/TypeFields.svelte"
+ },
+ {
+  "text": "Saving…",
+  "kind": "text",
+  "where": "src/lib/ui/TypeFields.svelte"
+ },
+ {
+  "text": "Change and start again",
+  "kind": "text",
+  "where": "src/lib/ui/TypeFields.svelte"
+ },
+ {
+  "text": "Time’s up",
+  "kind": "text",
+  "where": "src/lib/ui/UnitRecall.svelte"
+ },
+ {
+  "text": "{n} nearly right.",
+  "kind": "text",
+  "where": "src/lib/ui/UnitRecall.svelte"
+ },
+ {
+  "text": "{n} missed cards come back tomorrow.",
+  "kind": "plural:{n} missed card comes back tomorrow.",
+  "where": "src/lib/ui/UnitRecall.svelte"
+ },
+ {
+  "text": " · not met yet",
+  "kind": "text",
+  "where": "src/lib/ui/UnitRecall.svelte"
+ },
+ {
+  "text": "a downloaded voice",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "this device's own voice",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": " · downloaded",
+  "kind": "text",
+  "where": "src/lib/ui/Voices.svelte"
+ },
+ {
+  "text": "Start {name}",
+  "kind": "text",
+  "where": "src/lib/ui/DeckAside.svelte"
+ },
+ {
+  "text": "{n} new",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "{n} to relearn",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Lesson {n}",
+  "kind": "text",
+  "where": "src/lib/i18n/index.ts"
+ },
+ {
+  "text": "Unit {n}",
+  "kind": "text",
+  "where": "src/lib/i18n/index.ts"
+ },
+ {
+  "text": "Meet",
+  "kind": "text",
+  "where": "src/lib/i18n/index.ts"
+ },
+ {
+  "text": "Recognise",
+  "kind": "text",
+  "where": "src/lib/i18n/index.ts"
+ },
+ {
+  "text": "Assisted recall",
+  "kind": "text",
+  "where": "src/lib/i18n/index.ts"
+ },
+ {
+  "text": "Firm recall",
+  "kind": "text",
+  "where": "src/lib/i18n/index.ts"
+ },
+ {
+  "text": "Mastered",
+  "kind": "text",
+  "where": "src/lib/i18n/index.ts"
+ },
+ {
+  "text": "Ollama (this computer)",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "LM Studio (this computer)",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Other endpoint",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Uses Gemini's OpenAI-compatible address.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "One key for models from many providers.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Runs on your own machine; nothing leaves it.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "Any address that speaks the OpenAI chat format.",
+  "kind": "text",
+  "where": "src/lib/ui/Settings.svelte"
+ }
+]

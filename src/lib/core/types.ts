@@ -152,6 +152,9 @@ export interface Look {
   speak: 'off' | 'on';
   /** Words in quotes are read in this language; the rest in the field's own. Empty or missing: off. */
   quoteLang?: string;
+  /** With reading aloud on: read the question side, and the answer side. Missing before 0.7.0: both. */
+  speakQuestion?: boolean;
+  speakAnswer?: boolean;
 }
 
 export interface DeckOptions {
@@ -214,7 +217,63 @@ export interface Deck {
   sources?: DeckSource[];
   /** How the deck was made: its subject kind in the deck builder. */
   made?: { kind?: string; by?: 'builder' | 'sources' } | null;
+  /** Cards whose answers mean the same, or nearly the same. */
+  links?: AnswerLink[];
+  /** Where the deck sits in the library. */
+  place?: DeckPlace | null;
+  /** What "Prepare for Ankhwiz" did, and what waits for review. */
+  prep?: PrepState | null;
 }
+
+/** Notes whose answers mean the same ('same': either counts on any of their
+ * cards) or nearly the same ('close': never offered against each other). */
+export interface AnswerLink {
+  id: string;
+  kind: 'same' | 'close';
+  notes: string[];
+  /** Who made it: you, thoth or device. */
+  by?: 'you' | 'thoth' | 'device';
+  /** How the answers differ, shown side by side before the second is met. */
+  note?: string;
+}
+
+/** A deck's subject and topic in the library. Both empty: not sorted yet. */
+export interface DeckPlace {
+  subject: string;
+  topic?: string;
+  /** Order among the decks of its topic. */
+  order?: number;
+}
+
+/** "Prepare for Ankhwiz": when it last ran, which cards it has seen, and
+ * what it found that waits for the learner's OK. */
+export interface PrepState {
+  /** When it last finished (0: never). */
+  at: number;
+  /** The learner said not now to the offer after importing. */
+  dismissed?: boolean;
+  /** A short fingerprint of each card's question and answer when last prepared. */
+  seen?: Record<string, string>;
+  /** Results waiting for the learner's OK. */
+  pending?: PrepPatch[];
+  /** Results applied on this device in the last run, which can still be undone. */
+  applied?: PrepPatch[];
+  /** Steps that did not finish (stopped, or failed), to say so. */
+  unfinished?: string[];
+}
+
+/** One result of preparing, as data: applying it changes the deck. */
+export type PrepPatch =
+  | { kind: 'lang'; id: string; lang: string; langBack: string; prev: { lang: string; langBack: string; speak: 'on' | 'off' } }
+  | { kind: 'place'; id: string; subject: string; topic: string; from: 'name' | 'lang' | 'thoth' }
+  | { kind: 'dropFields'; id: string; names: string[]; notes: number }
+  | { kind: 'links'; id: string; by: 'device' | 'thoth'; groups: { kind: 'same' | 'close'; notes: string[] }[]; made?: string[] }
+  | { kind: 'wrong'; id: string; wrong: Record<string, string[]> }
+  | { kind: 'alts'; id: string; alts: Record<string, string[]> }
+  | { kind: 'flags'; id: string; flags: Record<string, string> }
+  | { kind: 'lessons'; id: string; names: Record<string, string> }
+  | { kind: 'notes'; id: string; notes: { notes: string[]; note: string }[] }
+  | { kind: 'stories'; id: string; readings: Reading[] };
 
 export interface CardState {
   stage: Stage;
@@ -275,6 +334,8 @@ export interface Exercise {
   answerMore: string[];
   extraMore: string[];
   picture?: Picture;
+  /** Accepted answers that come from other cards with the same meaning. */
+  linked?: string[];
 }
 
 export interface TestResult {

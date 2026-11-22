@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '../i18n';
   // Choosing a language: by name, with its country's flag, from one search
   // that covers names in English and in the language itself, countries, codes
   // and other common names. Languages with a voice ready on this device come
@@ -33,22 +34,22 @@
   const all = $derived.by(() => {
     const out: string[] = [];
     for (const c of [...extra, ...COMMON_LANGS]) {
-      const t = tidyLang(c);
-      if (t && !out.some((x) => sameLang(x, t))) out.push(t);
+      const tl = tidyLang(c);
+      if (tl && !out.some((x) => sameLang(x, tl))) out.push(tl);
     }
     return out;
   });
   const matching = $derived(all.filter((c) => langMatches(c, query)));
   const status = (c: string): 'ready' | 'download' | 'other' => (ready[c] ? 'ready' : piperVoicesFor(c).length ? 'download' : 'other');
   const groups = $derived([
-    { id: 'ready', title: 'Ready on this device', list: matching.filter((c) => status(c) === 'ready') },
-    { id: 'download', title: 'Ankhwiz can download a voice', list: matching.filter((c) => status(c) === 'download') },
-    { id: 'other', title: "Add a voice in the system's settings", list: matching.filter((c) => status(c) === 'other') },
+    { id: 'ready', title: t('Ready on this device'), list: matching.filter((c) => status(c) === 'ready') },
+    { id: 'download', title: t('Ankhwiz can download a voice'), list: matching.filter((c) => status(c) === 'download') },
+    { id: 'other', title: t('Add a voice in the system\'s settings'), list: matching.filter((c) => status(c) === 'other') },
   ]);
   // A code typed in full that is not in the list can still be used.
   const typed = $derived.by(() => {
-    const t = tidyLang(query);
-    return /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/.test(t) && !all.some((c) => sameLang(c, t)) ? t : '';
+    const tl = tidyLang(query);
+    return /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/.test(tl) && !all.some((c) => sameLang(c, tl)) ? tl : '';
   });
 
   async function toggle() {
@@ -76,19 +77,19 @@
 </script>
 
 <div class="lp" onkeydown={onKey} role="presentation">
-  <button class="lp-btn" type="button" aria-expanded={open} aria-label="{label}: {value ? langName(value) : emptyLabel || 'not set'}" onclick={toggle}>
+  <button class="lp-btn" type="button" aria-expanded={open} aria-label="{label}: {value ? langName(value) : emptyLabel || t('not set')}" onclick={toggle}>
     {#if value}
       <span class="flag" aria-hidden="true">{flagOf(value) || '🌐'}</span>
       <span class="nm">{langName(value)}</span>
       <small>{tidyLang(value)}</small>
     {:else}
-      <span class="nm muted">{emptyLabel || 'Choose a language'}</span>
+      <span class="nm muted">{emptyLabel || t('Choose a language')}</span>
     {/if}
     <Icon name="down" size={16} />
   </button>
   {#if open}
     <div class="lp-panel" role="dialog" aria-label={label}>
-      <input class="input" type="search" bind:this={search} bind:value={query} placeholder="Search: a language, country or code" aria-label="Search languages" />
+      <input class="input" type="search" bind:this={search} bind:value={query} placeholder={t('Search: a language, country or code')} aria-label={t('Search languages')} />
       <div class="lp-list">
         {#if emptyLabel && !query}
           <button class="lp-row" type="button" aria-pressed={!value} onclick={() => pick('')}><span class="flag" aria-hidden="true"></span><span class="nm">{emptyLabel}</span></button>
@@ -96,7 +97,7 @@
         {#if typed}
           <button class="lp-row" type="button" onclick={() => pick(typed)}>
             <span class="flag" aria-hidden="true">{flagOf(typed) || '🌐'}</span>
-            <span class="nm">Use {typed}<small>{langName(typed) !== typed ? langName(typed) : 'a code not in the list'}</small></span>
+            <span class="nm">{t('Use {typed}', { typed })}<small>{langName(typed) !== typed ? langName(typed) : t('a code not in the list')}</small></span>
           </button>
         {/if}
         {#each groups as g (g.id)}
@@ -112,7 +113,7 @@
             {/each}
           {/if}
         {/each}
-        {#if !matching.length && !typed}<p class="hint">No language matches “{query}”. A full code such as es-ES can be typed too.</p>{/if}
+        {#if !matching.length && !typed}<p class="hint">{t('No language matches “{query}”. A full code such as es-ES can be typed too.', { query })}</p>{/if}
       </div>
     </div>
   {/if}

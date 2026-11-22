@@ -63,6 +63,10 @@ pub struct Exercise {
     pub extra_more: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub picture: Option<crate::cards::Picture>,
+    /// Accepted answers that come from other cards with the same meaning, so
+    /// the learner can be told "this card's answer is …; yours fits too".
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub linked: Vec<String>,
 }
 
 /// A card that can be asked now: not stopped, not skipped today.
@@ -489,6 +493,7 @@ pub fn make_exercise(deck: &Deck, progress: &Progress, card_id: &str, just_met: 
         answer_more: f.answer_more,
         extra_more: f.extra_more,
         picture: f.picture,
+        linked: f.linked,
     };
     let Some(card) = card else { return Some(ex) };
     if f.self_check {

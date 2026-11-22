@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '../i18n';
   // A picture with hidden parts. The part asked about is ochre with a "?";
   // with "hide all" the other parts are covered too; otherwise they show,
   // outlined. Names appear only once answered (shown earlier, they would give
@@ -32,7 +33,7 @@
 </script>
 
 {#if url === null}
-  <p class="missing">The picture {picture.image} is not on this device.</p>
+  <p class="missing">{t('The picture {image} is not on this device.', { image: picture.image })}</p>
 {:else if url}
   <button class="frame plain" class:large aria-label={`${describe} ${large ? 'Tap to make smaller.' : 'Tap to enlarge.'}`} onclick={() => (large = !large)}>
     <span class="box">

@@ -10,6 +10,7 @@ pub mod anki;
 pub mod api;
 pub mod cards;
 pub mod edit;
+pub mod links;
 pub mod distract;
 pub mod model;
 pub mod occlusion;

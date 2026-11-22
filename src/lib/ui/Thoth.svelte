@@ -1,4 +1,5 @@
 <script lang="ts" module>
+  import { t } from '../i18n';
   /** A short one-off movement. Pass a new id to play it again. */
   export type Reaction = 'nod' | 'happy' | 'cheer' | 'sad' | 'delight' | 'encourage';
   export interface Cue {
@@ -231,7 +232,7 @@
   width={size}
   height={portrait ? size : size * 1.25}
   role="img"
-  aria-label="Thoth"
+  aria-label={t('Thoth')}
   class:still
   class:thinking={mood === 'think'}
   style="--delay: {delay}; --blink: {blink}; --dx: {disc.x}px; --dy: {disc.y}px; --ex: {pivot.eye.x}px; --ey: {pivot.eye.y}px; --g: {pivot.glance}"

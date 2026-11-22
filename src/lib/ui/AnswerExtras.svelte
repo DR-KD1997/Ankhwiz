@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '../i18n';
   // Shown with an answer: where the card's facts come from (for decks built
   // from sources), with the passage itself a tap away, and the card in its
   // card type's own layout when that is turned on.
@@ -37,16 +38,16 @@
   <div class="from">
     <button class="quiet src-btn" aria-expanded={open} onclick={toggle}>
       <Icon name="layers" size={16} />
-      {#if src.found}From: {source?.title ?? 'a source'} · {src.at}{:else}Not found in your sources{/if}
+      {#if src.found}{t('From: {x} · {at}', { x: source?.title ?? t('a source'), at: src.at })}{:else}{t('Not found in your sources')}{/if}
     </button>
     {#if open}
       <div class="passage plain">
         {#if parts}
           <p class="small">{source?.title ?? ''} · {passage?.at}</p>
           <p class="text">{parts.before}{#if parts.quote}<mark>{parts.quote}</mark>{/if}{parts.after}</p>
-          {#if source?.url}<a class="small" href={source.url} target="_blank" rel="noopener noreferrer">Open the page</a>{/if}
+          {#if source?.url}<a class="small" href={source.url} target="_blank" rel="noopener noreferrer">{t('Open the page')}</a>{/if}
         {:else if missing}
-          <p class="small">{source ? 'That part of the source is no longer there.' : 'The source was removed from this deck.'}{src.quote ? ` Thoth quoted: “${src.quote}”` : ''}</p>
+          <p class="small">{source ? t('That part of the source is no longer there.') : t('The source was removed from this deck.')}{src.quote ? ' ' + t('Thoth quoted: “{quote}”', { quote: src.quote }) : ''}</p>
         {/if}
       </div>
     {/if}

@@ -1,0 +1,5 @@
+1448|Empezar {name}
+1449|{n} nuevas
+1450|{n} por reaprender
+1451|Lección {n}
+1452|Unidad {n}

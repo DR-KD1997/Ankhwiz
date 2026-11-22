@@ -20,6 +20,8 @@
   import { summarisePath, type DeckSummary } from './deckView';
   import Icon from './Icon.svelte';
   import Thoth from './Thoth.svelte';
+  import { dismissOffer, job, offerFor } from '../prepare.svelte';
+  import { plural, shownName, t } from '../i18n';
 
   const deck = $derived(data.decks[ui.deckId!]);
   const progress = $derived(data.progress[ui.deckId!] ?? {});
@@ -29,9 +31,9 @@
   // large deck down, and it is brought up to date when the lesson closes.
   let kept: { deck: object; sum: DeckSummary & { testable: Set<string> } } | null = null;
   const sum = $derived.by(() => {
-    const d = deck, p = progress, t = time;
+    const d = deck, p = progress, tm = time;
     if (ui.session && kept?.deck === d) return kept.sum;
-    const fresh = summarisePath(d, p, t);
+    const fresh = summarisePath(d, p, tm);
     kept = { deck: d, sum: fresh };
     return fresh;
   });
@@ -74,32 +76,61 @@
   }
 
   function describe(st: LessonStatus): string {
-    if (st.state === 'new') return `${st.total} new`;
-    if (st.state === 'started') return `${st.introduced} of ${st.total} introduced`;
-    const due = st.due ? ` · ${st.due} due` : '';
-    return (st.state === 'complete' ? 'Complete' : 'Learned') + due;
+    if (st.state === 'new') return t('{n} new', { n: st.total });
+    if (st.state === 'started') return t('{introduced} of {total} introduced', { introduced: st.introduced, total: st.total });
+    const due = st.due ? ' · ' + t('{n} due', { n: st.due }) : '';
+    return (st.state === 'complete' ? t('Complete') : t('Learned')) + due;
   }
 </script>
 
 <section class="path">
   <header>
-    <button class="icon-btn" aria-label="Back to library" onclick={goLibrary}><Icon name="back" /></button>
+    <button class="icon-btn" aria-label={t('Back to library')} onclick={goLibrary}><Icon name="back" /></button>
     <h1 class="display">{deck.name}</h1>
-    <span class="streak plain" title="Days in a row" data-tour="streak"><Icon name="sun" size={18} /> {streak}</span>
-    <button class="icon-btn" aria-label="Settings" onclick={() => (ui.screen = 'settings')}><Icon name="gear" /></button>
+    <span class="streak plain" title={t('Days in a row')} data-tour="streak"><Icon name="sun" size={18} /> {streak}</span>
+    <button class="icon-btn" aria-label={t('Settings')} onclick={() => (ui.screen = 'settings')}><Icon name="gear" /></button>
   </header>
 
   {#if mode === 'full'}
     <div class="thoth-row">
       <div class="portrait"><Thoth size={84} portrait nodOn={busy ? 'busy' : sum.suggestions[0]} /></div>
-      <p class="bubble plain">{busy ? 'Lesson in progress.' : sum.suggestions[0]}</p>
+      <p class="bubble plain">{busy ? t('Lesson in progress.') : sum.suggestions[0]}</p>
     </div>
   {:else}
     <div class="suggest plain">
-      <p class="label">Suggestions</p>
+      <p class="label">{t('Suggestions')}</p>
       <ul>
-        {#if busy}<li>Lesson in progress.</li>{:else}{#each sum.suggestions as text (text)}<li>{text}</li>{/each}{/if}
+        {#if busy}<li>{t('Lesson in progress.')}</li>{:else}{#each sum.suggestions as text (text)}<li>{text}</li>{/each}{/if}
       </ul>
+    </div>
+  {/if}
+
+  {#if !busy && job.running && job.deckId === deck.id}
+    <button class="review card prep-strip" onclick={() => openPanel('prepare')}>
+      <span class="medal"><Icon name="layers" size={18} /></span>
+      <span class="grow">
+        <strong>{job.paused ? t('Preparing is paused') : t('Preparing for Ankhwiz…')}</strong>
+        <small>{t('{done} of {total} steps done · you can keep studying', { done: job.steps.filter((s) => s.state !== 'waiting' && s.state !== 'running').length, total: job.steps.length })}</small>
+      </span>
+      <Icon name="play" size={18} />
+    </button>
+  {:else if !busy && deck.prep?.pending?.length}
+    <button class="review card prep-strip" onclick={() => openPanel('prepare')}>
+      <span class="medal"><Icon name="check" size={18} /></span>
+      <span class="grow">
+        <strong>{t('Prepared: results to check')}</strong>
+        <small>{t('Thoth’s suggestions wait for your OK.')}</small>
+      </span>
+      <Icon name="play" size={18} />
+    </button>
+  {:else if !busy && offerFor(deck)}
+    <div class="offer plain">
+      <strong>{t('This deck wasn’t made with Ankhwiz in mind.')}</strong>
+      <span>{t('Shall I prepare it? I’ll set up voices, fair answers and lessons. Nothing in the cards’ own text changes.')}</span>
+      <div class="pair">
+        <button class="quiet" onclick={() => dismissOffer(deck.id)}>{t('Not now')}</button>
+        <button class="primary" onclick={() => openPanel('prepare')}>{t('Prepare…')}</button>
+      </div>
     </div>
   {/if}
 
@@ -107,8 +138,8 @@
     <button class="review card picked" onclick={resumePaused}>
       <span class="medal"><Icon name="resume" size={18} /></span>
       <span class="grow">
-        <strong>Pick up where you left off</strong>
-        <small>{paused.what.replace(`${deck.name} · `, '')} · {paused.done} of {paused.total} done</small>
+        <strong>{t('Pick up where you left off')}</strong>
+        <small>{t('{x} · {done} of {total} done', { x: paused.what.replace(`${deck.name} · `, ''), done: paused.done, total: paused.total })}</small>
       </span>
       <Icon name="play" size={18} />
     </button>
@@ -118,8 +149,8 @@
     <button class="review card" class:picked={sum.reviewFirst || !sum.nextId} disabled={busy} onclick={() => startReview(deck.id)}>
       <span class="medal"><Icon name="repeat" size={18} /></span>
       <span class="grow">
-        <strong>Review</strong>
-        <small>{sum.due} {sum.due === 1 ? 'card' : 'cards'} due today</small>
+        <strong>{t('Review')}</strong>
+        <small>{plural('{n} card due today', '{n} cards due today', sum.due)}</small>
       </span>
       <Icon name="play" size={18} />
     </button>
@@ -129,33 +160,33 @@
     <button class="review card thoth-entry" class:here={ui.panel === 'ai'} onclick={() => openPanel('ai')}>
       <span class="medal"><Icon name="chat" size={18} /></span>
       <span class="grow">
-        <strong>Study with Thoth</strong>
-        <small>Ask questions, add or change cards, challenge rounds, reading</small>
+        <strong>{t('Study with Thoth')}</strong>
+        <small>{t('Ask questions, add or change cards, challenge rounds, reading')}</small>
       </span>
       <Icon name="play" size={18} />
     </button>
     <button class="review card options-entry" data-tour="options" class:here={ui.panel === 'options'} onclick={() => openPanel('options')}>
       <span class="medal"><Icon name="gear" size={18} /></span>
       <span class="grow">
-        <strong>Deck options</strong>
-        <small>Daily goal, card kinds, look, export</small>
+        <strong>{t('Deck options')}</strong>
+        <small>{t('Daily goal, card kinds, look, export')}</small>
       </span>
       <Icon name="play" size={18} />
     </button>
     <div class="trio">
-      <button class="quiet" class:here={ui.panel === 'contents'} onclick={() => openPanel('contents')}><Icon name="cards" size={18} /> Cards</button>
-      <button class="quiet" class:here={ui.panel === 'progress'} onclick={() => openPanel('progress')}><Icon name="chart" size={18} /> Progress</button>
+      <button class="quiet" class:here={ui.panel === 'contents'} onclick={() => openPanel('contents')}><Icon name="cards" size={18} /> {t('Cards')}</button>
+      <button class="quiet" class:here={ui.panel === 'progress'} onclick={() => openPanel('progress')}><Icon name="chart" size={18} /> {t('Progress')}</button>
       <button class="quiet" class:here={ui.panel === 'practice'} onclick={() => openPanel('practice')}>
-        <Icon name="target" size={18} /> Practice{sum.tricky ? ` (${sum.tricky})` : ''}
+        <Icon name="target" size={18} /> {t('Practice{x}', { x: sum.tricky ? ` (${sum.tricky})` : '' })}
       </button>
     </div>
     <div class="trio second">
-      <button class="quiet" class:here={ui.panel === 'builder'} onclick={() => openPanel('builder')}><Icon name="plus" size={18} /> Add cards</button>
-      <button class="quiet" class:here={ui.panel === 'sources'} onclick={() => openPanel('sources')}><Icon name="layers" size={18} /> From sources</button>
-      <button class="quiet" class:here={ui.panel === 'types'} onclick={() => openPanel('types')}><Icon name="edit" size={18} /> Card types</button>
+      <button class="quiet" class:here={ui.panel === 'builder'} onclick={() => openPanel('builder')}><Icon name="plus" size={18} /> {t('Add cards')}</button>
+      <button class="quiet" class:here={ui.panel === 'sources'} onclick={() => openPanel('sources')}><Icon name="layers" size={18} /> {t('From sources')}</button>
+      <button class="quiet" class:here={ui.panel === 'types'} onclick={() => openPanel('types')}><Icon name="edit" size={18} /> {t('Card types')}</button>
     </div>
     {#if sum.goalMet && sum.nextId}
-      <p class="goal">Today's goal of {sum.goal} new {sum.goal === 1 ? 'lesson' : 'lessons'} is done. You can keep going.</p>
+      <p class="goal">{plural('Today\'s goal of {n} new lesson is done. You can keep going.', 'Today\'s goal of {n} new lessons is done. You can keep going.', sum.goal)}</p>
     {/if}
   {/if}
 
@@ -165,20 +196,20 @@
     {@const win = windowOf(row.unit.id, ids)}
     <div class="unit">
       <div class="unit-head">
-        <p class="label">Unit {row.number}{row.unit.name !== deck.name ? ` · ${row.unit.name}` : ''}</p>
+        <p class="label">{t('Unit {number}{x}', { number: row.number, x: row.unit.name !== deck.name ? ` · ${row.unit.name}` : '' })}</p>
         {#if row.testable && !busy}
           <button
             class="testout"
             disabled={row.tried}
-            title={row.tried ? 'One try a day: come back tomorrow' : 'A short quiz without hints. Pass it to skip ahead.'}
+            title={row.tried ? t('One try a day: come back tomorrow') : t('A short quiz without hints. Pass it to skip ahead.')}
             onclick={() => startTestOut(deck.id, row.unit.id)}
           >
-            <Icon name="flag" size={14} /> {row.tried ? 'Test out tomorrow' : 'Test out'}
+            <Icon name="flag" size={14} /> {row.tried ? t('Test out tomorrow') : t('Test out')}
           </button>
           <Help part="testout" />
         {/if}
       </div>
-      {#if win.from > 0}<button class="quiet more" onclick={() => widen(row.unit.id, ids, 'from')}>Show {Math.min(WINDOW, win.from)} earlier lessons</button>{/if}
+      {#if win.from > 0}<button class="quiet more" onclick={() => widen(row.unit.id, ids, 'from')}>{t('Show {from} earlier lessons', { from: Math.min(WINDOW, win.from) })}</button>{/if}
       <ol start={win.from + 1}>
         {#each row.lessons.slice(win.from, win.to) as l, i (l.id)}
           {@const li = win.from + i}
@@ -197,11 +228,11 @@
                 {:else}{l.status.total}{/if}
               </span>
               <span class="grow">
-                <strong>{l.lesson.name}</strong>
-                <small>{l.open ? describe(l.status) : 'Locked'}</small>
+                <strong>{shownName(l.lesson.name)}</strong>
+                <small>{l.open ? describe(l.status) : t('Locked')}</small>
               </span>
               {#if l.status.state === 'learned' || l.status.state === 'complete'}
-                <span class="pips" role="img" aria-label="Strength {Math.round(l.status.strength)} of 5">
+                <span class="pips" role="img" aria-label={t('Strength {strength} of 5', { strength: Math.round(l.status.strength) })}>
                   {#each [1, 2, 3, 4, 5] as p (p)}<i class:on={p <= Math.round(l.status.strength)}></i>{/each}
                 </span>
               {:else if l.open}
@@ -211,13 +242,31 @@
           </li>
         {/each}
       </ol>
-      {#if win.to < ids.length}<button class="quiet more" onclick={() => widen(row.unit.id, ids, 'to')}>Show more lessons ({ids.length - win.to} to go)</button>{/if}
+      {#if win.to < ids.length}<button class="quiet more" onclick={() => widen(row.unit.id, ids, 'to')}>{t('Show more lessons ({to} to go)', { to: ids.length - win.to })}</button>{/if}
     </div>
   {/each}
 
 </section>
 
 <style>
+  .offer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px;
+    border-color: var(--brass);
+  }
+  .offer span {
+    color: var(--muted);
+    font-size: 15px;
+  }
+  .offer .pair {
+    display: flex;
+    gap: 8px;
+  }
+  .offer .pair button {
+    flex: 1;
+  }
   .more {
     width: 100%;
     min-height: 44px;

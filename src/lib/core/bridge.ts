@@ -116,7 +116,7 @@ export function progressChanged(progress: object, cardIds: Iterable<string>): vo
  * accents, Anki note types). If the core was keeping the old one, it changes
  * those settings in place instead of reading the whole deck again.
  */
-export function deckSettingsChanged(before: object, after: Deck, fields: Partial<Pick<Deck, 'options' | 'strictAccents' | 'anki'>>): void {
+export function deckSettingsChanged(before: object, after: Deck, fields: Partial<Pick<Deck, 'options' | 'strictAccents' | 'anki' | 'links'>>): void {
   if (!wasm || keptDecks.get(after.id) !== before) return;
   try {
     send('patchDeck', { slot: after.id, ...fields });
@@ -172,9 +172,9 @@ function withAnki<T extends { deck: Deck }>(before: Deck, result: T): T {
   result.deck.readings = before.readings;
   result.deck.sources = before.sources;
   result.deck.made = before.made;
-  if (!result.deck.readings) delete result.deck.readings;
-  if (!result.deck.sources) delete result.deck.sources;
-  if (!result.deck.made) delete result.deck.made;
+  result.deck.place = before.place;
+  result.deck.prep = before.prep;
+  for (const k of ['readings', 'sources', 'made', 'place', 'prep'] as const) if (!result.deck[k]) delete result.deck[k];
   return result;
 }
 

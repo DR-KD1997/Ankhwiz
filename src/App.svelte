@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from './lib/i18n';
   // Layout follows window width, not platform: a narrow window (or a phone)
   // shows one column; a wide one shows the path and the lesson side by side.
   import Ai from './lib/ui/Ai.svelte';
@@ -11,6 +12,7 @@
   import Sources from './lib/ui/Sources.svelte';
   import CardTypes from './lib/ui/CardTypes.svelte';
   import Builder from './lib/ui/Builder.svelte';
+  import Prepare from './lib/ui/Prepare.svelte';
   import ShareSheet from './lib/ui/ShareSheet.svelte';
   import Progress from './lib/ui/Progress.svelte';
   import DeckAside from './lib/ui/DeckAside.svelte';
@@ -32,11 +34,12 @@
 
 <svelte:window bind:innerWidth={width} />
 
+{#key ui.lang}
 {#if ui.failed}
   <div class="splash">
     <Logo size={72} />
-    <p><strong>Ankhwiz could not start.</strong></p>
-    <p>The learning core did not load in this view ({ui.failed}). Try the desktop or Android app, or a current browser.</p>
+    <p><strong>{t('Ankhwiz could not start.')}</strong></p>
+    <p>{t('The learning core did not load in this view ({failed}). Try the desktop or Android app, or a current browser.', { failed: ui.failed })}</p>
   </div>
 {:else if !ui.ready}
   <div class="splash"><Logo size={72} /></div>
@@ -46,11 +49,11 @@
   <div class="splash" role="status">
     <Logo size={56} />
     {#if ui.loadError}
-      <p><strong>This deck could not be opened.</strong></p>
+      <p><strong>{t('This deck could not be opened.')}</strong></p>
       <p>{ui.loadError}</p>
-      <button class="quiet" onclick={() => ((ui.loadError = ''), goLibrary())}>Back to your decks</button>
+      <button class="quiet" onclick={() => ((ui.loadError = ''), goLibrary())}>{t('Back to your decks')}</button>
     {:else}
-      <p>Opening {data.decks[ui.deckId!].name}…</p>
+      <p>{t('Opening {name}…', { name: data.decks[ui.deckId!].name })}</p>
     {/if}
   </div>
 {:else if ui.session?.kind === 'all' && inDeck}
@@ -60,15 +63,16 @@
   <div class="split">
     <div class="left"><Path /></div>
     <div class="right">
-      {#if ui.session}<Session />{:else if ui.panel === 'ai'}<Ai />{:else if ui.panel === 'options'}<DeckOptions />{:else if ui.panel === 'contents'}<Contents />{:else if ui.panel === 'progress'}<Progress />{:else if ui.panel === 'practice'}<Practice />{:else if ui.panel === 'dictation'}<Dictation />{:else if ui.panel === 'recall'}<UnitRecall />{:else if ui.panel === 'reading'}<ReadingRound />{:else if ui.panel === 'sources'}<Sources />{:else if ui.panel === 'types'}<CardTypes />{:else if ui.panel === 'builder'}<Builder />{:else}<DeckAside />{/if}
+      {#if ui.session}<Session />{:else if ui.panel === 'ai'}<Ai />{:else if ui.panel === 'options'}<DeckOptions />{:else if ui.panel === 'contents'}<Contents />{:else if ui.panel === 'progress'}<Progress />{:else if ui.panel === 'practice'}<Practice />{:else if ui.panel === 'dictation'}<Dictation />{:else if ui.panel === 'recall'}<UnitRecall />{:else if ui.panel === 'reading'}<ReadingRound />{:else if ui.panel === 'sources'}<Sources />{:else if ui.panel === 'types'}<CardTypes />{:else if ui.panel === 'builder'}<Builder />{:else if ui.panel === 'prepare'}<Prepare />{:else}<DeckAside />{/if}
     </div>
   </div>
 {:else if inDeck}
-  {#if ui.session}<Session />{:else if ui.panel === 'ai'}<Ai />{:else if ui.panel === 'options'}<DeckOptions />{:else if ui.panel === 'contents'}<Contents />{:else if ui.panel === 'progress'}<Progress />{:else if ui.panel === 'practice'}<Practice />{:else if ui.panel === 'dictation'}<Dictation />{:else if ui.panel === 'recall'}<UnitRecall />{:else if ui.panel === 'reading'}<ReadingRound />{:else if ui.panel === 'sources'}<Sources />{:else if ui.panel === 'types'}<CardTypes />{:else if ui.panel === 'builder'}<Builder />{:else}<Path />{/if}
+  {#if ui.session}<Session />{:else if ui.panel === 'ai'}<Ai />{:else if ui.panel === 'options'}<DeckOptions />{:else if ui.panel === 'contents'}<Contents />{:else if ui.panel === 'progress'}<Progress />{:else if ui.panel === 'practice'}<Practice />{:else if ui.panel === 'dictation'}<Dictation />{:else if ui.panel === 'recall'}<UnitRecall />{:else if ui.panel === 'reading'}<ReadingRound />{:else if ui.panel === 'sources'}<Sources />{:else if ui.panel === 'types'}<CardTypes />{:else if ui.panel === 'builder'}<Builder />{:else if ui.panel === 'prepare'}<Prepare />{:else}<Path />{/if}
 {:else}
   <Library />
 {/if}
 {#if ui.ready && !ui.failed}<UpdatePrompt /><Tour /><ShareSheet />{/if}
+{/key}
 
 <style>
   .splash {

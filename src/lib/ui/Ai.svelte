@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { shownName, t } from '../i18n';
   import Help from './Help.svelte';
   import { offerPart } from '../tour.svelte';
   import { onMount } from 'svelte';
@@ -19,11 +20,11 @@
 
   type Tab = 'ask' | 'cards' | 'improve' | 'challenge' | 'reading';
   const tabs: [Tab, string][] = [
-    ['ask', 'Ask'],
-    ['cards', 'Add cards'],
-    ['improve', 'Improve'],
-    ['challenge', 'Challenge'],
-    ['reading', 'Reading'],
+    ['ask', t('Ask')],
+    ['cards', t('Add cards')],
+    ['improve', t('Improve')],
+    ['challenge', t('Challenge')],
+    ['reading', t('Reading')],
   ];
   let tab = $state<Tab>(ui.aiTab);
   // Cards sent here from elsewhere (tricky cards from Progress).
@@ -41,7 +42,7 @@
     try {
       return await ask<T>(task, snap(deck), args);
     } catch (e) {
-      error = e instanceof Error ? e.message : 'Something went wrong.';
+      error = e instanceof Error ? t(e.message) : t('Something went wrong.');
       return null;
     } finally {
       busy = false;
@@ -53,7 +54,7 @@
     const req = ready ? plan(task, snap(deck), args) : null;
     if (!req) return '';
     const rounded = req.estimate < 100 ? req.estimate : Math.round(req.estimate / 50) * 50;
-    return `About ${rounded.toLocaleString()} tokens will be sent, using the ${req.strong && data.ai.strongModel ? 'larger' : 'quick'} model.`;
+    return t('About {x} tokens will be sent, using the {x2} model.', { x: rounded.toLocaleString(), x2: req.strong && data.ai.strongModel ? t('larger') : t('quick') });
   }
 
   // ----- Ask -----
@@ -83,10 +84,10 @@
   function addDrafts() {
     const rows = drafts.filter((d) => d.keep && d.front.trim() && d.back.trim()).map(({ keep: _keep, ...row }) => row);
     if (!rows.length) return;
-    const unit = topic.trim() ? topic.trim().slice(0, 40) : 'Added with Thoth';
+    const unit = topic.trim() ? topic.trim().slice(0, 40) : t('Added with Thoth');
     const result = addNotes(snap(deck), unit, snap(rows), true);
     putDeck(result.deck);
-    notice = `Added ${result.noteIds.length} cards as new lessons in “${unit}”. They are marked AI on the lesson screen.`;
+    notice = t('Added {noteIdsCount} cards as new lessons in “{unit}”. They are marked AI on the lesson screen.', { noteIdsCount: result.noteIds.length, unit });
     drafts = [];
   }
 
@@ -94,7 +95,7 @@
   const lessonList = $derived(deck.units.flatMap((u) => u.lessonIds.map((id) => deck.lessons[id])));
   let lessonId = $state(sentNotes.length ? '__sent' : (data.decks[ui.deckId!]?.units[0]?.lessonIds[0] ?? ''));
   const chosen = $derived(
-    lessonId === '__sent' ? { id: '__sent', name: 'Tricky cards', noteIds: sentNotes } : (deck.lessons[lessonId] ?? lessonList[0]),
+    lessonId === '__sent' ? { id: '__sent', name: t('Tricky cards'), noteIds: sentNotes } : (deck.lessons[lessonId] ?? lessonList[0]),
   );
   let suggestions = $state<(Suggestion & { keepAlts: boolean[]; keepWrong: boolean[] })[]>([]);
   let names = $state<{ id: string; from: string; to: string; keep: boolean }[]>([]);
@@ -103,7 +104,7 @@
     const found = await run<Suggestion[]>('improve', { noteIds });
     if (!found) return;
     suggestions = found.map((s) => ({ ...s, keepAlts: s.alts.map(() => true), keepWrong: s.wrong.map(() => true) }));
-    if (!found.length) notice = 'Thoth found nothing to add to these cards.';
+    if (!found.length) notice = t('Thoth found nothing to add to these cards.');
   }
   function applySuggestions() {
     let changed = 0;
@@ -120,7 +121,7 @@
     }
     save();
     suggestions = [];
-    notice = changed ? `Updated ${changed} cards.` : 'Nothing was selected.';
+    notice = changed ? t('Updated {changed} cards.', { changed }) : t('Nothing was selected.');
   }
   async function nameLessons() {
     const found = await run<Record<string, string>>('lessons', {});
@@ -128,13 +129,13 @@
     names = Object.entries(found)
       .filter(([id, to]) => deck.lessons[id] && deck.lessons[id].name !== to)
       .map(([id, to]) => ({ id, from: deck.lessons[id].name, to, keep: true }));
-    if (!names.length) notice = 'The lesson names already fit.';
+    if (!names.length) notice = t('The lesson names already fit.');
   }
   function applyNames() {
     for (const n of names) if (n.keep && n.to.trim()) deck.lessons[n.id].name = n.to.trim();
     save();
     names = [];
-    notice = 'Lesson names updated.';
+    notice = t('Lesson names updated.');
   }
 
   // ----- Direct changes -----
@@ -160,9 +161,9 @@
   function applyChanges() {
     const edits = proposed.filter((c) => c.keep).map((c) => c.edit);
     if (!edits.length) return;
-    const label = `Before Thoth: ${instruction.trim().slice(0, 50)}${instruction.trim().length > 50 ? '…' : ''}`;
+    const label = t('Before Thoth: {x}{x2}', { x: instruction.trim().slice(0, 50), x2: instruction.trim().length > 50 ? '…' : '' });
     const r = editDeck(deck.id, snap(edits), true, keepBackup ? label : '');
-    notice = `Made ${edits.length - r.skipped} ${edits.length - r.skipped === 1 ? 'change' : 'changes'}.${keepBackup ? ' The deck as it was is kept under Deck options › Backups.' : ''}`;
+    notice = `Made ${edits.length - r.skipped} ${edits.length - r.skipped === 1 ? 'change' : 'changes'}.${keepBackup ? t(' The deck as it was is kept under Deck options › Backups.') : ''}`;
     proposed = [];
     instruction = '';
   }
@@ -209,7 +210,7 @@
       questions.push({ question: q.question.trim(), options, answer: at });
     }
     if (!ownPassage.trim() || !questions.length) {
-      error = 'Add a passage and at least one question with a right answer and a wrong one.';
+      error = t('Add a passage and at least one question with a right answer and a wrong one.');
       return;
     }
     error = '';
@@ -235,8 +236,8 @@
 
 <section class="ai">
   <header>
-    <button class="icon-btn" aria-label="Back to lessons" onclick={() => openPanel('path')}><Icon name="back" /></button>
-    <h1 class="display">Study with Thoth</h1>
+    <button class="icon-btn" aria-label={t('Back to lessons')} onclick={() => openPanel('path')}><Icon name="back" /></button>
+    <h1 class="display">{t('Study with Thoth')}</h1>
     <Help part="thoth" />
   </header>
 
@@ -244,33 +245,32 @@
     <div class="intro plain">
       {#if data.settings.thoth !== 'hidden'}<div class="portrait"><Thoth size={84} portrait mood={busy ? 'think' : 'idle'} nodOn={busy} /></div>{/if}
       <div>
-        <p><strong>No AI connection yet.</strong></p>
+        <p><strong>{t('No AI connection yet.')}</strong></p>
         <p>
-          Connect a service of your own (OpenAI, Gemini, Grok, OpenRouter, a model on this computer, or any compatible
-          address) and I can answer questions, draft cards, set challenge rounds and write reading passages.
+          {t('Connect a service of your own (OpenAI, Gemini, Grok, OpenRouter, a model on this computer, or any compatible address) and I can answer questions, draft cards, set challenge rounds and write reading passages.')}
         </p>
-        <button class="quiet" onclick={() => (ui.screen = 'settings')}>Open Settings</button>
+        <button class="quiet" onclick={() => (ui.screen = 'settings')}>{t('Open Settings')}</button>
       </div>
     </div>
   {:else if !data.ai.noticeSeen}
     <div class="intro plain">
       <div>
-        <p><strong>Before the first request</strong></p>
+        <p><strong>{t('Before the first request')}</strong></p>
         {#if isLocal()}
-          <p>Your AI model runs on this computer, so nothing leaves it.</p>
+          <p>{t('Your AI model runs on this computer, so nothing leaves it.')}</p>
         {:else}
           <p>
-            When you use a feature here, the cards it needs from this deck and whatever you type are sent to
-            <strong>{aiHost()}</strong>, under your own key and that service's terms. Nothing is sent at other times.
+            {t('When you use a feature here, the cards it needs from this deck and whatever you type are sent to')}
+            <strong>{aiHost()}</strong>{t(', under your own key and that service\'s terms. Nothing is sent at other times.')}
           </p>
         {/if}
-        <p>AI can be wrong. New cards and changes are shown as drafts for you to approve, and are marked “AI” afterwards.</p>
-        <button class="quiet" onclick={acceptNotice}>I understand</button>
+        <p>{t('AI can be wrong. New cards and changes are shown as drafts for you to approve, and are marked “AI” afterwards.')}</p>
+        <button class="quiet" onclick={acceptNotice}>{t('I understand')}</button>
       </div>
     </div>
   {/if}
 
-  <div class="seg tabs" role="group" aria-label="Features">
+  <div class="seg tabs" role="group" aria-label={t('Features')}>
     {#each tabs as [id, name] (id)}
       <button aria-pressed={tab === id} onclick={() => ((tab = id), (error = ''), (notice = ''))}>{name}</button>
     {/each}
@@ -280,212 +280,211 @@
   {#if notice}<p class="msg plain" role="status">{notice}</p>{/if}
 
   {#if tab === 'ask'}
-    <p class="hint">Ask about anything this deck covers. Answers draw on its cards first.</p>
+    <p class="hint">{t('Ask about anything this deck covers. Answers draw on its cards first.')}</p>
     <div class="chat">
       {#each history as m, i (i)}
         <p class="turn {m.role} plain">{m.content}</p>
       {/each}
-      {#if busy}<p class="turn assistant plain muted">Thoth is thinking…</p>{/if}
+      {#if busy}<p class="turn assistant plain muted">{t('Thoth is thinking…')}</p>{/if}
     </div>
     <form class="ask" onsubmit={(e) => (e.preventDefault(), void send())}>
-      <input class="input" bind:value={question} placeholder="Your question" aria-label="Your question" disabled={!ready || !data.ai.noticeSeen} />
-      <button class="quiet" disabled={!ready || !data.ai.noticeSeen || busy || !question.trim()}>Ask</button>
+      <input class="input" bind:value={question} placeholder={t('Your question')} aria-label={t('Your question')} disabled={!ready || !data.ai.noticeSeen} />
+      <button class="quiet" disabled={!ready || !data.ai.noticeSeen || busy || !question.trim()}>{t('Ask')}</button>
     </form>
-    {#if history.length}<button class="link" onclick={() => (history = [])}>Start over</button>{/if}
+    {#if history.length}<button class="link" onclick={() => (history = [])}>{t('Start over')}</button>{/if}
   {:else if tab === 'cards'}
     {#if drafts.length}
-      <p class="hint">Drafts. Edit them, untick any you do not want, then add the rest.</p>
+      <p class="hint">{t('Drafts. Edit them, untick any you do not want, then add the rest.')}</p>
       <ul class="drafts">
         {#each drafts as d, i (i)}
           <li class="plain">
-            <input type="checkbox" bind:checked={d.keep} aria-label="Keep this card" />
+            <input type="checkbox" bind:checked={d.keep} aria-label={t('Keep this card')} />
             <span class="pairin">
-              <input class="input" bind:value={d.front} aria-label="Front" />
-              <input class="input" bind:value={d.back} aria-label="Answer" />
-              {#if d.alts?.length}<small>Also accepted: {d.alts.join(', ')}</small>{/if}
+              <input class="input" bind:value={d.front} aria-label={t('Front')} />
+              <input class="input" bind:value={d.back} aria-label={t('Answer')} />
+              {#if d.alts?.length}<small>{t('Also accepted: {x}', { x: d.alts.join(', ') })}</small>{/if}
             </span>
           </li>
         {/each}
       </ul>
       <div class="pair">
-        <button class="quiet" onclick={() => (drafts = [])}>Discard</button>
-        <button class="primary" onclick={addDrafts}>Add {drafts.filter((d) => d.keep).length} cards</button>
+        <button class="quiet" onclick={() => (drafts = [])}>{t('Discard')}</button>
+        <button class="primary" onclick={addDrafts}>{t('Add {length} cards', { length: drafts.filter((d) => d.keep).length })}</button>
       </div>
     {:else}
-      <label class="field"><span>Topic <small>what the new cards should cover</small></span>
-        <input class="input" bind:value={topic} placeholder="e.g. vegetables, the French Revolution" />
+      <label class="field"><span>{t('Topic')} <small>{t('what the new cards should cover')}</small></span>
+        <input class="input" bind:value={topic} placeholder={t('e.g. vegetables, the French Revolution')} />
       </label>
-      <label class="field"><span>Source text <small>optional: paste notes or an article and the cards will come only from it</small></span>
+      <label class="field"><span>{t('Source text')} <small>{t('optional: paste notes or an article and the cards will come only from it')}</small></span>
         <textarea class="input" rows="5" bind:value={source}></textarea>
       </label>
-      <label class="field narrow"><span>How many</span>
+      <label class="field narrow"><span>{t('How many')}</span>
         <input class="input" type="number" min="1" max="40" bind:value={count} />
       </label>
       <p class="hint">{size('cards', cardArgs)}</p>
       <button class="primary" disabled={!ready || !data.ai.noticeSeen || busy || (!topic.trim() && !source.trim())} onclick={draft}>
-        {busy ? 'Writing drafts…' : 'Draft cards'}
+        {busy ? t('Writing drafts…') : t('Draft cards')}
       </button>
     {/if}
   {:else if tab === 'improve'}
     {#if proposed.length}
-      <p class="hint"><strong>Proposed changes</strong>{summary ? ` · ${summary.replace(/[.!]+$/, '')}` : ''}. Untick any you do not want.</p>
+      <p class="hint"><strong>{t('Proposed changes')}</strong>{t('{x}. Untick any you do not want.', { x: summary ? ` · ${summary.replace(/[.!]+$/, '')}` : '' })}</p>
       <ul class="drafts">
         {#each proposed as c, i (i)}
           <li class="plain">
-            <input type="checkbox" bind:checked={c.keep} aria-label="Make this change" />
+            <input type="checkbox" bind:checked={c.keep} aria-label={t('Make this change')} />
             <span class="pairin"><span dir="auto">{c.describe}</span></span>
           </li>
         {/each}
       </ul>
-      <label class="keep"><input type="checkbox" bind:checked={keepBackup} /> Keep a backup of the deck as it is now</label>
+      <label class="keep"><input type="checkbox" bind:checked={keepBackup} /> {t('Keep a backup of the deck as it is now')}</label>
       <div class="pair">
-        <button class="quiet" onclick={() => (proposed = [])}>Discard</button>
+        <button class="quiet" onclick={() => (proposed = [])}>{t('Discard')}</button>
         <button class="primary" disabled={!proposed.some((c) => c.keep)} onclick={applyChanges}>
-          Make {proposed.filter((c) => c.keep).length} changes
+          {t('Make {length} changes', { length: proposed.filter((c) => c.keep).length })}
         </button>
       </div>
     {:else if !suggestions.length && !names.length}
       <div class="direct plain">
-        <p class="label">Change the deck in your own words</p>
+        <p class="label">{t('Change the deck in your own words')}</p>
         <textarea
           class="input"
           rows="3"
           bind:value={instruction}
-          placeholder="e.g. Add an example sentence to each card's Extra · Make the answers lowercase · Add five more fruits to the Fruit lesson"
+          placeholder={t('e.g. Add an example sentence to each card\'s Extra · Make the answers lowercase · Add five more fruits to the Fruit lesson')}
         ></textarea>
-        <label class="field"><span>Apply to</span>
+        <label class="field"><span>{t('Apply to')}</span>
           <select class="input" bind:value={scope}>
-            <option value="deck">The whole deck</option>
-            {#each deck.units as u (u.id)}<option value={u.id}>Unit: {u.name}</option>{/each}
-            {#each lessonList as l (l.id)}<option value={l.id}>Lesson: {l.name}</option>{/each}
+            <option value="deck">{t('The whole deck')}</option>
+            {#each deck.units as u (u.id)}<option value={u.id}>{t('Unit: {name}', { name: u.name })}</option>{/each}
+            {#each lessonList as l (l.id)}<option value={l.id}>{t('Lesson: {name}', { name: l.name })}</option>{/each}
           </select>
         </label>
-        {#if scopeCount > 150}<p class="hint">Only the first 150 cards are sent; choose a unit or lesson to reach the rest.</p>{/if}
-        <p class="hint">{size('edit', scopeArgs)} You see every change before anything is made.</p>
+        {#if scopeCount > 150}<p class="hint">{t('Only the first 150 cards are sent; choose a unit or lesson to reach the rest.')}</p>{/if}
+        <p class="hint">{t('{scopeArgs} You see every change before anything is made.', { scopeArgs: size('edit', scopeArgs) })}</p>
         <button class="primary" disabled={!ready || !data.ai.noticeSeen || busy || !instruction.trim()} onclick={previewChanges}>
-          {busy ? 'Thoth is working…' : 'Preview changes'}
+          {busy ? t('Thoth is working…') : t('Preview changes')}
         </button>
       </div>
-      <p class="label or">Or let Thoth suggest</p>
+      <p class="label or">{t('Or let Thoth suggest')}</p>
     {/if}
     {#if proposed.length}
       <!-- the preview above replaces the suggestions until it is applied or discarded -->
     {:else if suggestions.length}
-      <p class="hint">Suggestions. Untick anything you disagree with. Flags are for you to act on; they change nothing.</p>
+      <p class="hint">{t('Suggestions. Untick anything you disagree with. Flags are for you to act on; they change nothing.')}</p>
       <ul class="drafts">
         {#each suggestions as s (s.noteId)}
           <li class="plain col">
             <strong>{deck.notes[s.noteId]?.front} = {deck.notes[s.noteId]?.back}</strong>
-            {#if s.flag}<p class="flag">Check this card: {s.flag}</p>{/if}
+            {#if s.flag}<p class="flag">{t('Check this card: {flag}', { flag: s.flag })}</p>{/if}
             {#each s.alts as a, i (a)}
-              <label><input type="checkbox" bind:checked={s.keepAlts[i]} /> Also accept “{a}”</label>
+              <label><input type="checkbox" bind:checked={s.keepAlts[i]} /> {t('Also accept “{a}”', { a })}</label>
             {/each}
             {#each s.wrong as w, i (w)}
-              <label><input type="checkbox" bind:checked={s.keepWrong[i]} /> Wrong option “{w}”</label>
+              <label><input type="checkbox" bind:checked={s.keepWrong[i]} /> {t('Wrong option “{w}”', { w })}</label>
             {/each}
           </li>
         {/each}
       </ul>
       <div class="pair">
-        <button class="quiet" onclick={() => (suggestions = [])}>Discard</button>
-        <button class="primary" onclick={applySuggestions}>Apply selected</button>
+        <button class="quiet" onclick={() => (suggestions = [])}>{t('Discard')}</button>
+        <button class="primary" onclick={applySuggestions}>{t('Apply selected')}</button>
       </div>
     {:else if names.length}
-      <p class="hint">Proposed lesson names.</p>
+      <p class="hint">{t('Proposed lesson names.')}</p>
       <ul class="drafts">
         {#each names as n (n.id)}
           <li class="plain">
-            <input type="checkbox" bind:checked={n.keep} aria-label="Use this name" />
-            <span class="pairin"><small>{n.from}</small><input class="input" bind:value={n.to} aria-label="New name" /></span>
+            <input type="checkbox" bind:checked={n.keep} aria-label={t('Use this name')} />
+            <span class="pairin"><small>{n.from}</small><input class="input" bind:value={n.to} aria-label={t('New name')} /></span>
           </li>
         {/each}
       </ul>
       <div class="pair">
-        <button class="quiet" onclick={() => (names = [])}>Discard</button>
-        <button class="primary" onclick={applyNames}>Rename lessons</button>
+        <button class="quiet" onclick={() => (names = [])}>{t('Discard')}</button>
+        <button class="primary" onclick={applyNames}>{t('Rename lessons')}</button>
       </div>
     {:else}
-      <label class="field"><span>Lesson <small>Thoth suggests other accepted answers and harder wrong options, and flags doubtful cards</small></span>
+      <label class="field"><span>{t('Lesson')} <small>{t('Thoth suggests other accepted answers and harder wrong options, and flags doubtful cards')}</small></span>
         <select class="input" bind:value={lessonId}>
-          {#if sentNotes.length}<option value="__sent">Tricky cards ({sentNotes.length})</option>{/if}
-          {#each lessonList as l (l.id)}<option value={l.id}>{l.name} ({l.noteIds.length})</option>{/each}
+          {#if sentNotes.length}<option value="__sent">{t('Tricky cards ({sentNotesCount})', { sentNotesCount: sentNotes.length })}</option>{/if}
+          {#each lessonList as l (l.id)}<option value={l.id}>{shownName(l.name)} ({l.noteIds.length})</option>{/each}
         </select>
       </label>
       <p class="hint">{chosen ? size('improve', { noteIds: snap(chosen.noteIds).slice(0, 30) }) : ''}</p>
       <button class="primary" disabled={!ready || !data.ai.noticeSeen || busy || !chosen} onclick={improve}>
-        {busy ? 'Reading the cards…' : 'Review this lesson'}
+        {busy ? t('Reading the cards…') : t('Review this lesson')}
       </button>
-      <button class="quiet" disabled={!ready || !data.ai.noticeSeen || busy} onclick={nameLessons}>Propose names for all lessons</button>
+      <button class="quiet" disabled={!ready || !data.ai.noticeSeen || busy} onclick={nameLessons}>{t('Propose names for all lessons')}</button>
       <p class="hint">{size('lessons', {})}</p>
     {/if}
   {:else if tab === 'challenge'}
     {#if challenge && challengeScore === null}
-      <p class="hint"><span class="tag">AI</span> Written for this round. It does not change your review schedule.</p>
+      <p class="hint"><span class="tag">{t('AI')}</span> {t('Written for this round. It does not change your review schedule.')}</p>
       {#key challenge}
         <Quiz questions={challenge} whys={challenge.map((q) => q.why)} onDone={(n) => (challengeScore = n)} />
       {/key}
     {:else}
       {#if challenge && challengeScore !== null}
-        <p class="msg plain" role="status">Challenge complete: {challengeScore} of {challenge.length}.</p>
+        <p class="msg plain" role="status">{t('Challenge complete: {challengeScore} of {challengeCount}.', { challengeScore, challengeCount: challenge.length })}</p>
       {/if}
       <p class="hint">
-        Five fresh questions on what you have met so far, asked in new ways. A challenge round is extra practice: it
-        never moves a card's stage or due date.
+        {t('Five fresh questions on what you have met so far, asked in new ways. A challenge round is extra practice: it never moves a card\'s stage or due date.')}
       </p>
       <p class="hint">{size('challenge', { progress: snap(progress), count: 5 })}</p>
       <button class="primary" disabled={!ready || !data.ai.noticeSeen || busy} onclick={startChallenge}>
-        {busy ? 'Setting questions…' : challenge ? 'Another round' : 'Start a challenge'}
+        {busy ? t('Setting questions…') : challenge ? t('Another round') : t('Start a challenge')}
       </button>
     {/if}
   {:else if open}
     <div class="reading">
-      <p class="label">{open.title} {#if open.ai}<span class="tag">AI</span>{/if}</p>
+      <p class="label">{open.title} {#if open.ai}<span class="tag">{t('AI')}</span>{/if}</p>
       {#if answering}
-        <details class="plain"><summary>Show the passage</summary><p class="passage">{open.passage}</p></details>
+        <details class="plain"><summary>{t('Show the passage')}</summary><p class="passage">{open.passage}</p></details>
         {#key open.id}<Quiz questions={open.questions} onDone={finishReading} />{/key}
       {:else}
         <p class="passage plain">{open.passage}</p>
-        {#if readScore !== null}<p class="msg plain" role="status">You answered {readScore} of {open.questions.length} correctly.</p>{/if}
+        {#if readScore !== null}<p class="msg plain" role="status">{t('You answered {readScore} of {questionsCount} correctly.', { readScore, questionsCount: open.questions.length })}</p>{/if}
         <button class="primary" onclick={() => ((answering = true), (readScore = null))}>
-          {readScore === null ? `Answer ${open.questions.length} questions` : 'Try again'}
+          {readScore === null ? `Answer ${open.questions.length} questions` : t('Try again')}
         </button>
         <div class="pair">
-          <button class="quiet" onclick={() => (open = null)}>Back to passages</button>
-          <button class="quiet" onclick={() => removeReading(open!.id)}>Remove</button>
+          <button class="quiet" onclick={() => (open = null)}>{t('Back to passages')}</button>
+          <button class="quiet" onclick={() => removeReading(open!.id)}>{t('Remove')}</button>
         </div>
       {/if}
     </div>
   {:else if writing}
-    <label class="field"><span>Passage</span><textarea class="input" rows="6" bind:value={ownPassage}></textarea></label>
+    <label class="field"><span>{t('Passage')}</span><textarea class="input" rows="6" bind:value={ownPassage}></textarea></label>
     {#each ownQuestions as q, i (i)}
       <fieldset class="plain">
-        <legend>Question {i + 1}</legend>
-        <input class="input" bind:value={q.question} placeholder="Question" aria-label="Question" />
-        <input class="input" bind:value={q.right} placeholder="Right answer" aria-label="Right answer" />
+        <legend>{t('Question {x}', { x: i + 1 })}</legend>
+        <input class="input" bind:value={q.question} placeholder={t('Question')} aria-label={t('Question')} />
+        <input class="input" bind:value={q.right} placeholder={t('Right answer')} aria-label={t('Right answer')} />
         {#each q.wrong as _, w (w)}
-          <input class="input" bind:value={q.wrong[w]} placeholder="Wrong answer{w ? ' (optional)' : ''}" aria-label="Wrong answer" />
+          <input class="input" bind:value={q.wrong[w]} placeholder={t('Wrong answer{x}', { x: w ? t(' (optional)') : '' })} aria-label={t('Wrong answer')} />
         {/each}
       </fieldset>
     {/each}
-    <button class="quiet" onclick={() => ownQuestions.push({ question: '', right: '', wrong: ['', '', ''] })}>Add a question</button>
+    <button class="quiet" onclick={() => ownQuestions.push({ question: '', right: '', wrong: ['', '', ''] })}>{t('Add a question')}</button>
     {#if ready && data.ai.noticeSeen}
       <button class="quiet" disabled={busy || !ownPassage.trim()} onclick={() => makeReading(ownPassage)}>
-        {busy ? 'Writing questions…' : 'Let Thoth write the questions instead'}
+        {busy ? t('Writing questions…') : t('Let Thoth write the questions instead')}
       </button>
     {/if}
     <div class="pair">
-      <button class="quiet" onclick={() => (writing = false)}>Cancel</button>
-      <button class="primary" onclick={saveOwn}>Save passage</button>
+      <button class="quiet" onclick={() => (writing = false)}>{t('Cancel')}</button>
+      <button class="primary" onclick={saveOwn}>{t('Save passage')}</button>
     </div>
   {:else}
-    <p class="hint">Read a passage, then answer questions about it. Questions can be yours or Thoth's.</p>
+    <p class="hint">{t('Read a passage, then answer questions about it. Questions can be yours or Thoth\'s.')}</p>
     {#if readings.length}
       <ul class="drafts">
         {#each readings as r (r.id)}
           <li>
             <button class="lesson card" onclick={() => openReading(r)}>
               <span class="grow"><strong>{r.title}</strong>
-                <small>{r.questions.length} questions{r.best != null ? ` · best ${r.best} of ${r.questions.length}` : ''}{r.ai ? ' · AI' : ''}</small>
+                <small>{t('{questionsCount} questions{x}{x2}', { questionsCount: r.questions.length, x: r.best != null ? ` · best ${r.best} of ${r.questions.length}` : '', x2: r.ai ? t(' · AI') : '' })}</small>
               </span>
               <Icon name="play" size={18} />
             </button>
@@ -493,14 +492,14 @@
         {/each}
       </ul>
     {/if}
-    <label class="field"><span>Topic for a new passage <small>optional</small></span>
-      <input class="input" bind:value={readTopic} placeholder="Thoth chooses if left empty" />
+    <label class="field"><span>{t('Topic for a new passage')} <small>{t('optional')}</small></span>
+      <input class="input" bind:value={readTopic} placeholder={t('Thoth chooses if left empty')} />
     </label>
     <p class="hint">{size('reading', { topic: readTopic, passage: '', count: 4 })}</p>
     <button class="primary" disabled={!ready || !data.ai.noticeSeen || busy} onclick={() => makeReading('')}>
-      {busy ? 'Writing…' : 'Write a passage with questions'}
+      {busy ? t('Writing…') : t('Write a passage with questions')}
     </button>
-    <button class="quiet" onclick={() => ((writing = true), (error = ''))}>Use my own passage</button>
+    <button class="quiet" onclick={() => ((writing = true), (error = ''))}>{t('Use my own passage')}</button>
   {/if}
 </section>
 

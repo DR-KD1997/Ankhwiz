@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '../i18n';
   // A card's text with the words read in another voice underlined: solid for
   // words marked in the card editor, dotted for words in quotes under the
   // deck's rule. Each such run carries its language, for screen readers too.
@@ -9,7 +10,7 @@
   const parts = $derived(show ? runs(text, lang, marks, quoteLang) : [{ text, from: 'base' as const, lang }]);
 </script>
 
-{#each parts as r, i (i)}{#if r.from === 'base'}{r.text}{:else}<span class="v-{r.from}" lang={r.lang} title="Read in {langName(r.lang)}">{r.text}</span>{/if}{/each}
+{#each parts as r, i (i)}{#if r.from === 'base'}{r.text}{:else}<span class="v-{r.from}" lang={r.lang} title={t('Read in {lang}', { lang: langName(r.lang) })}>{r.text}</span>{/if}{/each}
 
 <style>
   span {

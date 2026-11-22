@@ -1,0 +1,449 @@
+450|Ters yön
+451|Boşluk {x}
+452|Bölüm {x}
+453|Cevaplanacak soru
+454|Kart çeşidi
+455|Soru ve cevap
+456|Gizli bölümlü resim
+457|1. soru alanını taşı: basılı tutup sürükle ya da ok tuşlarını kullan
+458|Başka bir soru alanı ekle
+459|{x}. soru alanını taşı: basılı tutup sürükle ya da ok tuşlarını kullan
+460|Soru alanı {x}
+461|{x}. soru alanını kaldır
+462|İlk alan ana sorudur (bu tür kart iki yönlü sorulduğunda ters yönde sorulan odur); diğerleri altında, daha küçük gösterilir{x}.
+463|, üçüncüden sonrakiler bir okun arkasında
+464|{n} boşluklu boşluk doldurma kartı: her boşluk ayrı sorulur.
+465|Başka bir dilde oku
+466|Seçilen kelimelerin dili
+467|İşaretle
+468|{text} işaretini kaldır
+469|İşaretli kelimeler nerede geçerse geçsin kendi dillerinde okunur, örneğin “What does la manzana mean?” içindeki İspanyolca.
+470|Soru resimleri ve sesleri
+471|Cevap resimleri ve sesleri
+472|Ek
+473|Cevapladıktan sonra gösterilen bir örnek ya da not
+474|1. ek alanı taşı: basılı tutup sürükle ya da ok tuşlarını kullan
+475|Başka bir ek alan ekle
+476|{x}. ek alanı taşı: basılı tutup sürükle ya da ok tuşlarını kullan
+477|Ek alan {x}
+478|{x}. ek alanı kaldır
+479|Bu kartı kendin değerlendirirsin
+480|Puanlanmak yerine cevabı gör ve ne kadar yakın olduğunu söyle
+481|Cevabı kelimelerden kur
+482|İlk iki aşamada, üç kelime ya da daha uzun cevaplar kelime kutucuklarından kurulur
+483|Ayrıca kabul edilir
+484|Diğer doğru cevaplar, virgülle ayrılmış
+485|Yanlış seçenekler
+486|Çoktan seçmelide önce gösterilir, virgülle ayrılmış
+487|Etiketler
+488|Kendi etiketlerin, virgülle ayrılmış
+489|Geçmiş
+490|Aşama {stage} · {x} · {c} · {n} cevap, {lapses} yanlış{x3}
+491|Son cevaplar
+492|Henüz tanışılmadı
+493|Devam ettir
+494|Anki: askıya al
+495|Sormayı bırak
+496|Tamamen kaldır
+497|Kartı kaldır
+498|Kartlarda ara
+499|Göster
+500|Tüm kartlar
+501|Zor
+502|YZ tarafından yazıldı
+503|Kaynaklarda bulunamadı
+504|Etiket
+505|Herhangi bir etiket
+506|Kart ekle
+507|Ünite adı
+508|Yeniden adlandır
+509|Ders adı
+510|{name} adını değiştir
+511|{name} içine kart ekle
+512|Medya içeriyor
+513|Boşluk doldurma
+514|+ {name} içinde yeni ders
+515|Eşleşen kart yok.
+516|{limit} kart daha göster (henüz gösterilmeyen {limit2})
+517|Öğrenildi
+518|{introduced} / {total}
+519|Bugün zamanı gelen
+520|Seri
+521|Aynı derste daha sonra sorulur, asla hemen ardından değil. Her gün bir notun yalnızca bir yönü tekrara gelir (Anki: kardeşleri göm).
+522|Ertesi gün, tekrarlar arasında karşına çıkar. Her gün bir notun yalnızca bir yönü tekrara gelir (Anki: kardeşleri göm).
+523|İlk yönün hemen ardından sorulur ve ikisi aynı gün tekrara gelebilir.
+524|Deste dışa aktarılamadı.
+525|{n} notta kullanılmayan alanların metni silindi. Önce bir yedek alındı.
+526|Silinecek bir şey yoktu.
+527|Ankhwiz için hazırla
+528|Hazırlanıyor…
+529|Kontrol edilecek sonuçlar
+530|Yeniden hazırla
+531|Bu desteyi hazırla
+532|En son {date} tarihinde hazırlandı. Yalnızca o zamandan beri eklenen ya da değişen kartlara yeniden bakılır.
+533|Sesler, adil cevaplar, ders adları ve daha fazlası tek seferde ayarlanır: bu cihazda ve yapay zekâ bağlantısı kuruluysa Thoth ile.
+534|Günlük hedef
+535|Günde yeni ders
+536|{x} (Anki: günlük yeni kart)
+537|Hedefe ulaşıldığında Thoth söyler; istersen devam edebilirsin
+538|Hedef yok
+539|Daha az yeni ders
+540|Daha fazla yeni ders
+541|Günde tekrar
+542|Gerisi yarına kalır (Anki: günlük en fazla tekrar)
+543|Daha az tekrar
+544|Daha fazla tekrar
+545|Hatırlama
+546|Daha çok hatırla ya da daha az tekrar et
+547|Daha az tekrar
+548|Daha çok hatırla
+549|Kartlar, büyük olasılıkla %{pct} kadarını hâlâ hatırlayacağın zaman geri gelir. Daha yüksek, daha çok tekrar demektir. (Anki: istenen akılda tutma)
+550|Kart çeşitleri
+551|Her kart çeşidi için cevabı da göster ve soruyu iste (Anki: ters kart)
+552|Ankhwiz'de yapılan kartlar
+553|Cevabı da göster ve soruyu iste (Anki: ters kart)
+554|Ters yönün ne zaman sorulacağı
+555|Araya yay
+556|Ertesi gün
+557|Hemen ardından
+558|Cümle kur
+559|İlk iki aşamada, üç kelime ya da daha uzun cevaplar, araya birkaç fazla kelime karıştırılmış kutucuklardan kurulur. Her kart Kartlar'dan bunu kapatabilir.
+560|Aksan işaretleri zorunlu
+561|Kapalıyken “melocoton”, “melocotón” yerine sayılır
+562|Boşluk doldurma kartları: Kartlar'da şuna benzer boşluklu bir soru yaz
+563|(Anki: cloze).
+564|Hangi Anki alanlarının soru, cevap ve ek olacağı. Ek alanları ya da ana sorunun altında gösterilen soru alanlarını değiştirmek ilerlemeni korur; ana soruyu ya da cevabı değiştirmek o kartları baştan başlatır.
+565|Kullanılmayan alanlar
+566|Bu Anki alanlarında hiçbir kartın göstermediği metin var. Deste Anki'ye geldiği gibi dönebilsin diye saklanıyor; silmek desteyi küçültür ve daha hızlı açılmasını sağlar.
+567|{type} · {n} notta metin · yaklaşık {rCount}
+568|Bu alanların metni her notta silinsin mi? Önce destenin bir yedeği alınır. Daha sonra bu alanlardan birini soru, cevap ya da ek için seçersen boş olur.
+569|Metinlerini sil
+570|Kullanılmayan alanların metnini sil ({unusedSize})
+571|Dersler
+572|Ders büyüklüğü
+573|Henüz başlanmamış derslere uygulanır. Dersleri Kartlar'dan yeniden adlandır ve sırala.
+574|Daha küçük dersler
+575|Daha büyük dersler
+576|Görünüm
+577|Yazı boyutu
+578|Kart yazı tipi
+579|Standart
+580|Tırnaklı
+581|Yuvarlak
+582|Eş aralıklı
+583|Sağdan sola metin
+584|Aksi hâlde her kartın metni kendi yönünü seçer
+585|Ek'i ipucu olarak göster
+586|Cevaplamadan önce, sonra değil
+587|Sesli okuma
+588|Soru dili
+589|Soru tarafının okunduğu dil
+590|Cihazın kendi dili
+591|Soru sesini dene
+592|Cevap dili
+593|Cevap tarafının okunduğu dil
+594|Soruyla aynı
+595|Cevap sesini dene
+596|Tırnak içindekileri başka dilde oku
+597|'la manzana' gibi tırnak içindeki kelimeler bu dilde, geri kalanı alanın kendi dilinde okunur. Kartlar'da işaretlenen kelimeler kendi dillerini korur.
+598|Tırnak içindeki kelimelerin dili
+599|Kapalı
+600|Bu cihazda henüz {x} için ses yok. {x2} Ayarlar › Sesler birçok dil için ses indirebilir.
+601|Kartların siz ilerledikçe kendiliğinden okunması için, neyin okunacağını Ayarlar'dan seçin.
+602|Dışa aktar
+603|İlerlemeyi dahil et
+604|Aşamalar, tarihler ve son cevaplar
+605|Üniteler alt deste, dersler etiket olarak
+606|Her şey, tam burada olduğu gibi
+607|Yedekler
+608|Bu destenin bu cihazda saklanan kopyaları, en yeni {x}. Thoth'un değişiklikleri önce bir yedek alabilir.
+609|önce
+610|burada saklanıyor
+611|{t} · {orderCount} not
+612|Geri yükle
+613|Bu yedeği sil
+614|Şimdi yedek al
+615|Gelişmiş
+616|En uzun ara
+617|Tekrarlar arası en fazla gün (Anki: en uzun aralık)
+618|{x}. aşamadan çıkmak için gün
+619|{x}: doğru cevaplı ayrı günler
+620|Daha az gün
+621|Daha fazla gün
+622|Bu seçenekleri her yerde kullan
+623|{"one":"Diğer {n} destene kopyalar (Anki: ön ayarlar)","other":"Diğer {n} destene kopyalar (Anki: ön ayarlar)"}
+624|Kopyala
+625|Dışa aktarma için saklanan Anki not türü: {name}
+626|Alanlar: {x}. Soru “{question}” alanından, cevap “{answer}” alanından.
+627|Desteyi kaldır
+628|Desteyi, ilerlemesini ve medyasını bu cihazdan siler
+629|Sakla
+630|{total} karttan {n} tanesi öğrenildi
+631|{"one":"{n} tekrar","other":"{n} tekrar"}
+632|“{name}” destesini taşı
+633|Destelerin gösterimi
+634|Alana göre
+635|Listeler
+636|{"one":"{n} konu","other":"{n} konu"}
+637|{"one":"{n} deste","other":"{n} deste"}
+638|{subject} içindeki her şey
+639|Aç
+640|Yerleştirilmedi
+641|En çok tekrarı olan önce. Her adın altındaki yol, nerede durduğunu gösterir.
+642|Pratiğe dön
+643|Dikte
+644|Bir kartı dinle, sonra duyduğunu yaz. İstediğin kadar çal. Kelimeler tek tek kontrol edilir, böylece tek bir hata cümleyi düşürmez; eksik bir aksan işareti neredeyse doğru sayılır. Yalnızca pratik: kartların geri geliş zamanı değişmez.
+645|Kartların kaynağı
+646|Bu cihazda {heard} için ses yok, bu yüzden yalnızca kendi sesi olan kartlar kullanılabilir. {x}
+647|Başla
+648|Bitti
+649|Tekrar
+650|Kart {x} / {itemsCount}
+651|Çal
+652|Yavaş çal
+653|İlk harfler
+654|Duyduğun
+655|Harfler
+656|Yazdığın: {x}
+657|Cümlede yok: {x}
+658|{what} alanı {n}'i taşı: basılı tutup sürükle ya da ok tuşlarını kullan
+659|cevapladıktan sonra gösterilir
+660|{name} nedir, açıkla
+661|Bunu açıkla
+662|Notlar okunuyor
+663|Dersler oluşturuluyor
+664|Resimler ve sesler kaydediliyor
+665|Deste kaydediliyor
+666|Eşleşti: bir Ankhwiz destesi
+667|Eşleşti: gizli bölümlü resimler
+668|Eşleşti: boşluk doldurma
+669|Kart düzeninden eşleşti
+670|Alan adlarından eşleşti
+671|Deste içe aktarılamadı.
+672|Anki'den içe aktar
+673|Deste adı
+674|{n} not · alanlar: {x2}
+675|Her not, bölümleri gizlenmiş bir resimdir; her bölüm bir kart olur. Adı olan bölümler soru olarak sorulur; gerisini kendin kontrol edersin.
+676|{x}Cevaplanacak soru ve ana soru alanına cevap.
+677|Anki bu türü de iki yönlü sorar.
+678|Bu kartları kendin kontrol edersin
+679|Üniteler
+680|Kartları ünitelere ayırma ölçütü
+681|Her alt deste bir ünite
+682|Her etiket bir ünite
+683|Tek ünite, derslere bölünmüş
+684|{n} ünite, her biri yaklaşık {lessonSize} kartlık derslere bölünmüş.
+685|{n} kart öz değerlendirmeli olacak.
+686|Cevabı görürsün ve ne kadar yakın olduğunu söylersin.
+687|Anki ilerlememi getir
+688|İyi bildiğin kartlar daha yüksek bir aşamadan başlar.
+689|Bu cihazın kendi sesleriyle, soru ve cevabın yanında bir hoparlör düğmesi.
+690|Ders adları ve yanlış seçenekler öner
+691|İçe aktarmadan sonra Thoth'un önerilerini açar. Yapay zekâ bağlantını kullanır; her birini sen onaylarsın.
+692|Hiçbir kartın göstermediği alanları dışarıda bırak
+693|{x}. Deste daha küçük olur ve daha hızlı açılır, ama Anki'ye onlarsız döner.
+694|Bu cihazda hazır
+695|Ankhwiz bir ses indirebilir
+696|Sistem ayarlarından ses ekleyin
+697|Ara: bir dil, ülke ya da kod
+698|Dil ara
+699|{typed} kullan
+700|“{query}” ile eşleşen dil yok. es-ES gibi tam bir kod da yazılabilir.
+701| seçili günlerde
+702|Her gün {time}{days}, çalışmadığın günlerde hatırlatma
+703| Bir tarafı boş olduğu için {skipped} tanesi dışarıda bırakıldı.
+704|“{name}” eklendi: {n} derste {count} not{x2}.{left}
+705|Bu dosya okunamadı.
+706|Not bulunamadı. Her satıra bir tane koy; soru ile cevap arasına sekme, “ = ”, noktalı virgül ya da virgül koy.
+707|Destem
+708|Alanlar
+709|Düzenle
+710|Ayarlar
+711|Bu cihaz uygulamanın kaydetmesine izin vermiyor. İlerleme yalnızca uygulamayı kapatana kadar kalır.
+712|Kaldığın yerden devam et
+713|{total} içinden {done} bitti
+714|Şimdi değil: bir dahaki sefere baştan başla
+715|Tüm desteleri çalış
+716|{"one":"{n} tekrar · yaklaşık {x2} {x3}","other":"{n} tekrar · yaklaşık {x2} {x3}"}
+717|dakika
+718|dakika
+719|Tek, karışık bir oturum. Her kart yine kendi destesine sayılır.
+720|Yeni: Tüm desteleri çalış
+721|Birkaç destenin tekrarı olduğunda, hepsini buradan tek seferde yap.
+722|Destelerin
+723|Deste ekle
+724|Deste oluştur
+725|Liste yapıştır
+726|Örnek desteyi ekle
+727|Ne öğreniyorsun?
+728|Dosya ya da sayfalardan
+729|Thoth PDF'lerinden, belgelerinden ve web sayfalarından dersler planlar ve kartlar yazar
+730|Kelimelerin dili
+731|Kelimelerin dili
+732|Dil destesi değil
+733|Anlamların dili
+734|Anlamların dili
+735|Deste oluştur
+736|Her satıra bir not
+737|Soru ile cevabı sekme, “ = ”, noktalı virgül ya da virgülle ayır. Üçüncü sütun üniteyi adlandırır.
+738|{name} sesini çal
+739|{name} resmi bu cihazda yok
+740|Alan
+741|+ Yeni alan
+742|Diller, Matematik, Tarih…
+743|Yeni alan
+744|+ Yeni konu
+745|Konu yok
+746|Türkçe, Trigonometri…
+747|Yeni konu
+748|Bir desteyi taşımak kartlarını ya da ilerlemesini asla değiştirmez.
+749|Buraya taşı
+750|Bir resim seç
+751|Bir bölümü gizlemek için resmin üzerinde sürükle. Soru olarak sorulması için her bölüme ad ver; adsız bölümleri kendin kontrol edersin.
+752|Resim: gizli bölüm eklemek için sürükle
+753|Bölüm numarası
+754|Ad (isteğe bağlı)
+755|{x}. bölümün adı
+756|{x}. bölümü kaldır
+757|Biri sorulurken tüm bölümleri gizle
+758|Resmi değiştir
+759|Tarayıcı açılamadı. Adres şu:
+760|{total} içinden {introduced} tanesi tanıtıldı
+761|Tamamlandı
+762|Kütüphaneye dön
+763|Üst üste günler
+764|Ders sürüyor.
+765|Hazırlık duraklatıldı
+766|Ankhwiz için hazırlanıyor…
+767|{total} adımdan {done} tanesi bitti · çalışmaya devam edebilirsin
+768|Hazırlandı: kontrol edilecek sonuçlar
+769|Thoth'un önerileri onayını bekliyor.
+770|Bu deste Ankhwiz düşünülerek yapılmamış.
+771|Hazırlayayım mı? Sesleri, adil cevapları ve dersleri ayarlarım. Kartların kendi metninde hiçbir şey değişmez.
+772|Şimdi değil
+773|Hazırla…
+774|{x} · {total} içinden {done} bitti
+775|Tekrar
+776|{"one":"Bugün {n} kartın zamanı geldi","other":"Bugün {n} kartın zamanı geldi"}
+777|Soru sor, kart ekle ya da değiştir, meydan okuma turları, okuma
+778|Günlük hedef, kart çeşitleri, görünüm, dışa aktarma
+779|Kartlar
+780|İlerleme
+781|Pratik{x}
+782|Kaynaklardan
+783|{"one":"Bugünkü {n} yeni ders hedefi tamam. Devam edebilirsin.","other":"Bugünkü {n} yeni ders hedefi tamam. Devam edebilirsin."}
+784|Ünite {number}{x}
+785|Önceki {from} dersi göster
+786|Güç {strength} / 5
+787|Daha fazla ders göster ({to} kaldı)
+788|Kartın kendi cevabı.
+789|Aynı anlamla bağlantılı.
+790|Kaçırıldı: aynı anlamla bağlantılı.
+791|O, “{front}” demek.
+792|Uyanların hepsini seç
+793|Bunlardan hangileri “{text}” anlamına gelebilir?
+794|Uyanların her birini seç. Birden fazla olabilir.
+795|Cevaplar
+796|Hepsi bulundu, fazlası yok.
+797|{total} içinden {found} bulundu
+798|{"one":"{n} tanesi uymuyor","other":"{n} tanesi uymuyor"}
+800|{image} resmi bu cihazda yok.
+801|Orada henüz pratik yapılacak bir şey yok: önce bir derste bazı kartlarla tanış.
+802|Pratik
+803|Pratik turları ektir. Cevaplarını değerlendirirler ama aşamalarını ya da kartların geri geliş zamanını asla değiştirmezler.
+804|Tek ünite
+805|Tanıştığın en fazla 20 kart, karışık sırada
+806|Sınava hazırlan
+807|Tüm destedeki en zayıf 20 kartın
+808|Başka pratik yolları
+809|Bir kartı dinle ve yaz, kelime kelime kontrol edilir
+810|Ünite hatırlama
+811|Bir üniteden hatırladığın her şeyi yaz; kaçırdıkların yarın geri gelir
+812|Okuma turu
+813|Bildiğin kelimelerden oluşan kısa bir metin, sonra birkaç soru{x}
+814|; Thoth hikâye yazabilir
+815|Bekliyor
+816|Çalışıyor
+817|Atlandı
+818|Bitmedi
+819|Duraklatıldı
+820|Durduruluyor…
+821|Bitti
+822|Duraklatılmışken hiçbir şey gönderilmez. İstediğin zaman devam et.
+823|Bu ekrandan çıkıp çalışmaya devam edebilirsin: arka planda sürer.
+824|Duraklat
+825|Durdur
+826|Thoth · {of} içinden {done}
+827|Neyin değiştiğini gör
+828|Önce bir yedek alındı: Deste seçenekleri › Yedekler bunların hepsini daha sonra da geri alabilir.
+829|Uygulandı · bu cihazda
+830|Yinele
+831|Geri al
+832|Saklamadan önce kontrol et
+833|Thoth
+834|Bu cihaz
+835|Aynı anlam
+836|Ve {n} tane daha.
+837|At
+838|Listeyi kapat
+839|Tümünü gör
+840|Bitmedi: {steps}. Gerisini yapmak için yeniden hazırla.
+841|Tümünü at
+842|Tümünü sakla
+843|{date} tarihinde hazırlandı.
+844|{"one":"O zamandan beri {n} kart yeni ya da değişti: yeniden hazırlamak yalnızca onlara bakar.","other":"O zamandan beri {n} kart yeni ya da değişti: yeniden hazırlamak yalnızca onlara bakar."}
+845|O zamandan beri hiçbir şey değişmedi.
+846|Ankhwiz bu desteyi kendi özellikleri için ayarlar: sesler, adil cevaplar, ders adları ve daha fazlası. Kartların kendi metninde hiçbir şey değişmez.
+847|Neler hazırlansın
+848|Tam, Thoth ile
+849|Özel
+850|Yalnızca bu cihazda
+851|{"one":"Thoth · ~{n} istek","other":"Thoth · ~{n} istek"}
+852|YZ ile yazılmış metin ekler
+853|{"one":"Yaklaşık {n} dakika","other":"Yaklaşık {n} dakika"}
+854|{"one":"yaklaşık {n} istek","other":"yaklaşık {n} istek"}
+855|Bir dakikadan az · hiçbir şey bu cihazdan çıkmaz
+856|Thoth adımları için kart metni yapay zekâ sağlayıcına gönderilir. Gerisi bu cihazda çalışır.
+857|Thoth adımları kapalı.
+858|Yapay zekâ bağlantısı kurulu değil, bu yüzden yalnızca bu cihazdaki adımlar çalışır. Ayarlar'dan kurabilirsin.
+859|Başka bir deste hazırlanıyor
+860|Hazırla
+861|Bugün
+862|Yarın
+863|Tanışılan
+864|{total} karttan
+865|Hatırlanan
+866|son 30 gün, {answers30} cevap
+867|en iyi {best}
+868|Aşamaya göre kartlar
+869|{stopped} tanesi durduruldu (Kartlar'dan devam ettirilene kadar sorulmaz).
+870|Önümüzdeki hafta
+871|Önümüzdeki yedi günde zamanı gelecek tekrarlar: {x}
+872|Çalışılan günler · son 12 hafta
+873|Son 12 haftada {length} gün çalışıldı
+874|İki ya da daha fazla kez kaçırılanlar (Anki: sülükler). Onlarla pratik yap ya da Thoth'tan daha iyi cevaplar ve yanlış seçenekler önermesini iste.
+875|{lapses} yanlış
+876|Onlarla pratik yap
+877|Thoth'tan iyileştirmesini iste
+878|Şimdilik yok.
+879|Soru {x} / {questionsCount}
+880|Thoth bildiğin kelimelerden bir hikâye yazıyor…
+881|Hikâye yazılamadı.
+882|Sonrası için üç hikâye hazırlanıyor…
+883|Hikâyeler yazılamadı.
+884|Henüz çalıştığın kelimelerden oluşan yeterli cümle yok. Daha fazla kartla tanış ya da Thoth bir hikâye yazsın.
+885|Okunacak kısa bir metin, sonra birkaç soru. Kartlarındaki anlamını görmek için herhangi bir kelimeye dokun. Yalnızca pratik: kartların geri geliş zamanı değişmez.
+886|Thoth'tan yeni bir hikâye
+887|Çalıştığın {knownCount} kelimeden, iki üç yenisiyle yazılır. Saklanır, yeniden okuyabilirsin.
+888|Yaz
+889|Okumaya hazır{x}
+890| bağlantı olmadan
+891|Thoth'tan bir hikâye · kelimelerin %{passage} kadarını biliyorsun
+892|Kartlarından
+893|Kartlarından ve örneklerinden, çoğunlukla çalıştığın kelimelerle kurulmuş cümleler, en kolayı önce. Bağlantı olmadan çalışır.
+894|Sonrası için üç hikâye hazırla
+895|Ayarlar'da yapay zekâ bağlantısını kurarsan Thoth bildiğin kelimelerden hikâyeler yazabilir ve bağlantısız zamanlar için bazılarını hazırlayabilir.
+896|Bana oku
+897|Altı çizili kelimeler henüz çalıştığın kartlarda yok.
+898|Çeviriyi göster
+899|{questionsCount} sorudan {score} doğru.

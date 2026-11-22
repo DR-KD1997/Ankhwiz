@@ -1,0 +1,446 @@
+# Français. Lines: index|text (index into scripts/i18n-strings.json).
+0|Ankhwiz n’a pas pu démarrer.
+1|Le moteur d’apprentissage ne s’est pas chargé dans cette vue ({failed}). Essaie l’application de bureau ou Android, ou un navigateur récent.
+2|Impossible d’ouvrir ce paquet.
+3|Retour à tes paquets
+4|Ouverture de {name}…
+5|Un problème est survenu.
+6|{n} choix cette fois. Prends ton temps.
+7|{"one":"{n} carte est à réviser. Je te propose une révision avant toute nouveauté.","other":"{n} cartes sont à réviser. Je te propose une révision avant toute nouveauté."}
+8|{"one":"{n} carte à réviser aujourd’hui.","other":"{n} cartes à réviser aujourd’hui."}
+9|Premier jour enregistré.
+10|{"one":"{n} jour d’affilée.","other":"{n} jours d’affilée."}
+11|Ce fichier n’est pas un paquet .ankh lisible.
+12|Une partie de ce fichier .ankh ({name}) est endommagée.
+13|Ce fichier n’est pas un paquet Ankhwiz.
+14|Ce paquet a été enregistré par une version plus récente d’Ankhwiz. Mets Ankhwiz à jour pour l’ouvrir.
+15|Ce fichier .ankh ne contient aucun paquet.
+16|Ce fichier n’est pas une bibliothèque Ankhwiz lisible.
+17|Une partie de ce fichier de bibliothèque ({name}) est endommagée.
+18|Ce fichier n’est pas une bibliothèque Ankhwiz.
+19|Cette bibliothèque a été enregistrée par une version plus récente d’Ankhwiz. Mets Ankhwiz à jour pour l’ouvrir.
+20|{"one":" {n} fichier média n’était pas sur cet appareil et a été laissé de côté.","other":" {n} fichiers médias n’étaient pas sur cet appareil et ont été laissés de côté."}
+21|{notes} notes et {cards} cartes exportées pour Anki{x}. {where}{missing}
+22|, avec la progression
+23|Paquet enregistré en fichier Ankhwiz{x}. {where}{missing}
+24|{"one":"{n} paquet sauvegardé avec sa progression et ses réglages. {where}{x2}","other":"{n} paquets sauvegardés avec leur progression et leurs réglages. {where}{x2}"}
+25|{"one":"Bibliothèque restaurée : {n} paquet, avec progression et réglages.","other":"Bibliothèque restaurée : {n} paquets, avec progression et réglages."}
+26|{"one":" ; {n} déjà présent a été laissé tel quel","other":" ; {n} déjà présents ont été laissés tels quels"}
+27|Quelque chose de nouveau. Lis-le une fois ; je te le demanderai dans un instant.
+28|Une nouvelle entrée pour le papyrus. Jette un œil.
+29|Voici la suivante. Imprègne-t’en avant de continuer.
+30|Deux choix pour commencer.
+31|Tu viens de la voir. Laquelle est-ce ?
+32|Une liste courte cette fois.
+33|Choisis avec soin.
+34|Maintenant, écris-la toi-même. Les couleurs te guideront.
+35|Tape-la. Le vert veut dire que tu es sur la bonne voie.
+36|Remets les mots dans l’ordre. Certains n’ont rien à faire là.
+37|Construis la réponse mot à mot. Laisse de côté les intrus.
+38|Un scribe place chaque signe à sa place. Touche les mots dans l’ordre.
+39|Plus de couleurs. Fais confiance à ce que tu sais.
+40|Écris-la de mémoire. Je vérifierai quand tu auras fini.
+41|Écris ta réponse, puis compare-la avec la mienne. Réponds honnêtement.
+42|Celle-ci, c’est toi qui juges. Pense à la réponse, puis regarde. Une note honnête t’aide le plus.
+43|Je ne peux pas corriger cette carte moi-même. Rappelle-la-toi, montre la réponse et dis à quel point tu étais proche.
+44|Pas d’indices pendant un test. Réponds ce que tu sais.
+45|Prends ton temps. C’est seulement pour voir ce que tu sais déjà.
+46|Tu le savais déjà. J’ai ouvert l’unité pour toi.
+47|Bien connu. Le papyrus avance.
+48|Pas encore. Les leçons vont le construire comme il faut.
+49|Une partie est encore nouvelle pour toi. C’est à ça que servent les leçons.
+50|Une belle série de jours. L’habitude est le meilleur outil du scribe.
+51|Jour après jour. C’est ainsi qu’on écrit les papyrus.
+52|Un mois entier et plus. Même les scribes de Thèbes prenaient des jours de repos.
+53|Une régularité remarquable. Je l’ai noté deux fois.
+54|Écris-le avec tes propres mots. Je le lirai.
+55|Pas de formulation imposée ici. Dis-moi ce que tu sais.
+56|Presque. Vérifie l’orthographe et essaie encore une fois.
+57|Correct.
+58|Exactement.
+59|Bien retenu.
+60|C’est juste.
+61|Correct. Celle-ci monte d’une étape.
+62|Bien joué. Je l’ai marquée comme plus solide.
+63|Pas cette fois. Elle reviendra bientôt.
+64|Pas tout à fait. Note la réponse ; nous y reviendrons.
+65|Une leçon sans faute. Le papyrus est plus long que ce matin.
+66|Fait avec soin. C’est ainsi que le savoir se conserve.
+67|Bon travail. Celles que tu as manquées reviendront jusqu’à ce qu’elles restent.
+68|Une leçon honnête. Ce qui t’a échappé aujourd’hui sera redemandé.
+69|Une leçon difficile, et tu l’as terminée. Ça compte.
+70|Celles-ci demanderont encore quelques passages. C’est normal.
+71|Tes leçons précédentes sont de nouveau en ordre.
+72|Révisé et enregistré.
+73|Bienvenue. Ajoute un paquet et nous pourrons commencer.
+74|Ta prochaine leçon est prête quand tu l’es.
+75|Toutes les leçons ici ont été présentées. Les révisions les garderont solides.
+76|Rien à réviser. Reviens demain ou commence la leçon suivante.
+77|Vérifier
+78|Continuer
+79|Correct
+80|Pas tout à fait
+81|Réponse : {answer}
+82|Monte d’une étape
+83|Entraînement : le planning ne change pas
+84|Afficher la réponse
+85|À quel point étais-tu proche ?
+86|Raté
+87|En partie
+88|Trouvé
+89|Leçon terminée
+90|Révision terminée
+91|Entraînement terminé
+92|Tous les paquets terminés
+93|Unité réussie
+94|Pas cette fois
+95|{n} jours d’affilée
+96|{n} carte
+97|{n} cartes
+98|{n} révision
+99|{n} révisions
+100|Ta réponse
+102|L’importation s’est arrêtée.
+103|Cette vue ne peut pas ouvrir les fichiers Anki. Utilise l’application de bureau ou Android, ou le fichier HTML d’Ankhwiz.
+105|le trousseau de mots de passe de ton ordinateur (le Gestionnaire d’identification de Windows ou le trousseau Linux ; un fichier privé s’il n’y en a pas)
+106|le stockage privé de cette application, chiffré avec une clé de l’Android Keystore
+107|le stockage de ce navigateur pour cette page, qui n’est pas chiffré
+108|Enregistré dans {x}.
+109|Impossible d’enregistrer le fichier.
+110|Envoyé dans tes téléchargements. Si rien n’est arrivé, cette vue bloque les téléchargements ; utilise l’application de bureau ou Android.
+111|Que veut dire « {text} » ?
+112|Quel mot complète le trou ? « {gapped} »
+113|Vrai ou faux : « {text} » veut dire « {shown} ».
+114|Vrai
+115|Faux
+116|Langues et voix
+117|Sa place dans ta bibliothèque
+118|Champs de carte inutilisés
+119|Réponses qui veulent dire la même chose
+120|Mauvaises options plus justes
+121|Noms des leçons
+122|Notes sur les réponses proches
+123|Histoires pour les tours de lecture
+124|Vérifier les cartes douteuses
+125|Langues
+126|Avant la préparation pour Ankhwiz
+127|Déjà réglé
+128|Impossible à déterminer ; choisis-les dans les Options du paquet
+129|Déjà rangé
+130|Impossible à déterminer ; range-le depuis la bibliothèque
+131|Aucun
+132|{"one":"{n} champ à vérifier","other":"{n} champs à vérifier"}
+133|{"one":"{n} lien sur cet appareil","other":"{n} liens sur cet appareil"}
+134|{"one":"{n} de Thoth à vérifier","other":"{n} de Thoth à vérifier"}
+135|Rien trouvé
+136|{"one":"Mauvaises options pour {n} carte","other":"Mauvaises options pour {n} cartes"}
+137|{"one":"{n} carte semble douteuse","other":"{n} cartes semblent douteuses"}
+138|Déjà nommées
+139|{"one":"{n} leçon à nommer","other":"{n} leçons à nommer"}
+140|Aucune paire proche
+141|{"one":"{n} note écrite","other":"{n} notes écrites"}
+142|Pas encore assez de mots
+143|{"one":"{n} histoire","other":"{n} histoires"}
+144|Non lancé
+145|Nécessite la connexion IA
+146|Arrêté
+147|Langues : {q}{a}
+148|La lecture à voix haute est activée.
+149|Rangé dans {where}
+150|D’après le nom du paquet dans Anki
+151|D’après ses langues
+152|Suggéré par Thoth
+153|{"one":"Supprimer le texte de {n} champ inutilisé","other":"Supprimer le texte de {n} champs inutilisés"}
+154|{names} : dans {count} cartes, jamais affiché.
+155|{"one":"{n} réponse liée sur cet appareil","other":"{n} réponses liées sur cet appareil"}
+156|{"one":"{n} réponse liée","other":"{n} réponses liées"}
+157|même sens
+158|proches, jamais proposées l’une contre l’autre
+159|{"one":"Réponses justes en plus pour {n} carte","other":"Réponses justes en plus pour {n} cartes"}
+160|Conservées : elles reçoivent l’étiquette « thoth-check », pour les retrouver dans Cartes.
+161|{"one":"{n} leçon nommée par thème","other":"{n} leçons nommées par thème"}
+162|{"one":"{n} note sur les réponses proches","other":"{n} notes sur les réponses proches"}
+163|{"one":"{n} histoire pour les tours de lecture","other":"{n} histoires pour les tours de lecture"}
+164|Ces champs ne peuvent pas être modifiés.
+165|{"one":"Avec ces champs, {n} carte n’aurait pas de question ou pas de réponse. Choisis d’autres champs.","other":"Avec ces champs, {n} cartes n’auraient pas de question ou pas de réponse. Choisis d’autres champs."}
+166|{"one":"{n} carte est à réviser. Quelques minutes suffisent à la garder solide.","other":"{n} cartes sont à réviser. Quelques minutes suffisent à les garder solides."}
+167|Ta prochaine leçon est prête : {deck}, {lesson}. Environ {x} minutes.
+168|C’est l’heure de quelques minutes d’étude.
+169|Marimba en roseau
+170|Chaleureux et boisé
+171|Lyre
+172|Une corde pincée
+173|Cloche de temple
+174|Une cloche et un sistre
+175|Pop doux
+176|Bips ronds et rebondissants
+177|Impossible d’atteindre la page. Vérifie l’adresse et la connexion.
+178|Cette page demande une connexion ou n’accepte pas les lecteurs comme Ankhwiz. Ouvre-la toi-même et colle son texte.
+179|La page a répondu par une erreur ({status}).
+180|Cette adresse est un PDF. Télécharge-le et ajoute-le comme fichier.
+181|Aucun texte lisible sur cette page. Elle se construit peut-être avec des scripts ; ouvre-la et colle son texte.
+182|Impossible d’ouvrir ce fichier Word.
+183|Ce fichier n’est pas un document Word (.docx).
+184|Ce PDF est protégé par un mot de passe.
+185|Impossible de lire ce PDF.
+186|Ce PDF n’a pas de texte à lire : ses pages sont peut-être des scans ou des images.
+187|Ankhwiz ne sait pas encore lire les fichiers .{ext}. Enregistre-le en PDF, Word (.docx) ou texte, et ajoute celui-là.
+188|Ce fichier ne ressemble ni à du texte, ni à un PDF, ni à un document Word.
+189|Ajoute la voix de la langue dans les réglages du téléphone, sous Synthèse vocale.
+190|Ajoute la voix de la langue dans les Paramètres de Windows, sous Heure et langue › Voix.
+191|Installe une voix de la langue pour speech-dispatcher, comme espeak-ng ou RHVoice.
+192|Ton navigateur ou ton système n’a pas de voix pour cette langue.
+193|Une partie de ce paquet manque ({i}).
+194|Nouveau paquet
+195|Avant de modifier les champs de {x}
+196|un type de note
+197|Avant de restaurer une copie précédente
+198|un type de carte
+199|Impossible de modifier les champs.
+200|Avant de donner un type de carte aux cartes
+201|Avant de supprimer le texte des champs inutilisés
+202|Tous les paquets
+203|Les sections sur lesquelles s’appuie « {name} » sont introuvables dans les sources.
+204|Bienvenue
+205|Bienvenue. Je suis Thoth, scribe des dieux et gardien de tes cartes. Je te montre l’essentiel ? Ça prend environ une minute.
+206|Commençons avec un paquet d’exemple d’espagnol courant. Touche Ajouter le paquet d’exemple.
+207|Chaque paquet est divisé en unités, et les unités en courtes leçons qui s’ouvrent l’une après l’autre. Commence la Leçon 1.
+208|D’abord, tu découvres chaque nouvelle carte : la question avec sa réponse. Pas de pression pour l’instant. Touche Continuer quand tu l’as lue.
+209|Maintenant, je te la pose. Touche la réponse que tu crois juste.
+210|Puis touche Vérifier. Une fois vérifiée, ta réponse compte, alors prends ton temps avant.
+211|Chaque carte gravit cinq étapes. Mon aide diminue à mesure qu’elle monte : d’abord des choix, puis la saisie avec indices, puis la saisie seule.
+212|Continue jusqu’à la fin de la leçon. Je reviendrai à ce moment-là.
+213|Leçon terminée. Les révisions ramènent chaque carte juste avant que tu l’oublies, dès demain.
+214|Touche Continuer pour revenir au paquet.
+215|Ta série de jours d’affilée se trouve ici, et les révisions apparaissent en haut quand des cartes sont à réviser. Quelques minutes par jour suffisent.
+216|Les Options du paquet, l’éditeur de cartes, le Test de passage et étudier avec moi peuvent attendre. J’expliquerai chacun la première fois que tu l’ouvres, et le ? à côté l’explique à nouveau.
+217|Options du paquet
+218|Combien étudier : de nouvelles leçons pour ton objectif quotidien, et combien de révisions par jour au maximum.
+219|Demander dans les deux sens te pose aussi la réponse à l’envers. Le sens inverse est espacé, pour que l’un ne trahisse jamais l’autre. Les longues réponses peuvent se construire avec des tuiles de mots.
+220|L’apparence des cartes, et Lecture à voix haute : un bouton haut-parleur à côté de chaque question et réponse, dans les langues que tu choisis.
+221|Importer depuis Anki
+222|Les notes Anki ont des champs. Choisis lesquels deviennent la question, la réponse et l’extra ; fais-les glisser dans l’ordre. Tu pourras le changer plus tard dans les Options du paquet.
+223|Ta progression dans Anki peut venir avec le paquet, pour reprendre là où tu t’étais arrêté.
+224|Quand les champs semblent corrects, importe. Les gros paquets montrent où ils en sont.
+225|L’éditeur de cartes
+226|La question et la réponse. D’autres champs peuvent s’afficher avec la question ; fais-les glisser dans l’ordre.
+227|D’autres réponses que tu acceptes, comme « apple » sans « the », et des mauvaises options que je peux montrer à côté de la réponse. Laisse vide et j’en choisis dans ton paquet.
+228|Ajoute des images et des sons, ou crée une carte image avec des parties cachées sur lesquelles je t’interroge.
+229|Passer une unité par un test
+230|Tu connais déjà cette unité ? Un petit quiz sans aide. Réussis-le et l’unité s’ouvre.
+231|Ses cartes commencent alors à l’étape 3, et celles que tu rates reviennent au début. Un essai par jour.
+232|Étudier avec Thoth
+233|Pour cela, il me faut ton propre service d’IA, configuré dans les Réglages. Rien n’est envoyé nulle part tant que tu ne l’as pas fait.
+234|Ensuite, pose-moi n’importe quelle question sur tes cartes, et je t’explique. Je peux aussi ajouter des cartes, les améliorer, préparer un tour défi ou écrire un court texte de lecture.
+235|Demander
+236|Ajouter des cartes
+237|Améliorer
+238|Défi
+239|Lecture
+240|Environ {x} tokens seront envoyés, avec le modèle {x2}.
+241|plus grand
+242|rapide
+243|Ajoutées avec Thoth
+244|{noteIdsCount} cartes ajoutées en nouvelles leçons dans « {unit} ». Elles sont marquées IA sur l’écran des leçons.
+245|Cartes difficiles
+246|Thoth n’a rien trouvé à ajouter à ces cartes.
+247|{changed} cartes mises à jour.
+248|Rien n’a été sélectionné.
+249|Les noms des leçons conviennent déjà.
+250|Noms des leçons mis à jour.
+251|Avant Thoth : {x}{x2}
+252| Le paquet tel qu’il était est conservé dans Options du paquet › Sauvegardes.
+253|Ajoute un texte et au moins une question avec une bonne réponse et une mauvaise.
+254|Retour aux leçons
+255|Étudier avec Thoth
+256|Pas encore de connexion IA.
+257|Connecte ton propre service (OpenAI, Gemini, Grok, OpenRouter, un modèle sur cet ordinateur ou toute adresse compatible) et je pourrai répondre à tes questions, rédiger des cartes, préparer des tours défi et écrire des textes de lecture.
+258|Ouvrir les Réglages
+259|Avant la première requête
+260|Ton modèle d’IA tourne sur cet ordinateur, donc rien n’en sort.
+261|Quand tu utilises une fonction ici, les cartes de ce paquet dont elle a besoin et ce que tu tapes sont envoyés à
+262|, avec ta propre clé et selon les conditions de ce service. Rien n’est envoyé à d’autres moments.
+263|L’IA peut se tromper. Les nouvelles cartes et les modifications s’affichent comme brouillons à approuver, puis sont marquées « IA ».
+264|J’ai compris
+265|Fonctions
+266|Pose des questions sur tout ce que couvre ce paquet. Les réponses s’appuient d’abord sur ses cartes.
+267|Thoth réfléchit…
+268|Ta question
+269|Recommencer
+270|Brouillons. Modifie-les, décoche ceux que tu ne veux pas, puis ajoute le reste.
+271|Garder cette carte
+272|Recto
+273|Réponse
+274|Aussi accepté : {x}
+275|Écarter
+276|Ajouter {length} cartes
+277|Sujet
+278|ce que les nouvelles cartes doivent couvrir
+279|p. ex. les légumes, la Révolution française
+280|Texte source
+281|facultatif : colle des notes ou un article et les cartes viendront uniquement de là
+282|Combien
+283|Modifications proposées
+284|{x}. Décoche celles que tu ne veux pas.
+285|Faire cette modification
+286|Garder une sauvegarde du paquet dans son état actuel
+287|Faire {length} modifications
+288|Modifie le paquet avec tes propres mots
+289|p. ex. Ajoute une phrase d’exemple à l’Extra de chaque carte · Mets les réponses en minuscules · Ajoute cinq fruits à la leçon Fruits
+290|Appliquer à
+291|Tout le paquet
+292|Unité : {name}
+293|Leçon : {name}
+294|Seules les 150 premières cartes sont envoyées ; choisis une unité ou une leçon pour atteindre le reste.
+295|{scopeArgs} Tu vois chaque modification avant que quoi que ce soit ne soit fait.
+296|Ou laisse Thoth suggérer
+297|Suggestions. Décoche ce avec quoi tu n’es pas d’accord. Les signalements sont pour toi ; ils ne changent rien.
+298|Vérifie cette carte : {flag}
+299|Accepter aussi « {a} »
+300|Mauvaise option « {w} »
+301|Appliquer la sélection
+302|Noms de leçons proposés.
+303|Utiliser ce nom
+304|Nouveau nom
+305|Renommer les leçons
+306|Leçon
+307|Thoth suggère d’autres réponses acceptées et des mauvaises options plus difficiles, et signale les cartes douteuses
+308|Cartes difficiles ({sentNotesCount})
+309|Proposer des noms pour toutes les leçons
+310|IA
+311|Écrit pour ce tour. Ne change pas ton planning de révisions.
+312|Défi terminé : {challengeScore} sur {challengeCount}.
+313|Cinq nouvelles questions sur ce que tu as vu jusqu’ici, posées autrement. Un tour défi est un entraînement en plus : il ne change jamais l’étape ni la date d’une carte.
+314|Afficher le texte
+315|Tu as répondu juste à {readScore} questions sur {questionsCount}.
+316|Retour aux textes
+317|Retirer
+318|Texte
+319|Question {x}
+320|Question
+321|Bonne réponse
+322|Mauvaise réponse{x}
+323| (facultatif)
+324|Mauvaise réponse
+325|Ajouter une question
+326|Annuler
+327|Enregistrer le texte
+328|Lis un texte, puis réponds à des questions dessus. Les questions peuvent être les tiennes ou celles de Thoth.
+329|{questionsCount} questions{x}{x2}
+330| · IA
+331|Sujet d’un nouveau texte
+332|facultatif
+333|Thoth choisit si tu laisses vide
+334|Utiliser mon propre texte
+335|Source : {x} · {at}
+336|une source
+337|Introuvable dans tes sources
+338|Ouvrir la page
+339|Ajouté par toi
+340|Trouvé sur cet appareil
+341|Trouvé sur cet appareil : même question, autre réponse
+342|Trouvé sur cet appareil : même réponse, autre question
+343|Suggéré par Thoth : même sens
+344|Suggéré par Thoth : sens proche
+345|Impossible de demander à Thoth.
+346|Réponses semblables, sur d’autres cartes
+347|{text} : {kind}. Touche pour changer.
+348|Même
+349|Proche
+350|Aucune pour l’instant.
+351|Sans rapport
+352|Rien d’autre trouvé.
+353|Recherche…
+354|Trouver des réponses semblables
+355|Sur cet appareil + Thoth · 1 requête
+356|Sur cet appareil
+357|Thoth lit…
+358|Vérifier cette carte
+359|Thoth · 1 requête
+360|Thoth n’a rien trouvé à changer.
+361|Thoth :
+362|Aussi justes : {list}
+363|Ajouter
+364|Mauvaises options : {list}
+365|Même : l’une ou l’autre réponse compte sur les deux cartes. Proche : jamais proposées l’une contre l’autre. Les liens sont enregistrés tout de suite.
+366|Sur cet appareil · d’après le nom du paquet dans Anki
+367|Sur cet appareil · d’après les langues de ses cartes
+368|Thoth · d’après le sujet des cartes
+369|Retour à la bibliothèque
+370|Organise ta bibliothèque
+371|Suggestions
+372|Le déplacer
+373|Non merci
+374|Déplacé.
+375|Laissé où il est.
+376|Demander à Thoth pour les {n} autres
+377|Thoth · 1 requête par paquet
+378|Déplacer un paquet
+379|Pas encore rangé
+380|Déplacer
+381|Déplacer un paquet ne change jamais ses cartes ni sa progression. Les matières et les thèmes servent seulement à organiser la bibliothèque ; un paquet peut aussi rester non rangé.
+382|{"one":"{n} ligne ajoutée à la liste.","other":"{n} lignes ajoutées à la liste."}
+383|{"one":"{n} carte ajoutée à {unitName}.","other":"{n} cartes ajoutées à {unitName}."}
+384|Ce paquet n’a pas de type de carte pour saisir des cartes. Ouvre Types de carte pour en donner un à ses cartes, ou ajoute des cartes dans Cartes.
+385|Types de carte
+386|Type de carte
+387|Unité
+388|Ajouter à la liste
+389|Lignes
+390|Ajouter ces lignes à la liste
+391|À ajouter · {draftsCount}
+392|Cartes à ajouter
+393|{c} de la carte {x}
+394|Retirer la carte {x}
+395|{"one":"Ajouter {n} carte à {unitName}","other":"Ajouter {n} cartes à {unitName}"}
+396|Les cartes entrent dans des leçons de {lessonSize} dans l’ordre où tu les ajoutes. Modifie n’importe quelle carte plus tard dans Cartes, et les champs ou la mise en page dans Types de carte.
+397|Affiché avec la question
+398|Extra (après la réponse)
+399|Affiché après la réponse
+400|Non affiché
+401|Champ {n}
+402|Enregistré. Une sauvegarde du paquet a été faite avant.
+403|Mise en page enregistrée.
+404|{"one":"{n} carte créée dans Ankhwiz","other":"{n} cartes créées dans Ankhwiz"}
+405|Elles utilisent la mise en page standard. Donne-leur un type de carte pour nommer leurs champs et concevoir leur apparence dans Anki et ici.
+406|Leur donner un type de carte
+407|Ce paquet n’a pas encore de types de carte.
+408|Nom
+409|Éditeur
+410|Simple
+411|Code de mise en page
+412|Champs
+413|Monter {name}
+414|Descendre {name}
+415|Nom du champ
+416|Partie de la carte pour {name}
+417|Retirer {name}
+418|Ajouter un champ
+419|{"one":"Changer la question ou la réponse en fait des cartes différentes : {n} carte étudiée repart de zéro.","other":"Changer la question ou la réponse en fait des cartes différentes : {n} cartes étudiées repartent de zéro."}
+420|{"one":"{n} carte n’aurait pas de question ou de réponse.","other":"{n} cartes n’auraient pas de question ou de réponse."}
+421|Annuler les modifications
+422|Enregistrer les champs
+423|Demander dans les deux sens
+424|Demande aussi la réponse et attend la question en retour.
+425|Afficher la mise en page de cette carte avec la réponse
+426|En plus de celle d’Ankhwiz, après la réponse. Modifie-la dans Code de mise en page.
+427|Carte
+428|Partie
+429|Verso
+430|Style
+431|Insérer
+432|Le recto ne cite aucun champ, donc le recto de chaque carte serait identique.
+433|Le langage de modèles d’Anki : {x}, {x2} pour les champs qui peuvent être vides, {x3} au verso. Les scripts sont retirés, pour que les paquets partagés restent sûrs. Ankhwiz pose les cartes à sa façon ; cette mise en page est ce qu’Anki affiche, et ce qu’Ankhwiz affiche avec la réponse quand tu l’actives.
+437|Enregistrer la mise en page
+438|Aperçu
+439|Note précédente
+440|{x} sur {notesCount}
+441|Note suivante
+442|{"one":"{x}Image, {n} partie cachée","other":"{x}Image, {n} parties cachées"}
+443|Certaines modifications n’ont pas pu être faites.
+444|Carte ajoutée. Ajoutes-en une autre, ou reviens à la liste.
+445|Carte retirée.
+446|Cet appareil n’a pas pu stocker le fichier.
+447|À réviser maintenant
+448|À réviser demain
+449|À réviser dans {days} jours

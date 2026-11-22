@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { t } from '../i18n';
   // A run of multiple-choice questions, used by challenge rounds and reading
   // tests. It reports the score; it never touches the review schedule.
   import type { ReadingQuestion } from '../core/types';
@@ -32,9 +33,9 @@
 </script>
 
 <div class="quiz">
-  <p class="label">Question {index + 1} of {questions.length}</p>
+  <p class="label">{t('Question {x} of {questionsCount}', { x: index + 1, questionsCount: questions.length })}</p>
   <h2 class="display">{q.question}</h2>
-  <div class="options" role="radiogroup" aria-label="Answers">
+  <div class="options" role="radiogroup" aria-label={t('Answers')}>
     {#each q.options as option, i (i)}
       <button
         class="option card"
@@ -57,7 +58,7 @@
   </div>
   {#if checked && whys[index]}<p class="why plain">{whys[index]}</p>{/if}
   <button class="primary" disabled={picked === null} onclick={act}>
-    {!checked ? 'Check' : index + 1 >= questions.length ? 'Finish' : 'Continue'}
+    {!checked ? t('Check') : index + 1 >= questions.length ? t('Finish') : t('Continue')}
   </button>
 </div>
 
