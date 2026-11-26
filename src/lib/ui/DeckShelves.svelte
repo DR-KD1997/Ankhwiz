@@ -9,7 +9,7 @@
   // By subject and Lists have the Due / Recent strip with Study All on top.
   import { plural, t, number } from '../i18n';
   import { groupDecks, pathKey, UNSORTED, type DeckRow } from '../places';
-  import { data, openDeck, save, ui } from '../store.svelte';
+  import { data, openDeck, save, setDeckPlace, ui } from '../store.svelte';
   import DueStrip from './DueStrip.svelte';
   import Icon from './Icon.svelte';
 
@@ -84,7 +84,77 @@
       .sort((a, b) => b.sum.due - a.sum.due || a.deck.name.localeCompare(b.deck.name));
   });
   const pins = $derived(rows.filter((r) => pinned.has(r.deck.id)));
-  let shelfTopic = $state<string | null>(null);
+  // Topics opened on the shelves; several can be open at once, in the order the subject lists them.
+  let shelfTopics = $state<Set<string>>(new Set());
+  function toggleShelf(key: string) {
+    const next = new Set(shelfTopics);
+    if (next.has(key)) next.delete(key);
+    else next.add(key);
+    shelfTopics = next;
+  }
+
+  // ---- Lists: hold a deck, then drag it onto a subject or a topic to move it ----
+  const SEP = '\u0001';
+  let drag = $state<{ id: string; name: string; x: number; y: number } | null>(null);
+  let over = $state<string | null>(null);
+  let holdTimer = 0;
+  let start = { x: 0, y: 0 };
+  let dragged = false;
+  function down(e: PointerEvent, r: DeckRow<Sum>) {
+    if (e.button > 0) return;
+    start = { x: e.clientX, y: e.clientY };
+    dragged = false;
+    clearTimeout(holdTimer);
+    const el = e.currentTarget as HTMLElement;
+    const pointer = e.pointerId;
+    holdTimer = window.setTimeout(() => {
+      drag = { id: r.deck.id, name: r.deck.name, x: start.x, y: start.y };
+      dragged = true;
+      try {
+        el.setPointerCapture(pointer);
+      } catch {
+        /* the pointer has gone */
+      }
+      navigator.vibrate?.(15);
+    }, 400);
+  }
+  function moveDrag(e: PointerEvent) {
+    if (!drag) {
+      if (Math.hypot(e.clientX - start.x, e.clientY - start.y) > 8) clearTimeout(holdTimer);
+      return;
+    }
+    drag = { ...drag, x: e.clientX, y: e.clientY };
+    const target = document.elementFromPoint(e.clientX, e.clientY)?.closest<HTMLElement>('[data-drop]');
+    over = target?.dataset.drop ?? null;
+    // Near the top or bottom edge, the list scrolls along.
+    const edge = 70;
+    if (e.clientY < edge) window.scrollBy(0, -12);
+    else if (e.clientY > window.innerHeight - edge) window.scrollBy(0, 12);
+  }
+  function upDrag() {
+    clearTimeout(holdTimer);
+    if (drag && over !== null) {
+      const [subject, topic] = over.split(SEP);
+      const d = data.decks[drag.id];
+      if (d && ((d.place?.subject ?? '') !== subject || (d.place?.topic ?? '') !== topic)) setDeckPlace(drag.id, subject, topic);
+    }
+    drag = null;
+    over = null;
+  }
+  function clickDeck(id: string) {
+    if (dragged) {
+      dragged = false;
+      return;
+    }
+    openDeck(id);
+  }
+  // While dragging, a finger moving does not scroll the page.
+  $effect(() => {
+    if (!drag) return;
+    const stop = (e: TouchEvent) => e.preventDefault();
+    document.addEventListener('touchmove', stop, { passive: false });
+    return () => document.removeEventListener('touchmove', stop);
+  });
   const status = (r: DeckRow<Sum>) => (r.sum.due ? plural('{n} due', '{n} due', r.sum.due) : stageOf(r) === 'new' ? t('Not started') : stageOf(r) === 'done' ? t('Learned') : t('Up to date'));
 
   // ---- By subject: tiles ----
@@ -110,12 +180,28 @@
       </span>
       <Icon name="play" size={18} />
     </button>
-    <button class="icon-btn move" aria-label={t('Move “{name}”', { name: r.deck.name })} onclick={() => onMove(r.deck.id)}><Icon name="more" /></button>
+    <button class="icon-btn move" aria-label={t('Deck options for “{name}”', { name: r.deck.name })} onclick={() => onMove(r.deck.id)}><Icon name="more" /></button>
   </li>
 {/snippet}
 
-{#snippet slimRow(r: DeckRow<Sum>, withPin: boolean, showWhere: boolean)}
-  <li class="slim-li">
+{#snippet slimRow(r: DeckRow<Sum>, withPin: boolean, showWhere: boolean, movable = false)}
+  <li class="slim-li" class:lifted={drag?.id === r.deck.id}>
+    {#if movable}
+      <button
+        class="slim movable"
+        onclick={() => clickDeck(r.deck.id)}
+        onpointerdown={(e) => down(e, r)}
+        onpointermove={moveDrag}
+        onpointerup={upDrag}
+        onpointercancel={upDrag}
+        oncontextmenu={(e) => e.preventDefault()}
+      >
+        <span class="grow">
+          <span class="name">{r.deck.name}</span>
+        </span>
+        <span class="status" class:has-due={r.sum.due > 0}>{status(r)}</span>
+      </button>
+    {:else}
     <button class="slim" onclick={() => openDeck(r.deck.id)}>
       <span class="grow">
         <span class="name">{r.deck.name}</span>
@@ -123,12 +209,13 @@
       </span>
       <span class="status" class:has-due={r.sum.due > 0}>{status(r)}</span>
     </button>
+    {/if}
     {#if withPin}
       <button class="icon-btn pin" aria-pressed={pinned.has(r.deck.id)} aria-label={pinned.has(r.deck.id) ? t('Unpin “{name}”', { name: r.deck.name }) : t('Pin “{name}”', { name: r.deck.name })} onclick={() => pin(r.deck.id)}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill={pinned.has(r.deck.id) ? 'var(--brass)' : 'none'} stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"></path></svg>
       </button>
     {:else}
-      <button class="icon-btn move" aria-label={t('Move “{name}”', { name: r.deck.name })} onclick={() => onMove(r.deck.id)}><Icon name="more" size={18} /></button>
+      <button class="icon-btn move" aria-label={t('Deck options for “{name}”', { name: r.deck.name })} onclick={() => onMove(r.deck.id)}><Icon name="more" size={18} /></button>
     {/if}
   </li>
 {/snippet}
@@ -173,7 +260,7 @@
     {#each groups as g (g.name)}
       {@const open = !folded.has(g.name)}
       <div class="subject plain">
-        <button class="head" aria-expanded={open} onclick={() => foldSubject(g.name)}>
+        <button class="head" class:over={over === g.name + SEP} data-drop={g.name + SEP} aria-expanded={open} onclick={() => foldSubject(g.name)}>
           <span class="chev" class:open aria-hidden="true"><Icon name="play" size={14} /></span>
           <span class="grow line">
             <strong>{g.name || SUBJECTLESS}</strong>
@@ -188,7 +275,7 @@
                 {@const key = pathKey(g.name, tp.name)}
                 {@const topen = openTopics.has(key)}
                 <div class="topic-block">
-                  <button class="topic-head" aria-expanded={topen} onclick={() => foldTopic(key)}>
+                  <button class="topic-head" class:over={over === g.name + SEP + tp.name} data-drop={g.name + SEP + tp.name} aria-expanded={topen} onclick={() => foldTopic(key)}>
                     <span class="chev small" class:open={topen} aria-hidden="true"><Icon name="play" size={11} /></span>
                     <span class="grow tname">{tp.name}</span>
                     <small>{plural('{n} deck', '{n} decks', tp.decks.length)}</small>
@@ -196,13 +283,13 @@
                   </button>
                   {#if topen}
                     <ul class="slims">
-                      {#each tp.decks as r (r.deck.id)}{@render slimRow(r, false, false)}{/each}
+                      {#each tp.decks as r (r.deck.id)}{@render slimRow(r, false, false, true)}{/each}
                     </ul>
                   {/if}
                 </div>
               {:else}
                 <ul class="slims loose">
-                  {#each tp.decks as r (r.deck.id)}{@render slimRow(r, false, false)}{/each}
+                  {#each tp.decks as r (r.deck.id)}{@render slimRow(r, false, false, true)}{/each}
                 </ul>
               {/if}
             {/each}
@@ -248,7 +335,7 @@
     <p class="count">{t('Shelves')}</p>
     <div class="shelves">
       {#each groups as g (g.name)}
-        {@const open = g.topics.find((tp) => tp.name && shelfTopic === pathKey(g.name, tp.name))}
+        {@const opened = g.topics.filter((tp) => tp.name && shelfTopics.has(pathKey(g.name, tp.name)))}
         <div class="shelf plain">
           <div class="shelf-head">
             <strong>{g.name || SUBJECTLESS}</strong>
@@ -258,17 +345,20 @@
             <div class="chips">
               {#each g.topics.filter((tp) => tp.name) as tp (tp.name)}
                 {@const key = pathKey(g.name, tp.name)}
-                <button class="chip" aria-expanded={shelfTopic === key} onclick={() => (shelfTopic = shelfTopic === key ? null : key)}>
+                <button class="chip" aria-expanded={shelfTopics.has(key)} onclick={() => toggleShelf(key)}>
                   {tp.name}{#if tp.due}<span class="chip-due">{tp.due}</span>{/if}
                 </button>
               {/each}
             </div>
           {/if}
-          {#if open}
-            <ul class="slims">
-              {#each open.decks as r (r.deck.id)}{@render slimRow(r, true, false)}{/each}
-            </ul>
-          {/if}
+          {#each opened as tp (tp.name)}
+            <div class="shelf-topic">
+              <span class="shelf-topic-name">{tp.name}</span>
+              <ul class="slims">
+                {#each tp.decks as r (r.deck.id)}{@render slimRow(r, true, false)}{/each}
+              </ul>
+            </div>
+          {/each}
           {#each g.topics.filter((tp) => !tp.name) as tp (tp.name)}
             <ul class="slims">
               {#each tp.decks as r (r.deck.id)}{@render slimRow(r, true, false)}{/each}
@@ -278,6 +368,11 @@
       {/each}
     </div>
   {/if}
+{/if}
+
+{#if drag}
+  <div class="ghost" style="left: {drag.x}px; top: {drag.y}px" aria-hidden="true">{drag.name}</div>
+  <p class="sr" role="status">{over !== null ? t('Drop to move “{name}” here', { name: drag.name }) : t('Drag “{name}” onto a subject or topic', { name: drag.name })}</p>
 {/if}
 
 <style>
@@ -666,5 +761,46 @@
     background: var(--badge-bg);
     color: var(--text);
     font-size: 13px;
+  }
+  .movable {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .lifted {
+    opacity: 0.4;
+  }
+  .head.over,
+  .topic-head.over {
+    outline: 3px dashed var(--brass);
+    outline-offset: -3px;
+    background: var(--sel-bg);
+  }
+  .ghost {
+    position: fixed;
+    z-index: 60;
+    transform: translate(-50%, -120%);
+    padding: 8px 14px;
+    border: 2px solid var(--line);
+    background: var(--sel-bg);
+    color: var(--text);
+    font-weight: 700;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .shelf-topic {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 8px;
+    border-top: 2px solid var(--hair);
+  }
+  .shelf-topic-name {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
   }
 </style>

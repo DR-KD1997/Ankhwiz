@@ -7663,5 +7663,40 @@
   "text": "Other decks in {name}",
   "kind": "text",
   "where": "src/lib/ui/TopicPage.svelte"
+ },
+ {
+  "text": "Place in your library",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Read the question aloud",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Read the answer aloud",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Deck options for “{name}”",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Drop to move “{name}” here",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Drag “{name}” onto a subject or topic",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Moving a deck never changes its cards or progress. You can also hold a deck in the library’s Lists and drag it to another subject or topic.",
+  "kind": "text",
+  "where": "src/lib/ui/PlacePicker.svelte"
  }
 ]

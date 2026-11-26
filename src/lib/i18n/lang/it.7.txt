@@ -61,3 +61,10 @@
 1528|Come si legge?
 1529|Argomenti
 1530|Altri mazzi in {name}
+1531|Posto nella tua libreria
+1532|Leggi la domanda ad alta voce
+1533|Leggi la risposta ad alta voce
+1534|Opzioni del mazzo «{name}»
+1535|Rilascia per spostare «{name}» qui
+1536|Trascina «{name}» su una materia o un argomento
+1537|Spostare un mazzo non cambia mai le sue carte né i progressi. Puoi anche tenere premuto un mazzo nelle Liste della libreria e trascinarlo su un’altra materia o un altro argomento.

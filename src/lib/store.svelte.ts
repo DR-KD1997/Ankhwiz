@@ -358,7 +358,16 @@ export const ui = $state({
   lang: 'en' as string,
   /** A subject or topic page open in the library ("Languages" or "Languages/Turkish"). */
   topic: null as string | null,
+  /** A part of the next screen to scroll to (Deck options › Place in your library). */
+  focus: null as 'place' | null,
 });
+
+/** A deck's … button in the library: its Deck options, at its place in the library. */
+export function openDeckPlace(id: string): void {
+  openDeck(id);
+  ui.focus = 'place';
+  openPanel('options');
+}
 
 export function now(): number {
   return Date.now() + data.dayOffset * DAY;

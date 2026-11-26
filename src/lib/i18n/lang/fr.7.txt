@@ -61,3 +61,10 @@
 1528|Comment ça se lit ?
 1529|Thèmes
 1530|Autres paquets dans {name}
+1531|Place dans ta bibliothèque
+1532|Lire la question à voix haute
+1533|Lire la réponse à voix haute
+1534|Options du paquet « {name} »
+1535|Relâche pour déplacer « {name} » ici
+1536|Fais glisser « {name} » sur une matière ou un thème
+1537|Déplacer un paquet ne change jamais ses cartes ni ta progression. Tu peux aussi maintenir un paquet dans les Listes de la bibliothèque et le faire glisser vers une autre matière ou un autre thème.

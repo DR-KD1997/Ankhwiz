@@ -61,3 +61,10 @@
 1528|Wie wird es gelesen?
 1529|Themen
 1530|Weitere Decks in {name}
+1531|Platz in deiner Bibliothek
+1532|Frage vorlesen
+1533|Antwort vorlesen
+1534|Deck-Optionen für „{name}“
+1535|Loslassen, um „{name}“ hierher zu verschieben
+1536|Zieh „{name}“ auf ein Fach oder Thema
+1537|Das Verschieben ändert nie die Karten oder den Fortschritt eines Decks. Du kannst ein Deck auch in den Listen der Bibliothek gedrückt halten und auf ein anderes Fach oder Thema ziehen.

@@ -24,6 +24,7 @@
   import TypeFields from './TypeFields.svelte';
   import LangPicker from './LangPicker.svelte';
   import ReadingChoices from './ReadingChoices.svelte';
+  import PlacePicker from './PlacePicker.svelte';
   import { isJapaneseDeck } from '../furigana';
   import { langName } from '../languages';
   import { unusedReport } from '../fields';
@@ -33,7 +34,14 @@
   import { date, plural, stageName, t } from '../i18n';
   import { job } from '../prepare.svelte';
 
-  onMount(() => offerPart('options'));
+  onMount(() => {
+    offerPart('options');
+    // Opened from a deck's … button in the library: go straight to its place.
+    if (ui.focus === 'place') {
+      ui.focus = null;
+      requestAnimationFrame(() => document.getElementById('deck-place')?.scrollIntoView({ block: 'start' }));
+    }
+  });
 
   const deck = $derived(data.decks[ui.deckId!]);
   const o = $derived(deck.options);
@@ -167,6 +175,11 @@
     </div>
   </div>
 
+  <div class="group" id="deck-place">
+    <p class="label">{t('Place in your library')}</p>
+    <PlacePicker deckId={deck.id} />
+  </div>
+
   <div class="group" data-tour="o-kinds">
     <p class="label">{t('Card kinds')}</p>
     {#if kinds.list.length}
@@ -291,23 +304,27 @@
     </label>
     {#if o.look.speak !== 'off'}
       <div class="row sub wrap">
-        <span><strong>{t('Question language')}</strong><small>{t('What the question side is read in')}</small></span>
+        <span class="titled">
+          <span><strong>{t('Question language')}</strong><small>{t('What the question side is read in')}</small></span>
+          <input type="checkbox" aria-label={t('Read the question aloud')} checked={o.look.speakQuestion !== false} onchange={(e) => look({ speakQuestion: e.currentTarget.checked })} />
+        </span>
         <span class="lang">
           <LangPicker label={t('Question language')} value={o.look.lang} emptyLabel={t('The device\'s own language')} extra={used} onPick={(c) => look({ lang: c })} />
           <button class="icon-btn" aria-label={t('Try the question voice')} disabled={!canSpeak()} onclick={() => speak(sample?.front ?? deck.name, o.look.lang)}>
             <Icon name="sound" />
           </button>
-          <label class="say"><input type="checkbox" checked={o.look.speakQuestion !== false} onchange={(e) => look({ speakQuestion: e.currentTarget.checked })} />{t('Read aloud')}</label>
         </span>
       </div>
       <div class="row sub wrap">
-        <span><strong>{t('Answer language')}</strong><small>{t('What the answer side is read in')}</small></span>
+        <span class="titled">
+          <span><strong>{t('Answer language')}</strong><small>{t('What the answer side is read in')}</small></span>
+          <input type="checkbox" aria-label={t('Read the answer aloud')} checked={o.look.speakAnswer !== false} onchange={(e) => look({ speakAnswer: e.currentTarget.checked })} />
+        </span>
         <span class="lang">
           <LangPicker label={t('Answer language')} value={o.look.langBack ?? ''} emptyLabel={t('Same as the question')} extra={used} onPick={(c) => look({ langBack: c })} />
           <button class="icon-btn" aria-label={t('Try the answer voice')} disabled={!canSpeak()} onclick={() => speak(sample?.back ?? deck.name, o.look.langBack || o.look.lang)}>
             <Icon name="sound" />
           </button>
-          <label class="say"><input type="checkbox" checked={o.look.speakAnswer !== false} onchange={(e) => look({ speakAnswer: e.currentTarget.checked })} />{t('Read aloud')}</label>
         </span>
       </div>
       <div class="row sub wrap">
@@ -432,18 +449,28 @@
 </section>
 
 <style>
-  .say {
+  /* A language row: its title with the read-aloud checkbox beside it, the picker on the full width below. */
+  .row.sub.wrap > .titled {
     display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 14px;
-    font-weight: 600;
-    white-space: nowrap;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    flex: 1 1 100%;
   }
-  .say input {
-    width: 20px;
-    height: 20px;
-    accent-color: var(--emerald);
+  .titled > span {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .row.sub.wrap > .lang {
+    flex: 1 1 100%;
+  }
+  .row.sub.wrap > .lang {
+    justify-content: flex-start;
+  }
+  .row.sub.wrap > .lang > :global(.lp) {
+    max-width: none;
   }
   .as-button {
     width: 100%;

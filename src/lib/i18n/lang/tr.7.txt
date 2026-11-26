@@ -61,3 +61,10 @@
 1528|Nasıl okunur?
 1529|Konular
 1530|{name} içindeki diğer desteler
+1531|Kütüphanedeki yeri
+1532|Soruyu sesli oku
+1533|Cevabı sesli oku
+1534|“{name}” deste seçenekleri
+1535|“{name}” destesini buraya taşımak için bırak
+1536|“{name}” destesini bir ders ya da konunun üstüne sürükle
+1537|Bir desteyi taşımak kartlarını ya da ilerlemeni asla değiştirmez. Kütüphanenin Listeler görünümünde bir desteye basılı tutup başka bir ders ya da konuya da sürükleyebilirsin.

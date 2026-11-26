@@ -100,7 +100,7 @@
           </span>
           <Icon name="play" size={18} />
         </button>
-        <button class="icon-btn" aria-label={t('Move “{name}”', { name: r.deck.name })} onclick={() => onMove(r.deck.id)}><Icon name="more" /></button>
+        <button class="icon-btn" aria-label={t('Deck options for “{name}”', { name: r.deck.name })} onclick={() => onMove(r.deck.id)}><Icon name="more" /></button>
       </li>
     {/each}
   </ul>

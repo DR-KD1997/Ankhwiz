@@ -3,6 +3,32 @@
 What changed in each version of Ankhwiz. Downloads are on the
 [Releases page](https://github.com/DR-KD1997/Ankhwiz/releases).
 
+## 0.7.1.1 · 2026-11-26
+
+[Every change to the code since 0.7.1](https://github.com/DR-KD1997/Ankhwiz/compare/v0.7.1...v0.7.1.1)
+
+Small fixes and improvements to the library and Deck options.
+
+### Changed
+- **A deck's … button** in the library opens its Deck options, at the new
+  **Place in your library** section (below Remembering, above Card kinds).
+  There you choose the deck's subject and topic, or type new ones.
+- **Drag and drop in Lists:** hold a deck for a moment, then drag it onto a
+  subject or a topic to move it there. The list scrolls when you drag near
+  the top or bottom edge.
+- **All decks › Shelves:** several topics in a subject can be open at once.
+  Each topic's decks are listed under its name, with a line between topics.
+- **Read aloud in Deck options:** the checkbox for reading the question or
+  the answer now sits beside its title, so the language pickers below use
+  the full width, the same as the one for quotes.
+
+### Fixed
+- The **Pick up where you left off** panel on the home screen looks as it
+  did before 0.7.1 again.
+
+### Notes
+- Android build number 13.
+
 ## 0.7.1 · 2026-11-26
 
 [Every change to the code since 0.7.0](https://github.com/DR-KD1997/Ankhwiz/compare/v0.7.0...v0.7.1)

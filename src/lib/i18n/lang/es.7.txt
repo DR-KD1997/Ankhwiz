@@ -61,3 +61,10 @@
 1528|¿Cómo se lee?
 1529|Temas
 1530|Otros mazos en {name}
+1531|Lugar en tu biblioteca
+1532|Leer la pregunta en voz alta
+1533|Leer la respuesta en voz alta
+1534|Opciones del mazo «{name}»
+1535|Suelta para mover «{name}» aquí
+1536|Arrastra «{name}» a una materia o un tema
+1537|Mover un mazo nunca cambia sus tarjetas ni tu progreso. También puedes mantener pulsado un mazo en las Listas de la biblioteca y arrastrarlo a otra materia o tema.

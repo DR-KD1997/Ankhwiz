@@ -22,6 +22,7 @@
     openPanel,
     pausedSummary,
     resumePaused,
+    openDeckPlace,
     snap,
     ui,
   } from '../store.svelte';
@@ -181,7 +182,7 @@
   {#if arranging}
     <ArrangePanel onMove={(id) => (moving = id)} onClose={() => (arranging = false)} />
   {:else if ui.topic}
-    <TopicPage rows={decks} onMove={(id) => (moving = id)} />
+    <TopicPage rows={decks} onMove={(id) => openDeckPlace(id)} />
   {:else}
 
   {#if !ui.persistent}
@@ -216,7 +217,7 @@
         <p class="label">{t('Your decks')}</p>
         {#if !wide}<button class="link-btn" onclick={() => (arranging = true)}><Icon name="edit" size={16} /> {t('Arrange')}</button>{/if}
       </div>
-      <DeckShelves rows={decks} onMove={(id) => (moving = id)} />
+      <DeckShelves rows={decks} onMove={(id) => openDeckPlace(id)} />
     </div>
   {/if}
 
@@ -562,7 +563,12 @@
     align-items: flex-end;
     gap: 12px;
   }
-  .resume-row .grow,
+  .resume-row .grow {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
   .small-primary {
     display: inline-flex;
     align-items: center;

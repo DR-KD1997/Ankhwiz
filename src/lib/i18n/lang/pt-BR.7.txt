@@ -61,3 +61,10 @@
 1528|Como se lê?
 1529|Temas
 1530|Outros baralhos em {name}
+1531|Lugar na sua biblioteca
+1532|Ler a pergunta em voz alta
+1533|Ler a resposta em voz alta
+1534|Opções do baralho “{name}”
+1535|Solte para mover “{name}” para cá
+1536|Arraste “{name}” para uma matéria ou um tema
+1537|Mover um baralho nunca muda os cartões nem o progresso. Você também pode segurar um baralho nas Listas da biblioteca e arrastá-lo para outra matéria ou tema.
