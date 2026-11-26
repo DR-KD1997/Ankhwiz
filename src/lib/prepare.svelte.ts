@@ -11,6 +11,8 @@
 import { aiReady, ask } from './ai.svelte';
 import type { Deck, Note, PrepPatch, PrepState, Reading, Suggestion } from './core/types';
 import { detectLanguage } from './detect';
+import { align, hasKanji, hasReadings, isJapaneseDeck, isKanaText, plainOf, rubyToBrackets } from './furigana';
+import { fieldText } from './import/html';
 import { unusedReport } from './fields';
 import { language, plural, t } from './i18n';
 import { COMMON_LANGS, langName } from './languages';
@@ -28,12 +30,13 @@ import {
   setDeckPlace,
 } from './store.svelte';
 
-export type StepId = 'lang' | 'place' | 'fields' | 'answers' | 'wrong' | 'lessons' | 'notes' | 'stories' | 'check';
+export type StepId = 'lang' | 'furigana' | 'place' | 'fields' | 'answers' | 'wrong' | 'lessons' | 'notes' | 'stories' | 'check';
 export type How = 'device' | 'both' | 'ai' | 'content';
 
 /** The steps, in the order they run. Names are English, shown through t(). */
 export const STEPS: { id: StepId; name: string; how: How }[] = [
   { id: 'lang', name: t('Languages and voices'), how: 'device' },
+  { id: 'furigana', name: t('Furigana (Japanese readings)'), how: 'both' },
   { id: 'place', name: t('Its place in your library'), how: 'both' },
   { id: 'fields', name: t('Unused card fields'), how: 'device' },
   { id: 'answers', name: t('Answers that mean the same'), how: 'both' },
@@ -113,6 +116,7 @@ export function estimate(deck: Deck, steps: StepId[]): { per: Partial<Record<Ste
     per.notes = Math.max(1, Math.ceil(close / BATCH));
     per.stories = 3;
     per.place = deck.place?.subject || placeOnDevice(deck) ? 0 : 1;
+    per.furigana = isJapaneseDeck(deck) ? Math.ceil(Object.keys(deviceReadings(deck).missing).length / 40) : 0;
   }
   const total = steps.reduce((n, s) => n + (per[s] ?? 0), 0);
   return { per, total, minutes: Math.max(1, Math.round(1 + total / 40)) };
@@ -162,6 +166,51 @@ function prepOf(deckId: string): PrepState {
 }
 function savePrep(deckId: string, prep: PrepState): void {
   setDeckExtras(deckId, { prep });
+}
+
+/**
+ * Readings this device can find for cards with kanji but no furigana: in the
+ * card's own Anki fields (ruby markup, or Anki's 日本[にほん] form), or in a
+ * field holding only the kana reading of the word. `missing` lists the cards
+ * left without readings, for Thoth.
+ */
+export function deviceReadings(deck: Deck): { found: Record<string, { front?: string; back?: string }>; missing: string[] } {
+  const found: Record<string, { front?: string; back?: string }> = {};
+  const missing: string[] = [];
+  const types = deck.anki?.notetypes ?? {};
+  for (const n of Object.values(deck.notes)) {
+    if (n.cloze || n.occlusion) continue;
+    const want = (side: 'front' | 'back') => hasKanji(n[side]) && !hasReadings(n[side]);
+    if (!want('front') && !want('back')) continue;
+    const raw = n.anki?.fields ?? [];
+    const type = n.anki ? types[n.anki.ntid] : undefined;
+    const texts = raw.map((f) => fieldText(rubyToBrackets(f)));
+    const names = type?.fields ?? [];
+    const sideFrom = (side: 'front' | 'back', own: number | undefined): string | undefined => {
+      const text = n[side];
+      // The field it came from, read again with its ruby markup kept.
+      if (own !== undefined && texts[own] && hasReadings(texts[own]) && plainOf(texts[own]) === text) return texts[own];
+      // Another field with the same words and their readings.
+      const same = texts.find((x) => hasReadings(x) && plainOf(x) === text);
+      if (same) return same;
+      // A field with only the kana reading, preferring one named for readings.
+      const order = texts.map((x, i) => i).sort((a, b) => Number(/read|kana|furi|yomi|reading|発音|読み/i.test(names[b] ?? '')) - Number(/read|kana|furi|yomi|reading|発音|読み/i.test(names[a] ?? '')));
+      for (const i of order) {
+        const x = texts[i];
+        if (x && isKanaText(x.replace(/\s/g, ''))) {
+          const joined = align(text, x.replace(/\s/g, ''));
+          if (joined) return joined;
+        }
+      }
+      return undefined;
+    };
+    const got: { front?: string; back?: string } = {};
+    if (want('front')) got.front = sideFrom('front', type?.question);
+    if (want('back')) got.back = sideFrom('back', type?.answer);
+    if (got.front || got.back) found[n.id] = Object.fromEntries(Object.entries(got).filter(([, v]) => v));
+    if ((want('front') && !got.front) || (want('back') && !got.back)) missing.push(n.id);
+  }
+  return { found, missing };
 }
 
 /** Where a deck goes, from its Anki name ("Languages::Turkish::Phrases") or its languages. */
@@ -255,6 +304,43 @@ export async function runPrepare(deckId: string, steps: StepId[]): Promise<void>
       setDeckOptions(deckId, { look: { ...look, lang, langBack, speak: 'on' } });
       prep.applied!.push(patch);
       return langBack ? `${langName(lang)} → ${langName(langBack)}` : langName(lang);
+    },
+    async furigana() {
+      const deck = deckNow();
+      if (!isJapaneseDeck(deck)) return t('Not a Japanese deck');
+      const { found, missing } = deviceReadings(deck);
+      const ids = Object.keys(found);
+      if (ids.length) {
+        const prev = Object.fromEntries(ids.map((id) => [id, { front: deck.notes[id].front, back: deck.notes[id].back }]));
+        const patch: PrepPatch = { kind: 'furigana', id: uid(), by: 'device', notes: found, prev };
+        applyPatch(deckId, patch);
+        prep.applied!.push(patch);
+      }
+      let fromThoth = 0;
+      if (ai && missing.length) {
+        const groups = batches(missing, 40);
+        set('furigana', 'running', '', 0, groups.length);
+        const results = await pool(
+          groups,
+          3,
+          (g) => ask<{ noteId: string; front: string; back: string; also: string }[]>('furigana', deckNow(), { noteIds: g }).catch(() => []),
+          (d) => set('furigana', 'running', '', d, groups.length),
+        );
+        const notes: Record<string, { front?: string; back?: string; also?: string }> = {};
+        for (const r of results.flat()) {
+          notes[r.noteId] = Object.fromEntries(Object.entries({ front: r.front, back: r.back, also: r.also }).filter(([, v]) => v));
+        }
+        fromThoth = Object.keys(notes).length;
+        if (fromThoth) prep.pending!.push({ kind: 'furigana', id: uid(), by: 'thoth', notes });
+      }
+      const left = missing.length - fromThoth;
+      return [
+        ids.length ? plural('Readings for {n} card found on this device', 'Readings for {n} cards found on this device', ids.length) : '',
+        fromThoth ? plural('{n} from Thoth to check', '{n} from Thoth to check', fromThoth) : '',
+        !ai && left > 0 ? plural('{n} card still without readings', '{n} cards still without readings', left) : '',
+      ]
+        .filter(Boolean)
+        .join(' · ') || t('Every card already has its readings');
     },
     async place() {
       const deck = deckNow();
@@ -481,6 +567,16 @@ export function describe(deck: Deck, p: PrepPatch): Described {
       const items = p.notes.map((x, i) => ({ key: String(i), text: `${pair(deck, x.notes)}: ${x.note}` }));
       return { title: plural('{n} note on similar answers', '{n} notes on similar answers', p.notes.length), examples: items.slice(0, 1).map((i) => i.text), items, from: 'thoth' };
     }
+    case 'furigana': {
+      const ids = Object.keys(p.notes);
+      const items = ids.map((id) => ({ key: id, text: [p.notes[id].front, p.notes[id].back].filter(Boolean).join(' = ') + (p.notes[id].also ? ` (${t('also')}: ${p.notes[id].also})` : '') }));
+      return {
+        title: p.by === 'device' ? plural('Readings for {n} card, from its own fields', 'Readings for {n} cards, from their own fields', ids.length) : plural('Readings for {n} card', 'Readings for {n} cards', ids.length),
+        examples: items.slice(0, 2).map((i) => i.text),
+        items,
+        from: p.by,
+      };
+    }
     case 'stories': {
       const items = p.readings.map((r, i) => ({ key: String(i), text: r.title }));
       return { title: plural('{n} story for reading rounds', '{n} stories for reading rounds', p.readings.length), examples: items.slice(0, 2).map((i) => i.text), items, from: 'thoth' };
@@ -556,6 +652,15 @@ export function applyPatch(deckId: string, p: PrepPatch, skip: Set<string> = new
       setDeckLinks(deckId, links);
       break;
     }
+    case 'furigana':
+      editDeck(
+        deckId,
+        Object.entries(p.notes)
+          .filter(([id]) => keep(id) && deck.notes[id])
+          .map(([noteId, r]) => ({ op: 'update' as const, noteId, ...(r.front ? { front: r.front } : {}), ...(r.back ? { back: r.back } : {}) })),
+        p.by === 'thoth',
+      );
+      break;
     case 'stories':
       setDeckExtras(deckId, { readings: [...(deck.readings ?? []), ...p.readings.filter((_, i) => keep(String(i)))] });
       break;
@@ -568,6 +673,13 @@ function undoApplied(deckId: string, p: PrepPatch): void {
   if (!deck) return;
   if (p.kind === 'lang') setDeckOptions(deckId, { look: { ...deck.options.look, ...p.prev } });
   else if (p.kind === 'place') setDeckPlace(deckId, '');
+  else if (p.kind === 'furigana' && p.prev)
+    editDeck(
+      deckId,
+      Object.entries(p.prev)
+        .filter(([id]) => deck.notes[id])
+        .map(([noteId, r]) => ({ op: 'update' as const, noteId, front: r.front, back: r.back })),
+    );
   else if (p.kind === 'links' && p.made) setDeckLinks(deckId, (deck.links ?? []).filter((l) => !p.made!.includes(l.id)));
 }
 

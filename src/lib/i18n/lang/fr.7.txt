@@ -1,0 +1,63 @@
+1468|Furigana (lectures japonaises)
+1469|Ce n’est pas un paquet japonais
+1470|{"one": "Lectures trouvées sur cet appareil pour {n} carte", "other": "Lectures trouvées sur cet appareil pour {n} cartes"}
+1471|{"one": "{n} carte encore sans lectures", "other": "{n} cartes encore sans lectures"}
+1472|Chaque carte a déjà ses lectures
+1473|aussi
+1474|{"one": "Lectures pour {n} carte, tirées de ses propres champs", "other": "Lectures pour {n} cartes, tirées de leurs propres champs"}
+1475|{"one": "Lectures pour {n} carte", "other": "Lectures pour {n} cartes"}
+1476|Images
+1477|Avec la question et les champs supplémentaires
+1478|Centrées
+1479|À gauche
+1480|Lectures
+1481|Tout
+1482|À revoir
+1483|En cours
+1484|Pas commencé
+1485|À jour
+1486|Désépingler « {name} »
+1487|Épingler « {name} »
+1488|{n} % appris
+1489|Ouvrir ce qui est à revoir
+1490|Tout replier
+1491|Trouver un paquet
+1492|Trouver un paquet, un thème ou une matière
+1493|Résultats
+1494|Aucun résultat. Essaie une partie d’un nom.
+1495|Épinglés
+1496|Étagères
+1497|Paquets à étudier
+1498|Récents
+1499|{"one": "Tout étudier : {n} carte à revoir dans tous les paquets, en une séance mélangée", "other": "Tout étudier : {n} cartes à revoir dans tous les paquets, en une séance mélangée"}
+1500|Rien à revoir
+1501|Tout étudier
+1502|Rien à revoir pour l’instant.
+1503|Aucun paquet ouvert pour l’instant.
+1504|{word} : touche pour voir la lecture
+1505|Ce paquet contient du japonais. Comment afficher les lectures ?
+1506|Les furigana peuvent s’estomper à mesure que tu apprends chaque mot, et les lectures peuvent être demandées sur des cartes à part. Tu pourras changer ça plus tard dans Options du paquet › Lectures.
+1507|Décider plus tard
+1508|S’estompent à mesure
+1509|Affichées au-dessus des mots nouveaux, plus pâles pendant que tu les apprends, cachées une fois que tu les connais. Touche un mot pour la voir ; la réponse compte alors comme aidée.
+1510|Toujours
+1511|Chaque lecture, à chaque fois.
+1512|Au toucher
+1513|Cachées jusqu’à ce que tu touches un mot.
+1514|Jamais
+1515|Texte seul, sans lectures.
+1516|Quand le sens est acquis
+1517|Chaque carte reçoit une carte de lecture quand son sens atteint Rappel solide : un mot nouveau ne fait donc qu’une carte le premier jour.
+1518|Dès le début
+1519|Apprise avec chaque carte dès sa première leçon : deux fois plus de cartes dans les premières leçons.
+1520|Les lectures ne sont jamais demandées à part.
+1521|Furigana au-dessus des kanji
+1522|Cartes de lecture (réponse en kana)
+1523|Pas encore de cartes avec des kanji.
+1524|{"one": "Chaque carte avec des kanji a ses lectures ({n} carte).", "other": "Chaque carte avec des kanji a ses lectures ({n} cartes)."}
+1525|Lectures sur {read} des {n} cartes avec des kanji.
+1526|Préparer pour Ankhwiz peut ajouter le reste ›
+1527|Comment se lit le mot marqué ?
+1528|Comment ça se lit ?
+1529|Thèmes
+1530|Autres paquets dans {name}

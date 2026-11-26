@@ -1181,6 +1181,64 @@ pub struct Place {
     pub topic: String,
 }
 
+/// Furigana for cards that have kanji but no readings: each listed side is
+/// sent back in Anki's form, 日本[にほん]語, with a note when a word has more
+/// than one fair reading.
+pub fn furigana_request(deck: &Deck, note_ids: &[String]) -> AiRequest {
+    let mut listing = String::new();
+    for (i, id) in note_ids.iter().take(80).enumerate() {
+        let Some(n) = deck.notes.get(id) else { continue };
+        listing.push_str(&format!("{}: {} = {}\n", i + 1, clip(&n.front, 160), clip(&n.back, 160)));
+    }
+    let instructions = format!(
+        "These are flashcards from the Japanese deck \"{}\": number, question = answer. For each side that has kanji, \
+write it again with furigana in Anki's form: a space before each word that has kanji, then the word, then its reading in \
+hiragana in square brackets, as in \"毎朝[まいあさ] 日本語[にほんご]を 勉強[べんきょう]しています\". Keep every other character \
+exactly as it is. Read each word as it is read in that sentence. When a word could fairly be read more than one way, give \
+the likeliest and put the others in \"also\". Leave out sides without kanji. {JSON_ONLY} \
+Shape: {{\"cards\":[{{\"n\":1,\"front\":\"…\",\"back\":\"…\",\"also\":\"今日: こんにち\"}}]}}",
+        deck.name
+    );
+    request("furigana", vec![sys(&instructions), user(listing)], true, true, 0.1)
+}
+
+/// Thoth's readings, kept only where the text without them is exactly the card's own.
+pub fn parse_furigana(deck: &Deck, note_ids: &[String], text: &str) -> Result<Vec<FuriganaSuggestion>, String> {
+    use crate::furigana::{has_kanji, has_readings, plain};
+    let v = extract_json(text)?;
+    let mut out = Vec::new();
+    for c in v["cards"].as_array().cloned().unwrap_or_default() {
+        let Some(id) = c["n"].as_u64().and_then(|n| (n as usize).checked_sub(1)).and_then(|i| note_ids.get(i)) else { continue };
+        let Some(note) = deck.notes.get(id) else { continue };
+        let fits = |given: &str, own: &str| -> String {
+            let given = given.trim();
+            if has_kanji(own) && !has_readings(own) && has_readings(given) && plain(given).trim() == own.trim() {
+                given.to_string()
+            } else {
+                String::new()
+            }
+        };
+        let front = fits(&text_of(&c["front"]), &note.front);
+        let back = fits(&text_of(&c["back"]), &note.back);
+        if front.is_empty() && back.is_empty() {
+            continue;
+        }
+        out.push(FuriganaSuggestion { note_id: id.clone(), front, back, also: clip(&text_of(&c["also"]), 120) });
+    }
+    Ok(out)
+}
+
+#[derive(Serialize, Debug, Clone, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct FuriganaSuggestion {
+    pub note_id: String,
+    /// The side with its readings, or empty when it is left as it is.
+    pub front: String,
+    pub back: String,
+    /// Other fair readings Thoth noticed, for the learner to check.
+    pub also: String,
+}
+
 pub fn place_request(deck: &Deck, existing: &[String]) -> AiRequest {
     let sample: Vec<String> = deck.notes.values().take(12).map(|n| format!("{} = {}", clip(&n.front, 60), clip(&n.back, 60))).collect();
     let instructions = format!(
@@ -1385,5 +1443,23 @@ mod tests {
         assert!(parse_place(r#"{"subject":"","topic":"x"}"#).is_err());
         let req = judge_request(&deck, &ids[0], "I understood");
         assert!(req.messages[1].content.contains("I understood"));
+    }
+
+    #[test]
+    fn readings_from_thoth_are_kept_only_when_the_text_is_unchanged() {
+        let rows: Vec<crate::model::RawNote> = [("勉強", "study"), ("今日は休み", "today is a day off"), ("水", "water")]
+            .iter()
+            .map(|(f, b)| serde_json::from_value(serde_json::json!({"front": f, "back": b})).unwrap())
+            .collect();
+        let deck = crate::split::build_deck("Japanese", &rows, &serde_json::from_str("{\"lessonSize\":8}").unwrap(), 0.0);
+        let id = |front: &str| deck.notes.values().find(|n| n.front == front).unwrap().id.clone();
+        let ids = vec![id("勉強"), id("今日は休み"), id("水")];
+        let req = furigana_request(&deck, &ids);
+        assert!(req.messages[1].content.contains("1: 勉強 = study"));
+        let reply = r#"{"cards":[{"n":1,"front":"勉強[べんきょう]"},{"n":2,"front":"今日[きょう]は 休[やす]み","also":"今日: こんにち"},{"n":3,"front":"氷[こおり]"}]}"#;
+        let got = parse_furigana(&deck, &ids, reply).unwrap();
+        assert_eq!(got.len(), 2, "a changed word is dropped");
+        assert_eq!(got[0].front, "勉強[べんきょう]");
+        assert_eq!(got[1].also, "今日: こんにち");
     }
 }

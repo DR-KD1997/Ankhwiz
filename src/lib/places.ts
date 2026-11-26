@@ -51,9 +51,13 @@ export function groupDecks<S extends { due: number }>(rows: DeckRow<S>[]): Subje
 /** A subject or topic as a path key: "Languages" or "Languages/Turkish". */
 export const pathKey = (subject: string, topic = '') => (topic ? `${subject}/${topic}` : subject);
 
+/** The path key of the decks not sorted yet. */
+export const UNSORTED = '\u0000';
+
 /** The decks under a path key ("" is every deck). */
 export function decksUnder<S>(rows: DeckRow<S>[], key: string): DeckRow<S>[] {
   if (!key) return rows;
+  if (key === UNSORTED) return rows.filter((r) => !r.deck.place?.subject?.trim());
   const [subject, topic] = key.split('/');
   return rows.filter((r) => (r.deck.place?.subject ?? '') === subject && (topic === undefined || (r.deck.place?.topic ?? '') === topic));
 }

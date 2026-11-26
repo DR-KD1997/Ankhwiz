@@ -4,7 +4,7 @@
   // time, with progress for the whole topic.
   import { line } from '../core/thoth';
   import { number, plural, t } from '../i18n';
-  import { decksUnder, type DeckRow } from '../places';
+  import { decksUnder, groupDecks, pathKey, UNSORTED, type DeckRow } from '../places';
   import { data, openDeck, startAll, ui } from '../store.svelte';
   import Icon from './Icon.svelte';
   import Thoth from './Thoth.svelte';
@@ -21,7 +21,15 @@
   const withDue = $derived(mine.filter((r) => r.sum.due > 0));
   let mix = $state(true);
   const first = $derived(withDue[0]);
-  const title = $derived(topic || subject);
+  const unsorted = $derived(key === UNSORTED);
+  const title = $derived(unsorted ? t('Not sorted yet') : topic || subject);
+  // A subject's page shows its topics as tiles (one step further in); decks with no topic are listed under them.
+  const topicTiles = $derived(!topic && !unsorted ? (groupDecks(mine)[0]?.topics ?? []).filter((x) => x.name) : []);
+  const loose = $derived(topicTiles.length ? mine.filter((r) => !r.deck.place?.topic) : mine);
+  const pctOf = (list: DeckRow<Sum>[]) => {
+    const all = list.reduce((n, r) => n + r.sum.total, 0);
+    return all ? Math.round((list.reduce((n, r) => n + r.sum.introduced, 0) / all) * 100) : 0;
+  };
 
   async function study() {
     if (mix) await startAll(withDue.map((r) => r.deck.id), title);
@@ -33,7 +41,7 @@
   <header>
     <button class="icon-btn" aria-label={t('Back to the library')} onclick={() => (ui.topic = null)}><Icon name="back" /></button>
     <nav aria-label={t('Where this is')}>
-      {#if topic}<button class="crumb" onclick={() => (ui.topic = subject)}>{subject} ›</button>{:else}<span class="crumb">{t('Library')} ›</span>{/if}
+      {#if topic}<button class="crumb" onclick={() => (ui.topic = subject)}>{subject} ›</button>{:else}<button class="crumb" onclick={() => (ui.topic = null)}>{t('Library')} ›</button>{/if}
       <h1 class="display">{title}</h1>
     </nav>
   </header>
@@ -66,9 +74,22 @@
     <div class="plain"><strong>{mine.length}</strong><small>{plural('deck', 'decks', mine.length)}</small></div>
   </div>
 
-  <p class="label">{t('Decks in {name}', { name: title })}</p>
+  {#if topicTiles.length}
+    <p class="label">{t('Topics')}</p>
+    <div class="tiles">
+      {#each topicTiles as tp (tp.name)}
+        <button class="tile card" onclick={() => (ui.topic = pathKey(subject, tp.name))}>
+          <span class="tile-top"><strong>{tp.name}</strong>{#if tp.due}<span class="due">{tp.due}</span>{/if}</span>
+          <small>{plural('{n} deck', '{n} decks', tp.decks.length)}</small>
+          <span class="meter wide" aria-hidden="true"><i style="width: {pctOf(tp.decks)}%"></i></span>
+          <small>{t('{n}% learned', { n: pctOf(tp.decks) })}</small>
+        </button>
+      {/each}
+    </div>
+  {/if}
+  {#if loose.length}<p class="label">{topicTiles.length ? t('Other decks in {name}', { name: title }) : t('Decks in {name}', { name: title })}</p>{/if}
   <ul>
-    {#each mine as r (r.deck.id)}
+    {#each loose as r (r.deck.id)}
       <li>
         <button class="deck card" onclick={() => openDeck(r.deck.id)}>
           <span class="grow">
@@ -110,10 +131,6 @@
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
-  }
-  span.crumb {
-    color: var(--muted);
-    cursor: default;
   }
   h1 {
     margin: 0;
@@ -237,5 +254,47 @@
     display: block;
     height: 100%;
     background: var(--emerald);
+  }
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+  }
+  .tile {
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 12px;
+    text-align: left;
+  }
+  .tile-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .tile strong {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+  }
+  .tile small {
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .due {
+    min-width: 28px;
+    padding: 1px 7px;
+    background: var(--badge-bg);
+    color: var(--text);
+    font-weight: 700;
+    text-align: center;
+  }
+  .meter.wide {
+    width: 100%;
+    margin-top: auto;
   }
 </style>

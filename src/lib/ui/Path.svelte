@@ -11,6 +11,7 @@
     openPanel,
     pausedSummary,
     resumePaused,
+    setDeckOptions,
     startLesson,
     startReview,
     startTestOut,
@@ -22,9 +23,21 @@
   import Thoth from './Thoth.svelte';
   import { dismissOffer, job, offerFor } from '../prepare.svelte';
   import { plural, shownName, t } from '../i18n';
+  import { isJapaneseDeck } from '../furigana';
+  import ReadingChoices from './ReadingChoices.svelte';
+  import type { Look } from '../core/types';
 
   const deck = $derived(data.decks[ui.deckId!]);
   const progress = $derived(data.progress[ui.deckId!] ?? {});
+  // A deck found to be Japanese asks once how its readings (furigana) should show.
+  let readingsLater = $state<Set<string>>(new Set());
+  let draft = $state<Partial<Look>>({});
+  const askReadings = $derived(!deck.options.look.furigana && !readingsLater.has(deck.id) && isJapaneseDeck(deck));
+  function saveReadings() {
+    setDeckOptions(deck.id, { look: { ...deck.options.look, furigana: 'fade', readingCards: 'firm', ...draft } });
+    draft = {};
+  }
+
   const time = $derived(now());
   // While a lesson is open beside the path, the path keeps what it showed when
   // the lesson began: working it out again after every answer would slow a
@@ -123,6 +136,16 @@
       </span>
       <Icon name="play" size={18} />
     </button>
+  {:else if !busy && askReadings}
+    <div class="offer plain readings-ask">
+      <strong>{t('This deck has Japanese. How should readings show?')}</strong>
+      <span>{t('Furigana can fade as you learn each word, and readings can be asked on cards of their own. You can change this later in Deck options › Readings.')}</span>
+      <ReadingChoices deckId={deck.id} furigana={draft.furigana ?? 'fade'} readingCards={draft.readingCards ?? 'firm'} onChange={(p) => (draft = { ...draft, ...p })} />
+      <div class="pair">
+        <button class="quiet" onclick={() => (readingsLater = new Set([...readingsLater, deck.id]))}>{t('Decide later')}</button>
+        <button class="primary" onclick={saveReadings}>{t('Save')}</button>
+      </div>
+    </div>
   {:else if !busy && offerFor(deck)}
     <div class="offer plain">
       <strong>{t('This deck wasn’t made with Ankhwiz in mind.')}</strong>

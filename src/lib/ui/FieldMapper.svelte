@@ -63,7 +63,7 @@
 {#snippet pick(value: number | null, set: (v: number) => void, label: string, size: string, none = false, flagged = false)}
   <select class="input {size}" class:flagged aria-label={label} value={value === null ? '' : String(value)} onchange={(e) => set(e.currentTarget.value === '' ? -1 : Number(e.currentTarget.value))}>
     {#if none}<option value="">{t('None')}</option>{/if}
-    {#each fields as f, i (i)}<option value={String(i)}>{f}{sample[i] ? ` · ${sample[i]}` : ''}</option>{/each}
+    {#each fields as f, i (i)}<option value={String(i)}>{f}{sample[i] ? ` · ${sample[i] === '(picture)' ? t('(picture)') : sample[i] === '(sound)' ? t('(sound)') : sample[i]}` : ''}</option>{/each}
   </select>
 {/snippet}
 

@@ -1,6 +1,6 @@
 [package]
 name = "ankhwiz"
-version = "0.7.0"
+version = "0.7.1"
 description = "Ankhwiz desktop shell"
 authors = ["DR-KD1997"]
 license = "AGPL-3.0-or-later"

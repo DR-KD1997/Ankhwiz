@@ -8,7 +8,7 @@
 use crate::cards::{face, gaps, note_of};
 use crate::model::{CardState, Deck, Note};
 use crate::rng::shuffle;
-use crate::text::{answer_kind, distance, normalize};
+use crate::text::{answer_kind, distance, is_sound_file, media_token, normalize, side_text, AnswerKind};
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 pub struct Index {
@@ -79,7 +79,7 @@ fn offers(note: &Note, reverse: bool, cloze: bool, picture: bool) -> Vec<String>
     if note.cloze {
         return vec![];
     }
-    vec![if reverse { note.front.clone() } else { note.back.clone() }]
+    vec![if reverse { side_text(&note.front, &note.qmedia) } else { side_text(&note.back, &note.amedia) }]
 }
 
 /// The options for a card: the answer plus up to `count - 1` wrong ones,
@@ -98,6 +98,44 @@ pub fn pick_options(deck: &Deck, card_id: &str, count: usize, hard: bool) -> Vec
     }
     let mut wrong: Vec<String> = Vec::new();
     let want = count.saturating_sub(1);
+
+    if f.kana {
+        // A reading card: readings that sound almost the same, then other
+        // cards' readings of about the same length.
+        let mut near = crate::furigana::near_readings(&f.answer);
+        shuffle(&mut near);
+        for r in near.iter() {
+            if wrong.len() >= want {
+                break;
+            }
+            let key = normalize(r, strict);
+            if taken.insert(key) {
+                wrong.push(r.clone());
+            }
+        }
+        let len = f.answer.chars().count();
+        let mut others: Vec<String> = deck
+            .notes
+            .values()
+            .filter(|n| n.id != note_id)
+            .filter_map(|n| crate::furigana::reading_question(&n.front).map(|(_, _, r)| r))
+            .filter(|r| r.chars().count().abs_diff(len) <= 2)
+            .collect();
+        shuffle(&mut others);
+        for r in others.iter() {
+            if wrong.len() >= want {
+                break;
+            }
+            let key = normalize(r, strict);
+            if taken.insert(key) {
+                wrong.push(r.clone());
+            }
+        }
+        let mut options = vec![f.answer.clone()];
+        options.extend(wrong);
+        shuffle(&mut options);
+        return options;
+    }
 
     let mut offer = |text: &str, wrong: &mut Vec<String>| {
         let key = normalize(text, strict);
@@ -172,6 +210,29 @@ pub fn pick_options(deck: &Deck, card_id: &str, count: usize, hard: bool) -> Vec
                 break;
             }
             offer(text, &mut wrong);
+        }
+    }
+
+    // A picture (or sound) answer with too few others like it in the deck is
+    // offered the deck's other pictures (or sounds), nearest first.
+    if kind == AnswerKind::Media && wrong.len() < want {
+        let sound = media_token(&f.answer).map(|(k, _)| k == "sound").unwrap_or(false);
+        for notes in members.iter() {
+            let mut files: Vec<String> = notes
+                .iter()
+                .filter(|n| n.id != note_id)
+                .flat_map(|n| if f.reverse { [&n.qmedia, &n.amedia] } else { [&n.amedia, &n.qmedia] })
+                .flatten()
+                .filter(|m| is_sound_file(m) == sound)
+                .map(|m| format!("[[{}:{m}]]", if sound { "sound" } else { "picture" }))
+                .collect();
+            shuffle(&mut files);
+            for text in files.iter() {
+                if wrong.len() >= want {
+                    break;
+                }
+                offer(text, &mut wrong);
+            }
         }
     }
 
@@ -292,5 +353,30 @@ mod tests {
                 }
             }
         }
+    }
+
+    #[test]
+    fn a_picture_answer_is_offered_pictures_and_a_word_never_is() {
+        let rows: Vec<crate::model::RawNote> = [
+            ("kedi", "(picture)", vec!["cat.png"], vec![]),
+            ("elma", "apple", vec!["apple.png"], vec![]),
+            ("(picture)", "flag", vec![], vec!["flag.png"]),
+            ("su", "water", vec![], vec![]),
+            ("ev", "house", vec![], vec![]),
+        ]
+        .iter()
+        .map(|(f, b, am, qm)| serde_json::from_value(serde_json::json!({"front": f, "back": b, "amedia": am, "qmedia": qm})).unwrap())
+        .collect();
+        let deck = crate::split::build_deck("Pictures", &rows, &serde_json::from_str("{\"lessonSize\":8}").unwrap(), 0.0);
+        let id_of = |front: &str| deck.notes.values().find(|n| n.front == front).unwrap().id.clone();
+        let cat = pick_options(&deck, &id_of("kedi"), 3, false);
+        assert_eq!(cat.len(), 3);
+        assert!(cat.contains(&"[[picture:cat.png]]".to_string()));
+        assert!(cat.iter().all(|o| o.starts_with("[[picture:")), "{cat:?}");
+        for front in ["elma", "su", "ev", "(picture)"] {
+            let opts = pick_options(&deck, &id_of(front), 4, false);
+            assert!(opts.iter().all(|o| !o.starts_with("[[")), "{front}: {opts:?}");
+        }
+        assert_eq!(face(&deck, &id_of("(picture)")).unwrap().prompt, "[[picture:flag.png]]");
     }
 }

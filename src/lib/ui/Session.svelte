@@ -20,6 +20,9 @@
   import { builtRight, joinWords, makeTiles, type Tile } from '../build';
   import Fields from './Fields.svelte';
   import AnswerExtras from './AnswerExtras.svelte';
+  import { mediaToken, mediaUrl, plainText } from '../media';
+  import { kanaOf, plainOf, readingWords, romajiToKana } from '../furigana';
+  import Furi, { setFurigana } from './Furi.svelte';
   import Media from './Media.svelte';
   import Picture from './Picture.svelte';
   import Icon from './Icon.svelte';
@@ -74,6 +77,9 @@
   const marks = $derived(ex ? (deck.notes[ex.noteId]?.voices ?? []) : []);
   const quoteLang = $derived(look.quoteLang ?? '');
   async function say(text: string, lang: string) {
+    // Words with readings are read by their readings: 今日 as きょう, not こんにち.
+    text = kanaOf(plainText(text));
+    if (!text.trim()) return;
     const r = await speakPieces(pieces(text, lang, marks, quoteLang));
     voiceNote = r.missing.length
       ? t('This device has no voice for {x}{x2}. {x3}', { x: r.missing.map(langName).join(' or '), x2: r.result === t('ok') ? t(', so those words were left out') : '', x3: voiceHelp() })
@@ -133,9 +139,39 @@
   const shownGroups = new Set<string>();
   let contrastSeen = $state<Set<string>>(new Set());
   const checksOn = $derived(data.settings.thothChecks !== false);
+  // Furigana: the deck's choice, and how well each word with a reading is known
+  // (the highest stage of a card it appears on; its reading card's, if it has one).
+  const furiMode = $derived(look.furigana ?? '');
+  const wordStages = $derived.by(() => {
+    const m = new Map<string, number>();
+    if (furiMode !== 'fade') return m;
+    const prog = data.progress[s.deckId] ?? {};
+    const byReading = (look.readingCards ?? 'off') !== 'off';
+    for (const n of Object.values(deck.notes)) {
+      if (!n.front.includes('[') && !n.back.includes('[')) continue;
+      const stage = (byReading ? prog[`${n.id}:k`]?.stage : undefined) ?? prog[n.id]?.stage ?? 0;
+      for (const w of [...readingWords(n.front), ...readingWords(n.back)]) m.set(w, Math.max(m.get(w) ?? 0, stage));
+    }
+    return m;
+  });
+  // A reading peeked at counts the answer as helped.
+  let peeked = $state(false);
+  setFurigana({
+    get mode() {
+      return furiMode;
+    },
+    level: (w: string) => wordStages.get(w) ?? 0,
+    get revealed() {
+      return done || ex?.kind === 'meet';
+    },
+    peek: () => (peeked = true),
+  });
+  /** An answer as one line of text: its readings in brackets after it. */
+  const lineOf = (text: string) => (text.includes('[') && plainOf(text) !== text ? `${plainOf(text)} (${kanaOf(text)})` : text);
   let help = $state(false);
 
   function reset(e: Exercise | null) {
+    peeked = false;
     selected = null;
     typed = '';
     done = false;
@@ -189,6 +225,8 @@
   const liveWord = { empty: '', match: t('On track'), close: t('Close'), off: t('Off track') } as const;
 
   function onType() {
+    // A reading is answered in kana: romaji typed on any keyboard turns into kana.
+    if (ex?.kana) typed = romajiToKana(typed);
     if (ex?.kind === 'typed' && ex.live && liveFeedback(typed, ex.accepted, deck.strictAccents) === 'off') sawRed = true;
   }
 
@@ -202,6 +240,7 @@
 
   function settle(correct: boolean, assisted: boolean, aiGraded = false) {
     signal('check');
+    assisted = assisted || peeked;
     const r = grade({ correct, assisted, sawRed, ms: performance.now() - startedAt, aiGraded });
     playSound(correct ? (nearly() ? 'nearly' : 'right') : 'wrong');
     result = { correct, promoted: r.promoted };
@@ -209,7 +248,7 @@
     alsoFits = correct ? linkedMatch() : '';
     says = correct ? line(r.promoted ? 'promoted' : 'correct') : line('wrong');
     react(correct ? (r.promoted ? 'cheer' : 'happy') : 'sad');
-    announce = correct ? `Correct.${r.promoted ? t(' Moved up a stage.') : ''}` : t('Not quite. The answer is {x}.', { x: ex?.answer ?? '' });
+    announce = correct ? `Correct.${r.promoted ? t(' Moved up a stage.') : ''}` : t('Not quite. The answer is {x}.', { x: lineOf(ex?.answer ?? '') });
   }
 
   /** What the learner gave, as text. */
@@ -234,7 +273,7 @@
     return id ? deck.notes[id] : null;
   });
   const canRightToo = $derived(
-    !!ex && done && !!result && !result.correct && !testing && !overruled && (ex.kind === 'choice' || ex.kind === 'typed' || ex.kind === 'build') && !!given().trim(),
+    !!ex && done && !!result && !result.correct && !testing && !overruled && !mediaToken(ex.answer) && (ex.kind === 'choice' || ex.kind === 'typed' || ex.kind === 'build') && !!given().trim(),
   );
 
   function counted(how: 'counted' | 'accepted') {
@@ -314,6 +353,7 @@
       settle(builtRight(builtWords, ex.accepted, aLang), true);
     } else if (ex.kind === 'typed') {
       if (!typed.trim()) return;
+      if (ex.kana) typed = romajiToKana(typed, true);
       const verdict = checkAnswer(typed, ex.accepted, deck.strictAccents);
       // One spelling retry before a near miss counts as wrong.
       if (verdict === 'typo' && !typoUsed && !testing) {
@@ -488,7 +528,9 @@
   const stageWord = $derived(
     !ex ? '' : testing ? (ex.reverse ? t('Other way round') : t('No hints')) : (ex.kind === 'meet' ? t('New') : t('Stage {stage} · {name}', { stage: ex.stage, name: stageName(limits.stageNames[ex.stage - 1]) })) + (ex.reverse ? t(' · Other way round') : ex.cloze ? t(' · Fill the gap') : ''),
   );
-  const meetFront = $derived(!ex ? '' : ex.reverse || ex.cloze ? ex.prompt : deck.notes[ex.noteId]?.front ?? ex.prompt);
+  const meetFront = $derived(plainText(!ex ? '' : ex.reverse || ex.cloze ? ex.prompt : deck.notes[ex.noteId]?.front ?? ex.prompt));
+  /** The answer as text; empty when it is a picture or a sound, which shows with the answer's media. */
+  const answerText = $derived(plainText(ex?.answer));
   let spokenFor = '';
   $effect(() => {
     // Read the question by itself as each card appears, when Settings asks for it.
@@ -520,6 +562,17 @@
     return untrack(() => Object.keys(data.progress[s.deckId] ?? {}).length >= 20);
   });
   const extras = $derived(ex ? [ex.extra, ...ex.extraMore] : []);
+  // A sound offered as an option plays when it is picked.
+  let tokenPlayer: HTMLAudioElement | null = null;
+  async function playToken(option: string) {
+    const m = mediaToken(option);
+    if (m?.kind !== 'sound' || !ex) return;
+    const url = await mediaUrl(s.deckId, m.name);
+    if (!url) return;
+    tokenPlayer?.pause();
+    tokenPlayer = new Audio(url);
+    void tokenPlayer.play().catch(() => {});
+  }
   const isSound = (m: string) => /\.(mp3|ogg|wav|m4a|opus|flac|aac|webm)$/i.test(m);
   /** Test out: how each lesson of the unit went. */
   const testLessons = $derived.by(() => {
@@ -621,13 +674,17 @@
         {#if ex.ai}<span class="tag" title={t('This card was written or changed by AI')}>{t('AI')}</span>{/if}
       </p>
       {#if ex.kind !== 'meet'}
-        <div class="said-row">
+        {#if ex.kana}<div class="said-row">
+          <h1 class="display" lang="ja" style="font-size: calc({promptSize}px * var(--scale))">{#if ex.mark && ex.prompt.includes(ex.mark)}{ex.prompt.slice(0, ex.prompt.indexOf(ex.mark))}<mark class="kana-mark">{ex.mark}</mark>{ex.prompt.slice(ex.prompt.indexOf(ex.mark) + ex.mark.length)}{:else}{ex.prompt}{/if}</h1>
+        </div>
+        <p class="ask-line">{ex.mark ? t('How is the marked word read?') : t('How is it read?')}</p>
+        {:else if plainText(ex.prompt)}<div class="said-row">
           <h1 class="display" dir="auto" style="font-size: calc({promptSize}px * var(--scale))"><VoiceText text={ex.picture && /^(Which part is hidden\?|What is under the hidden part\?)$/.test(ex.prompt) ? t(ex.prompt) : ex.prompt} lang={qLang} {marks} {quoteLang} show={voice} /></h1>
           {#if voiceQ && !ex.cloze}<button class="icon-btn speak" aria-label={t('Hear the question')} onclick={() => say(ex.prompt, qLang)}><Icon name="sound" /></button>{/if}
-        </div>
+        </div>{/if}
         <Fields items={ex.frontMore} first={2} base={promptSize * 0.8} label={t('question fields')} />
         {#if ex.picture}<Picture deckId={s.deckId} picture={ex.picture} revealed={done} />{/if}
-        <Media deckId={s.deckId} names={ex.qmedia} />
+        <Media deckId={s.deckId} names={ex.qmedia} align={look.pictures ?? 'center'} />
         {#if look.hintExtra && ex.extra && !done && !testing}<p class="hint-extra" dir="auto">{t('Hint: {extra}', { extra: ex.extra })}</p>{/if}
       {/if}
       {#if voiceNote}<p class="fine voice-note" role="status">{voiceNote}</p>{/if}
@@ -647,16 +704,16 @@
         {/if}
         <Fields items={ex.frontMore} first={2} base={20} label={t('question fields')} />
         {#if ex.picture}<Picture deckId={s.deckId} picture={ex.picture} revealed />{/if}
-        <Media deckId={s.deckId} names={ex.qmedia} />
+        <Media deckId={s.deckId} names={ex.qmedia} align={look.pictures ?? 'center'} />
         <hr />
-        {#if ex.answer}
+        {#if answerText}
           <div class="said-row">
             <p class="back" dir="auto"><VoiceText text={ex.answer} lang={aLang} {marks} {quoteLang} show={voice} /></p>
             {#if voiceA}<button class="icon-btn speak" aria-label={t('Hear the answer')} onclick={() => say(ex.answer, aLang)}><Icon name="sound" /></button>{/if}
           </div>
         {/if}
         <Fields items={ex.answerMore} first={2} base={18} label={t('fields')} />
-        <Media deckId={s.deckId} names={ex.amedia} autoplay={!ex.qmedia.some(isSound)} />
+        <Media deckId={s.deckId} names={ex.amedia} autoplay={!ex.qmedia.some(isSound)} align={look.pictures ?? 'center'} />
         <div class="extra"><Fields items={extras} base={16} label={t('extra fields')} /></div>
         <AnswerExtras deckId={s.deckId} noteId={ex.noteId} />
       </div>
@@ -674,14 +731,20 @@
             role="radio"
             aria-checked={picked}
             disabled={done}
-            onclick={() => ((selected = option), signal('pick'))}
+            onclick={() => ((selected = option), signal('pick'), playToken(option))}
           >
             <span class="badge">
               {#if done && isAnswer}<Icon name="check" size={16} />
               {:else if done && picked}<Icon name="cross" size={16} />
               {:else}{letters[i]}{/if}
             </span>
-            <span class="text">{option}</span>
+            {#if mediaToken(option)?.kind === 'picture'}
+              <span class="pic"><Media deckId={s.deckId} names={[mediaToken(option)!.name]} small /></span>
+            {:else if mediaToken(option)?.kind === 'sound'}
+              <span class="text"><Icon name="sound" size={18} /> {t('Sound {n}', { n: i + 1 })}</span>
+            {:else}
+              <span class="text" lang={ex.kana ? 'ja' : undefined}><Furi text={option} /></span>
+            {/if}
           </button>
         {/each}
       </div>
@@ -744,14 +807,14 @@
           {#if free.trim()}<div class="meet card yours"><p class="label">{t('You wrote')}</p><p class="back">{free}</p></div>{/if}
           <div class="meet card">
             <p class="label">{t('The answer')}</p>
-            {#if ex.answer}
+            {#if answerText}
               <div class="said-row">
-                <p class="back" dir="auto">{ex.answer}</p>
+                <p class="back" dir="auto"><Furi text={ex.answer} /></p>
                 {#if voiceA}<button class="icon-btn speak" aria-label={t('Hear the answer')} onclick={() => say(ex.answer, aLang)}><Icon name="sound" /></button>{/if}
               </div>
             {/if}
             <Fields items={ex.answerMore} first={2} base={18} label={t('fields')} />
-            <Media deckId={s.deckId} names={ex.amedia} autoplay />
+            <Media deckId={s.deckId} names={ex.amedia} autoplay align={look.pictures ?? 'center'} />
             <div class="extra"><Fields items={extras} base={16} label={t('extra fields')} /></div>
           </div>
           {#if !done}
@@ -780,7 +843,7 @@
           {/if}
         {:else}
           {#if free.trim()}<div class="meet card yours"><p class="label">{t('You wrote')}</p><p class="back">{free}</p></div>{/if}
-          <div class="meet card"><p class="label">{t('Answer')}</p><p class="back">{ex.answer}</p></div>
+          <div class="meet card"><p class="label">{t('Answer')}</p>{#if answerText}<p class="back"><Furi text={ex.answer} /></p>{/if}<Media deckId={s.deckId} names={ex.amedia} align={look.pictures ?? 'center'} /></div>
           {#if !done && marked}
             <p class="label">{t('Thoth\'s mark: {x}', { x: marked.correct ? t('correct') : t('not yet') })} <span class="tag">{t('AI')}</span></p>
             <div class="pair">
@@ -818,17 +881,18 @@
           {#if overruled === 'counted' || overruled === 'accepted'}<span>{overruled === 'accepted' && !ex.reverse && !ex.cloze && !ex.picture ? t('“{given}” is accepted on this card from now on.', { given: given().trim() }) : t('Linked: either answer counts from now on.')}</span>
           {:else if overruled === 'close'}<span>{t('Still a mistake, but these two won’t be offered side by side again.')}</span>{/if}
           {#if judged && !overruled}<span>{judged.ok ? (judged.kept ? t('Thoth: also right.') : t('Marked wrong after all.')) : t('Thoth: not quite.')} {judged.why}</span>{/if}
-          {#if alsoFits || ((overruled === 'counted' || overruled === 'accepted' || judged?.kept) && ex.answer)}<span>{t('This card’s answer: “{answer}”', { answer: ex.answer })}{#if alsoFits} {t('“{given}” fits too.', { given: alsoFits })}{/if}</span>
-          {:else if (!result.correct || ex.kind === 'typed') && ex.answer && ex.kind !== 'self'}<span>{t('answerIs', { answer: ex.answer })}</span>{/if}
+          {#if !answerText}<!-- a picture or sound answer shows below -->
+          {:else if alsoFits || ((overruled === 'counted' || overruled === 'accepted' || judged?.kept) && ex.answer)}<span>{t('This card’s answer: “{answer}”', { answer: lineOf(ex.answer) })}{#if alsoFits} {t('“{given}” fits too.', { given: alsoFits })}{/if}</span>
+          {:else if (!result.correct || ex.kind === 'typed') && ex.answer && ex.kind !== 'self'}<span>{t('answerIs', { answer: lineOf(ex.answer) })}</span>{/if}
           {#if result.promoted}<span>{t('movedUp')}</span>{/if}
           {#if s.practice}<span>{t('practiceUnchanged')}</span>{/if}
         </div>
-        {#if voiceA && ex.answer && ex.kind !== 'self'}<button class="icon-btn speak in-banner" aria-label={t('Hear the answer')} onclick={() => say(ex.answer, aLang)}><Icon name="sound" /></button>{/if}
+        {#if voiceA && answerText && ex.kind !== 'self'}<button class="icon-btn speak in-banner" aria-label={t('Hear the answer')} onclick={() => say(ex.answer, aLang)}><Icon name="sound" /></button>{/if}
       </div>
       {#if ex.kind !== 'self' && (ex.amedia.length || extras.some((x) => x.trim()) || ex.answerMore.length)}
         <div class="after plain">
           <Fields items={ex.answerMore} first={2} base={17} label={t('fields')} />
-          <Media deckId={s.deckId} names={ex.amedia} autoplay />
+          <Media deckId={s.deckId} names={ex.amedia} autoplay align={look.pictures ?? 'center'} />
           <Fields items={extras} base={16} label={t('extra fields')} />
         </div>
       {/if}
@@ -863,7 +927,7 @@
     <div class="sheet-back" role="presentation" onclick={() => (rightToo = false)}></div>
     <div class="sheet plain" role="dialog" aria-label={t('I was right too')}>
       {#if rightTooMatch}
-        <h2 class="display">{t('How close is “{given}” to “{answer}”?', { given: given().trim(), answer: ex.answer })}</h2>
+        <h2 class="display">{t('How close is “{given}” to “{answer}”?', { given: given().trim(), answer: lineOf(ex.answer) })}</h2>
         <button class="choice ok" onclick={sameMeaning}><strong>{t('Same meaning')}</strong><small>{t('Count it now, and accept either answer on both cards from now on.')}</small></button>
         <button class="choice close" onclick={closeMeaning}><strong>{t('Close, but not the same')}</strong><small>{t('Keep it as a mistake, but never offer these two side by side again.')}</small></button>
       {:else}
@@ -956,6 +1020,24 @@
     font-size: 19px;
     font-weight: 600;
     text-align: left;
+  }
+  .option .pic {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+  }
+  .option .pic :global(img) {
+    max-height: 96px;
+  }
+  .kana-mark {
+    background: color-mix(in srgb, var(--brass) 30%, transparent);
+    color: inherit;
+    box-shadow: inset 0 -4px 0 var(--brass);
+    padding: 0 2px;
+  }
+  .ask-line {
+    margin: 0;
+    color: var(--muted);
   }
   .option .text {
     overflow-wrap: anywhere;

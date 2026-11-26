@@ -88,6 +88,8 @@ fn exercise(deck: &Deck, card_id: &str) -> Option<Exercise> {
         extra_more: f.extra_more,
         picture: f.picture,
         linked: f.linked,
+        kana: f.kana,
+        mark: f.mark,
     };
     if !is_typeable(&f.answer) {
         let options = pick_options(deck, card_id, 4, true);

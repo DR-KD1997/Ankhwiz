@@ -1,0 +1,63 @@
+1468|Furigana (Japonca okunuşlar)
+1469|Japonca bir deste değil
+1470|{"one": "{n} kart için okunuşlar bu cihazda bulundu", "other": "{n} kart için okunuşlar bu cihazda bulundu"}
+1471|{"one": "{n} kartın hâlâ okunuşu yok", "other": "{n} kartın hâlâ okunuşu yok"}
+1472|Her kartın okunuşu zaten var
+1473|ayrıca
+1474|{"one": "{n} kart için okunuşlar, kendi alanlarından", "other": "{n} kart için okunuşlar, kendi alanlarından"}
+1475|{"one": "{n} kart için okunuşlar", "other": "{n} kart için okunuşlar"}
+1476|Resimler
+1477|Soruyla ve ek alanlarla birlikte
+1478|Ortada
+1479|Solda
+1480|Okunuşlar
+1481|Tümü
+1482|Sırası gelen
+1483|Devam eden
+1484|Başlanmadı
+1485|Güncel
+1486|“{name}” sabitlemesini kaldır
+1487|“{name}” destesini sabitle
+1488|%{n} öğrenildi
+1489|Sırası gelenleri aç
+1490|Hepsini kapat
+1491|Deste bul
+1492|Deste, konu ya da ders bul
+1493|Eşleşenler
+1494|Eşleşen yok. Bir adın bir kısmını dene.
+1495|Sabitlenenler
+1496|Raflar
+1497|Çalışılacak desteler
+1498|Son açılanlar
+1499|{"one": "Hepsini çalış: tüm destelerde sırası gelen {n} kart, tek karışık oturumda", "other": "Hepsini çalış: tüm destelerde sırası gelen {n} kart, tek karışık oturumda"}
+1500|Sırası gelen yok
+1501|Hepsini çalış
+1502|Şu an sırası gelen yok.
+1503|Henüz açılmış deste yok.
+1504|{word}: okunuşu görmek için dokun
+1505|Bu destede Japonca var. Okunuşlar nasıl görünsün?
+1506|Furigana her kelimeyi öğrendikçe silikleşebilir ve okunuşlar kendi kartlarında sorulabilir. Bunu daha sonra Deste seçenekleri › Okunuşlar bölümünden değiştirebilirsin.
+1507|Sonra karar ver
+1508|Öğrendikçe silikleşsin
+1509|Yeni kelimelerin üstünde görünür, öğrenirken soluklaşır, bildiğinde gizlenir. Görmek için kelimeye dokun; o cevap yardımlı sayılır.
+1510|Her zaman
+1511|Her okunuş, her seferinde.
+1512|Dokununca
+1513|Bir kelimeye dokunana kadar gizli.
+1514|Asla
+1515|Düz metin, okunuş yok.
+1516|Anlam oturunca
+1517|Her kart, anlamı Sağlam hatırlama aşamasına gelince bir okunuş kartı alır; yani yeni bir kelime ilk gün tek karttır.
+1518|Baştan itibaren
+1519|Her kartla birlikte ilk dersinden itibaren öğrenilir: ilk derslerde iki kat kart.
+1520|Okunuşlar asla ayrıca sorulmaz.
+1521|Kanjinin üstünde furigana
+1522|Okunuş kartları (kana ile cevaplanır)
+1523|Henüz kanjili kart yok.
+1524|{"one": "Kanjili her kartın okunuşu var ({n} kart).", "other": "Kanjili her kartın okunuşu var ({n} kart)."}
+1525|Kanjili {n} karttan {read} tanesinde okunuş var.
+1526|Ankhwiz için hazırla gerisini ekleyebilir ›
+1527|İşaretli kelime nasıl okunur?
+1528|Nasıl okunur?
+1529|Konular
+1530|{name} içindeki diğer desteler

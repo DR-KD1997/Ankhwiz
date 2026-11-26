@@ -1,0 +1,63 @@
+1468|Furigana (leituras em japonês)
+1469|Não é um baralho de japonês
+1470|{"one": "Leituras encontradas neste aparelho para {n} cartão", "other": "Leituras encontradas neste aparelho para {n} cartões"}
+1471|{"one": "{n} cartão ainda sem leituras", "other": "{n} cartões ainda sem leituras"}
+1472|Todos os cartões já têm suas leituras
+1473|também
+1474|{"one": "Leituras para {n} cartão, dos próprios campos", "other": "Leituras para {n} cartões, dos próprios campos"}
+1475|{"one": "Leituras para {n} cartão", "other": "Leituras para {n} cartões"}
+1476|Imagens
+1477|Com a pergunta e os campos extras
+1478|Centralizadas
+1479|À esquerda
+1480|Leituras
+1481|Tudo
+1482|Pendentes
+1483|Em andamento
+1484|Não iniciado
+1485|Em dia
+1486|Desafixar “{name}”
+1487|Fixar “{name}”
+1488|{n}% aprendido
+1489|Abrir o que está pendente
+1490|Recolher tudo
+1491|Encontrar um baralho
+1492|Encontre um baralho, tema ou matéria
+1493|Resultados
+1494|Nada encontrado. Tente parte de um nome.
+1495|Fixados
+1496|Prateleiras
+1497|Baralhos para estudar
+1498|Recentes
+1499|{"one": "Estudar tudo: {n} cartão pendente em todos os baralhos, numa sessão misturada", "other": "Estudar tudo: {n} cartões pendentes em todos os baralhos, numa sessão misturada"}
+1500|Nada pendente
+1501|Estudar tudo
+1502|Nada pendente agora.
+1503|Nenhum baralho aberto ainda.
+1504|{word}: toque para ver a leitura
+1505|Este baralho tem japonês. Como as leituras devem aparecer?
+1506|O furigana pode sumir aos poucos conforme você aprende cada palavra, e as leituras podem ser perguntadas em cartões próprios. Dá para mudar depois em Opções do baralho › Leituras.
+1507|Decidir depois
+1508|Some conforme você aprende
+1509|Aparece sobre palavras novas, mais clara enquanto você as aprende e oculta quando já as sabe. Toque numa palavra para ver; essa resposta conta como ajudada.
+1510|Sempre
+1511|Todas as leituras, sempre.
+1512|Ao tocar
+1513|Oculta até você tocar numa palavra.
+1514|Nunca
+1515|Texto simples, sem leituras.
+1516|Quando o significado estiver firme
+1517|Cada cartão ganha um cartão de leitura quando o significado chega a Lembrança firme, então uma palavra nova é só um cartão no primeiro dia.
+1518|Desde o início
+1519|Aprendido junto com cada cartão desde a primeira lição: o dobro de cartões nas primeiras lições.
+1520|As leituras nunca são perguntadas sozinhas.
+1521|Furigana sobre os kanji
+1522|Cartões de leitura (respondidos em kana)
+1523|Ainda não há cartões com kanji.
+1524|{"one": "Todo cartão com kanji tem suas leituras ({n} cartão).", "other": "Todo cartão com kanji tem suas leituras ({n} cartões)."}
+1525|Leituras em {read} de {n} cartões com kanji.
+1526|Preparar para o Ankhwiz pode completar o resto ›
+1527|Como se lê a palavra marcada?
+1528|Como se lê?
+1529|Temas
+1530|Outros baralhos em {name}

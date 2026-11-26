@@ -1,11 +1,17 @@
 <script lang="ts">
   import { t } from '../i18n';
   // Pictures and sounds attached to a card side.
-  import { isAudio, mediaUrl } from '../media';
+  import { isAudio, isVideo, mediaUrl } from '../media';
   import Icon from './Icon.svelte';
 
-  let { deckId, names = [], autoplay = false, small = false }: { deckId: string; names?: string[]; autoplay?: boolean; small?: boolean } =
-    $props();
+  // Pictures are centred unless `align` says otherwise (a deck can choose left); small ones (in options and lists) sit at the start.
+  let {
+    deckId,
+    names = [],
+    autoplay = false,
+    small = false,
+    align = 'center',
+  }: { deckId: string; names?: string[]; autoplay?: boolean; small?: boolean; align?: 'center' | 'left' } = $props();
 
   let urls = $state<Record<string, string | null>>({});
   let player: HTMLAudioElement | undefined;
@@ -37,12 +43,15 @@
 </script>
 
 {#if names.length}
-  <div class="media" class:small>
+  <div class="media" class:small class:center={align === 'center' && !small}>
     {#each names as name (name)}
       {#if isAudio(name)}
         <button class="quiet sound" disabled={!urls[name]} onclick={() => play(name)} aria-label={t('Play sound {name}', { name })}>
           <Icon name="sound" size={18} /> {t('Play')}
         </button>
+      {:else if urls[name] && isVideo(name)}
+        <!-- svelte-ignore a11y_media_has_caption -->
+        <video src={urls[name]} autoplay loop muted playsinline></video>
       {:else if urls[name]}
         <img src={urls[name]} alt="" />
       {:else if urls[name] === null}
@@ -59,14 +68,19 @@
     gap: 10px;
     align-items: center;
   }
-  img {
+  .center {
+    justify-content: center;
+  }
+  img,
+  video {
     max-width: 100%;
     max-height: 220px;
     object-fit: contain;
     border: 2px solid var(--line);
     background: var(--surface);
   }
-  .small img {
+  .small img,
+  .small video {
     max-height: 64px;
   }
   .sound {

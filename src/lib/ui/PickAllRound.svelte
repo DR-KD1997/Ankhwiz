@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Furi from './Furi.svelte';
   // "Pick all that fit": shown after a card whose answer has others with the
   // same meaning. Every answer that fits is to be picked; the ones close in
   // meaning, and a couple of others, are not. Practice only: nothing changes
@@ -49,7 +50,7 @@
       >
         <span class="box" aria-hidden="true">{#if on}<Icon name="check" size={16} />{/if}</span>
         <span class="text" dir="auto">
-          {o.text}
+          <Furi text={o.text} />
           {#if checked && (on || o.right)}<small>{note(o, on)}</small>{/if}
         </span>
       </button>

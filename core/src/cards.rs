@@ -9,7 +9,7 @@
 
 use crate::model::{Deck, Note, Occlusion};
 use serde::Serialize;
-use crate::text::accepted_answers;
+use crate::text::{accepted_answers, side_text};
 
 pub struct Gap {
     pub n: u32,
@@ -132,7 +132,23 @@ pub fn cards_of(deck: &Deck, note: &Note) -> Vec<String> {
     if asks_both_ways(deck, note) {
         out.push(format!("{}:r", note.id));
     }
+    if asks_reading(deck, note) {
+        out.push(format!("{}:k", note.id));
+    }
     out
+}
+
+/// Whether a note also has a reading card: the deck asks for them and its
+/// question has readings (furigana) to ask.
+pub fn asks_reading(deck: &Deck, note: &Note) -> bool {
+    deck.options.look.reading_cards != "off"
+        && !note.cloze
+        && note.occlusion.is_none()
+        && crate::furigana::has_readings(&note.front)
+}
+
+pub fn is_reading_card(card_id: &str) -> bool {
+    card_id.ends_with(":k")
 }
 
 pub fn lesson_cards(deck: &Deck, lesson_id: &str) -> Vec<String> {
@@ -229,11 +245,14 @@ pub struct Face {
     pub picture: Option<Picture>,
     /// Answers accepted because the deck links this note to others with the same meaning.
     pub linked: Vec<String>,
+    /// A reading card: the answer is the reading of `mark` (or of the whole prompt), in kana.
+    pub kana: bool,
+    pub mark: String,
 }
 
 pub fn face(deck: &Deck, card_id: &str) -> Option<Face> {
     let mut f = face_alone(deck, card_id)?;
-    if !f.cloze && f.picture.is_none() && !deck.links.is_empty() {
+    if !f.cloze && !f.kana && f.picture.is_none() && !deck.links.is_empty() {
         for a in crate::links::same_answers(deck, &f.note_id, f.reverse) {
             if !f.accepted.contains(&a) {
                 f.accepted.push(a.clone());
@@ -263,7 +282,19 @@ fn face_alone(deck: &Deck, card_id: &str) -> Option<Face> {
         self_check: note.self_check,
         picture: None,
         linked: vec![],
+        kana: false,
+        mark: String::new(),
     };
+    if suffix == "k" {
+        let (shown, mark, reading) = crate::furigana::reading_question(&note.front)?;
+        let mut f = base(shown, reading.clone(), vec![reading]);
+        f.kana = true;
+        f.mark = mark;
+        // The meaning comes after the reading, as a reminder.
+        f.answer_more = vec![note.back.clone()];
+        f.front_more = vec![];
+        return Some(f);
+    }
     if let Some(o) = &note.occlusion {
         let numbers = part_numbers(o);
         let n = match suffix.strip_prefix('o') {
@@ -302,18 +333,21 @@ fn face_alone(deck: &Deck, card_id: &str) -> Option<Face> {
         // Asked the other way: the answer is shown and the main question field
         // is expected. The question's other fields would give it away, so they
         // wait until the answer is shown.
-        let mut f = base(note.back.clone(), note.front.clone(), accepted_answers(&note.front, &[]));
+        let front = side_text(&note.front, &note.qmedia);
+        let mut f = base(side_text(&note.back, &note.amedia), front.clone(), accepted_answers(&front, &[]));
         f.reverse = true;
         f.qmedia = note.amedia.clone();
         f.amedia = note.qmedia.clone();
         f.answer_more = std::mem::take(&mut f.front_more);
         return Some(f);
     }
+    let front = side_text(&note.front, &note.qmedia);
     let prompt = match &deck.prompt {
-        Some(p) if !p.is_empty() => p.replace("{front}", &note.front),
-        _ => note.front.clone(),
+        Some(p) if !p.is_empty() && front == note.front => p.replace("{front}", &note.front),
+        _ => front,
     };
-    Some(base(prompt, note.back.clone(), accepted_answers(&note.back, &note.alts)))
+    let back = side_text(&note.back, &note.amedia);
+    Some(base(prompt, back.clone(), accepted_answers(&back, &note.alts)))
 }
 
 #[cfg(test)]

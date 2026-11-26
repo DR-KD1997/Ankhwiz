@@ -136,6 +136,14 @@ with a retention slider per deck.
   the device or suggested by Thoth; small lessons full of shared meanings
   ask you to **pick all that fit**, and cards that are easy to mix up are
   shown **side by side** after a slip.
+- **Furigana for Japanese decks:** readings over kanji (Anki's `日本[にほん]`
+  form or ruby markup) that fade word by word as you learn, can be tapped
+  to peek, and can be asked on **reading cards** of their own, answered in
+  kana (romaji turns into kana as you type). Prepare for Ankhwiz finds
+  readings in a card's own fields, and Thoth can suggest the rest.
+- **Pictures** are centred (or left-aligned, per deck); animated GIFs and
+  short videos play; a card whose answer is a picture offers pictures to
+  choose from.
 - **Prepare for Ankhwiz:** one screen that gets a deck, imported or not,
   ready for Ankhwiz's features: languages and reading aloud, a place in your
   library, linked answers and unused fields on the device in under a minute,
@@ -188,10 +196,14 @@ keyring, the Android Keystore) and never goes into decks or backups.
   kinds, options, readings and progress.
 
 ### Your library
-- **Arranged by subject:** shelves such as Languages › Turkish ›
-  Conversational Turkish, or plain lists, most due first. A subject's page
-  shows how much of it is learned and can **mix the decks** into one
-  session. Places are suggested from deck names and languages, or by Thoth.
+- **Arranged by subject:** decks sit under subjects and topics such as
+  Languages › Turkish › Conversational Turkish. **By subject** goes one level
+  per screen (subject tiles, then topics, then decks); **Lists** fold at
+  every level; **All decks** has search, filters and pinned decks over
+  shelves of topics. A **Due / Recent** strip with **Study All** sits on
+  top. A subject's page shows how much of it is learned and can **mix the
+  decks** into one session. Places are suggested from deck names and
+  languages, or by Thoth.
 - **Back up everything** in one `.ankhlib` file (decks, pictures and sounds,
   progress and settings, never your AI key) and restore it on another device.
 - **Daily reminder** at a time and on days you choose, only when you haven't

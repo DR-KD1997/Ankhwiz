@@ -23,9 +23,6 @@
     pausedSummary,
     resumePaused,
     snap,
-    startAll,
-    tipDue,
-    tipSeen,
     ui,
   } from '../store.svelte';
   import { summarise } from './deckView';
@@ -211,25 +208,6 @@
       <span class="meter strong" aria-hidden="true"><i style="width: {(paused.done / Math.max(1, paused.total)) * 100}%"></i></span>
       <button class="link" onclick={dropPaused}>{t('Not now: start fresh next time')}</button>
     </div>
-  {/if}
-
-  {#if due.length > 1}
-    <button class="all card" onclick={() => startAll()}>
-      <span class="grow">
-        <strong>{t('Study all decks')}</strong>
-        <small>{plural('{n} review due · about {x2} {x3}', '{n} reviews due · about {x2} {x3}', dueTotal, { x2: Math.max(1, Math.round(dueTotal / 3)), x3: Math.round(dueTotal / 3) <= 1 ? t('minute') : t('minutes') })}</small>
-        <span class="chips">{#each due as d (d.deck.id)}<span class="chip">{d.deck.name} {d.n}</span>{/each}</span>
-        <small>{t('One mixed session. Each card still counts toward its own deck.')}</small>
-      </span>
-      <Icon name="play" size={18} />
-    </button>
-    {#if tipDue('all-decks')}
-      <div class="tip plain" role="note">
-        <p class="label tip-label"><Icon name="bulb" size={16} /> {t('New: Study all decks')}</p>
-        <p>{t('When several decks have reviews due, do them all in one go from here.')}</p>
-        <button class="quiet" onclick={() => tipSeen('all-decks')}>{t('Got it')}</button>
-      </div>
-    {/if}
   {/if}
 
   {#if decks.length}
@@ -585,12 +563,6 @@
     gap: 12px;
   }
   .resume-row .grow,
-  .all .grow {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
-  }
   .small-primary {
     display: inline-flex;
     align-items: center;
@@ -614,45 +586,6 @@
     color: var(--muted);
     font: 400 13px var(--body);
     text-decoration: underline;
-  }
-  .all {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px 18px;
-    text-align: left;
-    color: var(--text);
-  }
-  .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin: 2px 0;
-  }
-  .chip {
-    font-size: 13px;
-    font-weight: 600;
-    padding: 2px 8px;
-    border: 1.5px solid var(--hair);
-  }
-  .tip {
-    padding: 12px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    border-color: var(--emerald);
-  }
-  .tip p {
-    margin: 0;
-  }
-  .tip-label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--emerald);
-  }
-  .tip .quiet {
-    align-self: flex-start;
   }
   .reminder {
     display: flex;

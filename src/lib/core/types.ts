@@ -155,6 +155,12 @@ export interface Look {
   /** With reading aloud on: read the question side, and the answer side. Missing before 0.7.0: both. */
   speakQuestion?: boolean;
   speakAnswer?: boolean;
+  /** Pictures with the question and extra fields. Missing before 0.7.1: centred. */
+  pictures?: 'center' | 'left';
+  /** Furigana over kanji. Empty or missing: not chosen yet (shown). */
+  furigana?: '' | 'fade' | 'always' | 'tap' | 'never';
+  /** Reading cards answered in kana. Missing: off. */
+  readingCards?: 'off' | 'firm' | 'start';
 }
 
 export interface DeckOptions {
@@ -270,6 +276,7 @@ export type PrepPatch =
   | { kind: 'links'; id: string; by: 'device' | 'thoth'; groups: { kind: 'same' | 'close'; notes: string[] }[]; made?: string[] }
   | { kind: 'wrong'; id: string; wrong: Record<string, string[]> }
   | { kind: 'alts'; id: string; alts: Record<string, string[]> }
+  | { kind: 'furigana'; id: string; by: 'device' | 'thoth'; notes: Record<string, { front?: string; back?: string; also?: string }>; prev?: Record<string, { front: string; back: string }> }
   | { kind: 'flags'; id: string; flags: Record<string, string> }
   | { kind: 'lessons'; id: string; names: Record<string, string> }
   | { kind: 'notes'; id: string; notes: { notes: string[]; note: string }[] }
@@ -336,6 +343,9 @@ export interface Exercise {
   picture?: Picture;
   /** Accepted answers that come from other cards with the same meaning. */
   linked?: string[];
+  /** A reading card: the reading of `mark` (or of the whole prompt) is answered in kana. */
+  kana?: boolean;
+  mark?: string;
 }
 
 export interface TestResult {

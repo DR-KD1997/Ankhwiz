@@ -21,6 +21,7 @@
   } from '../prepare.svelte';
   import { data, openPanel, ui } from '../store.svelte';
   import Icon from './Icon.svelte';
+  import { isJapaneseDeck } from '../furigana';
 
   const deck = $derived(data.decks[ui.deckId!]);
   const prep = $derived(deck.prep);
@@ -52,7 +53,10 @@
     picked = next;
     preset = 'custom';
   }
-  const steps = $derived([...picked].filter((id) => ai || !needsAi(STEPS.find((s) => s.id === id)!.how)));
+  // Furigana is offered for Japanese decks only.
+  const japanese = $derived(isJapaneseDeck(deck));
+  const offered = $derived(STEPS.filter((s) => s.id !== 'furigana' || japanese));
+  const steps = $derived([...picked].filter((id) => (id !== 'furigana' || japanese) && (ai || !needsAi(STEPS.find((s) => s.id === id)!.how))));
   const est = $derived(estimate(deck, steps));
 
   function start() {
@@ -197,7 +201,7 @@
       <button aria-pressed={preset === 'custom'} onclick={() => choose('custom')}>{t('Custom')}</button>
     </div>
     <ul class="choose">
-      {#each STEPS as s (s.id)}
+      {#each offered as s (s.id)}
         {@const off = needsAi(s.how) && !ai}
         {@const on = picked.has(s.id) && !off}
         <li>

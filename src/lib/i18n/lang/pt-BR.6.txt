@@ -10,3 +10,6 @@
 1462|Uma chave para modelos de muitos provedores.
 1463|Roda na sua própria máquina; nada sai dela.
 1464|Qualquer endereço que use o formato de chat da OpenAI.
+1465|(imagem)
+1466|(som)
+1467|Som {n}

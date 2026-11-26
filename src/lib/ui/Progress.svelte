@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Furi from './Furi.svelte';
   import { stageName, t } from '../i18n';
   // Progress for one deck: stages, the week ahead, how well cards are
   // remembered, the streak calendar, and the cards that keep slipping.
@@ -84,7 +85,7 @@
           {#if n}
             <li>
               <button class="row" onclick={() => ((ui.editNote = n.id), openPanel('contents'))}>
-                <span class="grow"><strong dir="auto">{n.cloze ? filledIn(n.front) : n.front}</strong><small dir="auto">{n.cloze ? '' : n.back}</small></span>
+                <span class="grow"><strong dir="auto"><Furi text={n.cloze ? filledIn(n.front) : n.front} /></strong><small dir="auto"><Furi text={n.cloze ? '' : n.back} /></small></span>
                 <span class="miss">{t('{lapses} wrong', { lapses: progress[c]?.lapses })}</span>
               </button>
             </li>

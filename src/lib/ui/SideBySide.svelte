@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Furi from './Furi.svelte';
   // Before the second of two cards close in meaning is first met: the one
   // already known beside the new one, with a note on how they differ (written
   // by Thoth when the deck was prepared, or the cards' own notes), and a
@@ -39,8 +40,8 @@
     {#each [known, fresh] as n, i (n.id)}
       <div class="col card" class:new={i === 1}>
         <span class="tagline">{i === 0 ? t('You know') : t('New')}</span>
-        <strong class="q" dir="auto">{n.front}</strong>
-        <span class="a" dir="auto">{n.back}</span>
+        <strong class="q" dir="auto"><Furi text={n.front} /></strong>
+        <span class="a" dir="auto"><Furi text={n.back} /></span>
         {#if canSpeak}
           <button class="icon-btn" aria-label={t('Hear “{text}”', { text: n.front })} onclick={() => say(n.front, qLang)}><Icon name="sound" size={18} /></button>
         {/if}
@@ -55,7 +56,7 @@
     <div class="row">
       {#each options as n (n.id)}
         {@const right = n.id === fresh.id}
-        <button class="quiet" class:ok={picked === n.id && right} class:off={picked === n.id && !right} onclick={() => (picked = n.id)}>{n.front}</button>
+        <button class="quiet" class:ok={picked === n.id && right} class:off={picked === n.id && !right} onclick={() => (picked = n.id)}><Furi text={n.front} /></button>
       {/each}
     </div>
     {#if picked}

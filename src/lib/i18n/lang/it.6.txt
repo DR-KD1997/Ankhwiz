@@ -10,3 +10,6 @@
 1462|Un’unica chiave per i modelli di molti fornitori.
 1463|Gira sulla tua macchina; nulla esce da qui.
 1464|Qualsiasi indirizzo che usi il formato chat di OpenAI.
+1465|(immagine)
+1466|(suono)
+1467|Suono {n}

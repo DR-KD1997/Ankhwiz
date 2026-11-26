@@ -10,3 +10,6 @@
 1462|Ein Schlüssel für Modelle vieler Anbieter.
 1463|Läuft auf deinem eigenen Rechner; nichts verlässt ihn.
 1464|Jede Adresse, die das Chat-Format von OpenAI spricht.
+1465|(Bild)
+1466|(Ton)
+1467|Ton {n}

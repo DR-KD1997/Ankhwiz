@@ -14,7 +14,7 @@ import { saveBytes } from './platform';
 import { addDeck, addImported, data, ensureAll, ensureDeck, markBackedUp, restoreLibrary, snap } from './store.svelte';
 import { plural, t } from './i18n';
 
-export const APP = 'Ankhwiz 0.7.0';
+export const APP = 'Ankhwiz 0.7.1';
 
 const fileName = (name: string, ext: string) =>
   `${name.replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80) || 'deck'}.${ext}`;

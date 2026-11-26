@@ -3192,12 +3192,14 @@
  {
   "text": "Everything in {subject}",
   "kind": "text",
-  "where": "src/lib/ui/DeckShelves.svelte"
+  "where": "src/lib/ui/DeckShelves.svelte",
+  "unused": true
  },
  {
   "text": "Open",
   "kind": "text",
-  "where": "src/lib/ui/DeckShelves.svelte"
+  "where": "src/lib/ui/DeckShelves.svelte",
+  "unused": true
  },
  {
   "text": "Not sorted",
@@ -3207,7 +3209,8 @@
  {
   "text": "Most due first. The path under each name shows where it lives.",
   "kind": "text",
-  "where": "src/lib/ui/DeckShelves.svelte"
+  "where": "src/lib/ui/DeckShelves.svelte",
+  "unused": true
  },
  {
   "text": "Back to practice",
@@ -3577,37 +3580,44 @@
  {
   "text": "Study all decks",
   "kind": "text",
-  "where": "src/lib/ui/Library.svelte"
+  "where": "src/lib/ui/Library.svelte",
+  "unused": true
  },
  {
   "text": "{n} reviews due · about {x2} {x3}",
   "kind": "plural:{n} review due · about {x2} {x3}",
-  "where": "src/lib/ui/Library.svelte"
+  "where": "src/lib/ui/Library.svelte",
+  "unused": true
  },
  {
   "text": "minute",
   "kind": "text",
-  "where": "src/lib/ui/Library.svelte"
+  "where": "src/lib/ui/Library.svelte",
+  "unused": true
  },
  {
   "text": "minutes",
   "kind": "text",
-  "where": "src/lib/ui/Library.svelte"
+  "where": "src/lib/ui/Library.svelte",
+  "unused": true
  },
  {
   "text": "One mixed session. Each card still counts toward its own deck.",
   "kind": "text",
-  "where": "src/lib/ui/Library.svelte"
+  "where": "src/lib/ui/Library.svelte",
+  "unused": true
  },
  {
   "text": "New: Study all decks",
   "kind": "text",
-  "where": "src/lib/ui/Library.svelte"
+  "where": "src/lib/ui/Library.svelte",
+  "unused": true
  },
  {
   "text": "When several decks have reviews due, do them all in one go from here.",
   "kind": "text",
-  "where": "src/lib/ui/Library.svelte"
+  "where": "src/lib/ui/Library.svelte",
+  "unused": true
  },
  {
   "text": "Your decks",
@@ -7323,5 +7333,335 @@
   "text": "Any address that speaks the OpenAI chat format.",
   "kind": "text",
   "where": "src/lib/ui/Settings.svelte"
+ },
+ {
+  "text": "(picture)",
+  "kind": "text",
+  "where": "src/lib/ui/FieldMapper.svelte"
+ },
+ {
+  "text": "(sound)",
+  "kind": "text",
+  "where": "src/lib/ui/FieldMapper.svelte"
+ },
+ {
+  "text": "Sound {n}",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Furigana (Japanese readings)",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Not a Japanese deck",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Readings for {n} cards found on this device",
+  "kind": "plural:Readings for {n} card found on this device",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "{n} cards still without readings",
+  "kind": "plural:{n} card still without readings",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Every card already has its readings",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "also",
+  "kind": "text",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Readings for {n} cards, from their own fields",
+  "kind": "plural:Readings for {n} card, from its own fields",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Readings for {n} cards",
+  "kind": "plural:Readings for {n} card",
+  "where": "src/lib/prepare.svelte.ts"
+ },
+ {
+  "text": "Pictures",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "With the question and the extra fields",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Centred",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Left",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "Readings",
+  "kind": "text",
+  "where": "src/lib/ui/DeckOptions.svelte"
+ },
+ {
+  "text": "All",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Due",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "In progress",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Not started",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Up to date",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Unpin “{name}”",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Pin “{name}”",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "{n}% learned",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Open what’s due",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Fold all",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Find a deck",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Find a deck, topic or subject",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Matches",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Nothing matches. Try part of a name.",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Pinned",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Shelves",
+  "kind": "text",
+  "where": "src/lib/ui/DeckShelves.svelte"
+ },
+ {
+  "text": "Decks to study",
+  "kind": "text",
+  "where": "src/lib/ui/DueStrip.svelte"
+ },
+ {
+  "text": "Recent",
+  "kind": "text",
+  "where": "src/lib/ui/DueStrip.svelte"
+ },
+ {
+  "text": "Study all: {n} cards due in every deck, in one mixed session",
+  "kind": "plural:Study all: {n} card due in every deck, in one mixed session",
+  "where": "src/lib/ui/DueStrip.svelte"
+ },
+ {
+  "text": "Nothing is due",
+  "kind": "text",
+  "where": "src/lib/ui/DueStrip.svelte"
+ },
+ {
+  "text": "Study All",
+  "kind": "text",
+  "where": "src/lib/ui/DueStrip.svelte"
+ },
+ {
+  "text": "Nothing due right now.",
+  "kind": "text",
+  "where": "src/lib/ui/DueStrip.svelte"
+ },
+ {
+  "text": "No decks opened yet.",
+  "kind": "text",
+  "where": "src/lib/ui/DueStrip.svelte"
+ },
+ {
+  "text": "{word}: tap to see the reading",
+  "kind": "text",
+  "where": "src/lib/ui/Furi.svelte"
+ },
+ {
+  "text": "This deck has Japanese. How should readings show?",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Furigana can fade as you learn each word, and readings can be asked on cards of their own. You can change this later in Deck options › Readings.",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Decide later",
+  "kind": "text",
+  "where": "src/lib/ui/Path.svelte"
+ },
+ {
+  "text": "Fade as you learn",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingChoices.svelte"
+ },
+ {
+  "text": "Shown over new words, lighter while you are learning them, hidden once you know them. Tap a word to see it; that answer then counts as helped.",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingChoices.svelte"
+ },
+ {
+  "text": "Always",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingChoices.svelte"
+ },
+ {
+  "text": "Every reading, every time.",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingChoices.svelte"
+ },
+ {
+  "text": "When tapped",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingChoices.svelte"
+ },
+ {
+  "text": "Hidden until you tap a word.",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingChoices.svelte"
+ },
+ {
+  "text": "Never",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingChoices.svelte"
+ },
+ {
+  "text": "Plain text, no readings.",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingChoices.svelte"
+ },
+ {
+  "text": "After the meaning is firm",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingChoices.svelte"
+ },
+ {
+  "text": "Each card gets a reading card once its meaning reaches Firm recall, so a new word is one card on its first day.",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingChoices.svelte"
+ },
+ {
+  "text": "From the start",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingChoices.svelte"
+ },
+ {
+  "text": "Learned together with each card from its first lesson: twice the cards in early lessons.",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingChoices.svelte"
+ },
+ {
+  "text": "Readings are never asked on their own.",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingChoices.svelte"
+ },
+ {
+  "text": "Furigana over kanji",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingChoices.svelte"
+ },
+ {
+  "text": "Reading cards (answered in kana)",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingChoices.svelte"
+ },
+ {
+  "text": "No cards with kanji yet.",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingChoices.svelte"
+ },
+ {
+  "text": "Every card with kanji has its readings ({n} cards).",
+  "kind": "plural:Every card with kanji has its readings ({n} card).",
+  "where": "src/lib/ui/ReadingChoices.svelte"
+ },
+ {
+  "text": "Readings on {read} of {n} cards with kanji.",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingChoices.svelte"
+ },
+ {
+  "text": "Prepare for Ankhwiz can add the rest ›",
+  "kind": "text",
+  "where": "src/lib/ui/ReadingChoices.svelte"
+ },
+ {
+  "text": "How is the marked word read?",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "How is it read?",
+  "kind": "text",
+  "where": "src/lib/ui/Session.svelte"
+ },
+ {
+  "text": "Topics",
+  "kind": "text",
+  "where": "src/lib/ui/TopicPage.svelte"
+ },
+ {
+  "text": "Other decks in {name}",
+  "kind": "text",
+  "where": "src/lib/ui/TopicPage.svelte"
  }
 ]

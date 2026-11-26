@@ -1,0 +1,63 @@
+1468|Furigana (lecturas japonesas)
+1469|No es un mazo japonés
+1470|{"one": "Lecturas encontradas en este dispositivo para {n} tarjeta", "other": "Lecturas encontradas en este dispositivo para {n} tarjetas"}
+1471|{"one": "{n} tarjeta aún sin lecturas", "other": "{n} tarjetas aún sin lecturas"}
+1472|Todas las tarjetas ya tienen sus lecturas
+1473|también
+1474|{"one": "Lecturas para {n} tarjeta, de sus propios campos", "other": "Lecturas para {n} tarjetas, de sus propios campos"}
+1475|{"one": "Lecturas para {n} tarjeta", "other": "Lecturas para {n} tarjetas"}
+1476|Imágenes
+1477|Con la pregunta y los campos extra
+1478|Centradas
+1479|A la izquierda
+1480|Lecturas
+1481|Todo
+1482|Pendientes
+1483|En curso
+1484|Sin empezar
+1485|Al día
+1486|Desfijar «{name}»
+1487|Fijar «{name}»
+1488|{n} % aprendido
+1489|Abrir lo pendiente
+1490|Plegar todo
+1491|Buscar un mazo
+1492|Busca un mazo, tema o materia
+1493|Resultados
+1494|No hay resultados. Prueba con parte de un nombre.
+1495|Fijados
+1496|Estantes
+1497|Mazos para estudiar
+1498|Recientes
+1499|{"one": "Estudiar todo: {n} tarjeta pendiente en todos los mazos, en una sola sesión mezclada", "other": "Estudiar todo: {n} tarjetas pendientes en todos los mazos, en una sola sesión mezclada"}
+1500|No hay nada pendiente
+1501|Estudiar todo
+1502|Nada pendiente por ahora.
+1503|Aún no has abierto ningún mazo.
+1504|{word}: toca para ver la lectura
+1505|Este mazo tiene japonés. ¿Cómo quieres ver las lecturas?
+1506|Los furigana pueden desvanecerse a medida que aprendes cada palabra, y las lecturas se pueden preguntar en tarjetas propias. Puedes cambiarlo luego en Opciones del mazo › Lecturas.
+1507|Decidir después
+1508|Se desvanecen al aprender
+1509|Se muestran sobre las palabras nuevas, más claras mientras las aprendes y ocultas cuando ya las sabes. Toca una palabra para verla; esa respuesta cuenta entonces como con ayuda.
+1510|Siempre
+1511|Todas las lecturas, siempre.
+1512|Al tocar
+1513|Ocultas hasta que tocas una palabra.
+1514|Nunca
+1515|Texto simple, sin lecturas.
+1516|Cuando el significado esté firme
+1517|Cada tarjeta recibe una tarjeta de lectura cuando su significado llega a Recuerdo firme, así que una palabra nueva es una sola tarjeta el primer día.
+1518|Desde el principio
+1519|Se aprende junto con cada tarjeta desde su primera lección: el doble de tarjetas en las primeras lecciones.
+1520|Las lecturas nunca se preguntan por separado.
+1521|Furigana sobre los kanji
+1522|Tarjetas de lectura (se responden en kana)
+1523|Aún no hay tarjetas con kanji.
+1524|{"one": "Todas las tarjetas con kanji tienen sus lecturas ({n} tarjeta).", "other": "Todas las tarjetas con kanji tienen sus lecturas ({n} tarjetas)."}
+1525|Lecturas en {read} de {n} tarjetas con kanji.
+1526|Preparar para Ankhwiz puede añadir el resto ›
+1527|¿Cómo se lee la palabra marcada?
+1528|¿Cómo se lee?
+1529|Temas
+1530|Otros mazos en {name}

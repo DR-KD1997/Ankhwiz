@@ -1,0 +1,63 @@
+1468|Furigana (letture giapponesi)
+1469|Non è un mazzo di giapponese
+1470|{"one": "Letture trovate su questo dispositivo per {n} carta", "other": "Letture trovate su questo dispositivo per {n} carte"}
+1471|{"one": "{n} carta ancora senza letture", "other": "{n} carte ancora senza letture"}
+1472|Ogni carta ha già le sue letture
+1473|anche
+1474|{"one": "Letture per {n} carta, dai suoi campi", "other": "Letture per {n} carte, dai loro campi"}
+1475|{"one": "Letture per {n} carta", "other": "Letture per {n} carte"}
+1476|Immagini
+1477|Con la domanda e i campi extra
+1478|Centrate
+1479|A sinistra
+1480|Letture
+1481|Tutto
+1482|Da ripassare
+1483|In corso
+1484|Non iniziato
+1485|In pari
+1486|Sblocca «{name}»
+1487|Fissa «{name}»
+1488|{n}% imparato
+1489|Apri ciò che è da ripassare
+1490|Chiudi tutto
+1491|Trova un mazzo
+1492|Trova un mazzo, un argomento o una materia
+1493|Risultati
+1494|Nessun risultato. Prova con parte di un nome.
+1495|Fissati
+1496|Scaffali
+1497|Mazzi da studiare
+1498|Recenti
+1499|{"one": "Studia tutto: {n} carta da ripassare in tutti i mazzi, in una sessione mista", "other": "Studia tutto: {n} carte da ripassare in tutti i mazzi, in una sessione mista"}
+1500|Niente da ripassare
+1501|Studia tutto
+1502|Niente da ripassare per ora.
+1503|Nessun mazzo aperto finora.
+1504|{word}: tocca per vedere la lettura
+1505|Questo mazzo contiene giapponese. Come vuoi vedere le letture?
+1506|I furigana possono sbiadire man mano che impari ogni parola, e le letture possono essere chieste su carte apposite. Puoi cambiarlo più tardi in Opzioni del mazzo › Letture.
+1507|Decidi dopo
+1508|Sbiadiscono mentre impari
+1509|Mostrate sopra le parole nuove, più chiare mentre le impari, nascoste quando le sai. Tocca una parola per vederla; quella risposta conta allora come aiutata.
+1510|Sempre
+1511|Ogni lettura, ogni volta.
+1512|Al tocco
+1513|Nascoste finché non tocchi una parola.
+1514|Mai
+1515|Solo testo, senza letture.
+1516|Quando il significato è sicuro
+1517|Ogni carta riceve una carta di lettura quando il suo significato arriva a Ricordo sicuro, così una parola nuova è una sola carta il primo giorno.
+1518|Dall’inizio
+1519|Imparata insieme a ogni carta dalla prima lezione: il doppio delle carte nelle prime lezioni.
+1520|Le letture non vengono mai chieste da sole.
+1521|Furigana sopra i kanji
+1522|Carte di lettura (risposta in kana)
+1523|Ancora nessuna carta con kanji.
+1524|{"one": "Ogni carta con kanji ha le sue letture ({n} carta).", "other": "Ogni carta con kanji ha le sue letture ({n} carte)."}
+1525|Letture su {read} di {n} carte con kanji.
+1526|Prepara per Ankhwiz può aggiungere il resto ›
+1527|Come si legge la parola evidenziata?
+1528|Come si legge?
+1529|Argomenti
+1530|Altri mazzi in {name}

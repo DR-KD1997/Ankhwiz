@@ -1,0 +1,63 @@
+1468|Furigana (japanische Lesungen)
+1469|Kein japanisches Deck
+1470|{"one": "Lesungen für {n} Karte auf diesem Gerät gefunden", "other": "Lesungen für {n} Karten auf diesem Gerät gefunden"}
+1471|{"one": "{n} Karte noch ohne Lesungen", "other": "{n} Karten noch ohne Lesungen"}
+1472|Jede Karte hat schon ihre Lesungen
+1473|auch
+1474|{"one": "Lesungen für {n} Karte, aus ihren eigenen Feldern", "other": "Lesungen für {n} Karten, aus ihren eigenen Feldern"}
+1475|{"one": "Lesungen für {n} Karte", "other": "Lesungen für {n} Karten"}
+1476|Bilder
+1477|Bei der Frage und den Zusatzfeldern
+1478|Zentriert
+1479|Links
+1480|Lesungen
+1481|Alle
+1482|Fällig
+1483|In Arbeit
+1484|Nicht begonnen
+1485|Auf dem Laufenden
+1486|„{name}“ lösen
+1487|„{name}“ anheften
+1488|{n} % gelernt
+1489|Fälliges öffnen
+1490|Alles einklappen
+1491|Deck finden
+1492|Deck, Thema oder Fach finden
+1493|Treffer
+1494|Nichts gefunden. Versuch einen Teil eines Namens.
+1495|Angeheftet
+1496|Regale
+1497|Decks zum Lernen
+1498|Zuletzt
+1499|{"one": "Alles lernen: {n} fällige Karte aus allen Decks, in einer gemischten Runde", "other": "Alles lernen: {n} fällige Karten aus allen Decks, in einer gemischten Runde"}
+1500|Nichts ist fällig
+1501|Alles lernen
+1502|Gerade ist nichts fällig.
+1503|Noch keine Decks geöffnet.
+1504|{word}: tippen, um die Lesung zu sehen
+1505|Dieses Deck enthält Japanisch. Wie sollen die Lesungen erscheinen?
+1506|Furigana können verblassen, während du jedes Wort lernst, und Lesungen können auf eigenen Karten abgefragt werden. Du kannst das später unter Deck-Optionen › Lesungen ändern.
+1507|Später entscheiden
+1508|Verblassen beim Lernen
+1509|Über neuen Wörtern angezeigt, heller, solange du sie lernst, verborgen, sobald du sie kannst. Tippe auf ein Wort, um sie zu sehen; diese Antwort zählt dann als mit Hilfe.
+1510|Immer
+1511|Jede Lesung, jedes Mal.
+1512|Beim Antippen
+1513|Verborgen, bis du auf ein Wort tippst.
+1514|Nie
+1515|Reiner Text, keine Lesungen.
+1516|Wenn die Bedeutung sitzt
+1517|Jede Karte bekommt eine Lesekarte, sobald ihre Bedeutung „Sicheres Erinnern“ erreicht. So ist ein neues Wort am ersten Tag nur eine Karte.
+1518|Von Anfang an
+1519|Zusammen mit jeder Karte ab ihrer ersten Lektion gelernt: doppelt so viele Karten in den ersten Lektionen.
+1520|Lesungen werden nie einzeln abgefragt.
+1521|Furigana über Kanji
+1522|Lesekarten (in Kana beantwortet)
+1523|Noch keine Karten mit Kanji.
+1524|{"one": "Jede Karte mit Kanji hat ihre Lesungen ({n} Karte).", "other": "Jede Karte mit Kanji hat ihre Lesungen ({n} Karten)."}
+1525|Lesungen auf {read} von {n} Karten mit Kanji.
+1526|Vorbereiten für Ankhwiz kann den Rest ergänzen ›
+1527|Wie wird das markierte Wort gelesen?
+1528|Wie wird es gelesen?
+1529|Themen
+1530|Weitere Decks in {name}

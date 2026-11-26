@@ -7,6 +7,7 @@
   // first field is shown elsewhere (the question itself), 1 otherwise.
   import { t } from '../i18n';
   import Icon from './Icon.svelte';
+  import Furi from './Furi.svelte';
 
   let { items, first = 1, base = 17, label = 'More' }: { items: string[]; first?: number; base?: number; label?: string } = $props();
 
@@ -20,7 +21,7 @@
 {#if shown.length}
   <div class="fields">
     {#each shown.slice(0, visible) as text, i (i)}
-      <p dir="auto" style="font-size: calc({base * scale(first + i)}px * var(--scale, 1))">{text}</p>
+      <p dir="auto" style="font-size: calc({base * scale(first + i)}px * var(--scale, 1))"><Furi {text} /></p>
     {/each}
     {#if shown.length > visible}
       <button class="fold" aria-expanded={open} onclick={() => (open = !open)}>
@@ -30,7 +31,7 @@
       {#if open}
         <div class="rest">
           {#each shown.slice(visible) as text, i (i)}
-            <p dir="auto" style="font-size: calc({base * scale(4)}px * var(--scale, 1))">{text}</p>
+            <p dir="auto" style="font-size: calc({base * scale(4)}px * var(--scale, 1))"><Furi {text} /></p>
           {/each}
         </div>
       {/if}

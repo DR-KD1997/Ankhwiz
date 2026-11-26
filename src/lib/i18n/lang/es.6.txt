@@ -10,3 +10,6 @@
 1462|Una sola clave para modelos de muchos proveedores.
 1463|Funciona en tu propio equipo; nada sale de él.
 1464|Cualquier dirección que use el formato de chat de OpenAI.
+1465|(imagen)
+1466|(sonido)
+1467|Sonido {n}

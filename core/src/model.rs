@@ -199,6 +199,17 @@ pub struct Look {
     /// Both are on unless the learner turns one off.
     pub speak_question: bool,
     pub speak_answer: bool,
+    /// Pictures with the question and the extra fields: "center" (the default) or "left".
+    pub pictures: String,
+    /// Furigana over kanji: "fade" (shown over words still being learned),
+    /// "always", "tap" (hidden until tapped) or "never". Empty: not chosen
+    /// yet, shown like "always".
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub furigana: String,
+    /// Reading cards (the question's reading answered in kana): "off", "firm"
+    /// (each met once its card's meaning reaches Firm recall) or "start"
+    /// (learned alongside from the first lesson).
+    pub reading_cards: String,
 }
 
 impl Default for Look {
@@ -214,6 +225,9 @@ impl Default for Look {
             quote_lang: String::new(),
             speak_question: true,
             speak_answer: true,
+            pictures: "center".into(),
+            furigana: String::new(),
+            reading_cards: "off".into(),
         }
     }
 }

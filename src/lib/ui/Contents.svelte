@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Furi from './Furi.svelte';
   import { plural, shownName, stageName, t } from '../i18n';
   import AnswerLinks from './AnswerLinks.svelte';
   import Help from './Help.svelte';
@@ -556,8 +557,8 @@
                   <li>
                     <button class="row" onclick={() => open(n.id)}>
                       <span class="grow">
-                        <span class="front" dir="auto">{text(n)}</span>
-                        {#if !n.cloze}<span class="back" dir="auto">{n.back}</span>{/if}
+                        <span class="front" dir="auto"><Furi text={text(n)} /></span>
+                        {#if !n.cloze}<span class="back" dir="auto"><Furi text={n.back} /></span>{/if}
                       </span>
                       <span class="badges">
                         {#if n.qmedia?.length || n.amedia?.length}<i title={t('Has media')}>▣</i>{/if}

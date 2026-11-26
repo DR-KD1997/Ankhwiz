@@ -10,3 +10,6 @@
 1462|Une seule clé pour les modèles de nombreux fournisseurs.
 1463|Tourne sur ta propre machine ; rien n’en sort.
 1464|Toute adresse qui parle le format de chat d’OpenAI.
+1465|(image)
+1466|(son)
+1467|Son {n}

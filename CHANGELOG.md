@@ -3,6 +3,74 @@
 What changed in each version of Ankhwiz. Downloads are on the
 [Releases page](https://github.com/DR-KD1997/Ankhwiz/releases).
 
+## 0.7.1 · 2026-11-26
+
+[Every change to the code since 0.7.0](https://github.com/DR-KD1997/Ankhwiz/compare/v0.7.0...v0.7.1)
+
+Furigana for Japanese decks, pictures that work as answers, and a library that stays short however many decks you have.
+
+### Added
+- **Furigana for Japanese decks:** readings over kanji, from Anki's
+  `日本[にほん]` form or ruby markup (both used to show as plain text).
+  - **When a deck is Japanese** (its language is set to Japanese, or its
+    cards have kana beside their kanji), its page asks once how readings
+    should show. Deck options › Readings has the same choices.
+  - **Fade as you learn** (recommended): readings show over new words, turn
+    lighter at Assisted recall and hide once a word reaches Firm recall, on
+    every card that word appears on. A dotted line marks a hidden reading:
+    tap the word to see it, and that answer counts as helped. Also
+    **Always**, **When tapped** and **Never**. Every reading shows once you
+    have answered.
+  - **Reading cards:** the same question without furigana, answered in
+    kana. Kana options that differ by one sound come first (べんきょう,
+    べんきょ, へんきょう); you type the reading from Assisted recall on.
+    Romaji turns into kana as you type, so any keyboard works, and hiragana
+    and katakana count the same. Reading cards can start **after the
+    meaning is firm** (one card per new word on its first day) or **from
+    the start**, or stay off.
+  - **Prepare for Ankhwiz › Furigana:** on this device, it finds readings
+    in a card's own fields (ruby markup, Anki's bracket form, or a field
+    holding only the kana reading) and joins them to the word. With your AI
+    connection, Thoth suggests readings for the rest, flagging words with
+    more than one fair reading. You review Thoth's suggestions before they
+    are kept.
+  - Read aloud follows the readings, so 今日 is said きょう.
+- **Library views:**
+  - **By subject:** one tile per subject. A subject opens on its topics
+    and a topic on its decks, so no screen gets long.
+  - **Lists:** subjects and topics both fold. A folded topic still shows
+    what's due, **Open what's due** opens only those, and **Fold all**
+    closes everything.
+  - **All decks:** search across deck, topic and subject names, with
+    filters (Due, In progress, Not started, Finished) and pinned decks at
+    the top. Below them, shelves show each subject's topics as chips, one
+    open at a time. Searching or filtering switches to plain rows of
+    matching decks.
+  - **Due / Recent strip:** across the top of By subject and Lists. It
+    shows the decks with cards due, or the ones opened most recently, with
+    **Study All** beside it. Study All replaces the old "Study all decks"
+    panel.
+
+### Fixed
+- **Pictures as answers:** a card whose answer is only a picture is now
+  answered by picking the picture from a set of pictures, instead of from
+  copies of the word "(picture)". At Assisted recall it stays multiple
+  choice, since a picture can't be typed. Sound-only answers work the same
+  way, with sounds that play when picked.
+- "(picture)" no longer appears as the heading of a picture-only question,
+  as a wrong option on other cards, or in reading aloud.
+- **Picture placement:** pictures with the question and the extra fields
+  are centred. Deck options › Pictures can put them on the left instead.
+- **Animated GIFs** play. Short videos embedded in Anki cards (.mp4, .mov)
+  now play too, looping without sound like a GIF.
+- When importing, a field holding only a picture shows "(picture)" instead
+  of looking empty.
+
+### Notes
+- Decks keep the same data version (5). The new Deck options are additive,
+  and 0.7.0 ignores them.
+- Android build number 12.
+
 ## 0.7.0 · 2026-11-22
 
 [Every change to the code since 0.6.0](https://github.com/DR-KD1997/Ankhwiz/compare/v0.6.0...v0.7.0)

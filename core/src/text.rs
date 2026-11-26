@@ -13,6 +13,9 @@ pub fn strip_accents(s: &str) -> String {
 
 /// Lower-case, trim, collapse spaces, drop punctuation and (unless strict) accents.
 pub fn normalize(s: &str, strict_accents: bool) -> String {
+    // Readings in brackets are not part of the answer, and katakana and
+    // hiragana count the same (ベンキョウ is べんきょう).
+    let s = crate::furigana::to_hiragana(&crate::furigana::plain(s));
     let lowered: String = s.nfkc().collect::<String>().to_lowercase();
     let cleaned: String = lowered.chars().filter(|c| !PUNCT.contains(c)).collect();
     let spaced = cleaned.split_whitespace().collect::<Vec<_>>().join(" ");
@@ -69,6 +72,9 @@ fn remove_parentheticals(s: &str) -> String {
 /// Every answer that counts as correct: the answer, listed alternatives,
 /// forms without a parenthetical, and either side of "a / b".
 pub fn accepted_answers(back: &str, alts: &[String]) -> Vec<String> {
+    if media_token(back).is_some() {
+        return vec![back.trim().to_string()];
+    }
     let mut out: Vec<String> = Vec::new();
     let mut add = |s: &str| {
         let t = s.trim();
@@ -77,6 +83,12 @@ pub fn accepted_answers(back: &str, alts: &[String]) -> Vec<String> {
         }
     };
     for base in std::iter::once(back).chain(alts.iter().map(String::as_str)) {
+        // A word with its reading counts written either way: 勉強 or べんきょう.
+        if crate::furigana::has_readings(base) {
+            add(&crate::furigana::plain(base));
+            add(&crate::furigana::kana(base));
+            continue;
+        }
         add(base);
         let bare = remove_parentheticals(base);
         if bare != base.trim() {
@@ -204,11 +216,48 @@ pub enum AnswerKind {
     Number,
     Short,
     Long,
+    /// A picture or a sound standing in for text: see `media_token`.
+    Media,
+}
+
+/// A side that is only a picture or a sound is asked and offered as
+/// `[[picture:name]]` or `[[sound:name]]`, which the interface shows as the
+/// picture or a play button. Returns the kind and the file name.
+pub fn media_token(s: &str) -> Option<(&str, &str)> {
+    let inner = s.trim().strip_prefix("[[")?.strip_suffix("]]")?;
+    let (kind, name) = inner.split_once(':')?;
+    matches!(kind, "picture" | "sound").then_some((kind, name))
+}
+
+pub fn is_sound_file(name: &str) -> bool {
+    let lower = name.to_lowercase();
+    [".mp3", ".ogg", ".wav", ".m4a", ".opus", ".flac", ".aac", ".webm"].iter().any(|e| lower.ends_with(e))
+}
+
+/// The text a side is asked and offered as. A side whose text is empty, or
+/// only the "(picture)" or "(listen)" left by an import, becomes its first
+/// picture (or, failing that, its first sound) when it has one.
+pub fn side_text(text: &str, media: &[String]) -> String {
+    let t = text.trim();
+    if !(t.is_empty() || t == "(picture)" || t == "(listen)") {
+        return text.to_string();
+    }
+    if let Some(p) = media.iter().find(|m| !is_sound_file(m)) {
+        return format!("[[picture:{p}]]");
+    }
+    if let Some(s) = media.first() {
+        return format!("[[sound:{s}]]");
+    }
+    text.to_string()
 }
 
 /// Rough answer type, so a word is never offered beside a date or a paragraph.
 pub fn answer_kind(s: &str) -> AnswerKind {
-    let t = s.trim();
+    let shown = crate::furigana::plain(s);
+    let t = shown.trim();
+    if media_token(t).is_some() {
+        return AnswerKind::Media;
+    }
     let numeric = !t.is_empty()
         && t.chars().any(|c| c.is_ascii_digit())
         && t.chars().all(|c| c.is_ascii_digit() || " .,:/%+-–".contains(c));
@@ -223,7 +272,7 @@ pub fn answer_kind(s: &str) -> AnswerKind {
 
 /// Whether an answer is short enough to ask the learner to type it exactly.
 pub fn is_typeable(answer: &str) -> bool {
-    answer_kind(answer) != AnswerKind::Long
+    !matches!(answer_kind(answer), AnswerKind::Long | AnswerKind::Media)
 }
 
 /// Letters of scripts written without spaces between words.
@@ -236,7 +285,8 @@ fn unspaced(c: char) -> bool {
 /// without spaces (split into words on the device).
 pub fn is_buildable(answer: &str) -> bool {
     let t = answer.trim();
-    if t.is_empty() || t.contains('\n') || answer_kind(t) == AnswerKind::Number {
+    // Tiles would split words from their readings: such answers are picked instead.
+    if t.is_empty() || t.contains('\n') || crate::furigana::has_readings(t) || matches!(answer_kind(t), AnswerKind::Number | AnswerKind::Media) {
         return false;
     }
     let words = t.split_whitespace().count();
@@ -282,6 +332,7 @@ mod tests {
     #[test]
     fn accepts_alternatives_bare_forms_and_slash_parts() {
         assert_eq!(accepted_answers("the apple", &v(&["apple"])), v(&["the apple", "apple"]));
+        assert_eq!(accepted_answers("[[picture:a/b.png]]", &[]), v(&["[[picture:a/b.png]]"]));
         assert!(accepted_answers("to be (permanent)", &[]).contains(&"to be".to_string()));
         let both = accepted_answers("hello / hi", &[]);
         assert!(both.contains(&"hello".to_string()) && both.contains(&"hi".to_string()));
@@ -326,5 +377,19 @@ mod tests {
             answer_kind("a long explanation that runs on for rather more than forty characters"),
             AnswerKind::Long
         );
+    }
+
+    #[test]
+    fn a_side_that_is_only_a_picture_is_asked_as_the_picture() {
+        let m = |v: &[&str]| v.iter().map(|s| s.to_string()).collect::<Vec<_>>();
+        assert_eq!(side_text("(picture)", &m(&["cat.png"])), "[[picture:cat.png]]");
+        assert_eq!(side_text("", &m(&["hi.mp3", "cat.png"])), "[[picture:cat.png]]");
+        assert_eq!(side_text("(listen)", &m(&["hi.mp3"])), "[[sound:hi.mp3]]");
+        assert_eq!(side_text("cat", &m(&["cat.png"])), "cat");
+        assert_eq!(side_text("(picture)", &[]), "(picture)");
+        assert_eq!(media_token("[[picture:cat.png]]"), Some(("picture", "cat.png")));
+        assert_eq!(answer_kind("[[sound:x.mp3]]"), AnswerKind::Media);
+        assert!(!is_typeable("[[picture:cat.png]]"));
+        assert!(!is_buildable("[[picture:a b c.png]]"));
     }
 }

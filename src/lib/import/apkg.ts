@@ -378,7 +378,7 @@ export function readCollection(db: Database, fallbackName: string, media: Record
     const fields = String(flds ?? '').split('\x1f');
     const ntid = String(mid);
     counts.set(ntid, (counts.get(ntid) ?? 0) + 1);
-    if (!samples.has(ntid)) samples.set(ntid, fields.map((f) => fieldText(f).slice(0, 60)));
+    if (!samples.has(ntid)) samples.set(ntid, fields.map((f) => fieldText(f).slice(0, 60) || (fieldMedia(f).some((m) => !isSound(m)) ? '(picture)' : fieldMedia(f).length ? '(sound)' : '')));
     const full = names.get(deckOf.get(String(id)) ?? '');
     const rest = full ? full.split('::').slice(prefix.length) : [];
     notes.push({
@@ -513,6 +513,7 @@ export function fieldMedia(html: string): string[] {
   };
   for (const m of html.matchAll(/<img[^>]*?\ssrc\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s>]+))/gi)) add(m[1] ?? m[2] ?? m[3] ?? '');
   for (const m of html.matchAll(/\[sound:([^\]]+)\]/g)) add(m[1]);
+  for (const m of html.matchAll(/<(?:video|source)[^>]*?\ssrc\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s>]+))/gi)) add(m[1] ?? m[2] ?? m[3] ?? '');
   return out;
 }
 

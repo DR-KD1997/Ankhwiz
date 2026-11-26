@@ -23,6 +23,8 @@
   import Icon from './Icon.svelte';
   import TypeFields from './TypeFields.svelte';
   import LangPicker from './LangPicker.svelte';
+  import ReadingChoices from './ReadingChoices.svelte';
+  import { isJapaneseDeck } from '../furigana';
   import { langName } from '../languages';
   import { unusedReport } from '../fields';
   import Help from './Help.svelte';
@@ -106,6 +108,7 @@
     message = n ? plural('Deleted the text of unused fields in {n} note. A backup was made first.', 'Deleted the text of unused fields in {n} notes. A backup was made first.', n) : t('There was nothing to delete.');
   }
 
+  const japanese = $derived(isJapaneseDeck(deck));
   const when = (t: number) => new Date(t).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
 </script>
 
@@ -271,6 +274,13 @@
       <span><strong>{t('Right-to-left text')}</strong><small>{t('Otherwise each card\'s text picks its own direction')}</small></span>
       <input type="checkbox" checked={o.look.rtl} onchange={(e) => look({ rtl: e.currentTarget.checked })} />
     </label>
+    <div class="row wrap">
+      <span><strong>{t('Pictures')}</strong><small>{t('With the question and the extra fields')}</small></span>
+      <span class="seg-mini" role="radiogroup" aria-label={t('Pictures')}>
+        <button type="button" role="radio" aria-checked={(o.look.pictures ?? 'center') === 'center'} onclick={() => look({ pictures: 'center' })}>{t('Centred')}</button>
+        <button type="button" role="radio" aria-checked={o.look.pictures === 'left'} onclick={() => look({ pictures: 'left' })}>{t('Left')}</button>
+      </span>
+    </div>
     <label class="row">
       <span><strong>{t('Show Extra as a hint')}</strong><small>{t('Before answering, instead of after')}</small></span>
       <input type="checkbox" checked={o.look.hintExtra} onchange={(e) => look({ hintExtra: e.currentTarget.checked })} />
@@ -310,6 +320,13 @@
       <p class="hint">{t('To have cards read by themselves as you go, choose what is read in Settings.')}</p>
     {/if}
   </div>
+
+  {#if japanese}
+    <div class="group">
+      <p class="label">{t('Readings')}</p>
+      <ReadingChoices deckId={deck.id} furigana={o.look.furigana ?? ''} readingCards={o.look.readingCards ?? 'off'} onChange={(p) => look(p)} />
+    </div>
+  {/if}
 
   <div class="group">
     <p class="label">{t('Export')}</p>
@@ -611,5 +628,26 @@
   }
   code {
     font-size: 13px;
+  }
+  .seg-mini {
+    display: inline-flex;
+    border: 2px solid var(--line);
+  }
+  .seg-mini button {
+    min-height: 40px;
+    padding: 0 14px;
+    border: 0;
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .seg-mini button + button {
+    border-left: 2px solid var(--line);
+  }
+  .seg-mini button[aria-checked='true'] {
+    background: var(--emerald);
+    color: var(--surface);
   }
 </style>

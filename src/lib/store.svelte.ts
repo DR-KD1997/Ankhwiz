@@ -100,10 +100,18 @@ export interface AppData {
     thothLang?: string;
     /** Thoth looks again at typed answers that matched nothing (with the AI connection). Missing means on. */
     thothChecks?: boolean;
-    /** How the library is shown: by subject, as lists, or every deck in one list. Missing: by subject. */
+    /** How the library is shown: by subject (one level per screen), as lists that fold, or every deck (search and shelves). Missing: by subject. */
     libraryView?: 'subjects' | 'lists' | 'all';
-    /** Subjects folded away in the library. */
+    /** Subjects folded away in the library's lists. */
     folded?: string[];
+    /** Topics opened in the library's lists ("Subject/Topic"); the rest stay folded. */
+    openTopics?: string[];
+    /** When each deck was last opened, for the library's Recent strip. */
+    opened?: Record<string, number>;
+    /** Decks pinned to the top of All decks. */
+    pinned?: string[];
+    /** The library strip's tab. */
+    strip?: 'due' | 'recent';
   };
   ai: AiSettings;
   streak: Streak;
@@ -1357,10 +1365,9 @@ export function openDeck(id: string): void {
   ui.screen = 'deck';
   ui.session = null;
   ui.panel = 'path';
-  if (data.settings.lastDeck !== id) {
-    data.settings.lastDeck = id;
-    save({});
-  }
+  data.settings.opened = { ...(data.settings.opened ?? {}), [id]: Date.now() };
+  data.settings.lastDeck = id;
+  save({});
   void ensureDeck(id).catch((e) => (ui.loadError = e instanceof Error ? t(e.message) : String(e)));
 }
 

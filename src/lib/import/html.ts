@@ -1,3 +1,4 @@
+import { rubyToBrackets } from '../furigana';
 // Anki fields are small pieces of HTML. The prototype shows plain text, so
 // tags are removed and the common entities decoded. No DOM is needed, which
 // keeps this usable in tests and, later, outside a web view.
@@ -47,7 +48,8 @@ export function decodeEntities(s: string): string {
 
 /** Plain text of an Anki field: no tags, sound markers or images. */
 export function fieldText(html: string): string {
-  let s = html
+  // Ruby markup (furigana) becomes Anki's bracket form, 日本[にほん], so the readings are kept.
+  let s = rubyToBrackets(html)
     .replace(/<(style|script)[^>]*>[\s\S]*?<\/\1>/gi, '')
     .replace(/\[sound:[^\]]*\]/g, '')
     // Anki's reading tags only say how to read the words inside; keep the words.

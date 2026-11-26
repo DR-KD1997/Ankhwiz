@@ -2,10 +2,10 @@
 //! which exercise a card gets at its current stage. Everything here works on
 //! cards (see `cards.rs`), so a note asked both ways counts as two.
 
-use crate::cards::{all_cards, face, is_live, lesson_cards, note_of};
+use crate::cards::{all_cards, face, is_live, is_reading_card, lesson_cards, note_of};
 use crate::distract::{option_count, pick_options};
 use crate::model::{CardState, Clock, Deck, Progress, Streak};
-use crate::text::{is_buildable, is_typeable};
+use crate::text::{answer_kind, is_buildable, is_typeable, AnswerKind};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -67,6 +67,11 @@ pub struct Exercise {
     /// the learner can be told "this card's answer is …; yours fits too".
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub linked: Vec<String>,
+    /// A reading card: the reading of `mark` (or of the whole prompt) is answered in kana.
+    #[serde(skip_serializing_if = "std::ops::Not::not")]
+    pub kana: bool,
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub mark: String,
 }
 
 /// A card that can be asked now: not stopped, not skipped today.
@@ -98,20 +103,34 @@ fn is_reverse(id: &str) -> bool {
 /// A reverse card not yet met that, under `nextDay`, is not met in its lesson
 /// but among reviews once its forward card has had a day to settle.
 fn waits_for_reviews(deck: &Deck, progress: &Progress, id: &str) -> bool {
+    if is_reading_card(id) {
+        return deck.options.look.reading_cards == "firm" && !progress.contains_key(id);
+    }
     spacing(deck) == Spacing::NextDay && is_reverse(id) && !progress.contains_key(id)
 }
 
 /// Under `nextDay`: reverse cards ready to be met today, because their
 /// forward card was met on an earlier day. In path order.
+/// Also, with reading cards met "after the meaning is firm": reading cards
+/// whose card has reached Firm recall.
 pub fn reverses_to_meet(deck: &Deck, progress: &Progress, clock: Clock) -> Vec<String> {
-    if spacing(deck) != Spacing::NextDay {
+    let next_day = spacing(deck) == Spacing::NextDay;
+    let firm = deck.options.look.reading_cards == "firm";
+    if !next_day && !firm {
         return vec![];
     }
     let today = clock.day();
     all_cards(deck)
         .into_iter()
-        .filter(|id| is_reverse(id) && !progress.contains_key(id))
-        .filter(|id| progress.get(note_of(id)).is_some_and(|f| f.added.is_some_and(|d| d < today) && !f.suspended))
+        .filter(|id| !progress.contains_key(id))
+        .filter(|id| {
+            let forward = progress.get(note_of(id));
+            if is_reading_card(id) {
+                firm && forward.is_some_and(|f| f.stage >= 4 && !f.suspended)
+            } else {
+                next_day && is_reverse(id) && forward.is_some_and(|f| f.added.is_some_and(|d| d < today) && !f.suspended)
+            }
+        })
         .collect()
 }
 
@@ -134,7 +153,7 @@ pub fn due_cards(deck: &Deck, progress: &Progress, clock: Clock) -> Vec<String> 
     let mut out = Vec::with_capacity(ids.len());
     for id in ids {
         let note = note_of(id);
-        if !is_reverse(id) && !progress.contains_key(&format!("{note}:r")) {
+        if is_reading_card(id) || (!is_reverse(id) && !progress.contains_key(&format!("{note}:r"))) {
             // No twin: nothing to space.
             out.push(id.clone());
             continue;
@@ -345,6 +364,8 @@ pub fn build_lesson_queue(deck: &Deck, progress: &Progress, lesson_id: &str, clo
         // Forward cards first, then the reverse cards in the same order.
         fresh.sort_by_key(|id| is_reverse(id));
     }
+    // Reading cards learned from the start come after the cards they read.
+    fresh.sort_by_key(|id| is_reading_card(id));
 
     let mut reviews: std::collections::VecDeque<String> = due_cards(deck, progress, clock)
         .into_iter()
@@ -494,6 +515,8 @@ pub fn make_exercise(deck: &Deck, progress: &Progress, card_id: &str, just_met: 
         extra_more: f.extra_more,
         picture: f.picture,
         linked: f.linked,
+        kana: f.kana,
+        mark: f.mark,
     };
     let Some(card) = card else { return Some(ex) };
     if f.self_check {
@@ -501,7 +524,32 @@ pub fn make_exercise(deck: &Deck, progress: &Progress, card_id: &str, just_met: 
         return Some(ex);
     }
 
+    if ex.kana {
+        // A reading: picked from near-sounding readings at first, typed from Assisted recall on.
+        if card.stage >= 3 {
+            ex.kind = "typed";
+            ex.live = Some(card.stage == 3);
+            return Some(ex);
+        }
+        let options = pick_options(deck, card_id, option_count(Some(card), just_met), false);
+        ex.kind = if options.len() >= 2 { "choice" } else { "typed" };
+        if options.len() >= 2 {
+            ex.options = Some(options);
+        }
+        return Some(ex);
+    }
     if card.stage >= 3 {
+        if answer_kind(&f.answer) == AnswerKind::Media {
+            // A picture or a sound cannot be typed: it is picked from the most options.
+            let options = pick_options(deck, card_id, option_count(Some(card), false), true);
+            if options.len() >= 2 {
+                ex.kind = "choice";
+                ex.options = Some(options);
+            } else {
+                ex.kind = "self";
+            }
+            return Some(ex);
+        }
         if is_typeable(&f.answer) {
             ex.kind = "typed";
             ex.live = Some(card.stage == 3);
@@ -959,5 +1007,64 @@ mod tests {
         let stats = deck_stats(&deck, &progress, c);
         assert_eq!(stats.introduced, 36);
         assert_eq!(stats.forecast[0], 36);
+    }
+
+    #[test]
+    fn a_picture_answer_is_still_picked_at_stage_three() {
+        let rows: Vec<crate::model::RawNote> = [("kedi", "(picture)", vec!["cat.png"]), ("köpek", "(picture)", vec!["dog.png"]), ("su", "water", vec![]), ("ev", "house", vec![])]
+            .iter()
+            .map(|(f, b, am)| serde_json::from_value(serde_json::json!({"front": f, "back": b, "amedia": am})).unwrap())
+            .collect();
+        let deck = crate::split::build_deck("Pictures", &rows, &serde_json::from_str("{\"lessonSize\":8}").unwrap(), 0.0);
+        let id = |front: &str| deck.notes.values().find(|n| n.front == front).unwrap().id.clone();
+        let mut progress = Progress::new();
+        for f in ["kedi", "su"] {
+            progress.insert(id(f), CardState { stage: 3, ..introduce(clock()) });
+        }
+        let cat = make_exercise(&deck, &progress, &id("kedi"), false).unwrap();
+        assert_eq!(cat.kind, "choice");
+        assert_eq!(cat.answer, "[[picture:cat.png]]");
+        assert!(cat.options.unwrap().contains(&"[[picture:dog.png]]".to_string()));
+        assert_eq!(make_exercise(&deck, &progress, &id("su"), false).unwrap().kind, "typed");
+    }
+
+    #[test]
+    fn reading_cards_wait_for_a_firm_meaning_or_start_together() {
+        let rows: Vec<crate::model::RawNote> = [("勉強[べんきょう]", "study"), ("学校[がっこう]", "school"), ("先生[せんせい]", "teacher"), ("水", "water")]
+            .iter()
+            .map(|(f, b)| serde_json::from_value(serde_json::json!({"front": f, "back": b})).unwrap())
+            .collect();
+        let mut deck = crate::split::build_deck("Japanese", &rows, &serde_json::from_str("{\"lessonSize\":8}").unwrap(), 0.0);
+        let id = |front: &str| deck.notes.values().find(|n| n.front == front).unwrap().id.clone();
+        let lesson = deck.units[0].lesson_ids[0].clone();
+        let c = clock();
+        // Off: no reading cards at all.
+        assert!(build_lesson_queue(&deck, &Progress::new(), &lesson, c).iter().all(|q| !q.card_id.ends_with(":k")));
+        // From the start: one per note with readings, after the cards they read.
+        deck.options.look.reading_cards = "start".into();
+        let q = build_lesson_queue(&deck, &Progress::new(), &lesson, c);
+        let reading: std::collections::BTreeSet<_> = q.iter().filter(|x| x.card_id.ends_with(":k")).map(|x| x.card_id.clone()).collect();
+        assert_eq!(reading.len(), 3);
+        assert!(!reading.contains(&format!("{}:k", id("水"))));
+        // After the meaning is firm: not in the lesson, met among reviews once firm.
+        deck.options.look.reading_cards = "firm".into();
+        assert!(build_lesson_queue(&deck, &Progress::new(), &lesson, c).iter().all(|q| !q.card_id.ends_with(":k")));
+        let mut progress = Progress::new();
+        progress.insert(id("勉強[べんきょう]"), CardState { stage: 4, due: c.now + 5.0 * DAY_MS, ..introduce(c) });
+        progress.insert(id("学校[がっこう]"), CardState { stage: 3, due: c.now + 5.0 * DAY_MS, ..introduce(c) });
+        assert_eq!(reverses_to_meet(&deck, &progress, c), vec![format!("{}:k", id("勉強[べんきょう]"))]);
+        let k = format!("{}:k", id("勉強[べんきょう]"));
+        assert!(build_review_queue(&deck, &progress, c).iter().any(|q| q.card_id == k));
+        // Picked from near readings at first, typed from Firm recall.
+        progress.insert(k.clone(), CardState { stage: 2, ..introduce(c) });
+        let ex = make_exercise(&deck, &progress, &k, false).unwrap();
+        assert_eq!((ex.kind, ex.prompt.as_str(), ex.answer.as_str(), ex.kana), ("choice", "勉強", "べんきょう", true));
+        assert!(ex.options.unwrap().len() >= 4);
+        progress.insert(k.clone(), CardState { stage: 3, ..introduce(c) });
+        assert_eq!(make_exercise(&deck, &progress, &k, false).unwrap().kind, "typed");
+        // The meaning card accepts the word written with or without kanji.
+        let meaning = make_exercise(&deck, &progress, &id("勉強[べんきょう]"), false).unwrap();
+        assert_eq!(crate::text::check_answer("ベンキョウ", &crate::text::accepted_answers(&deck.notes[&id("勉強[べんきょう]")].front, &[]), false), crate::text::Verdict::Correct);
+        assert_eq!(meaning.prompt, "勉強[べんきょう]");
     }
 }

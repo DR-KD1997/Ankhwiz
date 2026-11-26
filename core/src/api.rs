@@ -296,6 +296,7 @@ fn run(c: &Call) -> Result<Value, String> {
                 "judge" => ai::judge_request(&deck, &s("cardId"), &s("given")),
                 "similar" => ai::similar_request(&deck, &s("noteId"), &arg::<Vec<String>>(v, "candidates")?),
                 "place" => ai::place_request(&deck, &opt::<Vec<String>>(v, "existing")),
+                "furigana" => ai::furigana_request(&deck, &arg::<Vec<String>>(v, "noteIds")?),
                 other => return Err(format!("unknown AI task `{other}`")),
             })
         }
@@ -321,6 +322,7 @@ fn run(c: &Call) -> Result<Value, String> {
                 "judge" => out(ai::parse_grade(&text)?),
                 "similar" => out(ai::parse_similar(&arg::<Vec<String>>(v, "candidates")?, &text)?),
                 "place" => out(ai::parse_place(&text)?),
+                "furigana" => out(ai::parse_furigana(&*c.deck()?, &arg::<Vec<String>>(v, "noteIds")?, &text)?),
                 other => Err(format!("unknown AI task `{other}`")),
             }
         }

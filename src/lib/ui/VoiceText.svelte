@@ -5,12 +5,13 @@
   // deck's rule. Each such run carries its language, for screen readers too.
   import { runs, type Mark } from '../voices';
   import { langName } from '../languages';
+  import Furi from './Furi.svelte';
 
   let { text, lang, marks = [], quoteLang = '', show = true }: { text: string; lang: string; marks?: Mark[]; quoteLang?: string; show?: boolean } = $props();
   const parts = $derived(show ? runs(text, lang, marks, quoteLang) : [{ text, from: 'base' as const, lang }]);
 </script>
 
-{#each parts as r, i (i)}{#if r.from === 'base'}{r.text}{:else}<span class="v-{r.from}" lang={r.lang} title={t('Read in {lang}', { lang: langName(r.lang) })}>{r.text}</span>{/if}{/each}
+{#each parts as r, i (i)}{#if r.from === 'base'}<Furi text={r.text} />{:else}<span class="v-{r.from}" lang={r.lang} title={t('Read in {lang}', { lang: langName(r.lang) })}><Furi text={r.text} /></span>{/if}{/each}
 
 <style>
   span {

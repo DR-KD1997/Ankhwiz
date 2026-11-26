@@ -25,10 +25,27 @@ const TYPES: Record<string, string> = {
   aac: 'audio/aac',
   flac: 'audio/flac',
   webm: 'audio/webm',
+  mp4: 'video/mp4',
+  m4v: 'video/mp4',
+  mov: 'video/quicktime',
 };
+const VIDEO = ['mp4', 'm4v', 'mov'];
 
 const ext = (name: string) => name.split('.').pop()?.toLowerCase() ?? '';
 export const isAudio = (name: string) => AUDIO.includes(ext(name));
+/** A short video, shown like an animated picture: playing, looping and silent. */
+export const isVideo = (name: string) => VIDEO.includes(ext(name));
+/** A side that is only a picture or a sound comes from the core as
+ * `[[picture:name]]` or `[[sound:name]]`: the kind and file name, or null. */
+export function mediaToken(text: string | null | undefined): { kind: 'picture' | 'sound'; name: string } | null {
+  const m = /^\[\[(picture|sound):(.+)\]\]$/.exec((text ?? '').trim());
+  return m ? { kind: m[1] as 'picture' | 'sound', name: m[2] } : null;
+}
+/** Text to show or read aloud: nothing for a picture or sound standing in for text, or the "(picture)" left by an import. */
+export const plainText = (text: string | null | undefined) => {
+  const s = (text ?? '').trim();
+  return mediaToken(s) || s === '(picture)' || s === '(listen)' ? '' : (text ?? '');
+};
 export const mimeOf = (name: string) => TYPES[ext(name)] ?? 'application/octet-stream';
 const key = (deckId: string, name: string) => `${deckId}/${name}`;
 
